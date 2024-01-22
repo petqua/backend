@@ -44,3 +44,17 @@ tasks.withType<Test> {
 tasks.named("jar") {
     enabled = false
 }
+
+tasks.named<JavaCompile>("compileJava") {
+    inputs.files(tasks.named("processResources"))
+}
+
+tasks.named<Copy>("processResources") {
+    dependsOn("copySecret")
+}
+
+tasks.register("copySecret", Copy::class) {
+    from("./backend-submodule")
+    include("application*.yml")
+    into("./src/main/resources/")
+}
