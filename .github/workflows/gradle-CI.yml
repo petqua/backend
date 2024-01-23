@@ -1,6 +1,7 @@
 name: CI With Pull Request
 
 on:
+  push:
   pull_request:
     types: [opened, reopened]
 
