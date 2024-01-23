@@ -20,7 +20,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: '17'
-          distribution: 'adopt'
+          distribution: 'temurin'
           cache: 'gradle'
 
       - name: Grant execute permission for gradlew
@@ -33,7 +33,7 @@ jobs:
         uses: EnricoMi/publish-unit-test-result-action@v2
         if: ${{ always() }}
         with:
-          files: 'build/test-results/**/*.xml'
+          files: 'build/test-results/test/*.xml'
 
       - name: Registered comments on the failed code line when a test fails.
         uses: mikepenz/action-junit-report@v3
