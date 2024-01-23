@@ -1,8 +1,11 @@
 name: Deploy to production
 
 on:
+  workflow_dispatch:
   push:
-    branches: [ develop, main ]
+    branches:
+      - develop
+      - main
 
 jobs:
   build-docker-image-and-push:
@@ -11,7 +14,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.SUBMODULE_SCOPED_TOKEN }}
+          token: ${{ secrets.SUBMODULE_TOKEN }}
           submodules: true
 
       - name: Setup JDK 17
@@ -39,7 +42,6 @@ jobs:
           context: .
           push: true
           file: ./Dockerfile
-          platforms: linux/arm64
           tags: ${{ secrets.DOCKER_HUB_REPOSITORY }}:prod
 
   deployment:
@@ -53,5 +55,8 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.AWS_SSH_KEY }}
           script: |
+            echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+            cd api/bin/
             sudo docker compose down
-            sudo docker compose -f /home/ubuntu/api/bin/docker-compose.yml up -d
+            sudo docker compose up -d
+            sudo docker image prune -af
