@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "com"
-version = "0.0.1-SNAPSHOT"
+version = "0.0.1"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17
@@ -38,4 +38,23 @@ tasks.withType<KotlinCompile> {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+// plain jar 제거
+tasks.named("jar") {
+    enabled = false
+}
+
+tasks.named<JavaCompile>("compileJava") {
+    inputs.files(tasks.named("processResources"))
+}
+
+tasks.named<Copy>("processResources") {
+    dependsOn("copySecret")
+}
+
+tasks.register("copySecret", Copy::class) {
+    from("./backend-submodule")
+    include("application*.yml")
+    into("./src/main/resources/")
 }
