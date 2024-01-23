@@ -26,8 +26,8 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
-      - name: Build JAR
-        run: ./gradlew bootJar -Dspring.profiles.active=dev
+      - name: Test
+        run: ./gradlew test
 
       - name: Generate JUnit test results as a comment
         uses: EnricoMi/publish-unit-test-result-action@v2
