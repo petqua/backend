@@ -16,7 +16,7 @@ class ExceptionControllerAdvice {
     @ExceptionHandler(BaseException::class)
     fun handleBaseException(request: HttpServletRequest, e: BaseException): ResponseEntity<ExceptionResponse> {
         val type = e.exceptionType()
-        log.info("잘못된 요청이 들어왔습니다. URI: ${request.requestURI},  내용:  ${type.errorMessage()}")
+        log.warn("잘못된 요청이 들어왔습니다. URI: ${request.requestURI},  내용:  ${type.errorMessage()}")
         return ResponseEntity.status(type.httpStatus()).body(ExceptionResponse(type.errorMessage()))
     }
 
@@ -35,14 +35,14 @@ class ExceptionControllerAdvice {
                 transform = { "${it.field} : ${it.defaultMessage}" }
         )
         val errorMessage = globalErrorMessage + fieldErrorMessage
-        log.info("잘못된 요청이 들어왔습니다. URI: ${request.requestURI},  내용:  $errorMessage")
+        log.warn("잘못된 요청이 들어왔습니다. URI: ${request.requestURI},  내용:  $errorMessage")
         return ResponseEntity.badRequest().body(ExceptionResponse(errorMessage))
     }
 
     @ExceptionHandler(MissingServletRequestParameterException::class)
     fun handleMissingServletRequestParameterException(request: HttpServletRequest, e: MissingServletRequestParameterException): ResponseEntity<ExceptionResponse> {
         val errorMessage = "${e.parameterName} 값이 누락되었습니다."
-        log.info("잘못된 요청이 들어왔습니다. URI: ${request.requestURI},  내용:  $errorMessage")
+        log.warn("잘못된 요청이 들어왔습니다. URI: ${request.requestURI},  내용:  $errorMessage")
         return ResponseEntity.badRequest().body(ExceptionResponse(errorMessage))
     }
 
