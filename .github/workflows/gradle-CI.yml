@@ -31,12 +31,6 @@ jobs:
 
       - name: Generate JUnit test results as a comment
         uses: EnricoMi/publish-unit-test-result-action@v2
-        if: ${{ always() }}
-        with:
-          files: 'build/test-results/test/*.xml'
-
-      - name: Registered comments on the failed code line when a test fails.
-        uses: mikepenz/action-junit-report@v3
         if: always()
         with:
-          report_paths: 'build/test-results/test/TEST-*.xml'
+          files: '**/build/test-results/test/TEST-*.xml'
