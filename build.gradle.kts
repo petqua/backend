@@ -29,6 +29,7 @@ dependencies {
     implementation("com.linecorp.kotlin-jdsl:jpql-dsl:3.3.0")
     implementation("com.linecorp.kotlin-jdsl:jpql-render:3.3.0")
 
+    implementation("org.springframework.boot:spring-boot-starter-cache")
     runtimeOnly("com.mysql:mysql-connector-j")
     runtimeOnly("com.h2database:h2")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
