@@ -1,5 +1,6 @@
 package com.petqua.domain.oauth
 
+import com.petqua.common.exception.oauth.OauthClientException
 import java.util.Locale.ENGLISH
 
 enum class OauthServerType {
@@ -7,7 +8,8 @@ enum class OauthServerType {
 
     companion object {
         fun from(name: String): OauthServerType {
-            return OauthServerType.valueOf(name.uppercase(ENGLISH))
+            return enumValues<OauthServerType>().find { it.name == name.uppercase(ENGLISH) }
+                ?: throw OauthClientException()
         }
     }
 }

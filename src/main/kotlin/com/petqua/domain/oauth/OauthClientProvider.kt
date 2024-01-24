@@ -1,13 +1,15 @@
 package com.petqua.domain.oauth
 
+import com.petqua.common.exception.oauth.OauthClientException
 import org.springframework.stereotype.Component
 
 @Component
-class OauthClientProvider(oauthClients: Set<OauthClient>) {
-
-    private val clientMapper = oauthClients.associateBy(OauthClient::oauthServerType)
+class OauthClientProvider(
+    private val oauthClients: Set<OauthClient>
+) {
 
     fun getOauthClient(oauthServerType: OauthServerType): OauthClient {
-        return clientMapper[oauthServerType]!! // TODO 커스텀 예외 생성
+        return oauthClients.find { it.oauthServerType() == oauthServerType }
+            ?: throw OauthClientException()
     }
 }
