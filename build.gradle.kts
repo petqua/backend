@@ -24,6 +24,11 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
+
+    // kotlin jdsl
+    implementation("com.linecorp.kotlin-jdsl:jpql-dsl:3.3.0")
+    implementation("com.linecorp.kotlin-jdsl:jpql-render:3.3.0")
+
     runtimeOnly("com.mysql:mysql-connector-j")
     runtimeOnly("com.h2database:h2")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
