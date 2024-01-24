@@ -14,8 +14,6 @@ class OauthApiClientConfig {
     fun KakaoOauthApiClient(): KakaoOauthApiClient {
         return HttpServiceProxyFactory.builderFor(
             WebClientAdapter.create(WebClient.create())
-        )
-            .build()
-            .createClient(KakaoOauthApiClient::class.java)
+        ).build().createClient(KakaoOauthApiClient::class.java)
     }
 }
