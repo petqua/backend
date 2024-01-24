@@ -2,11 +2,11 @@ package com.petqua.application
 
 import com.petqua.domain.Product
 
-data class ProductReadRequest(
-        val sourceType: ProductSourceType,
-        val sorter: Sorter,
-        val lastViewedId: Long,
-        val limit: Int,
+data class ProductReadConditions(
+        val sourceType: ProductSourceType = ProductSourceType.NONE,
+        val sorter: Sorter = Sorter.NONE,
+        val lastViewedId: Long? = null,
+        val limit: Int = 20,
 )
 
 data class ProductResponse(
