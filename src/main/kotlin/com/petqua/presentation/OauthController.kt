@@ -4,7 +4,7 @@ import com.petqua.application.OauthService
 import com.petqua.domain.oauth.OauthServerType
 import org.springframework.web.bind.annotation.*
 
-@RequestMapping("/auth")
+@RequestMapping("/oauth")
 @RestController
 class OauthController(
     private val oauthService: OauthService
