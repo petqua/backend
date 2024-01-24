@@ -19,19 +19,19 @@ class KakaoOauthClient(
         return KAKAO
     }
 
-    override fun requestOauthUserInfo(code: String): OauthUserInfo {
-        val oauthTokenInfo = requestToken(code)
-        return kakaoOauthApiClient.fetchUserInfo("Bearer " + oauthTokenInfo.accessToken)
+    override fun requestOauthUserInfo(oauthTokenInfo: OauthTokenInfo): OauthUserInfo {
+        val kakaoOauthUserInfo = kakaoOauthApiClient.fetchUserInfo("Bearer ${oauthTokenInfo.accessToken}")
+        return kakaoOauthUserInfo.toOauthUserInfo()
     }
 
-    private fun requestToken(code: String): OauthTokenInfo {
-        val body: MultiValueMap<String, String> = LinkedMultiValueMap()
-        body.add("grant_type", "authorization_code")
-        body.add("client_id", kakaoOauthConfig.clientId)
-        body.add("redirect_uri", kakaoOauthConfig.redirectUri)
-        body.add("code", code)
-        body.add("client_secret", kakaoOauthConfig.clientSecret)
+    override fun requestToken(code: String): OauthTokenInfo {
+        val tokenRequestBody: MultiValueMap<String, String> = LinkedMultiValueMap()
+        tokenRequestBody.add("grant_type", "authorization_code")
+        tokenRequestBody.add("client_id", kakaoOauthConfig.clientId)
+        tokenRequestBody.add("redirect_uri", kakaoOauthConfig.redirectUri)
+        tokenRequestBody.add("code", code)
+        tokenRequestBody.add("client_secret", kakaoOauthConfig.clientSecret)
 
-        return kakaoOauthApiClient.fetchToken(body)
+        return kakaoOauthApiClient.fetchToken(tokenRequestBody)
     }
 }
