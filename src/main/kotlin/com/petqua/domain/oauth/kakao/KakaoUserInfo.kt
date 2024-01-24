@@ -11,18 +11,14 @@ class KakaoUserInfo(
 
     @JsonProperty("id")
     private val oauthId: String,
-) : OauthUserInfo {
+) {
 
-    override fun nickname(): String {
-        return kakaoAccount.profile.nickname
-    }
-
-    override fun imageUrl(): String {
-        return kakaoAccount.profile.imageUrl
-    }
-
-    override fun oauthId(): String {
-        return oauthId
+    fun toOauthUserInfo(): OauthUserInfo {
+        return OauthUserInfo(
+            nickname = kakaoAccount.profile.nickname,
+            imageUrl = kakaoAccount.profile.imageUrl,
+            oauthId = oauthId
+        )
     }
 }
 

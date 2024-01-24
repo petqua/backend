@@ -1,10 +1,7 @@
 package com.petqua.domain.oauth
 
-interface OauthUserInfo {
-
-    fun nickname() :String
-
-    fun imageUrl() :String
-
-    fun oauthId(): String
-}
+data class OauthUserInfo(
+    val nickname: String,
+    val imageUrl: String,
+    val oauthId: String,
+)
