@@ -1,4 +1,4 @@
-package com.petqua.domain.oauth
+package com.petqua.domain.auth
 
 import io.jsonwebtoken.Header.JWT_TYPE
 import io.jsonwebtoken.Header.TYPE

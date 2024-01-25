@@ -1,6 +1,6 @@
-package com.petqua.domain.oauth
+package com.petqua.domain.auth
 
-import com.petqua.domain.oauth.kakao.KakaoOauthApiClient
+import com.petqua.domain.auth.kakao.KakaoOauthApiClient
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.reactive.function.client.WebClient

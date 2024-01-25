@@ -1,4 +1,4 @@
-package com.petqua.domain.oauth
+package com.petqua.domain.auth
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.EnableConfigurationProperties

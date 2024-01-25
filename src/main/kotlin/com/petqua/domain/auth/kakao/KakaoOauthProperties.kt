@@ -1,4 +1,4 @@
-package com.petqua.domain.oauth.kakao
+package com.petqua.domain.auth.kakao
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 

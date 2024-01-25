@@ -1,10 +1,10 @@
-package com.petqua.domain.oauth.kakao
+package com.petqua.domain.auth.kakao
 
-import com.petqua.domain.oauth.OauthClient
-import com.petqua.domain.oauth.OauthServerType
-import com.petqua.domain.oauth.OauthServerType.KAKAO
-import com.petqua.domain.oauth.OauthTokenInfo
-import com.petqua.domain.oauth.OauthUserInfo
+import com.petqua.domain.auth.OauthClient
+import com.petqua.domain.auth.OauthServerType
+import com.petqua.domain.auth.OauthServerType.KAKAO
+import com.petqua.domain.auth.OauthTokenInfo
+import com.petqua.domain.auth.OauthUserInfo
 import org.springframework.stereotype.Component
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.util.MultiValueMap

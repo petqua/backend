@@ -1,7 +1,7 @@
 package com.petqua.presentation
 
-import com.petqua.application.oauth.OauthService
-import com.petqua.domain.oauth.OauthServerType
+import com.petqua.application.auth.OauthService
+import com.petqua.domain.auth.OauthServerType
 import org.springframework.http.HttpHeaders.SET_COOKIE
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*

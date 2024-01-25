@@ -1,4 +1,4 @@
-package com.petqua.common.exception.oauth
+package com.petqua.common.exception.auth
 
 import com.petqua.common.exception.BaseException
 import com.petqua.common.exception.BaseExceptionType

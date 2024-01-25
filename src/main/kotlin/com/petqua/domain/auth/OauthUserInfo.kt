@@ -1,4 +1,4 @@
-package com.petqua.domain.oauth
+package com.petqua.domain.auth
 
 data class OauthUserInfo(
     val nickname: String,

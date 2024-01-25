@@ -1,11 +1,11 @@
-package com.petqua.application.oauth
+package com.petqua.application.auth
 
 import com.petqua.domain.member.Member
 import com.petqua.domain.member.MemberRepository
-import com.petqua.domain.oauth.AuthTokenProvider
-import com.petqua.domain.oauth.OauthClientProvider
-import com.petqua.domain.oauth.OauthServerType
-import com.petqua.domain.oauth.OauthUserInfo
+import com.petqua.domain.auth.AuthTokenProvider
+import com.petqua.domain.auth.OauthClientProvider
+import com.petqua.domain.auth.OauthServerType
+import com.petqua.domain.auth.OauthUserInfo
 import com.petqua.presentation.OauthResponse
 import org.springframework.stereotype.Service
 
