@@ -95,10 +95,6 @@ data class ProductsResponse(
     }
 }
 
-data class ProductCountResponse(
-    val count: Int,
-)
-
 data class ProductDetailResponse(
     val id: Long,
     val name: String,
