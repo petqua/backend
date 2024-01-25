@@ -100,6 +100,4 @@ class Product(
     override fun toString(): String {
         return "Product(id=$id, name='$name', category='$category', price=$price, storeId=$storeId, discountRate=$discountRate, discountPrice=$discountPrice, wishCount=$wishCount, reviewCount=$reviewCount, reviewTotalScore=$reviewTotalScore, thumbnailUrl='$thumbnailUrl', description='$description')"
     }
-
-
 }

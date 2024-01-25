@@ -21,18 +21,21 @@ class ExceptionControllerAdvice {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException::class)
-    fun handleMethodArgumentNotValid(request: HttpServletRequest, e: MethodArgumentNotValidException): ResponseEntity<ExceptionResponse> {
+    fun handleMethodArgumentNotValid(
+        request: HttpServletRequest,
+        e: MethodArgumentNotValidException
+    ): ResponseEntity<ExceptionResponse> {
         val globalErrorMessage = e.globalErrors.joinToString(
-                prefix = "[Global Error : ",
-                separator = ", ",
-                postfix = "], \t",
-                transform = { "${it.defaultMessage}" }
+            prefix = "[Global Error : ",
+            separator = ", ",
+            postfix = "], \t",
+            transform = { "${it.defaultMessage}" }
         )
         val fieldErrorMessage = e.fieldErrors.joinToString(
-                prefix = "[Field Error : ",
-                separator = " ",
-                postfix = "]",
-                transform = { "${it.field} : ${it.defaultMessage}" }
+            prefix = "[Field Error : ",
+            separator = " ",
+            postfix = "]",
+            transform = { "${it.field} : ${it.defaultMessage}" }
         )
         val errorMessage = globalErrorMessage + fieldErrorMessage
         log.warn("잘못된 요청이 들어왔습니다. URI: ${request.requestURI},  내용:  $errorMessage")
@@ -40,7 +43,10 @@ class ExceptionControllerAdvice {
     }
 
     @ExceptionHandler(MissingServletRequestParameterException::class)
-    fun handleMissingServletRequestParameterException(request: HttpServletRequest, e: MissingServletRequestParameterException): ResponseEntity<ExceptionResponse> {
+    fun handleMissingServletRequestParameterException(
+        request: HttpServletRequest,
+        e: MissingServletRequestParameterException
+    ): ResponseEntity<ExceptionResponse> {
         val errorMessage = "${e.parameterName} 값이 누락되었습니다."
         log.warn("잘못된 요청이 들어왔습니다. URI: ${request.requestURI},  내용:  $errorMessage")
         return ResponseEntity.badRequest().body(ExceptionResponse(errorMessage))
