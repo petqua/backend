@@ -5,10 +5,20 @@ import com.petqua.domain.auth.OauthServerType
 import com.petqua.domain.auth.OauthServerType.KAKAO
 import com.petqua.domain.auth.OauthTokenInfo
 import com.petqua.domain.auth.OauthUserInfo
+import org.springframework.boot.context.properties.ConfigurationProperties
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.stereotype.Component
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.util.MultiValueMap
 
+@ConfigurationProperties(prefix = "oauth.client.kakao")
+data class KakaoOauthProperties(
+    val clientId: String,
+    val clientSecret: String,
+    val redirectUri: String,
+)
+
+@EnableConfigurationProperties(KakaoOauthProperties::class)
 @Component
 class KakaoOauthClient(
     private val kakaoOauthProperties: KakaoOauthProperties,
