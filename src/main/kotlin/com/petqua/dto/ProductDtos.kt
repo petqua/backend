@@ -31,10 +31,7 @@ data class ProductReadCondition(
 
     companion object {
         fun of(sourceType: ProductSourceType, sorter: Sorter): ProductReadCondition {
-            return if (sourceType == HOME_NEW_ENROLLMENT && sorter == NONE) ProductReadCondition(
-                sourceType,
-                ENROLLMENT_DATE_DESC
-            )
+            return if (sourceType == HOME_NEW_ENROLLMENT) ProductReadCondition(sourceType, ENROLLMENT_DATE_DESC)
             else ProductReadCondition(sourceType, sorter)
         }
     }
@@ -82,13 +79,14 @@ data class ProductResponse(
 data class ProductsResponse(
     val products: List<ProductResponse>,
     val hasNextPage: Boolean,
+    val totalProductsCount: Int,
 ) {
     companion object {
-        fun of(products: List<ProductResponse>, limit: Int): ProductsResponse {
+        fun of(products: List<ProductResponse>, limit: Int, totalProductsCount: Int): ProductsResponse {
             return if (products.size > limit) {
-                ProductsResponse(products.dropLast(PADDING_FOR_PAGING), hasNextPage = true)
+                ProductsResponse(products.dropLast(PADDING_FOR_PAGING), hasNextPage = true, totalProductsCount)
             } else {
-                ProductsResponse(products, hasNextPage = false)
+                ProductsResponse(products, hasNextPage = false, totalProductsCount)
             }
         }
     }

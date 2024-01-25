@@ -8,25 +8,33 @@ import com.petqua.domain.Sorter.SALE_PRICE_DESC
 import com.petqua.dto.ProductPaging
 import com.petqua.dto.ProductReadCondition
 import com.petqua.dto.ProductResponse
+import com.petqua.test.DataCleaner
 import com.petqua.test.fixture.product
 import com.petqua.test.fixture.productRecommendation
 import com.petqua.test.fixture.store
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.shouldBe
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal.ONE
 import java.math.BigDecimal.TEN
 import java.math.BigDecimal.ZERO
 
 @SpringBootTest
-@Transactional
 class ProductCustomRepositoryImplTest(
-    @Autowired private val productRepository: ProductRepository,
-    @Autowired private val storeRepository: StoreRepository,
-    @Autowired private val recommendationRepository: ProductRecommendationRepository,
+    @Autowired
+    private val productRepository: ProductRepository,
+
+    @Autowired
+    private val storeRepository: StoreRepository,
+
+    @Autowired
+    private val recommendationRepository: ProductRecommendationRepository,
+
+    @Autowired
+    private val dataCleaner: DataCleaner,
 ) : BehaviorSpec({
 
     val store = storeRepository.save(store(name = "펫쿠아"))
@@ -157,5 +165,25 @@ class ProductCustomRepositoryImplTest(
                 )
             }
         }
+    }
+
+    Given("조건에 따라 상품의 개수를 셀 때") {
+        val product1 = productRepository.save(product(name = "상품1", storeId = store.id))
+        val product2 = productRepository.save(product(name = "상품2", storeId = store.id))
+
+        recommendationRepository.save(productRecommendation(productId = product1.id))
+        recommendationRepository.save(productRecommendation(productId = product2.id))
+
+        When("추천 상품을 조회하면") {
+            val count = productRepository.countByCondition(ProductReadCondition(sourceType = HOME_RECOMMENDED))
+
+            Then("추천 상품의 개수를 반환한다") {
+                count shouldBe 2
+            }
+        }
+    }
+
+    afterContainer {
+        dataCleaner.clean()
     }
 })

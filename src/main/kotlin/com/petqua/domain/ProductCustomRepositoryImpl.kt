@@ -7,6 +7,7 @@ import com.linecorp.kotlinjdsl.dsl.jpql.sort.SortNullsStep
 import com.linecorp.kotlinjdsl.querymodel.jpql.predicate.Predicate
 import com.linecorp.kotlinjdsl.render.jpql.JpqlRenderContext
 import com.linecorp.kotlinjdsl.render.jpql.JpqlRenderer
+import com.petqua.common.util.createCountQuery
 import com.petqua.common.util.createQuery
 import com.petqua.domain.ProductSourceType.HOME_RECOMMENDED
 import com.petqua.domain.Sorter.ENROLLMENT_DATE_DESC
@@ -73,5 +74,24 @@ class ProductCustomRepositoryImpl(
             ENROLLMENT_DATE_DESC -> path(Product::id).desc()
             NONE -> null
         }
+    }
+
+    // cache 추가하면 어떨까요?
+    override fun countByCondition(condition: ProductReadCondition): Int {
+        val query = jpql {
+            select(
+                count(Product::id),
+            ).from(
+                entity(Product::class),
+                joinBySourceType(condition.sourceType),
+                join(Store::class).on(path(Product::storeId).eq(path(Store::id))),
+            )
+        }
+
+        return entityManager.createCountQuery<Int>(
+            query,
+            jpqlRenderContext,
+            jpqlRenderer
+        )
     }
 }

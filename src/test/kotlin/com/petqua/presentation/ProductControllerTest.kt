@@ -10,6 +10,7 @@ import com.petqua.domain.StoreRepository
 import com.petqua.dto.ProductDetailResponse
 import com.petqua.dto.ProductResponse
 import com.petqua.dto.ProductsResponse
+import com.petqua.test.DataCleaner
 import com.petqua.test.fixture.product
 import com.petqua.test.fixture.productRecommendation
 import com.petqua.test.fixture.store
@@ -40,6 +41,9 @@ class ProductControllerTest(
 
     @Autowired
     private val recommendationRepository: ProductRecommendationRepository,
+
+    @Autowired
+    private val dataCleaner: DataCleaner,
 ) : BehaviorSpec({
 
     RestAssured.port = port
@@ -142,7 +146,8 @@ class ProductControllerTest(
                                 ProductResponse(product2, store.name),
                                 ProductResponse(product1, store.name)
                             ),
-                            hasNextPage = false
+                            hasNextPage = false,
+                            totalProductsCount = 4
                         )
                     )
                 }
@@ -169,7 +174,8 @@ class ProductControllerTest(
                     it.assertThat(productsResponse).isEqualTo(
                         ProductsResponse(
                             products = listOf(ProductResponse(product4, store.name)),
-                            hasNextPage = true
+                            hasNextPage = true,
+                            totalProductsCount = 4
                         )
                     )
                 }
@@ -199,7 +205,8 @@ class ProductControllerTest(
                                 ProductResponse(product2, store.name),
                                 ProductResponse(product1, store.name)
                             ),
-                            hasNextPage = false
+                            hasNextPage = false,
+                            totalProductsCount = 2
                         )
                     )
                 }
@@ -232,7 +239,8 @@ class ProductControllerTest(
                                 ProductResponse(product1, store.name),
                                 ProductResponse(product2, store.name)
                             ),
-                            hasNextPage = false
+                            hasNextPage = false,
+                            totalProductsCount = 2
                         )
                     )
                 }
@@ -264,7 +272,8 @@ class ProductControllerTest(
                                 ProductResponse(product2, store.name),
                                 ProductResponse(product1, store.name)
                             ),
-                            hasNextPage = false
+                            hasNextPage = false,
+                            totalProductsCount = 4
                         )
                     )
                 }
@@ -286,7 +295,7 @@ class ProductControllerTest(
                 response()
             }
 
-            Then("신규 입고 상품들이 가격 높은 순으로 반환된다") {
+            Then("상품들이 최신 등록 순으로 반환된다") {
                 val productsResponse = response.`as`(ProductsResponse::class.java)
 
                 assertSoftly {
@@ -299,11 +308,16 @@ class ProductControllerTest(
                                 ProductResponse(product2, store.name),
                                 ProductResponse(product1, store.name)
                             ),
-                            hasNextPage = false
+                            hasNextPage = false,
+                            totalProductsCount = 4
                         )
                     )
                 }
             }
         }
+    }
+
+    afterContainer {
+        dataCleaner.clean()
     }
 })

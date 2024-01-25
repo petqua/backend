@@ -29,7 +29,8 @@ class ProductService(
 
     fun readAll(request: ProductReadRequest): ProductsResponse {
         val products = productRepository.findAllByCondition(request.toReadConditions(), request.toPaging())
+        val totalProductsCount = productRepository.countByCondition(request.toReadConditions())
 
-        return ProductsResponse.of(products, request.limit)
+        return ProductsResponse.of(products, request.limit, totalProductsCount)
     }
 }
