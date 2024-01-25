@@ -13,21 +13,13 @@ import com.petqua.test.fixture.product
 import com.petqua.test.fixture.store
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 
 @SpringBootTest
 class ProductServiceTest(
-    @Autowired
     private val productService: ProductService,
-
-    @Autowired
     private val productRepository: ProductRepository,
-
-    @Autowired
     private val storeRepository: StoreRepository,
-
-    @Autowired
     private val dataCleaner: DataCleaner,
 ) : BehaviorSpec({
 

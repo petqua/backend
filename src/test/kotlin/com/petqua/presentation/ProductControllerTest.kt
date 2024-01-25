@@ -21,7 +21,6 @@ import io.restassured.module.kotlin.extensions.Given
 import io.restassured.module.kotlin.extensions.Then
 import io.restassured.module.kotlin.extensions.When
 import org.assertj.core.api.SoftAssertions.assertSoftly
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
 import org.springframework.boot.test.web.server.LocalServerPort
@@ -30,19 +29,10 @@ import java.math.BigDecimal
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 class ProductControllerTest(
-    @LocalServerPort
-    private val port: Int,
-
-    @Autowired
+    @LocalServerPort private val port: Int,
     private val productRepository: ProductRepository,
-
-    @Autowired
     private val storeRepository: StoreRepository,
-
-    @Autowired
     private val recommendationRepository: ProductRecommendationRepository,
-
-    @Autowired
     private val dataCleaner: DataCleaner,
 ) : BehaviorSpec({
 

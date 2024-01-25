@@ -16,7 +16,6 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import java.math.BigDecimal.ONE
 import java.math.BigDecimal.TEN
@@ -24,16 +23,9 @@ import java.math.BigDecimal.ZERO
 
 @SpringBootTest
 class ProductCustomRepositoryImplTest(
-    @Autowired
     private val productRepository: ProductRepository,
-
-    @Autowired
     private val storeRepository: StoreRepository,
-
-    @Autowired
     private val recommendationRepository: ProductRecommendationRepository,
-
-    @Autowired
     private val dataCleaner: DataCleaner,
 ) : BehaviorSpec({
 
