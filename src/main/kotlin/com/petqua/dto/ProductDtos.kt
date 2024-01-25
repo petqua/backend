@@ -8,12 +8,13 @@ import com.petqua.domain.Sorter.ENROLLMENT_DATE_DESC
 import com.petqua.domain.Sorter.NONE
 
 private const val PADDING_FOR_PAGING = 1
+private const val LIMIT_CEILING = 20
 
 data class ProductReadRequest(
     val sourceType: ProductSourceType = ProductSourceType.NONE,
     val sorter: Sorter = NONE,
     val lastViewedId: Long? = null,
-    val limit: Int = 20,
+    val limit: Int = LIMIT_CEILING,
 ) {
     fun toReadConditions(): ProductReadCondition {
         return ProductReadCondition.of(sourceType, sorter)
@@ -39,11 +40,13 @@ data class ProductReadCondition(
 
 data class ProductPaging(
     val lastViewedId: Long? = null,
-    val limit: Int = 20,
+    val limit: Int = LIMIT_CEILING,
 ) {
+
     companion object {
         fun of(lastViewedId: Long?, limit: Int): ProductPaging {
-            return ProductPaging(lastViewedId, limit + PADDING_FOR_PAGING)
+            val adjustedLimit = if (limit > LIMIT_CEILING) LIMIT_CEILING else limit
+            return ProductPaging(lastViewedId, adjustedLimit + PADDING_FOR_PAGING)
         }
     }
 }
