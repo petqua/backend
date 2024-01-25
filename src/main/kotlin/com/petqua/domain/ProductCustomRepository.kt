@@ -1,8 +1,10 @@
 package com.petqua.domain
 
-import com.petqua.application.ProductReadConditions
+import com.petqua.dto.ProductPaging
+import com.petqua.dto.ProductReadCondition
+import com.petqua.dto.ProductResponse
 
 interface ProductCustomRepository {
 
-    fun findAllByConditions(conditions: ProductReadConditions): List<Product>
+    fun findAllByCondition(condition: ProductReadCondition, paging: ProductPaging): List<ProductResponse>
 }

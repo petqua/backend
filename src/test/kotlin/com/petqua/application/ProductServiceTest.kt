@@ -2,6 +2,7 @@ package com.petqua.application
 
 import com.petqua.domain.ProductRepository
 import com.petqua.domain.StoreRepository
+import com.petqua.dto.ProductDetailResponse
 import com.petqua.test.fixture.product
 import com.petqua.test.fixture.store
 import io.kotest.core.spec.style.BehaviorSpec
@@ -11,14 +12,14 @@ import org.springframework.boot.test.context.SpringBootTest
 
 @SpringBootTest
 class ProductServiceTest(
-        @Autowired
-        private val productService: ProductService,
+    @Autowired
+    private val productService: ProductService,
 
-        @Autowired
-        private val productRepository: ProductRepository,
+    @Autowired
+    private val productRepository: ProductRepository,
 
-        @Autowired
-        private val storeRepository: StoreRepository,
+    @Autowired
+    private val storeRepository: StoreRepository,
 ) : BehaviorSpec({
 
     val storeId = storeRepository.save(store(name = "store")).id
@@ -31,9 +32,9 @@ class ProductServiceTest(
 
             Then("조회할 수 있다") {
                 productDetailResponse shouldBe ProductDetailResponse(
-                        product = product(id = productId, storeId = storeId),
-                        storeName = "store",
-                        0.0
+                    product = product(id = productId, storeId = storeId),
+                    storeName = "store",
+                    0.0
                 )
             }
         }
