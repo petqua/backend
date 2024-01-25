@@ -14,7 +14,7 @@ class CacheConfiguration {
     @Bean
     fun cacheManager(): CacheManager {
         val cacheManager = ConcurrentMapCacheManager()
-        cacheManager.setCacheNames(listOf("banners"))
+        cacheManager.setCacheNames(listOf("banners", "announcements"))
         return cacheManager
     }
 }
