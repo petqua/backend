@@ -4,7 +4,7 @@ import com.petqua.common.exception.BaseException
 import com.petqua.common.exception.BaseExceptionType
 
 class StoreException(
-        private val exceptionType: StoreExceptionType,
+    private val exceptionType: StoreExceptionType,
 ) : BaseException() {
 
     override fun exceptionType(): BaseExceptionType {

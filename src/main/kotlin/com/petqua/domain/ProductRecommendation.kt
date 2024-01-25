@@ -9,7 +9,7 @@ import jakarta.persistence.Id
 
 @Entity
 class ProductRecommendation(
-    @GeneratedValue(strategy = IDENTITY) @Id
+    @Id @GeneratedValue(strategy = IDENTITY)
     val id: Long = 0L,
 
     @Column(nullable = false)

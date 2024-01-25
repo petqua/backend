@@ -5,8 +5,8 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.NOT_FOUND
 
 enum class ProductExceptionType(
-        private val httpStatus: HttpStatus,
-        private val errorMessage: String,
+    private val httpStatus: HttpStatus,
+    private val errorMessage: String,
 ) : BaseExceptionType {
 
     NOT_FOUND_PRODUCT(NOT_FOUND, "존재하지 않는 상품입니다."),

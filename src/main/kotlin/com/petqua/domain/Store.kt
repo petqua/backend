@@ -9,10 +9,10 @@ import jakarta.persistence.Id
 
 @Entity
 class Store(
-        @Id @GeneratedValue(strategy = IDENTITY)
-        val id: Long = 0L,
+    @Id @GeneratedValue(strategy = IDENTITY)
+    val id: Long = 0L,
 
-        @Column(nullable = false)
-        val name: String,
+    @Column(nullable = false)
+    val name: String,
 ) : BaseEntity() {
 }

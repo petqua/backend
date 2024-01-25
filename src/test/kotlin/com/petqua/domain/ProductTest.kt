@@ -8,8 +8,8 @@ class ProductTest : BehaviorSpec({
 
     Given("상품의") {
         val product = product(
-                reviewCount = 3,
-                reviewTotalScore = 13
+            reviewCount = 3,
+            reviewTotalScore = 13
         )
 
         When("평균 리뷰 점수를 계산하면") {
