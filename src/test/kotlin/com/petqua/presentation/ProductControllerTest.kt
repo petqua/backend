@@ -25,7 +25,10 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.http.HttpStatus
+import org.springframework.http.HttpStatus.BAD_REQUEST
+import org.springframework.http.HttpStatus.NOT_FOUND
 import java.math.BigDecimal
+import kotlin.Long.Companion.MIN_VALUE
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 class ProductControllerTest(
@@ -66,6 +69,21 @@ class ProductControllerTest(
                             reviewAverageScore = 0.0
                         )
                     )
+                }
+            }
+        }
+
+        When("존재하지 않는 상품 ID를 입력하면") {
+
+            Then("예외가 발생한다") {
+                Given {
+                    log().all()
+                    pathParam("productId", MIN_VALUE)
+                } When {
+                    get("/products/{productId}")
+                } Then {
+                    log().all()
+                    statusCode(NOT_FOUND.value())
                 }
             }
         }
@@ -302,6 +320,21 @@ class ProductControllerTest(
                             totalProductsCount = 4
                         )
                     )
+                }
+            }
+        }
+
+        When("조건을 잘못 기입해서 조회하면") {
+
+            Then("예외가 발생한다") {
+                Given {
+                    log().all()
+                    param("sourceType", "wrongType")
+                } When {
+                    get("/products")
+                } Then {
+                    log().all()
+                    statusCode(BAD_REQUEST.value())
                 }
             }
         }
