@@ -1,6 +1,6 @@
 package com.petqua.test.fixture
 
-import com.petqua.domain.ProductRecommendation
+import com.petqua.domain.recommendation.ProductRecommendation
 
 fun productRecommendation(
     id: Long = 0L,

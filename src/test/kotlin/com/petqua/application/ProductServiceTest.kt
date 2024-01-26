@@ -1,13 +1,14 @@
 package com.petqua.application
 
-import com.petqua.domain.ProductRepository
-import com.petqua.domain.ProductSourceType.NONE
-import com.petqua.domain.Sorter.ENROLLMENT_DATE_DESC
-import com.petqua.domain.StoreRepository
-import com.petqua.dto.ProductDetailResponse
-import com.petqua.dto.ProductReadRequest
-import com.petqua.dto.ProductResponse
-import com.petqua.dto.ProductsResponse
+import com.petqua.application.product.ProductService
+import com.petqua.application.product.dto.ProductDetailResponse
+import com.petqua.application.product.dto.ProductReadRequest
+import com.petqua.application.product.dto.ProductsResponse
+import com.petqua.domain.product.ProductRepository
+import com.petqua.domain.product.ProductSourceType.NONE
+import com.petqua.domain.product.Sorter.ENROLLMENT_DATE_DESC
+import com.petqua.domain.product.dto.ProductResponse
+import com.petqua.domain.store.StoreRepository
 import com.petqua.test.DataCleaner
 import com.petqua.test.fixture.product
 import com.petqua.test.fixture.store

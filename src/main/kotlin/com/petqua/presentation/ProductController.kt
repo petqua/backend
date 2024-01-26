@@ -1,9 +1,9 @@
 package com.petqua.presentation
 
-import com.petqua.application.ProductService
-import com.petqua.dto.ProductDetailResponse
-import com.petqua.dto.ProductReadRequest
-import com.petqua.dto.ProductsResponse
+import com.petqua.application.product.ProductService
+import com.petqua.application.product.dto.ProductDetailResponse
+import com.petqua.application.product.dto.ProductReadRequest
+import com.petqua.application.product.dto.ProductsResponse
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable

@@ -1,15 +1,15 @@
 package com.petqua.presentation
 
-import com.petqua.domain.ProductRecommendationRepository
-import com.petqua.domain.ProductRepository
-import com.petqua.domain.ProductSourceType.HOME_NEW_ENROLLMENT
-import com.petqua.domain.ProductSourceType.HOME_RECOMMENDED
-import com.petqua.domain.Sorter.SALE_PRICE_ASC
-import com.petqua.domain.Sorter.SALE_PRICE_DESC
-import com.petqua.domain.StoreRepository
-import com.petqua.dto.ProductDetailResponse
-import com.petqua.dto.ProductResponse
-import com.petqua.dto.ProductsResponse
+import com.petqua.application.product.dto.ProductDetailResponse
+import com.petqua.application.product.dto.ProductsResponse
+import com.petqua.domain.product.ProductRepository
+import com.petqua.domain.product.ProductSourceType.HOME_NEW_ENROLLMENT
+import com.petqua.domain.product.ProductSourceType.HOME_RECOMMENDED
+import com.petqua.domain.product.Sorter.SALE_PRICE_ASC
+import com.petqua.domain.product.Sorter.SALE_PRICE_DESC
+import com.petqua.domain.product.dto.ProductResponse
+import com.petqua.domain.recommendation.ProductRecommendationRepository
+import com.petqua.domain.store.StoreRepository
 import com.petqua.test.DataCleaner
 import com.petqua.test.fixture.product
 import com.petqua.test.fixture.productRecommendation

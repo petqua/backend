@@ -1,4 +1,4 @@
-package com.petqua.domain
+package com.petqua.domain.product
 
 import com.linecorp.kotlinjdsl.dsl.jpql.Jpql
 import com.linecorp.kotlinjdsl.dsl.jpql.join.JoinAsStep
@@ -9,15 +9,17 @@ import com.linecorp.kotlinjdsl.render.jpql.JpqlRenderContext
 import com.linecorp.kotlinjdsl.render.jpql.JpqlRenderer
 import com.petqua.common.util.createCountQuery
 import com.petqua.common.util.createQuery
-import com.petqua.domain.ProductSourceType.HOME_RECOMMENDED
-import com.petqua.domain.Sorter.ENROLLMENT_DATE_DESC
-import com.petqua.domain.Sorter.NONE
-import com.petqua.domain.Sorter.REVIEW_COUNT_DESC
-import com.petqua.domain.Sorter.SALE_PRICE_ASC
-import com.petqua.domain.Sorter.SALE_PRICE_DESC
-import com.petqua.dto.ProductPaging
-import com.petqua.dto.ProductReadCondition
-import com.petqua.dto.ProductResponse
+import com.petqua.domain.product.ProductSourceType.HOME_RECOMMENDED
+import com.petqua.domain.product.Sorter.ENROLLMENT_DATE_DESC
+import com.petqua.domain.product.Sorter.NONE
+import com.petqua.domain.product.Sorter.REVIEW_COUNT_DESC
+import com.petqua.domain.product.Sorter.SALE_PRICE_ASC
+import com.petqua.domain.product.Sorter.SALE_PRICE_DESC
+import com.petqua.domain.product.dto.ProductPaging
+import com.petqua.domain.product.dto.ProductReadCondition
+import com.petqua.domain.product.dto.ProductResponse
+import com.petqua.domain.recommendation.ProductRecommendation
+import com.petqua.domain.store.Store
 import jakarta.persistence.EntityManager
 import org.springframework.stereotype.Repository
 

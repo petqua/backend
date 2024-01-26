@@ -1,20 +1,20 @@
-package com.petqua.domain
+package com.petqua.domain.product
 
 import com.petqua.common.domain.BaseEntity
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
-import jakarta.persistence.GenerationType.IDENTITY
+import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import java.math.BigDecimal
-import java.math.RoundingMode.HALF_UP
+import java.math.RoundingMode
 
 private const val SCALE = 1
 private const val ZERO = 0
 
 @Entity
 class Product(
-    @Id @GeneratedValue(strategy = IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0L,
 
     @Column(nullable = false)
@@ -54,7 +54,7 @@ class Product(
     fun averageReviewScore(): Double {
         return if (reviewCount == ZERO) ZERO.toDouble()
         else BigDecimal.valueOf(reviewTotalScore / reviewCount.toDouble())
-            .setScale(SCALE, HALF_UP)
+            .setScale(SCALE, RoundingMode.HALF_UP)
             .toDouble()
     }
 

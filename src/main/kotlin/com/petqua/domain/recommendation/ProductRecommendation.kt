@@ -1,4 +1,4 @@
-package com.petqua.domain
+package com.petqua.domain.recommendation
 
 import com.petqua.common.domain.BaseEntity
 import jakarta.persistence.Column
@@ -8,11 +8,11 @@ import jakarta.persistence.GenerationType.IDENTITY
 import jakarta.persistence.Id
 
 @Entity
-class Store(
+class ProductRecommendation(
     @Id @GeneratedValue(strategy = IDENTITY)
     val id: Long = 0L,
 
     @Column(nullable = false)
-    val name: String,
-) : BaseEntity() {
-}
+    val productId: Long
+) : BaseEntity()
+

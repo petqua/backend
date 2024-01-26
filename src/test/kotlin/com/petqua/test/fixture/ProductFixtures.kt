@@ -1,6 +1,6 @@
 package com.petqua.test.fixture
 
-import com.petqua.domain.Product
+import com.petqua.domain.product.Product
 import java.math.BigDecimal
 
 private const val DEFAULT_SCALE = 2
