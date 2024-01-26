@@ -56,7 +56,6 @@ class Product(
         else BigDecimal.valueOf(reviewTotalScore / reviewCount.toDouble())
             .setScale(SCALE, HALF_UP)
             .toDouble()
-
     }
 
     override fun equals(other: Any?): Boolean {
