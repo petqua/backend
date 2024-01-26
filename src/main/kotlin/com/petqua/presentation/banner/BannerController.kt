@@ -15,7 +15,7 @@ class BannerController(
 
     @GetMapping
     fun readAll(): ResponseEntity<List<BannerResponse>> {
-        val bannerList = bannerService.readAll()
-        return ResponseEntity.ok(bannerList)
+        val response = bannerService.readAll()
+        return ResponseEntity.ok(response)
     }
 }
