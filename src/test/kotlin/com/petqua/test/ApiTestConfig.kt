@@ -11,12 +11,16 @@ import org.springframework.boot.test.web.server.LocalServerPort
 abstract class ApiTestConfig : BehaviorSpec() {
 
     @LocalServerPort
-    protected val port: Int = RestAssured.port
+    protected var port: Int = 0
 
     @Autowired
     private lateinit var dataCleaner: DataCleaner
 
     init {
+        this.beforeTest {
+            RestAssured.port = this.port
+        }
+
         afterContainer {
             dataCleaner.clean()
         }
