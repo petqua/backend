@@ -9,10 +9,7 @@ import org.mockito.Mockito.verify
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE
 import org.springframework.boot.test.mock.mockito.SpyBean
-import org.springframework.test.context.TestConstructor
-import org.springframework.test.context.TestConstructor.AutowireMode.ALL
 
-@TestConstructor(autowireMode = ALL)
 @SpringBootTest(webEnvironment = NONE)
 class BannerServiceTest(
     private var bannerService: BannerService,
@@ -29,7 +26,7 @@ class BannerServiceTest(
         )
 
         When("Banner를 전체 조회 하면") {
-            val results = bannerService.getBannerList()
+            val results = bannerService.readAll()
 
             Then("모든 Banner가 조회 된다") {
                 results.size shouldBe 3
@@ -37,7 +34,7 @@ class BannerServiceTest(
         }
 
         When("Banner가 캐싱 되어 있으면") {
-            repeat(5) { bannerService.getBannerList() }
+            repeat(5) { bannerService.readAll() }
 
             Then("퀴리가 발생 하지 않는다") {
                 verify(bannerRepository, atMost(1)).findAll()

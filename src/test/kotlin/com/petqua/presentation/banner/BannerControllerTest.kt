@@ -1,6 +1,6 @@
 package com.petqua.presentation.banner
 
-import com.petqua.application.banner.FindBannerResult
+import com.petqua.application.banner.BannerResponse
 import com.petqua.domain.banner.Banner
 import com.petqua.domain.banner.BannerRepository
 import com.petqua.test.ApiTestConfig
@@ -35,7 +35,7 @@ class BannerControllerTest(
                 }
 
                 Then("배너 목록을 응답한다.") {
-                    val findBannerResponse = response.`as`(Array<FindBannerResult>::class.java)
+                    val findBannerResponse = response.`as`(Array<BannerResponse>::class.java)
                     assertThat(response.statusCode).isEqualTo(HttpStatus.OK.value())
                     assertThat(findBannerResponse.size).isEqualTo(2)
                 }

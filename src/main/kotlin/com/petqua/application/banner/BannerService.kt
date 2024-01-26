@@ -13,8 +13,8 @@ class BannerService(
 
     @Cacheable("banners")
     @Transactional(readOnly = true)
-    fun getBannerList(): List<FindBannerResult> {
+    fun readAll(): List<BannerResponse> {
         val banners = bannerRepository.findAll()
-        return banners.map { FindBannerResult.from(it) }
+        return banners.map { BannerResponse.from(it) }
     }
 }
