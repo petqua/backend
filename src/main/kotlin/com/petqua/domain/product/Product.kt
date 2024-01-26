@@ -58,44 +58,6 @@ class Product(
             .toDouble()
     }
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as Product
-
-        return when {
-            id != other.id -> false
-            name != other.name -> false
-            category != other.category -> false
-            price != other.price -> false
-            storeId != other.storeId -> false
-            discountRate != other.discountRate -> false
-            discountPrice != other.discountPrice -> false
-            wishCount != other.wishCount -> false
-            reviewCount != other.reviewCount -> false
-            reviewTotalScore != other.reviewTotalScore -> false
-            thumbnailUrl != other.thumbnailUrl -> false
-            else -> description == other.description
-        }
-    }
-
-    override fun hashCode(): Int {
-        var result = id.hashCode()
-        result = 31 * result + name.hashCode()
-        result = 31 * result + category.hashCode()
-        result = 31 * result + price.hashCode()
-        result = 31 * result + storeId.hashCode()
-        result = 31 * result + discountRate
-        result = 31 * result + discountPrice.hashCode()
-        result = 31 * result + wishCount
-        result = 31 * result + reviewCount
-        result = 31 * result + reviewTotalScore
-        result = 31 * result + thumbnailUrl.hashCode()
-        result = 31 * result + description.hashCode()
-        return result
-    }
-
     override fun toString(): String {
         return "Product(id=$id, name='$name', category='$category', price=$price, storeId=$storeId, discountRate=$discountRate, discountPrice=$discountPrice, wishCount=$wishCount, reviewCount=$reviewCount, reviewTotalScore=$reviewTotalScore, thumbnailUrl='$thumbnailUrl', description='$description')"
     }
