@@ -8,7 +8,7 @@ import io.restassured.module.kotlin.extensions.Extract
 import io.restassured.module.kotlin.extensions.Given
 import io.restassured.module.kotlin.extensions.Then
 import io.restassured.module.kotlin.extensions.When
-import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.SoftAssertions.assertSoftly
 import org.springframework.http.HttpStatus
 
 class BannerControllerTest(
@@ -36,8 +36,11 @@ class BannerControllerTest(
 
                 Then("배너 목록을 응답한다.") {
                     val findBannerResponse = response.`as`(Array<BannerResponse>::class.java)
-                    assertThat(response.statusCode).isEqualTo(HttpStatus.OK.value())
-                    assertThat(findBannerResponse.size).isEqualTo(2)
+
+                    assertSoftly {
+                        it.assertThat(response.statusCode).isEqualTo(HttpStatus.OK.value())
+                        it.assertThat(findBannerResponse.size).isEqualTo(2)
+                    }
                 }
             }
         }
