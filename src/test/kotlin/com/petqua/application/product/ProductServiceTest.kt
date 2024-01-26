@@ -1,6 +1,5 @@
-package com.petqua.application
+package com.petqua.application.product
 
-import com.petqua.application.product.ProductService
 import com.petqua.application.product.dto.ProductDetailResponse
 import com.petqua.application.product.dto.ProductReadRequest
 import com.petqua.application.product.dto.ProductsResponse
