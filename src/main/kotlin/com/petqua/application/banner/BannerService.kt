@@ -1,5 +1,6 @@
 package com.petqua.application.banner
 
+import com.petqua.application.banner.dto.BannerResponse
 import com.petqua.domain.banner.BannerRepository
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Service

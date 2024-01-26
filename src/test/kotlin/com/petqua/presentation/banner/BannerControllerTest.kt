@@ -1,6 +1,6 @@
 package com.petqua.presentation.banner
 
-import com.petqua.application.banner.BannerResponse
+import com.petqua.application.banner.dto.BannerResponse
 import com.petqua.domain.banner.Banner
 import com.petqua.domain.banner.BannerRepository
 import com.petqua.test.ApiTestConfig
