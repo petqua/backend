@@ -27,7 +27,7 @@ class BannerControllerTest(
                 val response = Given {
                     log().all()
                 } When {
-                    get("/banner")
+                    get("/banners")
                 } Then {
                     log().all()
                 } Extract {
