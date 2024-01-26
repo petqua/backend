@@ -13,8 +13,8 @@ class AnnouncementService(
 
     @Cacheable("announcements")
     @Transactional(readOnly = true)
-    fun getAnnouncementsList(): List<FindAnnouncementResult> {
+    fun readAll(): List<AnnouncementResponse> {
         val announcements = announcementRepository.findAll()
-        return announcements.map { FindAnnouncementResult.from(it) }
+        return announcements.map { AnnouncementResponse.from(it) }
     }
 }

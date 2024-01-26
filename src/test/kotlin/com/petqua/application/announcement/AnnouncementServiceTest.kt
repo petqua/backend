@@ -29,7 +29,7 @@ class AnnouncementServiceTest(
         )
 
         When("공지사항을 전체 조회 하면") {
-            val results = announcementService.getAnnouncementsList()
+            val results = announcementService.readAll()
 
             Then("모든 공지사항이 조회 된다") {
                 results.size shouldBe 3
@@ -37,7 +37,7 @@ class AnnouncementServiceTest(
         }
 
         When("공지사항이 캐싱 되어 있으면") {
-            repeat(5) { announcementService.getAnnouncementsList() }
+            repeat(5) { announcementService.readAll() }
 
             Then("퀴리가 발생 하지 않는다") {
                 verify(announcementRepository, atMost(1)).findAll()
