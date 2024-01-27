@@ -1,9 +1,11 @@
 package com.petqua.domain.announcement
 
-import jakarta.persistence.*
-import org.springframework.data.annotation.CreatedDate
-import org.springframework.data.annotation.LastModifiedDate
-import java.time.LocalDateTime
+import com.petqua.common.domain.BaseEntity
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
 
 @Entity
 class Announcement(
@@ -15,10 +17,4 @@ class Announcement(
 
     @Column(nullable = false)
     val linkUrl: String,
-
-    @CreatedDate
-    val createAt: LocalDateTime = LocalDateTime.now(), //  TODO: BaseEntity 상속
-
-    @LastModifiedDate
-    val updateAt: LocalDateTime = LocalDateTime.now(), //  TODO: BaseEntity 상속
-)
+) : BaseEntity()
