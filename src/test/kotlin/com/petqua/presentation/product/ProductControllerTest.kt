@@ -1,4 +1,4 @@
-package com.petqua.presentation
+package com.petqua.presentation.product
 
 import com.petqua.application.product.dto.ProductDetailResponse
 import com.petqua.application.product.dto.ProductsResponse
@@ -20,6 +20,8 @@ import io.restassured.module.kotlin.extensions.Extract
 import io.restassured.module.kotlin.extensions.Given
 import io.restassured.module.kotlin.extensions.Then
 import io.restassured.module.kotlin.extensions.When
+import java.math.BigDecimal
+import kotlin.Long.Companion.MIN_VALUE
 import org.assertj.core.api.SoftAssertions.assertSoftly
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
@@ -27,8 +29,6 @@ import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.NOT_FOUND
-import java.math.BigDecimal
-import kotlin.Long.Companion.MIN_VALUE
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 class ProductControllerTest(
