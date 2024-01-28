@@ -25,6 +25,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
+    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
     // kotlin jdsl
     implementation("com.linecorp.kotlin-jdsl:jpql-dsl:3.3.0")

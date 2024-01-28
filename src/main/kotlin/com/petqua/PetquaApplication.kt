@@ -6,6 +6,7 @@ import org.springframework.boot.runApplication
 
 @ConfigurationPropertiesScan
 @SpringBootApplication
+@ConfigurationPropertiesScan
 class PetquaApplication
 
 fun main(args: Array<String>) {
