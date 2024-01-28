@@ -1,4 +1,4 @@
-package com.petqua.domain.auth
+package com.petqua.domain.auth.token
 
 class AuthToken(
     val accessToken: String,
