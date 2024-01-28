@@ -1,19 +1,24 @@
 package com.petqua.application.auth
 
-import com.petqua.domain.member.Member
-import com.petqua.domain.member.MemberRepository
-import com.petqua.domain.auth.AuthTokenProvider
 import com.petqua.domain.auth.OauthClientProvider
 import com.petqua.domain.auth.OauthServerType
 import com.petqua.domain.auth.OauthUserInfo
+import com.petqua.domain.auth.token.AuthToken
+import com.petqua.domain.auth.token.AuthTokenProvider
+import com.petqua.domain.auth.token.RefreshToken
+import com.petqua.domain.auth.token.RefreshTokenRepository
+import com.petqua.domain.member.Member
+import com.petqua.domain.member.MemberRepository
 import com.petqua.presentation.OauthResponse
 import org.springframework.stereotype.Service
+import java.util.*
 
 @Service
 class OauthService(
     private val oauthClientProvider: OauthClientProvider,
     private val memberRepository: MemberRepository,
     private val authTokenProvider: AuthTokenProvider,
+    private val refreshTokenRepository: RefreshTokenRepository,
 ) {
 
     fun login(oauthServerType: OauthServerType, code: String): OauthResponse {
@@ -21,7 +26,7 @@ class OauthService(
         val oauthUserInfo = oauthClient.requestOauthUserInfo(oauthClient.requestToken(code))
         val member = getMemberByOauthInfo(oauthUserInfo.oauthId, oauthServerType)
             ?: createMember(oauthUserInfo, oauthServerType)
-        val authToken = authTokenProvider.createAuthToken(member.id)
+        val authToken = createAuthToken(member)
         return OauthResponse(
             accessToken = authToken.accessToken,
             refreshToken = authToken.refreshToken,
@@ -39,5 +44,16 @@ class OauthService(
                 oauthServerNumber = oauthServerType.number
             )
         )
+    }
+
+    private fun createAuthToken(member: Member): AuthToken {
+        val authToken = authTokenProvider.createAuthToken(member.id, Date())
+        refreshTokenRepository.save(
+            RefreshToken(
+                memberId = member.id,
+                token = authToken.refreshToken
+            )
+        )
+        return authToken
     }
 }
