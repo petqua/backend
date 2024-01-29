@@ -28,26 +28,20 @@ dependencies {
     implementation("io.jsonwebtoken:jjwt-api:0.11.5")
     implementation("io.jsonwebtoken:jjwt-impl:0.11.5")
     implementation("io.jsonwebtoken:jjwt-jackson:0.11.5")
+    implementation("io.jsonwebtoken:jjwt-api:0.11.5")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
     // kotlin jdsl
     implementation("com.linecorp.kotlin-jdsl:jpql-dsl:3.3.0")
     implementation("com.linecorp.kotlin-jdsl:jpql-render:3.3.0")
 
+    // spring boot cache
     implementation("org.springframework.boot:spring-boot-starter-cache")
 
-    implementation("io.jsonwebtoken:jjwt-api:0.11.5")
-
-    // kotlin jdsl
-    implementation("com.linecorp.kotlin-jdsl:jpql-dsl:3.3.0")
-    implementation("com.linecorp.kotlin-jdsl:jpql-render:3.3.0")
-
-    implementation("org.springframework.boot:spring-boot-starter-cache")
 
     runtimeOnly("com.mysql:mysql-connector-j")
     runtimeOnly("com.h2database:h2")
 
-    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("io.kotest:kotest-runner-junit5:5.4.2")
     testImplementation("io.kotest:kotest-assertions-core:5.4.2")
