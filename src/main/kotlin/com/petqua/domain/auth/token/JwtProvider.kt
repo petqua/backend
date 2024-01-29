@@ -55,8 +55,11 @@ class JwtProvider(
         return true;
     }
 
-    fun getSubject(token: String): String {
-        return parseToken(token).body.subject
+    fun getPayload(token: String): Map<String, String> {
+        val tokenClaims = parseToken(token)
+        return tokenClaims.body.entries.associate {(key, value) ->
+            key to value.toString()
+        }
     }
 
     fun parseToken(token: String): Jws<Claims> {

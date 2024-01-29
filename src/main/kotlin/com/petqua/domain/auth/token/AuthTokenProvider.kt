@@ -1,9 +1,10 @@
 package com.petqua.domain.auth.token
 
-import com.petqua.common.exception.auth.AuthTokenException
-import com.petqua.common.exception.auth.AuthTokenExceptionType.EXPIRED_TOKEN
-import com.petqua.common.exception.auth.AuthTokenExceptionType.INVALID_ACCESS_TOKEN
-import com.petqua.common.exception.auth.AuthTokenExceptionType.INVALID_TOKEN
+import com.petqua.common.exception.auth.AuthException
+import com.petqua.common.exception.auth.AuthExceptionType.EXPIRED_TOKEN
+import com.petqua.common.exception.auth.AuthExceptionType.INVALID_ACCESS_TOKEN
+import com.petqua.common.exception.auth.AuthExceptionType.INVALID_TOKEN
+import com.petqua.domain.member.Member
 import io.jsonwebtoken.ExpiredJwtException
 import io.jsonwebtoken.JwtException
 import org.springframework.boot.context.properties.ConfigurationProperties
@@ -26,9 +27,10 @@ class AuthTokenProvider(
     private val properties: AuthTokenProperties,
 ) {
 
-    fun createAuthToken(memberId: Long, issuedDate: Date): AuthToken {
+    fun createAuthToken(member: Member, issuedDate: Date): AuthToken {
+        val accessToken = AccessTokenClaims(member.id, member.authority)
         return AuthToken(
-            accessToken = jwtProvider.createToken(memberId.toString(), properties.accessTokenLiveTime, issuedDate),
+            accessToken = jwtProvider.createToken(accessToken.getClaims(), properties.accessTokenLiveTime, issuedDate),
             refreshToken = jwtProvider.createToken(EMPTY_SUBJECT, properties.refreshTokenLiveTime, issuedDate)
         )
     }
@@ -37,15 +39,15 @@ class AuthTokenProvider(
         return jwtProvider.isValidToken(token)
     }
 
-    fun getMemberIdFromAccessToken(token: String): Long {
+    fun getAccessTokenClaims(token: String): AccessTokenClaims {
         try {
-            return jwtProvider.getSubject(token).toLong()
+            return AccessTokenClaims.from(jwtProvider.getPayload(token))
         } catch (e: ExpiredJwtException) {
-            throw AuthTokenException(EXPIRED_TOKEN)
+            throw AuthException(EXPIRED_TOKEN)
         } catch (e: JwtException) {
-            throw AuthTokenException(INVALID_TOKEN)
+            throw AuthException(INVALID_TOKEN)
         } catch (e: NullPointerException) {
-            throw AuthTokenException(INVALID_ACCESS_TOKEN)
+            throw AuthException(INVALID_ACCESS_TOKEN)
         }
     }
 }

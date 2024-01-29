@@ -3,6 +3,7 @@ package com.petqua.domain.auth
 import com.petqua.domain.auth.token.AuthTokenProperties
 import com.petqua.domain.auth.token.AuthTokenProvider
 import com.petqua.domain.auth.token.JwtProvider
+import com.petqua.domain.member.Member
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jws
 import io.kotest.core.spec.style.BehaviorSpec
@@ -25,15 +26,17 @@ class AuthTokenProviderTest(
     Given("인증 토큰 발급 테스트") {
         val issuedLocalDate = LocalDate.of(3000, 1, 1)
         val issuedDate = Date.from(issuedLocalDate.atStartOfDay(ZoneId.systemDefault()).toInstant())
-        val memberId = 1L
+        val member = Member(1L, "oauthId", OauthServerType.KAKAO.number, Authority.MEMBER)
 
         When("인증 토큰을 발급하면") {
-            val authToken = authTokenProvider.createAuthToken(memberId, issuedDate)
+            val authToken = authTokenProvider.createAuthToken(member, issuedDate)
             val accessTokenExpirationTime = parseExpirationTime(jwtProvider.parseToken(authToken.accessToken))
             val refreshTokenExpirationTime = parseExpirationTime(jwtProvider.parseToken(authToken.refreshToken))
+            val accessTokenClaims = authTokenProvider.getAccessTokenClaims(authToken.accessToken)
 
             Then("JWT타입인 accessToken과 refreshToken이 발급된다") {
-                authTokenProvider.getMemberIdFromAccessToken(authToken.accessToken) shouldBe memberId
+                accessTokenClaims.memberId shouldBe member.id
+                accessTokenClaims.authority shouldBe member.authority
                 authTokenProvider.isValidToken(authToken.accessToken) shouldBe true
                 authTokenProvider.isValidToken(authToken.refreshToken) shouldBe true
                 accessTokenExpirationTime shouldBe calculateExpirationTime(issuedDate, properties.accessTokenLiveTime)
