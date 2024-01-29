@@ -11,9 +11,11 @@ import com.petqua.domain.auth.token.RefreshTokenRepository
 import com.petqua.domain.member.Member
 import com.petqua.domain.member.MemberRepository
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.net.URI
 import java.util.Date
 
+@Transactional
 @Service
 class OauthService(
     private val oauthClientProvider: OauthClientProvider,
