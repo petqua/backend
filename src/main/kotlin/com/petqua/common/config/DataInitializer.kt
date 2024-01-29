@@ -29,7 +29,7 @@ class DataInitializer(
 
     @EventListener(ApplicationReadyEvent::class)
     @Transactional
-    fun init() {
+    fun setUpData() {
         // announcement
         val announcement1 = Announcement(
             title = "[공지] 펫쿠아 프론트엔드 개발자 구인 중!",
