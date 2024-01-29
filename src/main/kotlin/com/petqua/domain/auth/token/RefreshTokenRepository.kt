@@ -6,5 +6,7 @@ interface RefreshTokenRepository : CrudRepository<RefreshToken, Long> {
 
     fun existsByToken(token: String): Boolean
 
+    fun findByMemberId(memberId: Long): RefreshToken?
+
     fun deleteByMemberId(memberId: Long)
 }
