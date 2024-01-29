@@ -1,6 +1,7 @@
 spring:
   profiles:
     active: "test"
+    include: "auth"
 
   h2:
     console:
