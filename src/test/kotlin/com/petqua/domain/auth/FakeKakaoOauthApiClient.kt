@@ -1,4 +1,4 @@
-package com.petqua.test
+package com.petqua.domain.auth
 
 import com.petqua.domain.auth.oauth.OauthTokenInfo
 import com.petqua.domain.auth.oauth.kakao.KakaoAccount
