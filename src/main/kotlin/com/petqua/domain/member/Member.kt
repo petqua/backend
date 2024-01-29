@@ -1,6 +1,13 @@
 package com.petqua.domain.member
 
-import jakarta.persistence.*
+import com.petqua.domain.auth.Authority
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.EnumType.STRING
+import jakarta.persistence.Enumerated
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
 
 @Entity
 class Member(
@@ -11,5 +18,8 @@ class Member(
     val oauthId: String,
 
     @Column(nullable = false)
-    val oauthServerNumber: Int
+    val oauthServerNumber: Int,
+
+    @Enumerated(STRING)
+    val authority: Authority
 )

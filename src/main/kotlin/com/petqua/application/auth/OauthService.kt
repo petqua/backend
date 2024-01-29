@@ -1,5 +1,7 @@
 package com.petqua.application.auth
 
+import com.petqua.domain.auth.Authority
+import com.petqua.domain.auth.Authority.MEMBER
 import com.petqua.domain.auth.OauthClientProvider
 import com.petqua.domain.auth.OauthServerType
 import com.petqua.domain.auth.OauthUserInfo
@@ -47,13 +49,14 @@ class OauthService(
         return memberRepository.save(
             Member(
                 oauthId = oauthUserInfo.oauthId,
-                oauthServerNumber = oauthServerType.number
+                oauthServerNumber = oauthServerType.number,
+                authority = MEMBER
             )
         )
     }
 
     private fun createAuthToken(member: Member): AuthToken {
-        val authToken = authTokenProvider.createAuthToken(member.id, Date())
+        val authToken = authTokenProvider.createAuthToken(member, Date())
         refreshTokenRepository.save(
             RefreshToken(
                 memberId = member.id,
