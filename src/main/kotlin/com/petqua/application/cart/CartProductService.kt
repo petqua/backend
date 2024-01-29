@@ -16,9 +16,10 @@ class CartProductService(
     private val productRepository: ProductRepository,
 ) {
 
-    fun save(command: SaveCartProductCommand) {
+    fun save(command: SaveCartProductCommand): Long {
 //      TODO  memberRepository.existByIdOrThrow(command.memberId, MemberException(NOT_FOUND_MEMBER))
         productRepository.existByIdOrThrow(command.productId, ProductException(NOT_FOUND_PRODUCT))
-        cartProductRepository.save(command.toCartProduct())
+        val savedCartProduct = cartProductRepository.save(command.toCartProduct())
+        return savedCartProduct.id
     }
 }
