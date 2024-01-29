@@ -25,7 +25,7 @@ class LoginArgumentResolver(
 
     override fun supportsParameter(parameter: MethodParameter): Boolean {
         return parameter.hasParameterAnnotation(Auth::class.java)
-                && parameter.getParameterType() == Accessor::class.java;
+                && parameter.getParameterType() == Accessor::class.java
     }
 
     override fun resolveArgument(

@@ -10,7 +10,7 @@ import io.jsonwebtoken.JwtException
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.stereotype.Component
-import java.util.*
+import java.util.Date
 
 private const val EMPTY_SUBJECT = ""
 

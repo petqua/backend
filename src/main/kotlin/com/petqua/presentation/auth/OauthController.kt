@@ -1,10 +1,10 @@
 package com.petqua.presentation.auth
 
-import com.petqua.application.auth.OauthService
 import com.petqua.application.auth.AuthResponse
+import com.petqua.application.auth.OauthService
 import com.petqua.domain.auth.oauth.OauthServerType
 import org.springframework.http.HttpHeaders.SET_COOKIE
-import org.springframework.http.HttpStatus
+import org.springframework.http.HttpStatus.FOUND
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -23,7 +23,7 @@ class OauthController(
         @PathVariable oauthServerType: OauthServerType,
     ): ResponseEntity<Void> {
         val redirectUri = oauthService.getAuthCodeRequestUrl(oauthServerType)
-        return ResponseEntity.status(HttpStatus.FOUND)
+        return ResponseEntity.status(FOUND)
             .location(redirectUri)
             .build()
     }

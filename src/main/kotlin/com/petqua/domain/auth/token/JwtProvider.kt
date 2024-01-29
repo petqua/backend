@@ -10,7 +10,7 @@ import io.jsonwebtoken.security.Keys
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import java.nio.charset.StandardCharsets
-import java.util.*
+import java.util.Date
 import javax.crypto.SecretKey
 
 
@@ -50,9 +50,9 @@ class JwtProvider(
         try {
             parseToken(token)
         } catch (e: Exception) {
-            return false;
+            return false
         }
-        return true;
+        return true
     }
 
     fun getPayload(token: String): Map<String, String> {

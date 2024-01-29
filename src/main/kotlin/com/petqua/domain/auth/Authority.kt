@@ -2,7 +2,7 @@ package com.petqua.domain.auth
 
 import com.petqua.common.exception.auth.AuthException
 import com.petqua.common.exception.auth.AuthExceptionType
-import java.util.*
+import java.util.Locale
 
 enum class Authority {
     GUEST, MEMBER, SELLER, ADMIN

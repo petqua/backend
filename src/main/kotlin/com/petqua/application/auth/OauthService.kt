@@ -12,7 +12,7 @@ import com.petqua.domain.member.Member
 import com.petqua.domain.member.MemberRepository
 import org.springframework.stereotype.Service
 import java.net.URI
-import java.util.*
+import java.util.Date
 
 @Service
 class OauthService(
@@ -55,6 +55,7 @@ class OauthService(
 
     private fun createAuthToken(member: Member): AuthToken {
         val authToken = authTokenProvider.createAuthToken(member, Date())
+        refreshTokenRepository.deleteByMemberId(member.id)
         refreshTokenRepository.save(
             RefreshToken(
                 memberId = member.id,
