@@ -34,6 +34,18 @@ class JwtProvider(
             .compact()
     }
 
+    fun createToken(claims: Map<String, String>, tokenLiveTime: Long, issuedDate: Date): String {
+        val expirationDate = Date(issuedDate.time + tokenLiveTime)
+
+        return Jwts.builder()
+            .setHeaderParam(TYPE, JWT_TYPE)
+            .setClaims(claims)
+            .setIssuedAt(issuedDate)
+            .setExpiration(expirationDate)
+            .signWith(secretKey, SignatureAlgorithm.HS256)
+            .compact()
+    }
+
     fun isValidToken(token: String): Boolean {
         try {
             parseToken(token)
