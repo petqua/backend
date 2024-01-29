@@ -13,14 +13,14 @@ import io.restassured.module.kotlin.extensions.Then
 import io.restassured.module.kotlin.extensions.When
 import org.assertj.core.api.SoftAssertions.assertSoftly
 import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.http.HttpStatus
-
-private const val AUTHORIZATION_HEADER = "X-MEMBER-ID" // FIXME: 인가 구현 완료 후 변경 예정
 
 class CartProductControllerTest(
     private val productRepository: ProductRepository
 ) : ApiTestConfig() {
     init {
+        val memberAuthResponse = signInAsMember()
         val savedProduct = productRepository.save(product(id = 1L))
         Given("봉달에 상품 저장을") {
             val request = SaveCartProductRequest(
@@ -33,7 +33,7 @@ class CartProductControllerTest(
                 val response = Given {
                     log().all()
                         .body(request)
-                        .header(AUTHORIZATION_HEADER, 1L)
+                        .header(AUTHORIZATION, memberAuthResponse.accessToken)
                         .contentType("application/json")
                 } When {
                     post("/carts")
@@ -63,7 +63,7 @@ class CartProductControllerTest(
                 val response = Given {
                     log().all()
                         .body(request)
-                        .header(AUTHORIZATION_HEADER, 1L)
+                        .header(AUTHORIZATION, memberAuthResponse.accessToken)
                         .contentType("application/json")
                 } When {
                     post("/carts")
@@ -92,7 +92,7 @@ class CartProductControllerTest(
                 val response = Given {
                     log().all()
                         .body(request)
-                        .header(AUTHORIZATION_HEADER, 1L)
+                        .header(AUTHORIZATION, memberAuthResponse.accessToken)
                         .contentType("application/json")
                 } When {
                     post("/carts")
