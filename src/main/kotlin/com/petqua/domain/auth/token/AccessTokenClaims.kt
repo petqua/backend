@@ -18,9 +18,9 @@ class AccessTokenClaims(
 
     companion object {
         fun from(claims: Map<String, String>): AccessTokenClaims {
-            val memberId = claims.get(MEMBER_ID)
+            val memberId = claims[MEMBER_ID]
                 ?: throw AuthException(INVALID_ACCESS_TOKEN)
-            val authority = claims.get(AUTHORITY)
+            val authority = claims[AUTHORITY]
                 ?: throw AuthException(INVALID_ACCESS_TOKEN)
 
             return AccessTokenClaims(
