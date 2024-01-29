@@ -1,4 +1,4 @@
-package com.petqua.common.cofig
+package com.petqua.common.config
 
 import org.springframework.cache.CacheManager
 import org.springframework.cache.annotation.EnableCaching
@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration
 
 @EnableCaching
 @Configuration
-class CacheConfiguration {
+class CacheConfig {
 
     @Bean
     fun cacheManager(): CacheManager {
