@@ -1,4 +1,4 @@
-package com.petqua.domain
+package com.petqua.domain.product
 
 import com.petqua.test.fixture.product
 import io.kotest.core.spec.style.BehaviorSpec

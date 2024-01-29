@@ -1,4 +1,4 @@
-package com.petqua.presentation
+package com.petqua.presentation.product
 
 import com.petqua.application.product.ProductService
 import com.petqua.application.product.dto.ProductDetailResponse
