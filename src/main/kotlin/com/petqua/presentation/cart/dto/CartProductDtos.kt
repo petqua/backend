@@ -16,7 +16,7 @@ data class SaveCartProductRequest(
             productId = productId,
             quantity = quantity,
             isMale = isMale,
-            deliveryMethod = DeliveryMethod.valueOf(deliveryMethod)
+            deliveryMethod = DeliveryMethod.from(deliveryMethod)
         )
     }
 }
