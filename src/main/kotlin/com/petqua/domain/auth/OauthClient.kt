@@ -1,6 +1,10 @@
 package com.petqua.domain.auth
 
+import java.net.URI
+
 interface OauthClient {
+
+    fun getAuthCodeRequestUrl(): URI
 
     fun oauthServerType(): OauthServerType
 

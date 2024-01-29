@@ -11,6 +11,7 @@ import com.petqua.domain.member.Member
 import com.petqua.domain.member.MemberRepository
 import com.petqua.presentation.OauthResponse
 import org.springframework.stereotype.Service
+import java.net.URI
 import java.util.*
 
 @Service
@@ -20,6 +21,11 @@ class OauthService(
     private val authTokenProvider: AuthTokenProvider,
     private val refreshTokenRepository: RefreshTokenRepository,
 ) {
+
+    fun getAuthCodeRequestUrl(oauthServerType: OauthServerType): URI {
+        val oauthClient = oauthClientProvider.getOauthClient(oauthServerType)
+        return oauthClient.getAuthCodeRequestUrl()
+    }
 
     fun login(oauthServerType: OauthServerType, code: String): OauthResponse {
         val oauthClient = oauthClientProvider.getOauthClient(oauthServerType)

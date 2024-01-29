@@ -10,6 +10,8 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.stereotype.Component
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.util.MultiValueMap
+import org.springframework.web.util.UriComponentsBuilder
+import java.net.URI
 
 @ConfigurationProperties(prefix = "oauth.client.kakao")
 data class KakaoOauthProperties(
@@ -24,6 +26,15 @@ class KakaoOauthClient(
     private val kakaoOauthProperties: KakaoOauthProperties,
     private val kakaoOauthApiClient: KakaoOauthApiClient,
 ) : OauthClient {
+    override fun getAuthCodeRequestUrl(): URI {
+        return UriComponentsBuilder
+            .fromUriString("https://kauth.kakao.com/oauth/authorize")
+            .queryParam("response_type", "code")
+            .queryParam("client_id", kakaoOauthProperties.clientId)
+            .queryParam("redirect_uri", kakaoOauthProperties.redirectUri)
+            .build()
+            .toUri()
+    }
 
     override fun oauthServerType(): OauthServerType {
         return KAKAO
