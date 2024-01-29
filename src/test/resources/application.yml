@@ -1,0 +1,30 @@
+spring:
+  profiles:
+    active: "test"
+
+  h2:
+    console:
+      enabled: true
+
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:testdb;MODE=MySQL
+    username: sa
+    password:
+
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+        highlight_sql: true
+
+    hibernate:
+      ddl-auto: create
+
+logging:
+  level:
+    org.hibernate.orm.jdbc.bind: TRACE
+    org.apache.coyote.http11: debug
+    root: info
