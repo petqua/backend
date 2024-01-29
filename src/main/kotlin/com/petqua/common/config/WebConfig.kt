@@ -1,7 +1,7 @@
 package com.petqua.common.config
 
-import com.petqua.domain.auth.LoginArgumentResolver
-import com.petqua.presentation.OauthServerTypeConverter
+import com.petqua.presentation.auth.LoginArgumentResolver
+import com.petqua.presentation.auth.OauthServerTypeConverter
 import org.springframework.context.annotation.Configuration
 
 import org.springframework.format.FormatterRegistry

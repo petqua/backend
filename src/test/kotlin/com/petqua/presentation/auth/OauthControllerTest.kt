@@ -1,6 +1,6 @@
 package com.petqua.presentation.auth
 
-import com.petqua.presentation.OauthResponse
+import com.petqua.application.auth.AuthResponse
 import com.petqua.test.ApiTestConfig
 import com.petqua.test.config.OauthTestConfig
 import io.kotest.matchers.shouldBe
@@ -31,11 +31,11 @@ class OauthControllerTest : ApiTestConfig() {
                 }
 
                 Then("인증토큰이 반환된다.") {
-                    val oauthResponse = response.`as`(OauthResponse::class.java)
+                    val authResponse = response.`as`(AuthResponse::class.java)
 
                     response.statusCode shouldBe OK.value()
-                    oauthResponse.accessToken shouldNotBe null
-                    oauthResponse.refreshToken shouldNotBe null
+                    authResponse.accessToken shouldNotBe null
+                    authResponse.refreshToken shouldNotBe null
                 }
             }
         }

@@ -1,7 +1,8 @@
-package com.petqua.presentation
+package com.petqua.presentation.auth
 
 import com.petqua.application.auth.OauthService
-import com.petqua.domain.auth.OauthServerType
+import com.petqua.application.auth.AuthResponse
+import com.petqua.domain.auth.oauth.OauthServerType
 import org.springframework.http.HttpHeaders.SET_COOKIE
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -31,7 +32,7 @@ class OauthController(
     fun login(
         @PathVariable oauthServerType: OauthServerType,
         @RequestParam("code") code: String,
-    ): ResponseEntity<OauthResponse> {
+    ): ResponseEntity<AuthResponse> {
         val oauthResponse = oauthService.login(oauthServerType, code)
         return ResponseEntity
             .ok()

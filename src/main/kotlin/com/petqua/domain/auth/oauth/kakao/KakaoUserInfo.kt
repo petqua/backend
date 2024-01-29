@@ -1,9 +1,9 @@
-package com.petqua.domain.auth.kakao
+package com.petqua.domain.auth.oauth.kakao
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy
 import com.fasterxml.jackson.databind.annotation.JsonNaming
-import com.petqua.domain.auth.OauthUserInfo
+import com.petqua.domain.auth.oauth.OauthUserInfo
 
 @JsonNaming(SnakeCaseStrategy::class)
 class KakaoUserInfo(

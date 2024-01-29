@@ -1,5 +1,6 @@
 package com.petqua.domain.auth
 
+import com.petqua.domain.auth.oauth.OauthServerType
 import com.petqua.domain.auth.token.AuthTokenProperties
 import com.petqua.domain.auth.token.AuthTokenProvider
 import com.petqua.domain.auth.token.JwtProvider

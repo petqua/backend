@@ -1,6 +1,6 @@
-package com.petqua.domain.auth.kakao
+package com.petqua.domain.auth.oauth.kakao
 
-import com.petqua.domain.auth.OauthTokenInfo
+import com.petqua.domain.auth.oauth.OauthTokenInfo
 import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE
 import org.springframework.util.MultiValueMap

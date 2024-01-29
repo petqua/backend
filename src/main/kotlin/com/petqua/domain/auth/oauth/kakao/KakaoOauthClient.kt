@@ -1,10 +1,10 @@
-package com.petqua.domain.auth.kakao
+package com.petqua.domain.auth.oauth.kakao
 
-import com.petqua.domain.auth.OauthClient
-import com.petqua.domain.auth.OauthServerType
-import com.petqua.domain.auth.OauthServerType.KAKAO
-import com.petqua.domain.auth.OauthTokenInfo
-import com.petqua.domain.auth.OauthUserInfo
+import com.petqua.domain.auth.oauth.OauthClient
+import com.petqua.domain.auth.oauth.OauthServerType
+import com.petqua.domain.auth.oauth.OauthServerType.KAKAO
+import com.petqua.domain.auth.oauth.OauthTokenInfo
+import com.petqua.domain.auth.oauth.OauthUserInfo
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.stereotype.Component

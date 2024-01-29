@@ -1,10 +1,10 @@
 package com.petqua.test
 
-import com.petqua.domain.auth.OauthTokenInfo
-import com.petqua.domain.auth.kakao.KakaoAccount
-import com.petqua.domain.auth.kakao.KakaoOauthApiClient
-import com.petqua.domain.auth.kakao.KakaoUserInfo
-import com.petqua.domain.auth.kakao.Profile
+import com.petqua.domain.auth.oauth.OauthTokenInfo
+import com.petqua.domain.auth.oauth.kakao.KakaoAccount
+import com.petqua.domain.auth.oauth.kakao.KakaoOauthApiClient
+import com.petqua.domain.auth.oauth.kakao.KakaoUserInfo
+import com.petqua.domain.auth.oauth.kakao.Profile
 import org.springframework.util.MultiValueMap
 
 class FakeKakaoOauthApiClient : KakaoOauthApiClient {

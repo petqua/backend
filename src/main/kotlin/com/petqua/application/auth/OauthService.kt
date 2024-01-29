@@ -1,17 +1,15 @@
 package com.petqua.application.auth
 
-import com.petqua.domain.auth.Authority
 import com.petqua.domain.auth.Authority.MEMBER
-import com.petqua.domain.auth.OauthClientProvider
-import com.petqua.domain.auth.OauthServerType
-import com.petqua.domain.auth.OauthUserInfo
+import com.petqua.domain.auth.oauth.OauthClientProvider
+import com.petqua.domain.auth.oauth.OauthServerType
+import com.petqua.domain.auth.oauth.OauthUserInfo
 import com.petqua.domain.auth.token.AuthToken
 import com.petqua.domain.auth.token.AuthTokenProvider
 import com.petqua.domain.auth.token.RefreshToken
 import com.petqua.domain.auth.token.RefreshTokenRepository
 import com.petqua.domain.member.Member
 import com.petqua.domain.member.MemberRepository
-import com.petqua.presentation.OauthResponse
 import org.springframework.stereotype.Service
 import java.net.URI
 import java.util.*
@@ -29,13 +27,13 @@ class OauthService(
         return oauthClient.getAuthCodeRequestUrl()
     }
 
-    fun login(oauthServerType: OauthServerType, code: String): OauthResponse {
+    fun login(oauthServerType: OauthServerType, code: String): AuthResponse {
         val oauthClient = oauthClientProvider.getOauthClient(oauthServerType)
         val oauthUserInfo = oauthClient.requestOauthUserInfo(oauthClient.requestToken(code))
         val member = getMemberByOauthInfo(oauthUserInfo.oauthId, oauthServerType)
             ?: createMember(oauthUserInfo, oauthServerType)
         val authToken = createAuthToken(member)
-        return OauthResponse(
+        return AuthResponse(
             accessToken = authToken.accessToken,
             refreshToken = authToken.refreshToken,
         )

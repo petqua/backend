@@ -1,6 +1,6 @@
 package com.petqua.application.auth
 
-import com.petqua.domain.auth.OauthServerType.KAKAO
+import com.petqua.domain.auth.oauth.OauthServerType.KAKAO
 import com.petqua.domain.auth.token.JwtProvider
 import com.petqua.domain.auth.token.RefreshTokenRepository
 import com.petqua.test.config.OauthTestConfig
