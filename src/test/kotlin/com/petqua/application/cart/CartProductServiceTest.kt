@@ -3,8 +3,10 @@ package com.petqua.application.cart
 import com.petqua.application.cart.dto.SaveCartProductCommand
 import com.petqua.domain.cart.CartProductRepository
 import com.petqua.domain.cart.DeliveryMethod
+import com.petqua.domain.member.MemberRepository
 import com.petqua.domain.product.ProductRepository
 import com.petqua.test.DataCleaner
+import com.petqua.test.fixture.member
 import com.petqua.test.fixture.product
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -16,12 +18,13 @@ class CartProductServiceTest(
     private val cartProductService: CartProductService,
     private val cartProductRepository: CartProductRepository,
     private val productRepository: ProductRepository,
+    private val memberRepository: MemberRepository,
     private val dataCleaner: DataCleaner,
 ) : BehaviorSpec({
 
     Given("봉달 상품 저장 명령으로") {
         val productId = productRepository.save(product(id = 1L)).id
-        val memberId = 1L
+        val memberId = memberRepository.save(member(id = 1L)).id
         val command = SaveCartProductCommand(
             memberId = memberId,
             productId = productId,
