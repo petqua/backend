@@ -14,8 +14,9 @@ import com.petqua.test.fixture.store
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment
 
-@SpringBootTest
+@SpringBootTest(webEnvironment = WebEnvironment.NONE)
 class ProductServiceTest(
     private val productService: ProductService,
     private val productRepository: ProductRepository,

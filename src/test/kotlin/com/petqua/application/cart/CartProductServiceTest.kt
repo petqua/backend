@@ -9,8 +9,9 @@ import com.petqua.test.fixture.product
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE
 
-@SpringBootTest
+@SpringBootTest(webEnvironment = NONE)
 class CartProductServiceTest(
     private val cartProductService: CartProductService,
     private val cartProductRepository: CartProductRepository,
