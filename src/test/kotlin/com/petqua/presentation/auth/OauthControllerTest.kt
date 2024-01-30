@@ -30,10 +30,10 @@ class OauthControllerTest : ApiTestConfig() {
                 }
 
                 Then("인증토큰이 반환된다.") {
-                    val authTokenInfo = response.`as`(AuthResponse::class.java)
+                    val authResponse = response.`as`(AuthResponse::class.java)
 
                     response.statusCode shouldBe OK.value()
-                    authTokenInfo.accessToken shouldNotBe null
+                    authResponse.accessToken shouldNotBe null
                 }
             }
         }
