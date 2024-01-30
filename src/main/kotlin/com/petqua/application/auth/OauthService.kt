@@ -29,13 +29,13 @@ class OauthService(
         return oauthClient.getAuthCodeRequestUrl()
     }
 
-    fun login(oauthServerType: OauthServerType, code: String): AuthResponse {
+    fun login(oauthServerType: OauthServerType, code: String): AuthTokenInfo {
         val oauthClient = oauthClientProvider.getOauthClient(oauthServerType)
         val oauthUserInfo = oauthClient.requestOauthUserInfo(oauthClient.requestToken(code))
         val member = getMemberByOauthInfo(oauthUserInfo.oauthId, oauthServerType)
             ?: createMember(oauthUserInfo, oauthServerType)
         val authToken = createAuthToken(member)
-        return AuthResponse(
+        return AuthTokenInfo(
             accessToken = authToken.accessToken,
             refreshToken = authToken.refreshToken,
         )
