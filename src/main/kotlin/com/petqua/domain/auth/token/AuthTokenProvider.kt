@@ -39,7 +39,7 @@ class AuthTokenProvider(
         return jwtProvider.isValidToken(token)
     }
 
-    fun getAccessTokenClaims(token: String): AccessTokenClaims {
+    fun getAccessTokenClaimsOrThrow(token: String): AccessTokenClaims {
         try {
             return AccessTokenClaims.from(jwtProvider.getPayload(token))
         } catch (e: ExpiredJwtException) {
