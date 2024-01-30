@@ -2,6 +2,7 @@ package com.petqua.domain.cart
 
 import com.petqua.common.domain.BaseEntity
 import jakarta.persistence.Column
+import jakarta.persistence.Embedded
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
@@ -20,8 +21,8 @@ class CartProduct(
     @Column(nullable = false)
     val productId: Long,
 
-    @Column(nullable = false)
-    val quantity: Int = 1,
+    @Embedded
+    val quantity: CartProductQuantity,
 
     @Column(nullable = false)
     val isMale: Boolean,

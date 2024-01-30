@@ -1,6 +1,7 @@
 package com.petqua.application.cart.dto
 
 import com.petqua.domain.cart.CartProduct
+import com.petqua.domain.cart.CartProductQuantity
 import com.petqua.domain.cart.DeliveryMethod
 
 data class SaveCartProductCommand(
@@ -14,7 +15,7 @@ data class SaveCartProductCommand(
         return CartProduct(
             memberId = memberId,
             productId = productId,
-            quantity = quantity,
+            quantity = CartProductQuantity(quantity),
             isMale = isMale,
             deliveryMethod = deliveryMethod,
         )
