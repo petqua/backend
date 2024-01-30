@@ -18,4 +18,17 @@ class CartProductQuantity(
         throwExceptionWhen(value < MIN_QUANTITY) { CartProductException(PRODUCT_QUANTITY_UNDER_MINIMUM) }
         throwExceptionWhen(value > MAX_QUANTITY) { CartProductException(PRODUCT_QUANTITY_OVER_MAXIMUM) }
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as CartProductQuantity
+
+        return quantity == other.quantity
+    }
+
+    override fun hashCode(): Int {
+        return quantity
+    }
 }
