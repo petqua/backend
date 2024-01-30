@@ -43,7 +43,7 @@ class CartProductControllerTest(
                     response()
                 }
 
-                Then("배너 목록을 응답한다.") {
+                Then("봉달 목록에 상품이 저장된다") {
                     assertSoftly {
                         it.assertThat(response.statusCode).isEqualTo(HttpStatus.CREATED.value())
                         it.assertThat(response.header(HttpHeaders.LOCATION)).contains("/carts/items")
