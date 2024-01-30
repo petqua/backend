@@ -8,17 +8,12 @@ import com.petqua.exception.product.ProductExceptionType.NOT_FOUND_PRODUCT
 import com.petqua.presentation.cart.dto.SaveCartProductRequest
 import com.petqua.test.ApiTestConfig
 import com.petqua.test.fixture.product
-import io.restassured.module.kotlin.extensions.Extract
-import io.restassured.module.kotlin.extensions.Given
-import io.restassured.module.kotlin.extensions.Then
-import io.restassured.module.kotlin.extensions.When
 import org.assertj.core.api.SoftAssertions.assertSoftly
 import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.http.HttpStatus
 
 class CartProductControllerTest(
-    private val productRepository: ProductRepository
+    private val productRepository: ProductRepository,
 ) : ApiTestConfig() {
     init {
         val memberAuthResponse = signInAsMember()
@@ -31,18 +26,7 @@ class CartProductControllerTest(
                 deliveryMethod = "SAFETY"
             )
             When("요청 하면") {
-                val response = Given {
-                    log().all()
-                        .body(request)
-                        .header(AUTHORIZATION, memberAuthResponse.accessToken)
-                        .contentType("application/json")
-                } When {
-                    post("/carts")
-                } Then {
-                    log().all()
-                } Extract {
-                    response()
-                }
+                val response = requestSaveCartProduct(request, memberAuthResponse.accessToken)
 
                 Then("봉달 목록에 상품이 저장된다") {
                     assertSoftly {
@@ -55,24 +39,13 @@ class CartProductControllerTest(
 
         Given("봉달에 상품 저장 요청시") {
             When("지원하지 않는 배송 방식으로 요청 하면") {
-                val request = SaveCartProductRequest(
+                val invalidDeliveryMethodRequest = SaveCartProductRequest(
                     productId = savedProduct.id,
                     quantity = 1,
                     isMale = true,
                     deliveryMethod = "NOT_SUPPORTED"
                 )
-                val response = Given {
-                    log().all()
-                        .body(request)
-                        .header(AUTHORIZATION, memberAuthResponse.accessToken)
-                        .contentType("application/json")
-                } When {
-                    post("/carts")
-                } Then {
-                    log().all()
-                } Extract {
-                    response()
-                }
+                val response = requestSaveCartProduct(invalidDeliveryMethodRequest, memberAuthResponse.accessToken)
 
                 Then("예외가 발생한다") {
                     val errorResponse = response.`as`(ExceptionResponse::class.java)
@@ -84,24 +57,13 @@ class CartProductControllerTest(
             }
 
             When("존재 하지 않는 상품 저장을 요청 하면") {
-                val request = SaveCartProductRequest(
+                val notExistProductRequest = SaveCartProductRequest(
                     productId = 999L,
                     quantity = 1,
                     isMale = true,
                     deliveryMethod = "SAFETY"
                 )
-                val response = Given {
-                    log().all()
-                        .body(request)
-                        .header(AUTHORIZATION, memberAuthResponse.accessToken)
-                        .contentType("application/json")
-                } When {
-                    post("/carts")
-                } Then {
-                    log().all()
-                } Extract {
-                    response()
-                }
+                val response = requestSaveCartProduct(notExistProductRequest, memberAuthResponse.accessToken)
 
                 Then("예외가 발생한다") {
                     val errorResponse = response.`as`(ExceptionResponse::class.java)
@@ -113,24 +75,13 @@ class CartProductControllerTest(
             }
 
             When("유효하지 않은 상품 수량을 담으면") {
-                val request = SaveCartProductRequest(
+                val invalidProductQuantityRequest = SaveCartProductRequest(
                     productId = savedProduct.id,
                     quantity = 1_000,
                     isMale = false,
                     deliveryMethod = "SAFETY"
                 )
-                val response = Given {
-                    log().all()
-                        .body(request)
-                        .header(AUTHORIZATION, memberAuthResponse.accessToken)
-                        .contentType("application/json")
-                } When {
-                    post("/carts")
-                } Then {
-                    log().all()
-                } Extract {
-                    response()
-                }
+                val response = requestSaveCartProduct(invalidProductQuantityRequest, memberAuthResponse.accessToken)
 
                 Then("예외가 발생한다") {
                     val errorResponse = response.`as`(ExceptionResponse::class.java)
