@@ -5,6 +5,7 @@ import com.petqua.domain.auth.oauth.kakao.KakaoAccount
 import com.petqua.domain.auth.oauth.kakao.KakaoOauthApiClient
 import com.petqua.domain.auth.oauth.kakao.KakaoUserInfo
 import com.petqua.domain.auth.oauth.kakao.Profile
+import java.util.UUID
 import org.springframework.util.MultiValueMap
 
 class FakeKakaoOauthApiClient : KakaoOauthApiClient {
@@ -21,7 +22,7 @@ class FakeKakaoOauthApiClient : KakaoOauthApiClient {
         )
         return KakaoUserInfo(
             kakaoAccount = kakaoAccount,
-            oauthId = "oauthId"
+            oauthId = "oauthId" + UUID.randomUUID().toString()
         )
     }
 }
