@@ -2,7 +2,7 @@ package com.petqua.presentation.auth
 
 import com.petqua.common.exception.auth.AuthException
 import com.petqua.common.exception.auth.AuthExceptionType
-import com.petqua.domain.auth.Accessor
+import com.petqua.domain.auth.LoginMember
 import com.petqua.domain.auth.Auth
 import com.petqua.domain.auth.token.AuthTokenProvider
 import com.petqua.domain.auth.token.RefreshTokenRepository
@@ -25,7 +25,7 @@ class LoginArgumentResolver(
 
     override fun supportsParameter(parameter: MethodParameter): Boolean {
         return parameter.hasParameterAnnotation(Auth::class.java)
-                && parameter.getParameterType() == Accessor::class.java
+                && parameter.getParameterType() == LoginMember::class.java
     }
 
     override fun resolveArgument(
@@ -33,20 +33,20 @@ class LoginArgumentResolver(
         mavContainer: ModelAndViewContainer?,
         webRequest: NativeWebRequest,
         binderFactory: WebDataBinderFactory?
-    ): Accessor {
+    ): LoginMember {
         val request = webRequest.getNativeRequest(HttpServletRequest::class.java)
             ?: throw AuthException(AuthExceptionType.INVALID_REQUEST)
         val refreshToken = request.cookies?.find {it.name == REFRESH_TOKEN_COOKIE}?.value
         val accessToken = webRequest.getHeader(HttpHeaders.AUTHORIZATION) as String
         val accessTokenClaims = authTokenProvider.getAccessTokenClaims(accessToken)
         if (refreshToken == null) {
-            return Accessor.from(accessTokenClaims)
+            return LoginMember.from(accessTokenClaims)
         }
 
         val savedRefreshToken = refreshTokenRepository.findByMemberId(accessTokenClaims.memberId)
             ?: throw AuthException(AuthExceptionType.INVALID_REFRESH_TOKEN)
         if (savedRefreshToken.token == refreshToken) {
-            return Accessor.from(accessTokenClaims)
+            return LoginMember.from(accessTokenClaims)
         }
         throw AuthException(AuthExceptionType.INVALID_REFRESH_TOKEN)
     }
