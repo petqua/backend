@@ -1,12 +1,16 @@
 package com.petqua.application.cart
 
 import com.petqua.application.cart.dto.SaveCartProductCommand
+import com.petqua.application.cart.dto.UpdateCartProductOptionCommand
 import com.petqua.common.domain.existByIdOrThrow
+import com.petqua.common.domain.findByIdOrThrow
 import com.petqua.domain.cart.CartProductRepository
 import com.petqua.domain.member.MemberRepository
 import com.petqua.domain.product.ProductRepository
 import com.petqua.exception.cart.CartProductException
 import com.petqua.exception.cart.CartProductExceptionType.DUPLICATED_PRODUCT
+import com.petqua.exception.cart.CartProductException
+import com.petqua.exception.cart.CartProductExceptionType.NOT_FOUND_CART_PRODUCT
 import com.petqua.exception.member.MemberException
 import com.petqua.exception.member.MemberExceptionType.NOT_FOUND_MEMBER
 import com.petqua.exception.product.ProductException
@@ -36,5 +40,14 @@ class CartProductService(
             isMale = command.isMale,
             deliveryMethod = command.deliveryMethod
         )?.also { throw CartProductException(DUPLICATED_PRODUCT) }
+    }
+
+    fun updateOptions(command: UpdateCartProductOptionCommand) {
+        val cartProduct = cartProductRepository.findByIdOrThrow(
+            command.cartProductId,
+            CartProductException(NOT_FOUND_CART_PRODUCT)
+        )
+        cartProduct.validateOwner(command.memberId)
+        cartProduct.updateOptions(command.quantity, command.isMale, command.deliveryMethod)
     }
 }
