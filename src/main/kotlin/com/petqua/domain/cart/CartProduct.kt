@@ -2,6 +2,9 @@ package com.petqua.domain.cart
 
 import com.petqua.common.domain.BaseEntity
 import jakarta.persistence.AttributeOverride
+import com.petqua.common.util.throwExceptionWhen
+import com.petqua.exception.cart.CartProductException
+import com.petqua.exception.cart.CartProductExceptionType.FORBIDDEN_CART_PRODUCT
 import jakarta.persistence.Column
 import jakarta.persistence.Embedded
 import jakarta.persistence.Entity
@@ -24,12 +27,27 @@ class CartProduct(
 
     @Embedded
     @AttributeOverride(name = "value", column = Column(name = "quantity", nullable = false))
-    val quantity: CartProductQuantity,
+    var quantity: CartProductQuantity,
 
     @Column(nullable = false)
-    val isMale: Boolean,
+    var isMale: Boolean,
 
     @Enumerated(value = EnumType.STRING)
     @Column(nullable = false)
-    val deliveryMethod: DeliveryMethod,
-) : BaseEntity()
+    var deliveryMethod: DeliveryMethod,
+) : BaseEntity() {
+
+    fun validateOwner(accessMemberId: Long) {
+        throwExceptionWhen(accessMemberId != this.memberId) { CartProductException(FORBIDDEN_CART_PRODUCT) }
+    }
+
+    fun updateOptions(
+        quantity: CartProductQuantity,
+        isMale: Boolean,
+        deliveryMethod: DeliveryMethod,
+    ) {
+        this.quantity = quantity
+        this.isMale = isMale
+        this.deliveryMethod = deliveryMethod
+    }
+}
