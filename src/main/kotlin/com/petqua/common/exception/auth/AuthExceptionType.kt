@@ -16,6 +16,8 @@ enum class AuthExceptionType(
 
     UNSUPPORTED_AUTHORITY(BAD_REQUEST, "해당하는 권한이 존재하지 않습니다."),
 
+    EMPTY_REFRESH_TOKEN_COOKIE(BAD_REQUEST, "RefreshToken 쿠키가 존재하지 않습니다."),
+
     INVALID_REQUEST(BAD_REQUEST, "올바르지 않은 요청입니다."),
     ;
 
