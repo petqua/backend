@@ -6,8 +6,10 @@ import com.petqua.exception.cart.CartProductExceptionType.INVALID_DELIVERY_METHO
 import com.petqua.exception.cart.CartProductExceptionType.PRODUCT_QUANTITY_OVER_MAXIMUM
 import com.petqua.exception.product.ProductExceptionType.NOT_FOUND_PRODUCT
 import com.petqua.presentation.cart.dto.SaveCartProductRequest
+import com.petqua.presentation.cart.dto.UpdateCartProductOptionRequest
 import com.petqua.test.ApiTestConfig
 import com.petqua.test.fixture.product
+import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.SoftAssertions.assertSoftly
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
@@ -92,6 +94,28 @@ class CartProductControllerTest(
                 }
             }
 //            TODO When("중복 상품을 담으면") {
+        }
+
+        Given("봉달 상품의 옵션 수정을") {
+            val cartProductId = saveCartProductAndReturnId(memberAuthResponse.accessToken)
+
+            When("요청 하면") {
+                val request = UpdateCartProductOptionRequest(
+                    quantity = 2,
+                    isMale = false,
+                    deliveryMethod = "SAFETY"
+                )
+
+                val response = requestUpdateCartProductOption(
+                    cartProductId,
+                    request,
+                    memberAuthResponse.accessToken
+                )
+
+                Then("봉달 상품의 옵션이 수정된다") {
+                    assertThat(response.statusCode).isEqualTo(HttpStatus.NO_CONTENT.value())
+                }
+            }
         }
     }
 }
