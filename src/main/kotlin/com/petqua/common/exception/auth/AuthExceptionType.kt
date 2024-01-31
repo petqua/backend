@@ -17,10 +17,6 @@ enum class AuthExceptionType(
     INVALID_REFRESH_TOKEN(BAD_REQUEST, "올바른 형태의 RefreshToken이 아닙니다."),
 
     UNSUPPORTED_AUTHORITY(BAD_REQUEST, "해당하는 권한이 존재하지 않습니다."),
-
-    EMPTY_REFRESH_TOKEN_COOKIE(BAD_REQUEST, "RefreshToken 쿠키가 존재하지 않습니다."),
-
-    INVALID_REQUEST(BAD_REQUEST, "올바르지 않은 요청입니다."),
     ;
 
     override fun httpStatus(): HttpStatus {
