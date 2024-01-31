@@ -1,6 +1,6 @@
 package com.petqua.application.cart
 
-import com.petqua.application.cart.dto.DeleteCartProductsCommand
+import com.petqua.application.cart.dto.DeleteCartProductCommand
 import com.petqua.application.cart.dto.SaveCartProductCommand
 import com.petqua.application.cart.dto.UpdateCartProductOptionCommand
 import com.petqua.common.domain.findByIdOrThrow
@@ -204,9 +204,9 @@ class CartProductServiceTest(
         )
 
         When("봉달 상품을") {
-            DeleteCartProductsCommand(
+            DeleteCartProductCommand(
                 memberId = memberId,
-                cartProductIds = listOf(cartProduct.id)
+                cartProductId = cartProduct.id
             ).let(cartProductService::delete)
 
             Then("삭제할 수 있다") {
@@ -227,9 +227,9 @@ class CartProductServiceTest(
         )
 
         When("존재 하지 않는 장바구니 상품에 삭제 요청 하는 경우") {
-            val command = DeleteCartProductsCommand(
+            val command = DeleteCartProductCommand(
                 memberId = memberId,
-                cartProductIds = listOf(Long.MIN_VALUE)
+                cartProductId = Long.MIN_VALUE
             )
             Then("예외가 발생 한다") {
                 shouldThrow<CartProductException> {
@@ -239,9 +239,9 @@ class CartProductServiceTest(
         }
 
         When("다른 회원이 장바구니 상품을 삭제 하는 경우") {
-            val command = DeleteCartProductsCommand(
+            val command = DeleteCartProductCommand(
                 memberId = Long.MIN_VALUE,
-                cartProductIds = listOf(cartProduct.id)
+                cartProductId = cartProduct.id
             )
             Then("예외가 발생 한다") {
                 shouldThrow<CartProductException> {

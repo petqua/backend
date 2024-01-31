@@ -1,6 +1,6 @@
 package com.petqua.presentation.cart.dto
 
-import com.petqua.application.cart.dto.DeleteCartProductsCommand
+import com.petqua.application.cart.dto.DeleteCartProductCommand
 import com.petqua.application.cart.dto.SaveCartProductCommand
 import com.petqua.application.cart.dto.UpdateCartProductOptionCommand
 import com.petqua.domain.cart.CartProductQuantity
@@ -41,14 +41,14 @@ data class UpdateCartProductOptionRequest(
     }
 }
 
-data class DeleteCartProductsRequest(
-    val cartProductIds: List<Long>,
+data class DeleteCartProductRequest(
+    val cartProductId: Long
 ) {
 
-    fun toCommand(memberId: Long): DeleteCartProductsCommand {
-        return DeleteCartProductsCommand(
+    fun toCommand(memberId: Long): DeleteCartProductCommand {
+        return DeleteCartProductCommand(
             memberId = memberId,
-            cartProductIds = cartProductIds,
+            cartProductId = cartProductId,
         )
     }
 }

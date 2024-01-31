@@ -8,7 +8,7 @@ import com.petqua.exception.cart.CartProductExceptionType.INVALID_DELIVERY_METHO
 import com.petqua.exception.cart.CartProductExceptionType.NOT_FOUND_CART_PRODUCT
 import com.petqua.exception.cart.CartProductExceptionType.PRODUCT_QUANTITY_OVER_MAXIMUM
 import com.petqua.exception.product.ProductExceptionType.NOT_FOUND_PRODUCT
-import com.petqua.presentation.cart.dto.DeleteCartProductsRequest
+import com.petqua.presentation.cart.dto.DeleteCartProductRequest
 import com.petqua.presentation.cart.dto.SaveCartProductRequest
 import com.petqua.presentation.cart.dto.UpdateCartProductOptionRequest
 import com.petqua.test.ApiTestConfig
@@ -276,15 +276,13 @@ class CartProductControllerTest(
         }
 
         Given("봉달 상품 삭제를") {
-            val productA = productRepository.save(product(id = 1L))
-            val productB = productRepository.save(product(id = 2L))
+            val product = productRepository.save(product(id = 1L))
             val memberAuthResponse = signInAsMember()
-            val cartProductAId = saveCartProductAndReturnId(memberAuthResponse.accessToken, productA.id)
-            val cartProductBId = saveCartProductAndReturnId(memberAuthResponse.accessToken, productB.id)
+            val cartProductAId = saveCartProductAndReturnId(memberAuthResponse.accessToken, product.id)
 
 
             When("요청 하면") {
-                val request = DeleteCartProductsRequest(listOf(cartProductAId, cartProductBId))
+                val request = DeleteCartProductRequest(cartProductAId)
                 val response = requestDeleteCartProduct(
                     request,
                     memberAuthResponse.accessToken
@@ -297,14 +295,12 @@ class CartProductControllerTest(
         }
 
         Given("봉달 상품 삭제시") {
-            val productA = productRepository.save(product(id = 1L))
-            val productB = productRepository.save(product(id = 2L))
+            val product = productRepository.save(product(id = 1L))
             val memberAuthResponse = signInAsMember()
-            val cartProductAId = saveCartProductAndReturnId(memberAuthResponse.accessToken, productA.id)
-            val cartProductBId = saveCartProductAndReturnId(memberAuthResponse.accessToken, productB.id)
+            val cartProductAId = saveCartProductAndReturnId(memberAuthResponse.accessToken, product.id)
 
             When("존재하지 않는 봉달 상품 삭제를 요청 하면") {
-                val request = DeleteCartProductsRequest(listOf(productA.id, 999L))
+                val request = DeleteCartProductRequest(Long.MIN_VALUE)
                 val response = requestDeleteCartProduct(
                     request,
                     memberAuthResponse.accessToken
@@ -321,7 +317,7 @@ class CartProductControllerTest(
 
             When("다른 회원의 상품을 삭제 하면") {
                 val otherMemberResponse = signInAsMember()
-                val request = DeleteCartProductsRequest(listOf(cartProductAId, cartProductBId))
+                val request = DeleteCartProductRequest(cartProductAId)
                 val response = requestDeleteCartProduct(
                     request,
                     otherMemberResponse.accessToken

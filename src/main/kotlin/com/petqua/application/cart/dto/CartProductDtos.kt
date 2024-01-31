@@ -31,7 +31,7 @@ data class UpdateCartProductOptionCommand(
     val deliveryMethod: DeliveryMethod,
 )
 
-data class DeleteCartProductsCommand(
+data class DeleteCartProductCommand(
     val memberId: Long,
-    val cartProductIds: List<Long>,
+    val cartProductId: Long,
 )
