@@ -25,10 +25,10 @@ class CartProductQuantity(
 
         other as CartProductQuantity
 
-        return quantity == other.quantity
+        return value == other.value
     }
 
     override fun hashCode(): Int {
-        return quantity
+        return value
     }
 }

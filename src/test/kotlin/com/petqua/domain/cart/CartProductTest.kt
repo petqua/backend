@@ -25,7 +25,7 @@ class CartProductTest : StringSpec({
 
         assertSoftly(cartProduct) {
             isMale shouldBe false
-            quantity.quantity shouldBe 10
+            quantity.value shouldBe 10
             deliveryMethod shouldBe DeliveryMethod.COMMON
         }
     }
