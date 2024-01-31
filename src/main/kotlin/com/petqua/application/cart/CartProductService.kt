@@ -5,6 +5,8 @@ import com.petqua.common.domain.existByIdOrThrow
 import com.petqua.domain.cart.CartProductRepository
 import com.petqua.domain.member.MemberRepository
 import com.petqua.domain.product.ProductRepository
+import com.petqua.exception.cart.CartProductException
+import com.petqua.exception.cart.CartProductExceptionType.DUPLICATED_PRODUCT
 import com.petqua.exception.member.MemberException
 import com.petqua.exception.member.MemberExceptionType.NOT_FOUND_MEMBER
 import com.petqua.exception.product.ProductException
@@ -23,7 +25,16 @@ class CartProductService(
     fun save(command: SaveCartProductCommand): Long {
         memberRepository.existByIdOrThrow(command.memberId, MemberException(NOT_FOUND_MEMBER))
         productRepository.existByIdOrThrow(command.productId, ProductException(NOT_FOUND_PRODUCT))
-        val savedCartProduct = cartProductRepository.save(command.toCartProduct())
-        return savedCartProduct.id
+        validateDuplicatedProduct(command)
+        return cartProductRepository.save(command.toCartProduct()).id
+    }
+
+    private fun validateDuplicatedProduct(command: SaveCartProductCommand) {
+        cartProductRepository.findByMemberIdAndProductIdAndMaleAndDeliveryMethod(
+            memberId = command.memberId,
+            productId = command.productId,
+            isMale = command.isMale,
+            deliveryMethod = command.deliveryMethod
+        )?.also { throw CartProductException(DUPLICATED_PRODUCT) }
     }
 }

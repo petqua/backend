@@ -13,11 +13,11 @@ private const val MAX_QUANTITY = 99
 @Embeddable
 class CartProductQuantity(
     @Column(nullable = false)
-    val quantity: Int = 1,
+    val value: Int = 1,
 ) {
 
     init {
-        throwExceptionWhen(quantity < MIN_QUANTITY) { CartProductException(PRODUCT_QUANTITY_UNDER_MINIMUM) }
-        throwExceptionWhen(quantity > MAX_QUANTITY) { CartProductException(PRODUCT_QUANTITY_OVER_MAXIMUM) }
+        throwExceptionWhen(value < MIN_QUANTITY) { CartProductException(PRODUCT_QUANTITY_UNDER_MINIMUM) }
+        throwExceptionWhen(value > MAX_QUANTITY) { CartProductException(PRODUCT_QUANTITY_OVER_MAXIMUM) }
     }
 }

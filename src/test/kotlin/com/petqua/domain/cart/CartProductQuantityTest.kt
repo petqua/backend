@@ -10,7 +10,7 @@ import org.assertj.core.api.Assertions.assertThatThrownBy
 class CartProductQuantityTest : StringSpec({
     "상품 수량 값객체 생성" {
         val quantity = CartProductQuantity(5)
-        assertThat(quantity.quantity).isEqualTo(5)
+        assertThat(quantity.value).isEqualTo(5)
     }
 
     "최소 수량 미만인 경우 생성 실패" {
