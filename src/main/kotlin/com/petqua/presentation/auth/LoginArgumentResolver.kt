@@ -1,7 +1,5 @@
 package com.petqua.presentation.auth
 
-import com.petqua.common.exception.auth.AuthException
-import com.petqua.common.exception.auth.AuthExceptionType
 import com.petqua.domain.auth.Auth
 import com.petqua.domain.auth.LoginMember
 import com.petqua.domain.auth.token.AuthTokenProvider

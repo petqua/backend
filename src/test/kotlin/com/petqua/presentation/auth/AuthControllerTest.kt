@@ -7,6 +7,7 @@ import com.petqua.domain.member.MemberRepository
 import com.petqua.test.ApiTestConfig
 import com.petqua.test.config.OauthTestConfig
 import com.petqua.test.fixture.member
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.restassured.module.kotlin.extensions.Extract
