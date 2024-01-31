@@ -25,9 +25,9 @@ class CartProductControllerTest(
     private val productRepository: ProductRepository,
 ) : ApiTestConfig() {
     init {
-        val memberAuthResponse = signInAsMember()
-        val savedProduct = productRepository.save(product(id = 1L))
         Given("봉달에 상품 저장을") {
+            val memberAuthResponse = signInAsMember()
+            val savedProduct = productRepository.save(product(id = 1L))
             val request = SaveCartProductRequest(
                 productId = savedProduct.id,
                 quantity = 1,
@@ -47,6 +47,8 @@ class CartProductControllerTest(
         }
 
         Given("봉달에 상품 저장 요청시") {
+            val memberAuthResponse = signInAsMember()
+            val savedProduct = productRepository.save(product(id = 1L))
             When("지원하지 않는 배송 방식으로 요청 하면") {
                 val invalidDeliveryMethodRequest = SaveCartProductRequest(
                     productId = savedProduct.id,
@@ -123,6 +125,8 @@ class CartProductControllerTest(
         }
 
         Given("봉달 상품의 옵션 수정을") {
+            productRepository.save(product(id = 1L))
+            val memberAuthResponse = signInAsMember()
             val cartProductId = saveCartProductAndReturnId(memberAuthResponse.accessToken)
 
             When("요청 하면") {
@@ -145,6 +149,8 @@ class CartProductControllerTest(
         }
 
         Given("봉달 상품의 옵션 수정시") {
+            val savedProduct = productRepository.save(product(id = 1L))
+            val memberAuthResponse = signInAsMember()
             val cartProductId = saveCartProductAndReturnId(memberAuthResponse.accessToken)
 
             When("존재하지 않는 봉달 상품 수정을 요청 하면") {
