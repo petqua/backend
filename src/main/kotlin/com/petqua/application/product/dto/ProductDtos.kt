@@ -39,7 +39,7 @@ data class ProductDetailResponse(
     )
 }
 
-data class ProductReadRequest(
+data class ProductReadCommand(
     val sourceType: ProductSourceType = ProductSourceType.NONE,
     val sorter: Sorter = Sorter.NONE,
     val lastViewedId: Long? = null,
@@ -71,7 +71,6 @@ data class ProductsResponse(
 }
 
 data class ProductSearchCommand(
-    val memberId: Long = 0L,
     val word: String = "",
     val lastViewedId: Long? = null,
     val limit: Int = LIMIT_CEILING,

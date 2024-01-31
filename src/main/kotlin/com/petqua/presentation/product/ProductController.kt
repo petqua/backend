@@ -2,10 +2,10 @@ package com.petqua.presentation.product
 
 import com.petqua.application.product.ProductService
 import com.petqua.application.product.dto.ProductDetailResponse
-import com.petqua.application.product.dto.ProductReadRequest
 import com.petqua.application.product.dto.ProductsResponse
 import com.petqua.domain.auth.Auth
 import com.petqua.domain.auth.LoginMember
+import com.petqua.presentation.product.dto.ProductReadRequest
 import com.petqua.presentation.product.dto.ProductSearchRequest
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -20,14 +20,21 @@ class ProductController(
 ) {
 
     @GetMapping("/{productId}")
-    fun readById(@PathVariable productId: Long): ResponseEntity<ProductDetailResponse> {
+    fun readById(
+        @Auth loginMember: LoginMember,
+        @PathVariable productId: Long
+    ): ResponseEntity<ProductDetailResponse> {
         val response = productService.readById(productId)
         return ResponseEntity.ok(response)
     }
 
     @GetMapping
-    fun readAll(request: ProductReadRequest): ResponseEntity<ProductsResponse> {
-        val response = productService.readAll(request)
+    fun readAll(
+        @Auth loginMember: LoginMember,
+        request: ProductReadRequest
+    ): ResponseEntity<ProductsResponse> {
+        val command = request.toCommand(loginMember.memberId)
+        val response = productService.readAll(command)
         return ResponseEntity.ok(response)
     }
 

@@ -1,7 +1,7 @@
 package com.petqua.application.product
 
 import com.petqua.application.product.dto.ProductDetailResponse
-import com.petqua.application.product.dto.ProductReadRequest
+import com.petqua.application.product.dto.ProductReadCommand
 import com.petqua.application.product.dto.ProductSearchCommand
 import com.petqua.application.product.dto.ProductsResponse
 import com.petqua.common.domain.findByIdOrThrow
@@ -28,11 +28,11 @@ class ProductService(
         return ProductDetailResponse(product, store.name, product.averageReviewScore())
     }
 
-    fun readAll(request: ProductReadRequest): ProductsResponse {
-        val products = productRepository.findAllByCondition(request.toReadConditions(), request.toPaging())
-        val totalProductsCount = productRepository.countByCondition(request.toReadConditions())
+    fun readAll(command: ProductReadCommand): ProductsResponse {
+        val products = productRepository.findAllByCondition(command.toReadConditions(), command.toPaging())
+        val totalProductsCount = productRepository.countByCondition(command.toReadConditions())
 
-        return ProductsResponse.of(products, request.limit, totalProductsCount)
+        return ProductsResponse.of(products, command.limit, totalProductsCount)
     }
 
     fun readBySearch(command: ProductSearchCommand): ProductsResponse {

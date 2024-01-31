@@ -1,7 +1,7 @@
 package com.petqua.application.product
 
 import com.petqua.application.product.dto.ProductDetailResponse
-import com.petqua.application.product.dto.ProductReadRequest
+import com.petqua.application.product.dto.ProductReadCommand
 import com.petqua.application.product.dto.ProductSearchCommand
 import com.petqua.application.product.dto.ProductsResponse
 import com.petqua.domain.product.ProductRepository
@@ -47,7 +47,7 @@ class ProductServiceTest(
         val product1 = productRepository.save(product(storeId = store.id))
         val product2 = productRepository.save(product(storeId = store.id))
 
-        val request = ProductReadRequest(
+        val request = ProductReadCommand(
             sourceType = NONE,
             sorter = ENROLLMENT_DATE_DESC,
             limit = 2

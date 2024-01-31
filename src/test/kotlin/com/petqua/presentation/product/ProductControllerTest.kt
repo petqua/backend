@@ -38,11 +38,14 @@ class ProductControllerTest(
         val store = storeRepository.save(store())
 
         Given("개별 상품을 조회할 때") {
+            val token = signInAsMember().accessToken
+
             val productId = productRepository.save(product(storeId = store.id)).id
 
             When("상품 ID를 입력하면") {
                 val response = Given {
                     log().all()
+                    header(HttpHeaders.AUTHORIZATION, token)
                     pathParam("productId", productId)
                 } When {
                     get("/products/{productId}")
@@ -73,6 +76,7 @@ class ProductControllerTest(
                 Then("예외가 발생한다") {
                     Given {
                         log().all()
+                        header(HttpHeaders.AUTHORIZATION, token)
                         pathParam("productId", MIN_VALUE)
                     } When {
                         get("/products/{productId}")
@@ -85,6 +89,8 @@ class ProductControllerTest(
         }
 
         Given("조건에 따라 상품을 조회할 때") {
+            val token = signInAsMember().accessToken
+
             val product1 = productRepository.save(
                 product(
                     name = "상품1",
@@ -128,6 +134,7 @@ class ProductControllerTest(
             When("마지막으로 조회한 Id를 입력하면") {
                 val response = Given {
                     log().all()
+                    header(HttpHeaders.AUTHORIZATION, token)
                     param("lastViewedId", product4.id)
                 } When {
                     get("/products")
@@ -160,6 +167,7 @@ class ProductControllerTest(
             When("개수 제한을 입력하면") {
                 val response = Given {
                     log().all()
+                    header(HttpHeaders.AUTHORIZATION, token)
                     param("limit", 1)
                 } When {
                     get("/products")
@@ -188,6 +196,7 @@ class ProductControllerTest(
             When("추천 조건으로 조회하면") {
                 val response = Given {
                     log().all()
+                    header(HttpHeaders.AUTHORIZATION, token)
                     param("sourceType", HOME_RECOMMENDED.name)
                 } When {
                     get("/products")
@@ -219,6 +228,7 @@ class ProductControllerTest(
             When("추천 조건으로, 가격 낮은 순으로 조회하면") {
                 val response = Given {
                     log().all()
+                    header(HttpHeaders.AUTHORIZATION, token)
                     params(
                         "sourceType", HOME_RECOMMENDED.name,
                         "sorter", SALE_PRICE_ASC.name
@@ -253,6 +263,7 @@ class ProductControllerTest(
             When("신규 입고 조건으로 조회하면") {
                 val response = Given {
                     log().all()
+                    header(HttpHeaders.AUTHORIZATION, token)
                     param("sourceType", HOME_NEW_ENROLLMENT.name)
                 } When {
                     get("/products")
@@ -286,6 +297,7 @@ class ProductControllerTest(
             When("신규 입고 조건으로, 가격 높은 순으로 조회하면") {
                 val response = Given {
                     log().all()
+                    header(HttpHeaders.AUTHORIZATION, token)
                     params(
                         "sourceType", HOME_NEW_ENROLLMENT.name,
                         "sorter", SALE_PRICE_DESC.name
@@ -324,6 +336,7 @@ class ProductControllerTest(
                 Then("예외가 발생한다") {
                     Given {
                         log().all()
+                        header(HttpHeaders.AUTHORIZATION, token)
                         param("sourceType", "wrongType")
                     } When {
                         get("/products")
@@ -336,6 +349,8 @@ class ProductControllerTest(
         }
 
         Given("상품 이름 검색으로 상품을 조회할 때") {
+            val token = signInAsMember().accessToken
+
             val product1 = productRepository.save(
                 product(
                     name = "상품A",
