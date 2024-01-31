@@ -5,6 +5,7 @@ import com.petqua.application.cart.dto.UpdateCartProductOptionCommand
 import com.petqua.common.domain.existByIdOrThrow
 import com.petqua.common.domain.findByIdOrThrow
 import com.petqua.domain.cart.CartProductRepository
+import com.petqua.domain.cart.DeliveryMethod
 import com.petqua.domain.member.MemberRepository
 import com.petqua.domain.product.ProductRepository
 import com.petqua.exception.cart.CartProductException
@@ -28,17 +29,13 @@ class CartProductService(
     fun save(command: SaveCartProductCommand): Long {
         memberRepository.existByIdOrThrow(command.memberId, MemberException(NOT_FOUND_MEMBER))
         productRepository.existByIdOrThrow(command.productId, ProductException(NOT_FOUND_PRODUCT))
-        validateDuplicatedProduct(command)
-        return cartProductRepository.save(command.toCartProduct()).id
-    }
-
-    private fun validateDuplicatedProduct(command: SaveCartProductCommand) {
-        cartProductRepository.findByMemberIdAndProductIdAndIsMaleAndDeliveryMethod(
+        validateDuplicatedProduct(
             memberId = command.memberId,
             productId = command.productId,
             isMale = command.isMale,
             deliveryMethod = command.deliveryMethod
-        )?.also { throw CartProductException(DUPLICATED_PRODUCT) }
+        )
+        return cartProductRepository.save(command.toCartProduct()).id
     }
 
     fun updateOptions(command: UpdateCartProductOptionCommand) {
@@ -47,6 +44,26 @@ class CartProductService(
             CartProductException(NOT_FOUND_CART_PRODUCT)
         )
         cartProduct.validateOwner(command.memberId)
+        validateDuplicatedProduct(
+            memberId = command.memberId,
+            productId = cartProduct.productId,
+            isMale = command.isMale,
+            deliveryMethod = command.deliveryMethod
+        )
         cartProduct.updateOptions(command.quantity, command.isMale, command.deliveryMethod)
+    }
+
+    private fun validateDuplicatedProduct(
+        memberId: Long,
+        productId: Long,
+        isMale: Boolean,
+        deliveryMethod: DeliveryMethod
+    ) {
+        cartProductRepository.findByMemberIdAndProductIdAndIsMaleAndDeliveryMethod(
+            memberId = memberId,
+            productId = productId,
+            isMale = isMale,
+            deliveryMethod = deliveryMethod
+        )?.also { throw CartProductException(DUPLICATED_PRODUCT) }
     }
 }
