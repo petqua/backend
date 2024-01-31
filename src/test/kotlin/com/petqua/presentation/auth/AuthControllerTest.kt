@@ -78,7 +78,7 @@ class AuthControllerTest(
                     val authResponse = response.`as`(AuthResponse::class.java)
 
                     response.statusCode shouldBe OK.value()
-                    authResponse.accessToken shouldNotBe null
+                    authResponse.accessToken.shouldNotBeNull()
                 }
             }
         }
