@@ -1,4 +1,4 @@
-package com.petqua.common.exception.auth
+package com.petqua.exception.auth
 
 import com.petqua.common.exception.BaseExceptionType
 import org.springframework.http.HttpStatus

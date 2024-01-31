@@ -1,10 +1,10 @@
 package com.petqua.application.auth
 
 import com.petqua.common.domain.findByIdOrThrow
-import com.petqua.common.exception.auth.AuthException
-import com.petqua.common.exception.auth.AuthExceptionType.EXPIRED_REFRESH_TOKEN
-import com.petqua.common.exception.auth.AuthExceptionType.INVALID_REFRESH_TOKEN
-import com.petqua.common.exception.auth.AuthExceptionType.NOT_RENEWABLE_ACCESS_TOKEN
+import com.petqua.exception.auth.AuthException
+import com.petqua.exception.auth.AuthExceptionType.EXPIRED_REFRESH_TOKEN
+import com.petqua.exception.auth.AuthExceptionType.INVALID_REFRESH_TOKEN
+import com.petqua.exception.auth.AuthExceptionType.NOT_RENEWABLE_ACCESS_TOKEN
 import com.petqua.domain.auth.Authority.MEMBER
 import com.petqua.domain.auth.oauth.OauthClientProvider
 import com.petqua.domain.auth.oauth.OauthServerType

@@ -1,7 +1,7 @@
 package com.petqua.domain.auth
 
-import com.petqua.common.exception.auth.AuthException
-import com.petqua.common.exception.auth.AuthExceptionType
+import com.petqua.exception.auth.AuthException
+import com.petqua.exception.auth.AuthExceptionType
 import java.util.Locale
 
 enum class Authority {

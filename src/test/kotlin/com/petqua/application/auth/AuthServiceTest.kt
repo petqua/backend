@@ -1,7 +1,7 @@
 package com.petqua.application.auth
 
-import com.petqua.common.exception.auth.AuthException
-import com.petqua.common.exception.auth.AuthExceptionType
+import com.petqua.exception.auth.AuthException
+import com.petqua.exception.auth.AuthExceptionType
 import com.petqua.domain.auth.oauth.OauthServerType.KAKAO
 import com.petqua.domain.auth.token.AuthTokenProvider
 import com.petqua.domain.auth.token.RefreshToken

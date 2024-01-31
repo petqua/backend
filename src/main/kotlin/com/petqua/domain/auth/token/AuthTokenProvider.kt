@@ -1,9 +1,9 @@
 package com.petqua.domain.auth.token
 
-import com.petqua.common.exception.auth.AuthException
-import com.petqua.common.exception.auth.AuthExceptionType.EXPIRED_ACCESS_TOKEN
-import com.petqua.common.exception.auth.AuthExceptionType.INVALID_ACCESS_TOKEN
-import com.petqua.common.exception.auth.AuthExceptionType.INVALID_REFRESH_TOKEN
+import com.petqua.exception.auth.AuthException
+import com.petqua.exception.auth.AuthExceptionType.EXPIRED_ACCESS_TOKEN
+import com.petqua.exception.auth.AuthExceptionType.INVALID_ACCESS_TOKEN
+import com.petqua.exception.auth.AuthExceptionType.INVALID_REFRESH_TOKEN
 import com.petqua.domain.member.Member
 import io.jsonwebtoken.ExpiredJwtException
 import io.jsonwebtoken.JwtException
