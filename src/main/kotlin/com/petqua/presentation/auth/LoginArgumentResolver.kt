@@ -2,10 +2,14 @@ package com.petqua.presentation.auth
 
 import com.petqua.common.domain.findByIdOrThrow
 import com.petqua.common.exception.auth.AuthException
+<<<<<<< HEAD
 import com.petqua.common.exception.auth.AuthExceptionType.EMPTY_REFRESH_TOKEN_COOKIE
 import com.petqua.common.exception.auth.AuthExceptionType.EXPIRED_TOKEN
 import com.petqua.common.exception.auth.AuthExceptionType.INVALID_REFRESH_TOKEN
 import com.petqua.common.exception.auth.AuthExceptionType.INVALID_REQUEST
+=======
+import com.petqua.common.exception.auth.AuthExceptionType
+>>>>>>> 2617f49 (feature: 봉달목록에 상품 추가 api (#31))
 import com.petqua.domain.auth.Auth
 import com.petqua.domain.auth.LoginMember
 import com.petqua.domain.auth.token.AuthTokenProvider
@@ -41,6 +45,7 @@ class LoginArgumentResolver(
         binderFactory: WebDataBinderFactory?
     ): LoginMember {
         val request = webRequest.getNativeRequest(HttpServletRequest::class.java)
+<<<<<<< HEAD
             ?: throw AuthException(INVALID_REQUEST)
         val refreshToken = request.cookies?.find {it.name == REFRESH_TOKEN_COOKIE}?.value
             ?: throw AuthException(EMPTY_REFRESH_TOKEN_COOKIE)
@@ -55,6 +60,20 @@ class LoginArgumentResolver(
             } else {
                 throw e
             }
+=======
+            ?: throw AuthException(AuthExceptionType.INVALID_REQUEST)
+        val refreshToken = request.cookies?.find { it.name == REFRESH_TOKEN_COOKIE }?.value
+        val accessToken = webRequest.getHeader(HttpHeaders.AUTHORIZATION) as String
+        val accessTokenClaims = authTokenProvider.getAccessTokenClaims(accessToken)
+        if (refreshToken == null) {
+            return LoginMember.from(accessTokenClaims)
+        }
+
+        val savedRefreshToken = refreshTokenRepository.findByMemberId(accessTokenClaims.memberId)
+            ?: throw AuthException(AuthExceptionType.INVALID_REFRESH_TOKEN)
+        if (savedRefreshToken.token == refreshToken) {
+            return LoginMember.from(accessTokenClaims)
+>>>>>>> 2617f49 (feature: 봉달목록에 상품 추가 api (#31))
         }
     }
 
