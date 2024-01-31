@@ -42,7 +42,6 @@ private fun parseCartProductIdFromLocationHeader(response: Response): Long {
     return response.header(HttpHeaders.LOCATION).split("/").last().toLong()
 }
 
-
 fun requestUpdateCartProductOption(
     cartProductId: Long,
     request: UpdateCartProductOptionRequest,

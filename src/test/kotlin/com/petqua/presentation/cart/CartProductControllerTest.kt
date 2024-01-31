@@ -2,6 +2,7 @@ package com.petqua.presentation.cart
 
 import com.petqua.common.exception.ExceptionResponse
 import com.petqua.domain.product.ProductRepository
+import com.petqua.exception.cart.CartProductExceptionType.DUPLICATED_PRODUCT
 import com.petqua.exception.cart.CartProductExceptionType.FORBIDDEN_CART_PRODUCT
 import com.petqua.exception.cart.CartProductExceptionType.INVALID_DELIVERY_METHOD
 import com.petqua.exception.cart.CartProductExceptionType.NOT_FOUND_CART_PRODUCT
@@ -99,7 +100,26 @@ class CartProductControllerTest(
                     }
                 }
             }
-//            TODO When("중복 상품을 담으면") {
+
+            When("중복 상품을 담으면") {
+                val request = SaveCartProductRequest(
+                    productId = savedProduct.id,
+                    quantity = 1,
+                    isMale = true,
+                    deliveryMethod = "SAFETY"
+                )
+                requestSaveCartProduct(request, memberAuthResponse.accessToken)
+
+                val response = requestSaveCartProduct(request, memberAuthResponse.accessToken)
+
+                Then("예외가 발생한다") {
+                    val errorResponse = response.`as`(ExceptionResponse::class.java)
+                    assertSoftly {
+                        it.assertThat(response.statusCode).isEqualTo(BAD_REQUEST.value())
+                        it.assertThat(errorResponse.message).isEqualTo(DUPLICATED_PRODUCT.errorMessage())
+                    }
+                }
+            }
         }
 
         Given("봉달 상품의 옵션 수정을") {
@@ -212,6 +232,37 @@ class CartProductControllerTest(
                     assertSoftly {
                         it.assertThat(response.statusCode).isEqualTo(FORBIDDEN.value())
                         it.assertThat(errorResponse.message).isEqualTo(FORBIDDEN_CART_PRODUCT.errorMessage())
+                    }
+                }
+            }
+
+            When("중복 상품을 수정 하면") {
+                requestSaveCartProduct(
+                    SaveCartProductRequest(
+                        productId = savedProduct.id,
+                        quantity = 1,
+                        isMale = true,
+                        deliveryMethod = "SAFETY"
+                    ),
+                    memberAuthResponse.accessToken
+                )
+                val duplicationProductOptionRequest = UpdateCartProductOptionRequest(
+                    quantity = 2,
+                    isMale = true,
+                    deliveryMethod = "SAFETY"
+                )
+
+                val response = requestUpdateCartProductOption(
+                    cartProductId,
+                    duplicationProductOptionRequest,
+                    memberAuthResponse.accessToken
+                )
+
+                Then("예외가 발생한다") {
+                    val errorResponse = response.`as`(ExceptionResponse::class.java)
+                    assertSoftly {
+                        it.assertThat(response.statusCode).isEqualTo(BAD_REQUEST.value())
+                        it.assertThat(errorResponse.message).isEqualTo(DUPLICATED_PRODUCT.errorMessage())
                     }
                 }
             }
