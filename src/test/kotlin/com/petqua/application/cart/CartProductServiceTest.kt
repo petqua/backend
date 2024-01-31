@@ -1,5 +1,6 @@
 package com.petqua.application.cart
 
+import com.petqua.application.cart.dto.DeleteCartProductsCommand
 import com.petqua.application.cart.dto.SaveCartProductCommand
 import com.petqua.application.cart.dto.UpdateCartProductOptionCommand
 import com.petqua.common.domain.findByIdOrThrow
@@ -11,6 +12,7 @@ import com.petqua.domain.member.MemberRepository
 import com.petqua.domain.product.ProductRepository
 import com.petqua.exception.cart.CartProductException
 import com.petqua.exception.cart.CartProductExceptionType.DUPLICATED_PRODUCT
+import com.petqua.exception.cart.CartProductExceptionType.FORBIDDEN_CART_PRODUCT
 import com.petqua.exception.cart.CartProductExceptionType.NOT_FOUND_CART_PRODUCT
 import com.petqua.exception.member.MemberException
 import com.petqua.exception.member.MemberExceptionType.NOT_FOUND_MEMBER
@@ -62,7 +64,7 @@ class CartProductServiceTest(
 
         When("존재 하지 않는 회원이 요청 하는 경우") {
             val command = SaveCartProductCommand(
-                memberId = 999L,
+                memberId = Long.MIN_VALUE,
                 productId = productId,
                 quantity = 1,
                 isMale = true,
@@ -78,7 +80,7 @@ class CartProductServiceTest(
         When("존재 하지 않는 상품이 요청 하는 경우") {
             val command = SaveCartProductCommand(
                 memberId = memberId,
-                productId = 999L,
+                productId = Long.MIN_VALUE,
                 quantity = 1,
                 isMale = true,
                 deliveryMethod = COMMON,
@@ -153,7 +155,7 @@ class CartProductServiceTest(
 
         When("존재 하지 않는 장바구니 상품에 수정 요청 하는 경우") {
             val command = UpdateCartProductOptionCommand(
-                cartProductId = 999L,
+                cartProductId = Long.MIN_VALUE,
                 memberId = memberId,
                 quantity = CartProductQuantity(2),
                 isMale = false,
@@ -186,6 +188,65 @@ class CartProductServiceTest(
                 shouldThrow<CartProductException> {
                     cartProductService.updateOptions(command)
                 }.exceptionType() shouldBe DUPLICATED_PRODUCT
+            }
+        }
+    }
+
+    Given("봉달 상품 삭제 명령으로") {
+        val productId = productRepository.save(product()).id
+        val memberId = memberRepository.save(member()).id
+        val cartProduct = cartProductRepository.save(
+            cartProduct(
+                memberId = memberId,
+                productId = productId,
+                deliveryMethod = COMMON
+            )
+        )
+
+        When("봉달 상품을") {
+            DeleteCartProductsCommand(
+                memberId = memberId,
+                cartProductIds = listOf(cartProduct.id)
+            ).let(cartProductService::delete)
+
+            Then("삭제할 수 있다") {
+                cartProductRepository.findAll().size shouldBe 0
+            }
+        }
+    }
+
+    Given("봉달 상품 삭제시") {
+        val productId = productRepository.save(product()).id
+        val memberId = memberRepository.save(member()).id
+        val cartProduct = cartProductRepository.save(
+            cartProduct(
+                memberId = memberId,
+                productId = productId,
+                deliveryMethod = COMMON
+            )
+        )
+
+        When("존재 하지 않는 장바구니 상품에 삭제 요청 하는 경우") {
+            val command = DeleteCartProductsCommand(
+                memberId = memberId,
+                cartProductIds = listOf(Long.MIN_VALUE)
+            )
+            Then("예외가 발생 한다") {
+                shouldThrow<CartProductException> {
+                    cartProductService.delete(command)
+                }.exceptionType() shouldBe NOT_FOUND_CART_PRODUCT
+            }
+        }
+
+        When("다른 회원이 장바구니 상품을 삭제 하는 경우") {
+            val command = DeleteCartProductsCommand(
+                memberId = Long.MIN_VALUE,
+                cartProductIds = listOf(cartProduct.id)
+            )
+            Then("예외가 발생 한다") {
+                shouldThrow<CartProductException> {
+                    cartProductService.delete(command)
+                }.exceptionType() shouldBe FORBIDDEN_CART_PRODUCT
             }
         }
     }

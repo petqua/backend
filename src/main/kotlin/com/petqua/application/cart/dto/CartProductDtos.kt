@@ -30,3 +30,8 @@ data class UpdateCartProductOptionCommand(
     val isMale: Boolean,
     val deliveryMethod: DeliveryMethod,
 )
+
+data class DeleteCartProductsCommand(
+    val memberId: Long,
+    val cartProductIds: List<Long>,
+)
