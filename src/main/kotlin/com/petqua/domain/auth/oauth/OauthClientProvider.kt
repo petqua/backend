@@ -1,7 +1,7 @@
 package com.petqua.domain.auth.oauth
 
-import com.petqua.common.exception.auth.OauthClientException
-import com.petqua.common.exception.auth.OauthClientExceptionType.UNSUPPORTED_OAUTH_SERVER_TYPE
+import com.petqua.exception.auth.OauthClientException
+import com.petqua.exception.auth.OauthClientExceptionType.UNSUPPORTED_OAUTH_SERVER_TYPE
 import org.springframework.stereotype.Component
 
 @Component

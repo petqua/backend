@@ -1,6 +1,6 @@
 package com.petqua.application.auth
 
-data class AuthResponse(
+data class AuthTokenInfo(
     val accessToken: String,
     val refreshToken: String,
 )

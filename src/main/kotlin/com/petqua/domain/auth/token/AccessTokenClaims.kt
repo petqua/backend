@@ -1,7 +1,7 @@
 package com.petqua.domain.auth.token
 
-import com.petqua.common.exception.auth.AuthException
-import com.petqua.common.exception.auth.AuthExceptionType.INVALID_ACCESS_TOKEN
+import com.petqua.exception.auth.AuthException
+import com.petqua.exception.auth.AuthExceptionType.INVALID_ACCESS_TOKEN
 import com.petqua.domain.auth.Authority
 
 private const val MEMBER_ID = "memberId"

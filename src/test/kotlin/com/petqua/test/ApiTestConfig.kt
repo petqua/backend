@@ -1,6 +1,6 @@
 package com.petqua.test
 
-import com.petqua.application.auth.AuthResponse
+import com.petqua.presentation.auth.AuthResponse
 import com.petqua.test.config.OauthTestConfig
 import io.kotest.core.spec.style.BehaviorSpec
 import io.restassured.RestAssured
@@ -45,7 +45,7 @@ abstract class ApiTestConfig : BehaviorSpec() {
             log().all()
                 .queryParam("code", "code")
         } When {
-            get("/oauth/login/{oauthServerType}", "kakao")
+            get("/auth/login/{oauthServerType}", "kakao")
         } Then {
             log().all()
         } Extract {

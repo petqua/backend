@@ -33,7 +33,7 @@ class AuthTokenProviderTest(
             val authToken = authTokenProvider.createAuthToken(member, issuedDate)
             val accessTokenExpirationTime = parseExpirationTime(jwtProvider.parseToken(authToken.accessToken))
             val refreshTokenExpirationTime = parseExpirationTime(jwtProvider.parseToken(authToken.refreshToken))
-            val accessTokenClaims = authTokenProvider.getAccessTokenClaims(authToken.accessToken)
+            val accessTokenClaims = authTokenProvider.getAccessTokenClaimsOrThrow(authToken.accessToken)
 
             Then("JWT타입인 accessToken과 refreshToken이 발급된다") {
                 accessTokenClaims.memberId shouldBe member.id

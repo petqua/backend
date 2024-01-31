@@ -1,5 +1,10 @@
 package com.petqua.application.auth
 
+import com.petqua.common.domain.findByIdOrThrow
+import com.petqua.exception.auth.AuthException
+import com.petqua.exception.auth.AuthExceptionType.EXPIRED_REFRESH_TOKEN
+import com.petqua.exception.auth.AuthExceptionType.INVALID_REFRESH_TOKEN
+import com.petqua.exception.auth.AuthExceptionType.NOT_RENEWABLE_ACCESS_TOKEN
 import com.petqua.domain.auth.Authority.MEMBER
 import com.petqua.domain.auth.oauth.OauthClientProvider
 import com.petqua.domain.auth.oauth.OauthServerType
@@ -17,7 +22,7 @@ import java.util.Date
 
 @Transactional
 @Service
-class OauthService(
+class AuthService(
     private val oauthClientProvider: OauthClientProvider,
     private val memberRepository: MemberRepository,
     private val authTokenProvider: AuthTokenProvider,
@@ -29,16 +34,40 @@ class OauthService(
         return oauthClient.getAuthCodeRequestUrl()
     }
 
-    fun login(oauthServerType: OauthServerType, code: String): AuthResponse {
+    fun login(oauthServerType: OauthServerType, code: String): AuthTokenInfo {
         val oauthClient = oauthClientProvider.getOauthClient(oauthServerType)
         val oauthUserInfo = oauthClient.requestOauthUserInfo(oauthClient.requestToken(code))
         val member = getMemberByOauthInfo(oauthUserInfo.oauthId, oauthServerType)
             ?: createMember(oauthUserInfo, oauthServerType)
         val authToken = createAuthToken(member)
-        return AuthResponse(
+        return AuthTokenInfo(
             accessToken = authToken.accessToken,
             refreshToken = authToken.refreshToken,
         )
+    }
+
+    fun extendLogin(accessToken: String, refreshToken: String): AuthTokenInfo {
+        validateTokenExpiredStatusForExtendLogin(accessToken, refreshToken)
+        val savedRefreshToken = refreshTokenRepository.findByToken(refreshToken)
+            ?: throw AuthException(INVALID_REFRESH_TOKEN)
+        if (savedRefreshToken.token != refreshToken) {
+            throw AuthException(INVALID_REFRESH_TOKEN)
+        }
+        val member = memberRepository.findByIdOrThrow(savedRefreshToken.memberId)
+        val authToken = createAuthToken(member)
+        return AuthTokenInfo(
+            accessToken = authToken.accessToken,
+            refreshToken = authToken.refreshToken,
+        )
+    }
+
+    private fun validateTokenExpiredStatusForExtendLogin(accessToken: String, refreshToken: String) {
+        if (!authTokenProvider.isExpiredAccessToken(accessToken)) {
+            throw AuthException(NOT_RENEWABLE_ACCESS_TOKEN)
+        }
+        if (authTokenProvider.isExpiredRefreshToken(refreshToken)) {
+            throw AuthException(EXPIRED_REFRESH_TOKEN)
+        }
     }
 
     private fun getMemberByOauthInfo(oauthId: String, oauthServerType: OauthServerType): Member? {

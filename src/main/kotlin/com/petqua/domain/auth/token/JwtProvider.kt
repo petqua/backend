@@ -1,6 +1,7 @@
 package com.petqua.domain.auth.token
 
 import io.jsonwebtoken.Claims
+import io.jsonwebtoken.ExpiredJwtException
 import io.jsonwebtoken.Header.JWT_TYPE
 import io.jsonwebtoken.Header.TYPE
 import io.jsonwebtoken.Jws
@@ -53,6 +54,15 @@ class JwtProvider(
             return false
         }
         return true
+    }
+
+    fun isExpiredToken(token: String): Boolean {
+        try {
+            parseToken(token)
+        } catch (e: ExpiredJwtException) {
+            return true
+        }
+        return false
     }
 
     fun getPayload(token: String): Map<String, String> {
