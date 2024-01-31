@@ -36,7 +36,7 @@ class Product(
     val discountPrice: BigDecimal = price,
 
     @Column(nullable = false)
-    val wishCount: Int = 0,
+    var wishCount: Int = 0,
 
     @Column(nullable = false)
     val reviewCount: Int = 0,

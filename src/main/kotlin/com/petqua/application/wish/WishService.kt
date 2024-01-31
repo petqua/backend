@@ -1,0 +1,34 @@
+package com.petqua.application.wish
+
+import com.petqua.common.domain.existByIdOrThrow
+import com.petqua.common.domain.findByIdOrThrow
+import com.petqua.domain.member.MemberRepository
+import com.petqua.domain.product.ProductRepository
+import com.petqua.domain.wish.WishRepository
+import com.petqua.exception.member.MemberException
+import com.petqua.exception.member.MemberExceptionType.NOT_FOUND_MEMBER
+import com.petqua.exception.product.ProductException
+import com.petqua.exception.product.ProductExceptionType.NOT_FOUND_PRODUCT
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+
+@Transactional
+@Service
+class WishService(
+    private val wishRepository: WishRepository,
+    private val productRepository: ProductRepository,
+    private val memberRepository: MemberRepository,
+) {
+    fun save(command: SaveWishCommand) {
+        memberRepository.existByIdOrThrow(command.memberId, MemberException(NOT_FOUND_MEMBER))
+        productRepository.existByIdOrThrow(command.productId, ProductException(NOT_FOUND_PRODUCT))
+        if (wishRepository.existsByProductIdAndMemberId(command.productId, command.memberId)) {
+            return
+        }
+
+        val wish = command.toWish()
+        val product = productRepository.findByIdOrThrow(wish.productId)
+        product.wishCount++
+        wishRepository.save(wish)
+    }
+}
