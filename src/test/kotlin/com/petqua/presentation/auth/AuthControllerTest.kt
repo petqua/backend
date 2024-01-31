@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Import
 import org.springframework.http.HttpStatus.OK
 
 @Import(OauthTestConfig::class)
-class OauthControllerTest : ApiTestConfig() {
+class AuthControllerTest : ApiTestConfig() {
 
     init {
         Given("소셜 로그인을 할 때") {

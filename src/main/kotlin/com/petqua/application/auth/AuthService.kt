@@ -17,7 +17,7 @@ import java.util.Date
 
 @Transactional
 @Service
-class OauthService(
+class AuthService(
     private val oauthClientProvider: OauthClientProvider,
     private val memberRepository: MemberRepository,
     private val authTokenProvider: AuthTokenProvider,

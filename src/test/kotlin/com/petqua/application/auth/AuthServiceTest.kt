@@ -13,8 +13,8 @@ import org.springframework.context.annotation.Import
 
 @SpringBootTest(webEnvironment = NONE)
 @Import(OauthTestConfig::class)
-class OauthServiceTest(
-    private var oauthService: OauthService,
+class AuthServiceTest(
+    private var authService: AuthService,
     private val refreshTokenRepository: RefreshTokenRepository,
     private val jwtProvider: JwtProvider,
 ) : BehaviorSpec({
@@ -22,17 +22,17 @@ class OauthServiceTest(
     Given("소셜 로그인 테스트") {
 
         When("OauthServerType과 accessCode를 가지고 로그인을 하면") {
-            val oauthResponse = oauthService.login(KAKAO, "accessCode")
+            val authTokenInfo = authService.login(KAKAO, "accessCode")
 
             Then("멤버의 인증 토큰을 발급한다") {
-                assertSoftly(oauthResponse) {
+                assertSoftly(authTokenInfo) {
                     jwtProvider.isValidToken(accessToken) shouldBe true
                     jwtProvider.isValidToken(refreshToken) shouldBe true
                 }
             }
 
             Then("발급한 refreshToken을 저장한다") {
-                refreshTokenRepository.existsByToken(oauthResponse.refreshToken) shouldBe true
+                refreshTokenRepository.existsByToken(authTokenInfo.refreshToken) shouldBe true
             }
         }
     }
