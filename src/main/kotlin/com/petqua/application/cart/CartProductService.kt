@@ -30,7 +30,7 @@ class CartProductService(
     }
 
     private fun validateDuplicatedProduct(command: SaveCartProductCommand) {
-        cartProductRepository.findByMemberIdAndProductIdAndMaleAndDeliveryMethod(
+        cartProductRepository.findByMemberIdAndProductIdAndIsMaleAndDeliveryMethod(
             memberId = command.memberId,
             productId = command.productId,
             isMale = command.isMale,

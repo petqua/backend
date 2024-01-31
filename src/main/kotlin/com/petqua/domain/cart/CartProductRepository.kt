@@ -4,7 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository
 
 interface CartProductRepository : JpaRepository<CartProduct, Long> {
 
-    fun findByMemberIdAndProductIdAndMaleAndDeliveryMethod(
+    fun findByMemberIdAndProductIdAndIsMaleAndDeliveryMethod(
         memberId: Long,
         productId: Long,
         isMale: Boolean,

@@ -1,6 +1,7 @@
 package com.petqua.domain.cart
 
 import com.petqua.common.domain.BaseEntity
+import jakarta.persistence.AttributeOverride
 import jakarta.persistence.Column
 import jakarta.persistence.Embedded
 import jakarta.persistence.Entity
@@ -22,6 +23,7 @@ class CartProduct(
     val productId: Long,
 
     @Embedded
+    @AttributeOverride(name = "value", column = Column(name = "quantity", nullable = false))
     val quantity: CartProductQuantity,
 
     @Column(nullable = false)
