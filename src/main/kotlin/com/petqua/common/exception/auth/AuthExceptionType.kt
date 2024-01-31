@@ -10,7 +10,9 @@ enum class AuthExceptionType(
 ) : BaseExceptionType {
 
     EXPIRED_ACCESS_TOKEN(BAD_REQUEST, "만료된 AccessToken입니다."),
+    EXPIRED_REFRESH_TOKEN(BAD_REQUEST, "만료된 RefreshToken입니다."),
 
+    NOT_RENEWABLE_ACCESS_TOKEN(BAD_REQUEST, "유효한 AccessToken은 갱신할 수 없습니다."),
     INVALID_ACCESS_TOKEN(BAD_REQUEST, "올바른 형태의 AccessToken이 아닙니다."),
     INVALID_REFRESH_TOKEN(BAD_REQUEST, "올바른 형태의 RefreshToken이 아닙니다."),
 

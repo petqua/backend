@@ -3,6 +3,7 @@ package com.petqua.domain.auth.token
 import com.petqua.common.exception.auth.AuthException
 import com.petqua.common.exception.auth.AuthExceptionType.EXPIRED_ACCESS_TOKEN
 import com.petqua.common.exception.auth.AuthExceptionType.INVALID_ACCESS_TOKEN
+import com.petqua.common.exception.auth.AuthExceptionType.INVALID_REFRESH_TOKEN
 import com.petqua.domain.member.Member
 import io.jsonwebtoken.ExpiredJwtException
 import io.jsonwebtoken.JwtException
@@ -47,6 +48,22 @@ class AuthTokenProvider(
             throw AuthException(INVALID_ACCESS_TOKEN)
         } catch (e: NullPointerException) {
             throw AuthException(INVALID_ACCESS_TOKEN)
+        }
+    }
+
+    fun isExpiredAccessToken(token: String): Boolean {
+        try {
+            return jwtProvider.isExpiredToken(token)
+        } catch (e: JwtException) {
+            throw AuthException(INVALID_ACCESS_TOKEN)
+        }
+    }
+
+    fun isExpiredRefreshToken(token: String): Boolean {
+        try {
+            return jwtProvider.isExpiredToken(token)
+        } catch (e: JwtException) {
+            throw AuthException(INVALID_REFRESH_TOKEN)
         }
     }
 }
