@@ -4,9 +4,11 @@ import com.petqua.application.cart.CartProductService
 import com.petqua.application.product.dto.ProductDetailResponse
 import com.petqua.domain.auth.Auth
 import com.petqua.domain.auth.LoginMember
+import com.petqua.presentation.cart.dto.DeleteCartProductsRequest
 import com.petqua.presentation.cart.dto.SaveCartProductRequest
 import com.petqua.presentation.cart.dto.UpdateCartProductOptionRequest
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -43,6 +45,16 @@ class CartProductController(
     ): ResponseEntity<Void> {
         val command = request.toCommand(loginMember.memberId, cartProductId)
         cartProductService.updateOptions(command)
+        return ResponseEntity.noContent().build()
+    }
+
+    @DeleteMapping("/items")
+    fun delete(
+        @Auth loginMember: LoginMember,
+        @RequestBody request: DeleteCartProductsRequest
+    ): ResponseEntity<Void> {
+        val command = request.toCommand(loginMember.memberId)
+        cartProductService.delete(command)
         return ResponseEntity.noContent().build()
     }
 }

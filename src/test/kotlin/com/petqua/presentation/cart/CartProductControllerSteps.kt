@@ -1,5 +1,6 @@
 package com.petqua.presentation.cart
 
+import com.petqua.presentation.cart.dto.DeleteCartProductsRequest
 import com.petqua.presentation.cart.dto.SaveCartProductRequest
 import com.petqua.presentation.cart.dto.UpdateCartProductOptionRequest
 import io.restassured.module.kotlin.extensions.Extract
@@ -27,9 +28,9 @@ fun requestSaveCartProduct(
     }
 }
 
-fun saveCartProductAndReturnId(accessToken: String): Long {
+fun saveCartProductAndReturnId(accessToken: String, productId: Long = 1L): Long {
     val sampleCartProduct = SaveCartProductRequest(
-        productId = 1L,
+        productId = productId,
         quantity = 1,
         isMale = true,
         deliveryMethod = "COMMON"
@@ -54,6 +55,24 @@ fun requestUpdateCartProductOption(
             .contentType("application/json")
     } When {
         patch("/carts/products/{cartProductId}/options", cartProductId)
+    } Then {
+        log().all()
+    } Extract {
+        response()
+    }
+}
+
+fun requestDeleteCartProduct(
+    request: DeleteCartProductsRequest,
+    accessToken: String
+): Response {
+    return Given {
+        log().all()
+            .body(request)
+            .header(HttpHeaders.AUTHORIZATION, accessToken)
+            .contentType("application/json")
+    } When {
+        delete("/carts/items")
     } Then {
         log().all()
     } Extract {
