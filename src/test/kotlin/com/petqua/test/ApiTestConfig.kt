@@ -1,12 +1,21 @@
 package com.petqua.test
 
+import com.petqua.application.auth.AuthResponse
+import com.petqua.test.config.OauthTestConfig
 import io.kotest.core.spec.style.BehaviorSpec
 import io.restassured.RestAssured
+import io.restassured.module.kotlin.extensions.Extract
+import io.restassured.module.kotlin.extensions.Given
+import io.restassured.module.kotlin.extensions.Then
+import io.restassured.module.kotlin.extensions.When
+import io.restassured.response.Response
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
 import org.springframework.boot.test.web.server.LocalServerPort
+import org.springframework.context.annotation.Import
 
+@Import(OauthTestConfig::class)
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 abstract class ApiTestConfig : BehaviorSpec() {
 
@@ -23,6 +32,24 @@ abstract class ApiTestConfig : BehaviorSpec() {
 
         afterContainer {
             dataCleaner.clean()
+        }
+    }
+
+    final fun signInAsMember(): AuthResponse {
+        val response = requestSignIn()
+        return response.`as`(AuthResponse::class.java)
+    }
+
+    private fun requestSignIn(): Response {
+        return Given {
+            log().all()
+                .queryParam("code", "code")
+        } When {
+            get("/oauth/login/{oauthServerType}", "kakao")
+        } Then {
+            log().all()
+        } Extract {
+            response()
         }
     }
 }
