@@ -22,7 +22,7 @@ class AuthControllerTest : ApiTestConfig() {
                     log().all()
                 } When {
                     queryParam("code", "accessCode")
-                    get("/oauth/login/kakao")
+                    get("/auth/login/kakao")
                 } Then {
                     log().all()
                 } Extract {
