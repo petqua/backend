@@ -34,7 +34,7 @@ class WishControllerTest(
                         .header(HttpHeaders.AUTHORIZATION, memberAuthResponse.accessToken)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                 } When {
-                    post("/wish")
+                    post("/wishes")
                 } Then {
                     log().all()
                 } Extract {
@@ -61,7 +61,7 @@ class WishControllerTest(
                     log().all()
                         .header(HttpHeaders.AUTHORIZATION, memberAuthResponse.accessToken)
                 } When {
-                    delete("/wish/1")
+                    delete("/wishes/1")
                 } Then {
                     log().all()
                 } Extract {
