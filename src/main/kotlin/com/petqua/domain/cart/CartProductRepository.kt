@@ -11,5 +11,5 @@ interface CartProductRepository : JpaRepository<CartProduct, Long> {
         deliveryMethod: DeliveryMethod
     ): CartProduct?
 
-    fun findAllByIdIn(ids: List<Long>): List<CartProduct>
+    fun findAllByMemberId(id: Long): List<CartProduct>
 }
