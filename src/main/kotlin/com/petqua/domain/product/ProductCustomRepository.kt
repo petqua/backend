@@ -9,4 +9,6 @@ interface ProductCustomRepository {
     fun findAllByCondition(condition: ProductReadCondition, paging: ProductPaging): List<ProductResponse>
 
     fun countByCondition(condition: ProductReadCondition): Int
+
+    fun findAllProductResponseByIdIn(ids: List<Long>): List<ProductResponse>
 }
