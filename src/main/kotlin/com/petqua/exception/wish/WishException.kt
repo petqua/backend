@@ -7,6 +7,6 @@ class WishException(
     private val exceptionType: WishExceptionType
 ) : BaseException() {
     override fun exceptionType(): BaseExceptionType {
-        TODO("Not yet implemented")
+        return exceptionType
     }
 }
