@@ -9,6 +9,8 @@ import com.petqua.exception.member.MemberException
 import com.petqua.exception.member.MemberExceptionType.NOT_FOUND_MEMBER
 import com.petqua.exception.product.ProductException
 import com.petqua.exception.product.ProductExceptionType.NOT_FOUND_PRODUCT
+import com.petqua.exception.wish.WishException
+import com.petqua.exception.wish.WishExceptionType.NOT_FOUND_WISH
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -27,8 +29,16 @@ class WishService(
         }
 
         val wish = command.toWish()
-        val product = productRepository.findByIdOrThrow(wish.productId)
-        product.wishCount++
+        val product = productRepository.findByIdOrThrow(wish.productId, ProductException(NOT_FOUND_PRODUCT))
+        product.increaseWishCount()
         wishRepository.save(wish)
+    }
+
+    fun delete(command: DeleteWishCommand) {
+        val wish = wishRepository.findByIdOrThrow(command.wishId, WishException(NOT_FOUND_WISH))
+        wish.validateOwner(command.memberId)
+        wishRepository.delete(wish)
+        val product = productRepository.findByIdOrThrow(wish.productId, ProductException(NOT_FOUND_PRODUCT))
+        product.decreaseWishCount()
     }
 }

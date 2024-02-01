@@ -1,6 +1,9 @@
 package com.petqua.domain.wish
 
 import com.petqua.common.domain.BaseEntity
+import com.petqua.common.util.throwExceptionWhen
+import com.petqua.exception.wish.WishException
+import com.petqua.exception.wish.WishExceptionType.FORBIDDEN_WISH
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
@@ -19,4 +22,8 @@ class Wish(
     @Column(nullable = false)
     val memberId: Long = 0L,
 ) : BaseEntity() {
+
+    fun validateOwner(accessMemberId: Long) {
+        throwExceptionWhen(accessMemberId != this.memberId) { WishException(FORBIDDEN_WISH) }
+    }
 }

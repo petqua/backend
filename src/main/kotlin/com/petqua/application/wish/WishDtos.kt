@@ -13,3 +13,8 @@ data class SaveWishCommand(
         )
     }
 }
+
+data class DeleteWishCommand(
+    val memberId: Long,
+    val wishId: Long,
+)
