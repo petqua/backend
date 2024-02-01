@@ -4,7 +4,12 @@ import com.petqua.common.domain.findByIdOrThrow
 import com.petqua.domain.member.MemberRepository
 import com.petqua.domain.product.ProductRepository
 import com.petqua.domain.wish.WishRepository
+import com.petqua.exception.member.MemberException
+import com.petqua.exception.member.MemberExceptionType.NOT_FOUND_MEMBER
+import com.petqua.exception.product.ProductException
+import com.petqua.exception.product.ProductExceptionType.NOT_FOUND_PRODUCT
 import com.petqua.exception.wish.WishException
+import com.petqua.exception.wish.WishExceptionType.ALREADY_EXIST_WISH
 import com.petqua.exception.wish.WishExceptionType.FORBIDDEN_WISH
 import com.petqua.exception.wish.WishExceptionType.NOT_FOUND_WISH
 import com.petqua.test.DataCleaner
@@ -47,6 +52,51 @@ class WishServiceTest(
 
                 val updatedProduct = productRepository.findByIdOrThrow(product.id)
                 updatedProduct.wishCount shouldBe product.wishCount + 1
+            }
+        }
+    }
+
+    Given("찜 상품 생성시") {
+        val product = productRepository.save(product())
+        val member = memberRepository.save(member())
+
+        When("멤버가 존재하지 않으면") {
+            val command = SaveWishCommand(
+                memberId = Long.MIN_VALUE,
+                productId = product.id
+            )
+
+            Then("예외가 발생한다") {
+                shouldThrow<MemberException> {
+                    wishService.save(command)
+                }.exceptionType() shouldBe NOT_FOUND_MEMBER
+            }
+        }
+
+        When("상품이 존재하지 않으면") {
+            val command = SaveWishCommand(
+                memberId = member.id,
+                productId = Long.MIN_VALUE
+            )
+
+            Then("예외가 발생한다") {
+                shouldThrow<ProductException> {
+                    wishService.save(command)
+                }.exceptionType() shouldBe NOT_FOUND_PRODUCT
+            }
+        }
+
+        When("이미 해당 상품이 찜으로 등록되어 있다면") {
+            val command = SaveWishCommand(
+                memberId = member.id,
+                productId = product.id
+            )
+            wishService.save(command)
+
+            Then("예외가 발생한다") {
+                shouldThrow<WishException> {
+                    wishService.save(command)
+                }.exceptionType() shouldBe ALREADY_EXIST_WISH
             }
         }
     }

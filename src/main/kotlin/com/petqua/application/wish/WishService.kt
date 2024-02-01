@@ -30,7 +30,7 @@ class WishService(
         memberRepository.existByIdOrThrow(command.memberId, MemberException(NOT_FOUND_MEMBER))
         productRepository.existByIdOrThrow(command.productId, ProductException(NOT_FOUND_PRODUCT))
         if (wishRepository.existsByProductIdAndMemberId(command.productId, command.memberId)) {
-            return
+            throw WishException(ALREADY_EXIST_WISH)
         }
 
         val wish = command.toWish()
