@@ -2,7 +2,10 @@ package com.petqua.application.wish
 
 import com.petqua.common.domain.findByIdOrThrow
 import com.petqua.domain.member.MemberRepository
+import com.petqua.domain.product.Product
 import com.petqua.domain.product.ProductRepository
+import com.petqua.domain.store.Store
+import com.petqua.domain.store.StoreRepository
 import com.petqua.domain.wish.WishRepository
 import com.petqua.exception.member.MemberException
 import com.petqua.exception.member.MemberExceptionType.NOT_FOUND_MEMBER
@@ -12,15 +15,18 @@ import com.petqua.exception.wish.WishException
 import com.petqua.exception.wish.WishExceptionType.ALREADY_EXIST_WISH
 import com.petqua.exception.wish.WishExceptionType.FORBIDDEN_WISH
 import com.petqua.exception.wish.WishExceptionType.NOT_FOUND_WISH
+import com.petqua.presentation.wish.WishResponse
 import com.petqua.test.DataCleaner
 import com.petqua.test.fixture.member
 import com.petqua.test.fixture.product
+import com.petqua.test.fixture.store
 import com.petqua.test.fixture.wish
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE
+import java.math.BigDecimal
 
 @SpringBootTest(webEnvironment = NONE)
 class WishServiceTest(
@@ -28,6 +34,7 @@ class WishServiceTest(
     private val wishRepository: WishRepository,
     private val productRepository: ProductRepository,
     private val memberRepository: MemberRepository,
+    private val storeRepository: StoreRepository,
     private val dataCleaner: DataCleaner,
 ) : BehaviorSpec({
 
@@ -162,7 +169,81 @@ class WishServiceTest(
         }
     }
 
+    Given("찜 목록 조회를") {
+        val member = memberRepository.save(member())
+        val store = storeRepository.save(store())
+        val (product1, product2, product3) = saveProducts(productRepository, store)
+
+        val wish1 = wishRepository.save(wish(productId = product3.id))
+        val wish2 = wishRepository.save(wish(productId = product2.id))
+        val wish3 = wishRepository.save(wish(productId = product1.id))
+
+        When("요청하면") {
+            val responses = wishRepository.readAllWishResponse(member.id)
+
+            Then("찜 목록이 찜 등록 순서대로 반환된다") {
+                responses shouldBe listOf(
+                    WishResponse(wish3.id, product1, store.name),
+                    WishResponse(wish2.id, product2, store.name),
+                    WishResponse(wish1.id, product3, store.name)
+                )
+            }
+        }
+    }
+
+    Given("찜 목록 조회시") {
+        memberRepository.save(member())
+        val store = storeRepository.save(store())
+        val (product1, product2, product3) = saveProducts(productRepository, store)
+        wishRepository.save(wish(productId = product3.id))
+        wishRepository.save(wish(productId = product2.id))
+        wishRepository.save(wish(productId = product1.id))
+
+        When("멤버가 존재하지 않으면") {
+
+            Then("예외가 발생한다") {
+                shouldThrow<MemberException> {
+                    wishService.readAll(memberId = Long.MIN_VALUE)
+                }.exceptionType() shouldBe NOT_FOUND_MEMBER
+            }
+        }
+    }
+
     afterContainer {
         dataCleaner.clean()
     }
 })
+
+private fun saveProducts(
+    productRepository: ProductRepository,
+    store: Store
+): Triple<Product, Product, Product> {
+    val product1 = productRepository.save(
+        product(
+            name = "상품1",
+            storeId = store.id,
+            discountPrice = BigDecimal.ZERO,
+            reviewCount = 0,
+            reviewTotalScore = 0
+        )
+    )
+    val product2 = productRepository.save(
+        product(
+            name = "상품2",
+            storeId = store.id,
+            discountPrice = BigDecimal.ONE,
+            reviewCount = 1,
+            reviewTotalScore = 1
+        )
+    )
+    val product3 = productRepository.save(
+        product(
+            name = "상품3",
+            storeId = store.id,
+            discountPrice = BigDecimal.ONE,
+            reviewCount = 1,
+            reviewTotalScore = 5
+        )
+    )
+    return Triple(product1, product2, product3)
+}

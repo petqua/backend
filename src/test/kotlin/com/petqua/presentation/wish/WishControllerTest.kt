@@ -1,6 +1,8 @@
 package com.petqua.presentation.wish
 
+import com.petqua.domain.product.Product
 import com.petqua.domain.product.ProductRepository
+import com.petqua.domain.store.Store
 import com.petqua.domain.store.StoreRepository
 import com.petqua.domain.wish.Wish
 import com.petqua.domain.wish.WishRepository
@@ -83,33 +85,7 @@ class WishControllerTest(
         Given("찜 목록 조회를") {
             val memberAuthResponse = signInAsMember()
             val store = storeRepository.save(store())
-            val product1 = productRepository.save(
-                product(
-                    name = "상품1",
-                    storeId = store.id,
-                    discountPrice = BigDecimal.ZERO,
-                    reviewCount = 0,
-                    reviewTotalScore = 0
-                )
-            )
-            val product2 = productRepository.save(
-                product(
-                    name = "상품2",
-                    storeId = store.id,
-                    discountPrice = BigDecimal.ONE,
-                    reviewCount = 1,
-                    reviewTotalScore = 1
-                )
-            )
-            val product3 = productRepository.save(
-                product(
-                    name = "상품3",
-                    storeId = store.id,
-                    discountPrice = BigDecimal.ONE,
-                    reviewCount = 1,
-                    reviewTotalScore = 5
-                )
-            )
+            val (product1, product2, product3) = saveProducts(productRepository, store)
             wishRepository.save(
                 Wish(
                     productId = product1.id,
@@ -149,5 +125,39 @@ class WishControllerTest(
                 }
             }
         }
+    }
+
+    private fun saveProducts(
+        productRepository: ProductRepository,
+        store: Store
+    ): Triple<Product, Product, Product> {
+        val product1 = productRepository.save(
+            product(
+                name = "상품1",
+                storeId = store.id,
+                discountPrice = BigDecimal.ZERO,
+                reviewCount = 0,
+                reviewTotalScore = 0
+            )
+        )
+        val product2 = productRepository.save(
+            product(
+                name = "상품2",
+                storeId = store.id,
+                discountPrice = BigDecimal.ONE,
+                reviewCount = 1,
+                reviewTotalScore = 1
+            )
+        )
+        val product3 = productRepository.save(
+            product(
+                name = "상품3",
+                storeId = store.id,
+                discountPrice = BigDecimal.ONE,
+                reviewCount = 1,
+                reviewTotalScore = 5
+            )
+        )
+        return Triple(product1, product2, product3)
     }
 }
