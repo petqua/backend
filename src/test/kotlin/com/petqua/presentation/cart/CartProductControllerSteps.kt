@@ -53,7 +53,7 @@ fun requestUpdateCartProductOption(
             .header(HttpHeaders.AUTHORIZATION, accessToken)
             .contentType("application/json")
     } When {
-        patch("/carts/items/{cartProductId}/options", cartProductId)
+        patch("/carts/products/{cartProductId}/options", cartProductId)
     } Then {
         log().all()
     } Extract {

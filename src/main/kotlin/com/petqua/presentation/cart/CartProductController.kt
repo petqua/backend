@@ -35,7 +35,7 @@ class CartProductController(
         return ResponseEntity.created(location).build()
     }
 
-    @PatchMapping("/items/{cartProductId}/options")
+    @PatchMapping("/products/{cartProductId}/options")
     fun updateOptions(
         @Auth loginMember: LoginMember,
         @PathVariable cartProductId: Long,
