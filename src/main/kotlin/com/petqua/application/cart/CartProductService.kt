@@ -85,6 +85,7 @@ class CartProductService(
         memberRepository.existByIdOrThrow(memberId, MemberException(NOT_FOUND_MEMBER))
         val cartProducts = cartProductRepository.findAllByMemberId(memberId)
         val products = productByIds(cartProducts)
+        val findAll = productRepository.findAll()
         return cartProducts.map {
             products[it.id]?.let { product -> CartProductResponse.of(it, product) }
                 ?: CartProductResponse.fromDeletedProduct(it)

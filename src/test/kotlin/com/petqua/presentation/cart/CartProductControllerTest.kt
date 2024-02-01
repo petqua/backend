@@ -1,7 +1,9 @@
 package com.petqua.presentation.cart
 
+import com.petqua.application.cart.dto.CartProductResponse
 import com.petqua.common.exception.ExceptionResponse
 import com.petqua.domain.product.ProductRepository
+import com.petqua.domain.store.StoreRepository
 import com.petqua.exception.cart.CartProductExceptionType.DUPLICATED_PRODUCT
 import com.petqua.exception.cart.CartProductExceptionType.FORBIDDEN_CART_PRODUCT
 import com.petqua.exception.cart.CartProductExceptionType.INVALID_DELIVERY_METHOD
@@ -12,9 +14,12 @@ import com.petqua.presentation.cart.dto.SaveCartProductRequest
 import com.petqua.presentation.cart.dto.UpdateCartProductOptionRequest
 import com.petqua.test.ApiTestConfig
 import com.petqua.test.fixture.product
+import com.petqua.test.fixture.store
+import io.kotest.assertions.assertSoftly
+import io.kotest.matchers.shouldBe
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.SoftAssertions.assertSoftly
 import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.CREATED
 import org.springframework.http.HttpStatus.FORBIDDEN
@@ -23,11 +28,13 @@ import org.springframework.http.HttpStatus.NO_CONTENT
 
 class CartProductControllerTest(
     private val productRepository: ProductRepository,
+    private val storeRepository: StoreRepository,
 ) : ApiTestConfig() {
     init {
+        val storeId = storeRepository.save(store()).id
         Given("봉달에 상품 저장을") {
             val memberAuthResponse = signInAsMember()
-            val savedProduct = productRepository.save(product(id = 1L))
+            val savedProduct = productRepository.save(product(storeId = storeId))
             val request = SaveCartProductRequest(
                 productId = savedProduct.id,
                 quantity = 1,
@@ -38,9 +45,9 @@ class CartProductControllerTest(
                 val response = requestSaveCartProduct(request, memberAuthResponse.accessToken)
 
                 Then("봉달 목록에 상품이 저장된다") {
-                    assertSoftly {
-                        it.assertThat(response.statusCode).isEqualTo(CREATED.value())
-                        it.assertThat(response.header(HttpHeaders.LOCATION)).contains("/carts/items")
+                    assertSoftly(response) {
+                        assertThat(statusCode).isEqualTo(CREATED.value())
+                        assertThat(response.header(HttpHeaders.LOCATION)).contains("/carts/items")
                     }
                 }
             }
@@ -48,7 +55,7 @@ class CartProductControllerTest(
 
         Given("봉달에 상품 저장 요청시") {
             val memberAuthResponse = signInAsMember()
-            val savedProduct = productRepository.save(product(id = 1L))
+            val savedProduct = productRepository.save(product(storeId = storeId))
             When("지원하지 않는 배송 방식으로 요청 하면") {
                 val invalidDeliveryMethodRequest = SaveCartProductRequest(
                     productId = savedProduct.id,
@@ -60,9 +67,9 @@ class CartProductControllerTest(
 
                 Then("예외가 발생한다") {
                     val errorResponse = response.`as`(ExceptionResponse::class.java)
-                    assertSoftly {
-                        it.assertThat(response.statusCode).isEqualTo(BAD_REQUEST.value())
-                        it.assertThat(errorResponse.message).isEqualTo(INVALID_DELIVERY_METHOD.errorMessage())
+                    assertSoftly(response) {
+                        assertThat(statusCode).isEqualTo(BAD_REQUEST.value())
+                        assertThat(errorResponse.message).isEqualTo(INVALID_DELIVERY_METHOD.errorMessage())
                     }
                 }
             }
@@ -78,9 +85,9 @@ class CartProductControllerTest(
 
                 Then("예외가 발생한다") {
                     val errorResponse = response.`as`(ExceptionResponse::class.java)
-                    assertSoftly {
-                        it.assertThat(response.statusCode).isEqualTo(NOT_FOUND.value())
-                        it.assertThat(errorResponse.message).isEqualTo(NOT_FOUND_PRODUCT.errorMessage())
+                    assertSoftly(response) {
+                        assertThat(statusCode).isEqualTo(NOT_FOUND.value())
+                        assertThat(errorResponse.message).isEqualTo(NOT_FOUND_PRODUCT.errorMessage())
                     }
                 }
             }
@@ -96,9 +103,9 @@ class CartProductControllerTest(
 
                 Then("예외가 발생한다") {
                     val errorResponse = response.`as`(ExceptionResponse::class.java)
-                    assertSoftly {
-                        it.assertThat(response.statusCode).isEqualTo(BAD_REQUEST.value())
-                        it.assertThat(errorResponse.message).isEqualTo(PRODUCT_QUANTITY_OVER_MAXIMUM.errorMessage())
+                    assertSoftly(response) {
+                        assertThat(statusCode).isEqualTo(BAD_REQUEST.value())
+                        assertThat(errorResponse.message).isEqualTo(PRODUCT_QUANTITY_OVER_MAXIMUM.errorMessage())
                     }
                 }
             }
@@ -116,16 +123,16 @@ class CartProductControllerTest(
 
                 Then("예외가 발생한다") {
                     val errorResponse = response.`as`(ExceptionResponse::class.java)
-                    assertSoftly {
-                        it.assertThat(response.statusCode).isEqualTo(BAD_REQUEST.value())
-                        it.assertThat(errorResponse.message).isEqualTo(DUPLICATED_PRODUCT.errorMessage())
+                    assertSoftly(response) {
+                        assertThat(statusCode).isEqualTo(BAD_REQUEST.value())
+                        assertThat(errorResponse.message).isEqualTo(DUPLICATED_PRODUCT.errorMessage())
                     }
                 }
             }
         }
 
         Given("봉달 상품의 옵션 수정을") {
-            val savedProduct = productRepository.save(product(id = 1L))
+            val savedProduct = productRepository.save(product(storeId = storeId))
             val memberAuthResponse = signInAsMember()
             val cartProductId = saveCartProductAndReturnId(memberAuthResponse.accessToken, savedProduct.id)
 
@@ -149,7 +156,7 @@ class CartProductControllerTest(
         }
 
         Given("봉달 상품의 옵션 수정시") {
-            val savedProduct = productRepository.save(product(id = 1L))
+            val savedProduct = productRepository.save(product(storeId = storeId))
             val memberAuthResponse = signInAsMember()
             val cartProductId = saveCartProductAndReturnId(memberAuthResponse.accessToken, savedProduct.id)
 
@@ -168,9 +175,9 @@ class CartProductControllerTest(
 
                 Then("예외가 발생한다") {
                     val errorResponse = response.`as`(ExceptionResponse::class.java)
-                    assertSoftly {
-                        it.assertThat(response.statusCode).isEqualTo(NOT_FOUND.value())
-                        it.assertThat(errorResponse.message).isEqualTo(NOT_FOUND_CART_PRODUCT.errorMessage())
+                    assertSoftly(response) {
+                        assertThat(statusCode).isEqualTo(NOT_FOUND.value())
+                        assertThat(errorResponse.message).isEqualTo(NOT_FOUND_CART_PRODUCT.errorMessage())
                     }
                 }
             }
@@ -190,9 +197,9 @@ class CartProductControllerTest(
 
                 Then("예외가 발생한다") {
                     val errorResponse = response.`as`(ExceptionResponse::class.java)
-                    assertSoftly {
-                        it.assertThat(response.statusCode).isEqualTo(BAD_REQUEST.value())
-                        it.assertThat(errorResponse.message).isEqualTo(PRODUCT_QUANTITY_OVER_MAXIMUM.errorMessage())
+                    assertSoftly(response) {
+                        assertThat(statusCode).isEqualTo(BAD_REQUEST.value())
+                        assertThat(errorResponse.message).isEqualTo(PRODUCT_QUANTITY_OVER_MAXIMUM.errorMessage())
                     }
                 }
             }
@@ -212,9 +219,9 @@ class CartProductControllerTest(
 
                 Then("예외가 발생한다") {
                     val errorResponse = response.`as`(ExceptionResponse::class.java)
-                    assertSoftly {
-                        it.assertThat(response.statusCode).isEqualTo(BAD_REQUEST.value())
-                        it.assertThat(errorResponse.message).isEqualTo(INVALID_DELIVERY_METHOD.errorMessage())
+                    assertSoftly(response) {
+                        assertThat(statusCode).isEqualTo(BAD_REQUEST.value())
+                        assertThat(errorResponse.message).isEqualTo(INVALID_DELIVERY_METHOD.errorMessage())
                     }
                 }
             }
@@ -235,9 +242,9 @@ class CartProductControllerTest(
 
                 Then("예외가 발생한다") {
                     val errorResponse = response.`as`(ExceptionResponse::class.java)
-                    assertSoftly {
-                        it.assertThat(response.statusCode).isEqualTo(FORBIDDEN.value())
-                        it.assertThat(errorResponse.message).isEqualTo(FORBIDDEN_CART_PRODUCT.errorMessage())
+                    assertSoftly(response) {
+                        assertThat(statusCode).isEqualTo(FORBIDDEN.value())
+                        assertThat(errorResponse.message).isEqualTo(FORBIDDEN_CART_PRODUCT.errorMessage())
                     }
                 }
             }
@@ -266,16 +273,16 @@ class CartProductControllerTest(
 
                 Then("예외가 발생한다") {
                     val errorResponse = response.`as`(ExceptionResponse::class.java)
-                    assertSoftly {
-                        it.assertThat(response.statusCode).isEqualTo(BAD_REQUEST.value())
-                        it.assertThat(errorResponse.message).isEqualTo(DUPLICATED_PRODUCT.errorMessage())
+                    assertSoftly(response) {
+                        assertThat(statusCode).isEqualTo(BAD_REQUEST.value())
+                        assertThat(errorResponse.message).isEqualTo(DUPLICATED_PRODUCT.errorMessage())
                     }
                 }
             }
         }
 
         Given("봉달 상품 삭제를") {
-            val product = productRepository.save(product(id = 1L))
+            val product = productRepository.save(product(storeId = storeId))
             val memberAuthResponse = signInAsMember()
             val cartProductAId = saveCartProductAndReturnId(memberAuthResponse.accessToken, product.id)
 
@@ -293,7 +300,7 @@ class CartProductControllerTest(
         }
 
         Given("봉달 상품 삭제시") {
-            val product = productRepository.save(product(id = 1L))
+            val product = productRepository.save(product(storeId = storeId))
             val memberAuthResponse = signInAsMember()
             val cartProductAId = saveCartProductAndReturnId(memberAuthResponse.accessToken, product.id)
 
@@ -305,9 +312,9 @@ class CartProductControllerTest(
 
                 Then("예외가 발생한다") {
                     val errorResponse = response.`as`(ExceptionResponse::class.java)
-                    assertSoftly {
-                        it.assertThat(response.statusCode).isEqualTo(NOT_FOUND.value())
-                        it.assertThat(errorResponse.message).isEqualTo(NOT_FOUND_CART_PRODUCT.errorMessage())
+                    assertSoftly(response) {
+                        assertThat(statusCode).isEqualTo(NOT_FOUND.value())
+                        assertThat(errorResponse.message).isEqualTo(NOT_FOUND_CART_PRODUCT.errorMessage())
                     }
                 }
             }
@@ -321,9 +328,61 @@ class CartProductControllerTest(
 
                 Then("예외가 발생한다") {
                     val errorResponse = response.`as`(ExceptionResponse::class.java)
-                    assertSoftly {
-                        it.assertThat(response.statusCode).isEqualTo(FORBIDDEN.value())
-                        it.assertThat(errorResponse.message).isEqualTo(FORBIDDEN_CART_PRODUCT.errorMessage())
+                    assertSoftly(response) {
+                        assertThat(statusCode).isEqualTo(FORBIDDEN.value())
+                        assertThat(errorResponse.message).isEqualTo(FORBIDDEN_CART_PRODUCT.errorMessage())
+                    }
+                }
+            }
+        }
+
+        Given("봉달 목록 전체 조회를") {
+            val productA = productRepository.save(product(name = "쿠아1", storeId = storeId))
+            val productB = productRepository.save(product(name = "쿠아2", storeId = storeId))
+            val productC = productRepository.save(product(name = "쿠아3", storeId = storeId))
+            val memberAuthResponse = signInAsMember()
+            saveCartProductAndReturnId(memberAuthResponse.accessToken, productA.id)
+            saveCartProductAndReturnId(memberAuthResponse.accessToken, productB.id)
+            saveCartProductAndReturnId(memberAuthResponse.accessToken, productC.id)
+
+            When("요청 하면") {
+                val response = requestReadAllCartProducts(memberAuthResponse.accessToken)
+
+                Then("봉달 목록이 조회된다") {
+                    val responseBody = response.`as`(Array<CartProductResponse>::class.java)
+
+                    assertSoftly(response) {
+                        statusCode shouldBe HttpStatus.OK.value()
+                        responseBody.size shouldBe 3
+                    }
+                }
+            }
+
+            When("봉달 목록이 없으면") {
+                val otherMemberResponse = signInAsMember()
+                val response = requestReadAllCartProducts(otherMemberResponse.accessToken)
+
+                Then("빈 목록이 조회된다") {
+                    val responseBody = response.`as`(Array<CartProductResponse>::class.java)
+
+                    assertSoftly(response) {
+                        statusCode shouldBe HttpStatus.OK.value()
+                        responseBody shouldBe emptyArray<CartProductResponse>()
+                    }
+                }
+            }
+
+            When("봉달에 담은 상품이 삭제 되면") {
+                productRepository.delete(productA)
+                val response = requestReadAllCartProducts(memberAuthResponse.accessToken)
+
+                Then("봉달 목록에서 삭제된 상품이 조회된다") {
+                    val responseBody = response.`as`(Array<CartProductResponse>::class.java)
+
+                    assertSoftly(response) {
+                        statusCode shouldBe HttpStatus.OK.value()
+                        responseBody.size shouldBe 3
+                        responseBody.toList().find { it.productId == productA.id }!!.isOnSale shouldBe false
                     }
                 }
             }

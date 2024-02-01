@@ -77,3 +77,18 @@ fun requestDeleteCartProduct(
         response()
     }
 }
+
+fun requestReadAllCartProducts(
+    accessToken: String
+): Response {
+    return Given {
+        log().all()
+            .header(HttpHeaders.AUTHORIZATION, accessToken)
+    } When {
+        get("/carts")
+    } Then {
+        log().all()
+    } Extract {
+        response()
+    }
+}
