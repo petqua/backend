@@ -1,5 +1,6 @@
 package com.petqua.application.wish
 
+import com.petqua.application.product.DecreaseWishCountEvent
 import com.petqua.common.domain.existByIdOrThrow
 import com.petqua.common.domain.findByIdOrThrow
 import com.petqua.domain.member.MemberRepository
@@ -11,6 +12,7 @@ import com.petqua.exception.product.ProductException
 import com.petqua.exception.product.ProductExceptionType.NOT_FOUND_PRODUCT
 import com.petqua.exception.wish.WishException
 import com.petqua.exception.wish.WishExceptionType.NOT_FOUND_WISH
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -20,6 +22,7 @@ class WishService(
     private val wishRepository: WishRepository,
     private val productRepository: ProductRepository,
     private val memberRepository: MemberRepository,
+    private val publisher: ApplicationEventPublisher,
 ) {
     fun save(command: SaveWishCommand) {
         memberRepository.existByIdOrThrow(command.memberId, MemberException(NOT_FOUND_MEMBER))
@@ -38,7 +41,6 @@ class WishService(
         val wish = wishRepository.findByIdOrThrow(command.wishId, WishException(NOT_FOUND_WISH))
         wish.validateOwner(command.memberId)
         wishRepository.delete(wish)
-        val product = productRepository.findByIdOrThrow(wish.productId, ProductException(NOT_FOUND_PRODUCT))
-        product.decreaseWishCount()
+        publisher.publishEvent(DecreaseWishCountEvent(wish.productId))
     }
 }

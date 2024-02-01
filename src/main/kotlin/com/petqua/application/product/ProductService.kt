@@ -59,4 +59,9 @@ class ProductService(
         val productKeyword = query.toProductKeyword()
         return productKeywordRepository.findBySearch(productKeyword.word, query.limit)
     }
+
+    fun decreaseWishCount(productId: Long) {
+        val product = productRepository.findByIdOrThrow(productId, ProductException(NOT_FOUND_PRODUCT))
+        product.decreaseWishCount()
+    }
 }

@@ -66,8 +66,8 @@ class Product(
     }
 
     fun decreaseWishCount() {
-        throwExceptionWhen(wishCount <= 0) { ProductException(WISH_COUNT_UNDER_MINIMUM) }
         wishCount--
+        throwExceptionWhen(wishCount < 0) { ProductException(WISH_COUNT_UNDER_MINIMUM) }
     }
 
     override fun toString(): String {
