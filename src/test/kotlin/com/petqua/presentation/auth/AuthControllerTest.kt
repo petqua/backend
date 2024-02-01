@@ -1,6 +1,5 @@
 package com.petqua.presentation.auth
 
-import com.petqua.domain.auth.token.AuthTokenProvider
 import com.petqua.domain.auth.token.RefreshToken
 import com.petqua.domain.auth.token.RefreshTokenRepository
 import com.petqua.domain.member.MemberRepository
@@ -9,7 +8,6 @@ import com.petqua.test.config.OauthTestConfig
 import com.petqua.test.fixture.member
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
 import io.restassured.module.kotlin.extensions.Extract
 import io.restassured.module.kotlin.extensions.Given
 import io.restassured.module.kotlin.extensions.Then
@@ -17,13 +15,12 @@ import io.restassured.module.kotlin.extensions.When
 import org.springframework.context.annotation.Import
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus.OK
-import java.util.Date
+import java.util.*
 
 @Import(OauthTestConfig::class)
 class AuthControllerTest(
     private val memberRepository: MemberRepository,
     private val refreshTokenRepository: RefreshTokenRepository,
-    private val authTokenProvider: AuthTokenProvider,
 ) : ApiTestConfig() {
 
     init {
