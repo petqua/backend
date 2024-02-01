@@ -1,6 +1,9 @@
 package com.petqua.domain.product
 
 import com.petqua.common.domain.BaseEntity
+import com.petqua.common.util.throwExceptionWhen
+import com.petqua.exception.product.ProductException
+import com.petqua.exception.product.ProductExceptionType.WISH_COUNT_UNDER_MINIMUM
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
@@ -56,6 +59,15 @@ class Product(
         else BigDecimal.valueOf(reviewTotalScore / reviewCount.toDouble())
             .setScale(SCALE, RoundingMode.HALF_UP)
             .toDouble()
+    }
+
+    fun increaseWishCount() {
+        wishCount++
+    }
+
+    fun decreaseWishCount() {
+        throwExceptionWhen(wishCount <= 0) { ProductException(WISH_COUNT_UNDER_MINIMUM) }
+        wishCount--
     }
 
     override fun toString(): String {
