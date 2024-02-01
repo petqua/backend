@@ -21,3 +21,12 @@ data class SaveCartProductCommand(
         )
     }
 }
+
+
+data class UpdateCartProductOptionCommand(
+    val memberId: Long,
+    val cartProductId: Long,
+    val quantity: CartProductQuantity,
+    val isMale: Boolean,
+    val deliveryMethod: DeliveryMethod,
+)
