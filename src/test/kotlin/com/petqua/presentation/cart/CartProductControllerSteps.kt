@@ -54,7 +54,7 @@ fun requestUpdateCartProductOption(
             .header(HttpHeaders.AUTHORIZATION, accessToken)
             .contentType("application/json")
     } When {
-        patch("/carts/products/{cartProductId}/options", cartProductId)
+        patch("/carts/{cartProductId}/options", cartProductId)
     } Then {
         log().all()
     } Extract {
@@ -72,7 +72,7 @@ fun requestDeleteCartProduct(
             .header(HttpHeaders.AUTHORIZATION, accessToken)
             .contentType("application/json")
     } When {
-        delete("/carts/items")
+        delete("/carts")
     } Then {
         log().all()
     } Extract {

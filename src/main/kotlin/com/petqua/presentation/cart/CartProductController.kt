@@ -37,7 +37,7 @@ class CartProductController(
         return ResponseEntity.created(location).build()
     }
 
-    @PatchMapping("/products/{cartProductId}/options")
+    @PatchMapping("/{cartProductId}/options")
     fun updateOptions(
         @Auth loginMember: LoginMember,
         @PathVariable cartProductId: Long,
@@ -48,7 +48,7 @@ class CartProductController(
         return ResponseEntity.noContent().build()
     }
 
-    @DeleteMapping("/items")
+    @DeleteMapping
     fun delete(
         @Auth loginMember: LoginMember,
         @RequestBody request: DeleteCartProductRequest
