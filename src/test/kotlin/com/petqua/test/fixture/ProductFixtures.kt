@@ -1,6 +1,7 @@
 package com.petqua.test.fixture
 
 import com.petqua.domain.product.Product
+import com.petqua.domain.product.ProductKeyword
 import java.math.BigDecimal
 
 private const val DEFAULT_SCALE = 2
@@ -32,5 +33,17 @@ fun product(
         reviewTotalScore,
         thumbnailUrl,
         description
+    )
+}
+
+fun productKeyword(
+    id: Long = 0L,
+    productId: Long = 0L,
+    word: String = "word",
+): ProductKeyword {
+    return ProductKeyword(
+        id = id,
+        productId = productId,
+        word = word
     )
 }
