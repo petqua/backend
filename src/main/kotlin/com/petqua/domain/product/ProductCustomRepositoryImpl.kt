@@ -106,7 +106,7 @@ class ProductCustomRepositoryImpl(
                 entity(Product::class),
                 join(Store::class).on(path(Product::storeId).eq(path(Store::id))),
             ).where(
-                path(Product::id).`in`(ids)
+                predicateByIds(ids)
             )
         }
 
@@ -116,4 +116,6 @@ class ProductCustomRepositoryImpl(
             jpqlRenderer
         )
     }
+
+    private fun Jpql.predicateByIds(ids: List<Long>) = if (ids.isEmpty()) null else path(Product::id).`in`(ids)
 }
