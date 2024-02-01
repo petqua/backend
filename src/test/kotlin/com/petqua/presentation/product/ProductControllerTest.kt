@@ -1,7 +1,9 @@
 package com.petqua.presentation.product
 
 import com.petqua.application.product.dto.ProductDetailResponse
+import com.petqua.application.product.dto.ProductKeywordResponse
 import com.petqua.application.product.dto.ProductsResponse
+import com.petqua.domain.product.ProductKeywordRepository
 import com.petqua.domain.product.ProductRepository
 import com.petqua.domain.product.ProductSourceType.HOME_NEW_ENROLLMENT
 import com.petqua.domain.product.ProductSourceType.HOME_RECOMMENDED
@@ -12,9 +14,12 @@ import com.petqua.domain.recommendation.ProductRecommendationRepository
 import com.petqua.domain.store.StoreRepository
 import com.petqua.test.ApiTestConfig
 import com.petqua.test.fixture.product
+import com.petqua.test.fixture.productKeyword
 import com.petqua.test.fixture.productRecommendation
 import com.petqua.test.fixture.store
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
+import io.restassured.common.mapper.TypeRef
 import io.restassured.module.kotlin.extensions.Extract
 import io.restassured.module.kotlin.extensions.Given
 import io.restassured.module.kotlin.extensions.Then
@@ -27,10 +32,13 @@ import java.math.BigDecimal.TEN
 import java.math.BigDecimal.ZERO
 import kotlin.Long.Companion.MIN_VALUE
 
+private const val s = " "
+
 class ProductControllerTest(
     private val productRepository: ProductRepository,
     private val storeRepository: StoreRepository,
     private val recommendationRepository: ProductRecommendationRepository,
+    private val productKeywordRepository: ProductKeywordRepository,
 ) : ApiTestConfig() {
 
     init {
@@ -302,6 +310,126 @@ class ProductControllerTest(
                         param("sourceType", "wrongType")
                     } When {
                         get("/products")
+                    } Then {
+                        log().all()
+                        statusCode(BAD_REQUEST.value())
+                    }
+                }
+            }
+        }
+
+        Given("검색으로 상품을 조회할 때") {
+            val token = signInAsMember().accessToken
+
+            val product1 = productRepository.save(
+                product(
+                    name = "블루네온 구피",
+                    storeId = store.id,
+                )
+            )
+            val product2 = productRepository.save(
+                product(
+                    name = "레드턱시도 구피",
+                    storeId = store.id,
+                )
+            )
+            val product3 = productRepository.save(
+                product(
+                    name = "열대어 브론디 턱시도 구피",
+                    storeId = store.id,
+                )
+            )
+            val product4 = productRepository.save(
+                product(
+                    name = "단정 금붕어",
+                    storeId = store.id,
+                )
+            )
+
+            productKeywordRepository.save(
+                productKeyword(
+                    productId = product1.id,
+                    word = "구피"
+                )
+            )
+            productKeywordRepository.save(
+                productKeyword(
+                    productId = product1.id,
+                    word = "열대어구피"
+                )
+            )
+            productKeywordRepository.save(
+                productKeyword(
+                    productId = product2.id,
+                    word = "애완구피"
+                )
+            )
+            productKeywordRepository.save(
+                productKeyword(
+                    productId = product3.id,
+                    word = "관상용구피"
+                )
+            )
+            productKeywordRepository.save(
+                productKeyword(
+                    productId = product4.id,
+                    word = "금붕어"
+                )
+            )
+
+            When("검색어를 입력하면") {
+                val word = "구피"
+
+                val response = Given {
+                    log().all()
+                    header(HttpHeaders.AUTHORIZATION, token)
+                    param("word", word)
+                } When {
+                    get("/products/keywords")
+                } Then {
+                    log().all()
+                } Extract {
+                    response()
+                }
+
+                Then("추천 검색어들이 이름 길이 오름차순으로 반환된다") {
+                    val productKeywordResponses = response.`as`(object : TypeRef<List<ProductKeywordResponse>>() {})
+
+                    response.statusCode shouldBe HttpStatus.OK.value()
+                    productKeywordResponses shouldContainExactly listOf(
+                        ProductKeywordResponse("구피"),
+                        ProductKeywordResponse("애완구피"),
+                        ProductKeywordResponse("관상용구피"),
+                        ProductKeywordResponse("열대어구피"),
+                    )
+                }
+            }
+
+            When("검색어를 입력하지 않으면") {
+
+                Then("예외가 발생한다") {
+                    Given {
+                        log().all()
+                        header(HttpHeaders.AUTHORIZATION, token)
+                    } When {
+                        get("/products/keywords")
+                    } Then {
+                        log().all()
+                        statusCode(BAD_REQUEST.value())
+                    }
+                }
+            }
+
+            When("검색어를 빈 문자로 입력하면") {
+                val emptyWord = " "
+
+                Then("예외가 발생한다") {
+                    Given {
+                        log().all()
+                        header(HttpHeaders.AUTHORIZATION, token)
+                        param("word", emptyWord)
+                    } When {
+                        get("/products/keywords")
                     } Then {
                         log().all()
                         statusCode(BAD_REQUEST.value())

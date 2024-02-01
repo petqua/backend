@@ -14,6 +14,7 @@ data class ProductReadCondition(
     val sourceType: ProductSourceType = ProductSourceType.NONE,
     val sorter: Sorter = Sorter.NONE,
     val word: String = "",
+    val keyword: String = "",
 ) {
 
     companion object {

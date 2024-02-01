@@ -2,9 +2,11 @@ package com.petqua.presentation.product
 
 import com.petqua.application.product.ProductService
 import com.petqua.application.product.dto.ProductDetailResponse
+import com.petqua.application.product.dto.ProductKeywordResponse
 import com.petqua.application.product.dto.ProductsResponse
 import com.petqua.domain.auth.Auth
 import com.petqua.domain.auth.LoginMember
+import com.petqua.presentation.product.dto.ProductKeywordRequest
 import com.petqua.presentation.product.dto.ProductReadRequest
 import com.petqua.presentation.product.dto.ProductSearchRequest
 import org.springframework.http.ResponseEntity
@@ -45,6 +47,16 @@ class ProductController(
     ): ResponseEntity<ProductsResponse> {
         val command = request.toCommand(loginMember.memberId)
         val response = productService.readBySearch(command)
+        return ResponseEntity.ok(response)
+    }
+
+    @GetMapping("/keywords")
+    fun readKeywords(
+        @Auth loginMember: LoginMember,
+        request: ProductKeywordRequest
+    ): ResponseEntity<List<ProductKeywordResponse>> {
+        val command = request.toCommand(loginMember.memberId)
+        val response = productService.readKeywords(command)
         return ResponseEntity.ok(response)
     }
 }

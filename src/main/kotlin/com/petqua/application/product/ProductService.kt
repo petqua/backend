@@ -1,10 +1,13 @@
 package com.petqua.application.product
 
 import com.petqua.application.product.dto.ProductDetailResponse
+import com.petqua.application.product.dto.ProductKeywordCommand
+import com.petqua.application.product.dto.ProductKeywordResponse
 import com.petqua.application.product.dto.ProductReadCommand
 import com.petqua.application.product.dto.ProductSearchCommand
 import com.petqua.application.product.dto.ProductsResponse
 import com.petqua.common.domain.findByIdOrThrow
+import com.petqua.domain.product.ProductKeywordRepository
 import com.petqua.domain.product.ProductRepository
 import com.petqua.domain.store.StoreRepository
 import com.petqua.exception.product.ProductException
@@ -19,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional
 class ProductService(
     private val productRepository: ProductRepository,
     private val storeRepository: StoreRepository,
+    private val productKeywordRepository: ProductKeywordRepository,
 ) {
 
     fun readById(productId: Long): ProductDetailResponse {
@@ -40,5 +44,10 @@ class ProductService(
         val totalProductsCount = productRepository.countByCondition(command.toSearchCondition())
 
         return ProductsResponse.of(products, command.limit, totalProductsCount)
+    }
+
+    fun readKeywords(command: ProductKeywordCommand): List<ProductKeywordResponse> {
+        val productKeyword = command.toProductKeyword()
+        return productKeywordRepository.findBySearch(productKeyword.word, command.limit)
     }
 }

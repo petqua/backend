@@ -1,6 +1,7 @@
 package com.petqua.application.product.dto
 
 import com.petqua.domain.product.Product
+import com.petqua.domain.product.ProductKeyword
 import com.petqua.domain.product.ProductSourceType
 import com.petqua.domain.product.Sorter
 import com.petqua.domain.product.dto.LIMIT_CEILING
@@ -84,3 +85,17 @@ data class ProductSearchCommand(
         return ProductPaging.of(lastViewedId, limit)
     }
 }
+
+data class ProductKeywordCommand(
+    val word: String = "",
+    val limit: Int = LIMIT_CEILING,
+) {
+
+    fun toProductKeyword(): ProductKeyword {
+        return ProductKeyword(word = word)
+    }
+}
+
+data class ProductKeywordResponse(
+    val keyword: String,
+)
