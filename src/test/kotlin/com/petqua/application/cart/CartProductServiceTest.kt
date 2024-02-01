@@ -173,16 +173,16 @@ class CartProductServiceTest(
                 cartProduct(
                     memberId = memberId,
                     productId = productId,
-                    isMale = true,
-                    deliveryMethod = COMMON
+                    isMale = false,
+                    deliveryMethod = SAFETY
                 )
             )
             val command = UpdateCartProductOptionCommand(
                 cartProductId = cartProduct.id,
                 memberId = memberId,
                 quantity = CartProductQuantity(3),
-                isMale = true,
-                deliveryMethod = COMMON,
+                isMale = false,
+                deliveryMethod = SAFETY,
             )
             Then("예외가 발생 한다") {
                 shouldThrow<CartProductException> {
