@@ -20,6 +20,17 @@ inline fun <reified T> EntityManager.createQuery(
     query: SelectQuery<*>,
     context: JpqlRenderContext,
     renderer: JpqlRenderer,
+): List<T> {
+    val rendered = renderer.render(query, context)
+    return this.createQuery(rendered.query, T::class.java)
+        .apply { rendered.params.forEach { (name, value) -> setParameter(name, value) } }
+        .resultList
+}
+
+inline fun <reified T> EntityManager.createQuery(
+    query: SelectQuery<*>,
+    context: JpqlRenderContext,
+    renderer: JpqlRenderer,
     limit: Int,
 ): List<T> {
     val rendered = renderer.render(query, context)

@@ -6,6 +6,7 @@ import com.petqua.domain.auth.Auth
 import com.petqua.domain.auth.LoginMember
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -28,6 +29,12 @@ class WishController(
         return ResponseEntity
             .noContent()
             .build()
+    }
+
+    @GetMapping
+    fun readAll(@Auth loginMember: LoginMember): ResponseEntity<List<WishResponse>> {
+        val responses = wishService.readAll(loginMember.memberId)
+        return ResponseEntity.ok(responses)
     }
 
     @DeleteMapping("/{wishId}")
