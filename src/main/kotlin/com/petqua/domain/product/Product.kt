@@ -54,6 +54,10 @@ class Product(
     val description: String,
 ) : BaseEntity() {
 
+    init {
+        throwExceptionWhen(wishCount < 0) { ProductException(WISH_COUNT_UNDER_MINIMUM) }
+    }
+
     fun averageReviewScore(): Double {
         return if (reviewCount == ZERO) ZERO.toDouble()
         else BigDecimal.valueOf(reviewTotalScore / reviewCount.toDouble())
