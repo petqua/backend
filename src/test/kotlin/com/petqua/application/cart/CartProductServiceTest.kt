@@ -289,7 +289,7 @@ class CartProductServiceTest(
             productRepository.deleteById(productAId)
             val results = cartProductService.readAll(memberId)
 
-            Then("빈 리스트를 반환 한다") {
+            Then("상품의 판매 여부를 포함한 리스트를 반환 한다") {
                 assertSoftly(results) {
                     size shouldBe 3
                     find { it.productId == productAId }!!.isOnSale shouldBe false
