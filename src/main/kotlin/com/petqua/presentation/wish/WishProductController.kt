@@ -1,7 +1,7 @@
 package com.petqua.presentation.wish
 
 import com.petqua.application.wish.DeleteWishCommand
-import com.petqua.application.wish.WishService
+import com.petqua.application.wish.WishProductService
 import com.petqua.domain.auth.Auth
 import com.petqua.domain.auth.LoginMember
 import org.springframework.http.ResponseEntity
@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.RestController
 
 @RequestMapping("/wishes")
 @RestController
-class WishController(
-    private val wishService: WishService
+class WishProductController(
+    private val wishProductService: WishProductService
 ) {
 
     @PostMapping
@@ -25,28 +25,28 @@ class WishController(
         @RequestBody request: SaveWishRequest
     ): ResponseEntity<Void> {
         val command = request.toCommand(loginMember.memberId)
-        wishService.save(command)
+        wishProductService.save(command)
         return ResponseEntity
             .noContent()
             .build()
     }
 
     @GetMapping
-    fun readAll(@Auth loginMember: LoginMember): ResponseEntity<List<WishResponse>> {
-        val responses = wishService.readAll(loginMember.memberId)
+    fun readAll(@Auth loginMember: LoginMember): ResponseEntity<List<WishProductResponse>> {
+        val responses = wishProductService.readAll(loginMember.memberId)
         return ResponseEntity.ok(responses)
     }
 
-    @DeleteMapping("/{wishId}")
+    @DeleteMapping("/{wishProductId}")
     fun delete(
         @Auth loginMember: LoginMember,
-        @PathVariable wishId: Long,
+        @PathVariable wishProductId: Long,
     ): ResponseEntity<Void> {
         val command = DeleteWishCommand(
             memberId = loginMember.memberId,
-            wishId = wishId
+            wishProductId = wishProductId
         )
-        wishService.delete(command)
+        wishProductService.delete(command)
         return ResponseEntity
             .noContent()
             .build()

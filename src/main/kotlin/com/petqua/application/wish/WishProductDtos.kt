@@ -1,13 +1,13 @@
 package com.petqua.application.wish
 
-import com.petqua.domain.wish.Wish
+import com.petqua.domain.wish.WishProduct
 
 data class SaveWishCommand(
     val memberId: Long,
     val productId: Long,
 ) {
-    fun toWish(): Wish {
-        return Wish(
+    fun toWishProduct(): WishProduct {
+        return WishProduct(
             memberId = memberId,
             productId = productId
         )
@@ -16,5 +16,5 @@ data class SaveWishCommand(
 
 data class DeleteWishCommand(
     val memberId: Long,
-    val wishId: Long,
+    val wishProductId: Long,
 )

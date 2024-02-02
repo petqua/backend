@@ -15,7 +15,7 @@ data class SaveWishRequest(
     }
 }
 
-data class WishResponse(
+data class WishProductResponse(
     val id: Long,
     val productId: Long,
     val name: String,
@@ -29,8 +29,8 @@ data class WishResponse(
     val reviewAverageScore: Double,
     val thumbnailUrl: String,
 ) {
-    constructor(wishId: Long, product: Product, storeName: String) : this(
-        wishId,
+    constructor(wishProductId: Long, product: Product, storeName: String) : this(
+        wishProductId,
         product.id,
         product.name,
         product.category,

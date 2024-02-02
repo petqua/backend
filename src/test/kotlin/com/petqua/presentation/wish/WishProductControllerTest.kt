@@ -4,12 +4,12 @@ import com.petqua.domain.product.Product
 import com.petqua.domain.product.ProductRepository
 import com.petqua.domain.store.Store
 import com.petqua.domain.store.StoreRepository
-import com.petqua.domain.wish.Wish
-import com.petqua.domain.wish.WishRepository
+import com.petqua.domain.wish.WishProduct
+import com.petqua.domain.wish.WishProductRepository
 import com.petqua.test.ApiTestConfig
 import com.petqua.test.fixture.product
 import com.petqua.test.fixture.store
-import com.petqua.test.fixture.wish
+import com.petqua.test.fixture.wishProduct
 import io.kotest.matchers.shouldBe
 import io.restassured.module.kotlin.extensions.Extract
 import io.restassured.module.kotlin.extensions.Given
@@ -21,8 +21,8 @@ import org.springframework.http.HttpStatus.OK
 import org.springframework.http.MediaType
 import java.math.BigDecimal
 
-class WishControllerTest(
-    wishRepository: WishRepository,
+class WishProductControllerTest(
+    wishProductRepository: WishProductRepository,
     productRepository: ProductRepository,
     storeRepository: StoreRepository,
 ) : ApiTestConfig() {
@@ -62,7 +62,7 @@ class WishControllerTest(
                     wishCount = 1
                 )
             )
-            val wish = wishRepository.save(wish())
+            val wishProduct = wishProductRepository.save(wishProduct())
 
             When("요청하면") {
                 val response = Given {
@@ -86,20 +86,20 @@ class WishControllerTest(
             val memberAuthResponse = signInAsMember()
             val store = storeRepository.save(store())
             val (product1, product2, product3) = saveProducts(productRepository, store)
-            wishRepository.save(
-                Wish(
+            wishProductRepository.save(
+                WishProduct(
                     productId = product1.id,
                     memberId = getMemberIdFromAuthResponse(memberAuthResponse)
                 )
             )
-            wishRepository.save(
-                Wish(
+            wishProductRepository.save(
+                WishProduct(
                     productId = product2.id,
                     memberId = getMemberIdFromAuthResponse(memberAuthResponse)
                 )
             )
-            wishRepository.save(
-                Wish(
+            wishProductRepository.save(
+                WishProduct(
                     productId = product3.id,
                     memberId = getMemberIdFromAuthResponse(memberAuthResponse)
                 )
@@ -118,10 +118,10 @@ class WishControllerTest(
                 }
 
                 Then("찜 상품들이 반환된다") {
-                    val wishResponses = responses.`as`(Array<WishResponse>::class.java)
+                    val wishProductRespons = responses.`as`(Array<WishProductResponse>::class.java)
 
                     responses.statusCode shouldBe OK.value()
-                    wishResponses.size shouldBe 3
+                    wishProductRespons.size shouldBe 3
                 }
             }
         }

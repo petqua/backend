@@ -1,13 +1,13 @@
 package com.petqua.test.fixture
 
-import com.petqua.domain.wish.Wish
+import com.petqua.domain.wish.WishProduct
 
-fun wish(
+fun wishProduct(
     id: Long = 0,
     productId: Long = 1,
     memberId: Long = 1,
-): Wish {
-    return Wish(
+): WishProduct {
+    return WishProduct(
         id = id,
         productId = productId,
         memberId = memberId

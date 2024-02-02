@@ -6,30 +6,30 @@ import com.linecorp.kotlinjdsl.render.jpql.JpqlRenderer
 import com.petqua.common.util.createQuery
 import com.petqua.domain.product.Product
 import com.petqua.domain.store.Store
-import com.petqua.presentation.wish.WishResponse
+import com.petqua.presentation.wish.WishProductResponse
 import jakarta.persistence.EntityManager
 import org.springframework.stereotype.Repository
 
 @Repository
-class WishCustomRepositoryImpl(
+class WishProductCustomRepositoryImpl(
     private val entityManager: EntityManager,
     private val jpqlRenderContext: JpqlRenderContext,
     private val jpqlRenderer: JpqlRenderer,
-) : WishCustomRepository {
-    override fun readAllWishResponse(memberId: Long): List<WishResponse> {
+) : WishProductCustomRepository {
+    override fun readAllWishProductResponse(memberId: Long): List<WishProductResponse> {
         val query = jpql {
-            selectNew<WishResponse>(
-                path(Wish::id),
+            selectNew<WishProductResponse>(
+                path(WishProduct::id),
                 entity(Product::class),
                 path(Store::name)
             ).from(
-                entity(Wish::class),
-                join(Product::class).on(path(Wish::productId).eq(path(Product::id))),
+                entity(WishProduct::class),
+                join(Product::class).on(path(WishProduct::productId).eq(path(Product::id))),
                 join(Store::class).on(path(Product::storeId).eq(path(Store::id))),
             ).where(
-                path(Wish::memberId).eq(memberId)
+                path(WishProduct::memberId).eq(memberId)
             ).orderBy(
-                path(Wish::id).desc()
+                path(WishProduct::id).desc()
             )
         }
 
