@@ -29,7 +29,6 @@ class WishProductService(
 ) {
     fun save(command: SaveWishCommand) {
         memberRepository.existByIdOrThrow(command.memberId, MemberException(NOT_FOUND_MEMBER))
-        productRepository.existByIdOrThrow(command.productId, ProductException(NOT_FOUND_PRODUCT))
         if (wishProductRepository.existsByProductIdAndMemberId(command.productId, command.memberId)) {
             throw WishProductException(ALREADY_EXIST_WISH_PRODUCT)
         }
