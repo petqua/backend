@@ -25,7 +25,7 @@ class ProductCustomRepositoryImpl(
 ) : ProductCustomRepository {
 
     override fun findAllByCondition(condition: ProductReadCondition, paging: ProductPaging): List<ProductResponse> {
-        val query = jpql(ProductJpql) {
+        val query = jpql(ProductDynamicJpqlGenerator) {
             selectNew<ProductResponse>(
                 entity(Product::class),
                 path(Store::name)
@@ -51,7 +51,7 @@ class ProductCustomRepositoryImpl(
 
     // cache 추가하면 어떨까요?
     override fun countByCondition(condition: ProductReadCondition): Int {
-        val query = jpql(ProductJpql) {
+        val query = jpql(ProductDynamicJpqlGenerator) {
             select(
                 count(Product::id),
             ).from(
@@ -71,7 +71,7 @@ class ProductCustomRepositoryImpl(
     }
 
     override fun findBySearch(condition: ProductReadCondition, paging: ProductPaging): List<ProductResponse> {
-        val query = jpql(ProductJpql) {
+        val query = jpql(ProductDynamicJpqlGenerator) {
             selectNew<ProductResponse>(
                 entity(Product::class),
                 path(Store::name)
@@ -95,7 +95,7 @@ class ProductCustomRepositoryImpl(
     }
 
     override fun findByKeywordSearch(condition: ProductReadCondition, paging: ProductPaging): List<ProductResponse> {
-        val query = jpql(ProductJpql) {
+        val query = jpql(ProductDynamicJpqlGenerator) {
             selectNew<ProductResponse>(
                 entity(Product::class),
                 path(Store::name)
@@ -120,7 +120,7 @@ class ProductCustomRepositoryImpl(
     }
 
     override fun countByKeywordCondition(condition: ProductReadCondition): Int {
-        val query = jpql(ProductJpql) {
+        val query = jpql(ProductDynamicJpqlGenerator) {
             select(
                 count(Product::id),
             ).from(

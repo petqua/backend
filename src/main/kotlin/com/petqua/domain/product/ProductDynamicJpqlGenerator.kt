@@ -9,9 +9,9 @@ import com.petqua.domain.recommendation.ProductRecommendation
 
 private const val ESCAPE_LETTER = '\\'
 
-class ProductJpql : Jpql() {
-    companion object Constructor : JpqlDsl.Constructor<ProductJpql> {
-        override fun newInstance(): ProductJpql = ProductJpql()
+class ProductDynamicJpqlGenerator : Jpql() {
+    companion object Constructor : JpqlDsl.Constructor<ProductDynamicJpqlGenerator> {
+        override fun newInstance(): ProductDynamicJpqlGenerator = ProductDynamicJpqlGenerator()
     }
 
     fun Jpql.sortBy(sorter: Sorter): SortNullsStep? {
