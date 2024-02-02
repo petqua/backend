@@ -6,12 +6,10 @@ import com.petqua.application.cart.dto.SaveCartProductCommand
 import com.petqua.application.cart.dto.UpdateCartProductOptionCommand
 import com.petqua.common.domain.existByIdOrThrow
 import com.petqua.common.domain.findByIdOrThrow
-import com.petqua.domain.cart.CartProduct
 import com.petqua.domain.cart.CartProductRepository
 import com.petqua.domain.cart.DeliveryMethod
 import com.petqua.domain.member.MemberRepository
 import com.petqua.domain.product.ProductRepository
-import com.petqua.domain.product.dto.ProductResponse
 import com.petqua.exception.cart.CartProductException
 import com.petqua.exception.cart.CartProductExceptionType.DUPLICATED_PRODUCT
 import com.petqua.exception.cart.CartProductExceptionType.NOT_FOUND_CART_PRODUCT
@@ -83,16 +81,6 @@ class CartProductService(
     @Transactional(readOnly = true)
     fun readAll(memberId: Long): List<CartProductResponse> {
         memberRepository.existByIdOrThrow(memberId, MemberException(NOT_FOUND_MEMBER))
-        val cartProducts = cartProductRepository.findAllByMemberId(memberId)
-        val products = productByIds(cartProducts)
-        return cartProducts.map {
-            products[it.id]?.let { product -> CartProductResponse.of(it, product) }
-                ?: CartProductResponse.fromDeletedProduct(it)
-        }
-    }
-
-    private fun productByIds(cartProducts: List<CartProduct>): Map<Long, ProductResponse> {
-        val productIdsFromCart = cartProducts.map { it.productId }
-        return productRepository.findAllProductResponseByIdIn(productIdsFromCart).associateBy { it.id }
+        return cartProductRepository.findAllCartResultsByMemberId(memberId)
     }
 }

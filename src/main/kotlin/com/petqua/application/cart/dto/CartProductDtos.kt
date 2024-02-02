@@ -3,7 +3,7 @@ package com.petqua.application.cart.dto
 import com.petqua.domain.cart.CartProduct
 import com.petqua.domain.cart.CartProductQuantity
 import com.petqua.domain.cart.DeliveryMethod
-import com.petqua.domain.product.dto.ProductResponse
+import com.petqua.domain.product.Product
 
 data class SaveCartProductCommand(
     val memberId: Long,
@@ -52,40 +52,18 @@ data class CartProductResponse(
     val isOnSale: Boolean,
 ) {
 
-    companion object {
-        fun of(cartProduct: CartProduct, productResponse: ProductResponse): CartProductResponse {
-            return CartProductResponse(
-                id = cartProduct.id,
-                storeName = productResponse.storeName,
-                productId = productResponse.id,
-                productName = productResponse.name,
-                productThumbnailUrl = productResponse.thumbnailUrl,
-                productPrice = productResponse.price,
-                productDiscountRate = productResponse.discountRate,
-                productDiscountPrice = productResponse.discountPrice,
-                quantity = cartProduct.quantity.value,
-                isMale = cartProduct.isMale,
-                deliveryMethod = cartProduct.deliveryMethod.name,
-                isOnSale = true,
-            )
-        }
-
-
-        fun fromDeletedProduct(cartProduct: CartProduct): CartProductResponse {
-            return CartProductResponse(
-                id = cartProduct.id,
-                storeName = "",
-                productId = cartProduct.productId,
-                productName = "",
-                productThumbnailUrl = "",
-                productPrice = 0,
-                productDiscountRate = 0,
-                productDiscountPrice = 0,
-                quantity = cartProduct.quantity.value,
-                isMale = cartProduct.isMale,
-                deliveryMethod = cartProduct.deliveryMethod.name,
-                isOnSale = false,
-            )
-        }
-    }
+    constructor(cartProduct: CartProduct, product: Product?, storeName: String?) : this(
+        cartProduct.id,
+        storeName ?: "",
+        product?.id ?: cartProduct.productId,
+        product?.name ?: "",
+        product?.thumbnailUrl ?: "",
+        product?.price?.intValueExact() ?: 0,
+        product?.discountRate ?: 0,
+        product?.discountPrice?.intValueExact() ?: 0,
+        cartProduct.quantity.value,
+        cartProduct.isMale,
+        cartProduct.deliveryMethod.name,
+        product != null
+    )
 }

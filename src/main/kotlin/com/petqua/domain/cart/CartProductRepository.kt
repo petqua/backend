@@ -2,7 +2,7 @@ package com.petqua.domain.cart
 
 import org.springframework.data.jpa.repository.JpaRepository
 
-interface CartProductRepository : JpaRepository<CartProduct, Long> {
+interface CartProductRepository : JpaRepository<CartProduct, Long>, CartProductCustomRepository {
 
     fun findByMemberIdAndProductIdAndIsMaleAndDeliveryMethod(
         memberId: Long,
