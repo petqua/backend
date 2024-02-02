@@ -1,4 +1,4 @@
-package com.petqua.exception.wish
+package com.petqua.exception.product
 
 import com.petqua.common.exception.BaseException
 import com.petqua.common.exception.BaseExceptionType

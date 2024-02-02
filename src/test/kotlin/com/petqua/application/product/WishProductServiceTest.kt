@@ -1,22 +1,21 @@
-package com.petqua.application.wish
+package com.petqua.application.product
 
+import com.petqua.application.product.dto.DeleteWishCommand
+import com.petqua.application.product.dto.SaveWishCommand
 import com.petqua.common.domain.findByIdOrThrow
 import com.petqua.domain.member.MemberRepository
 import com.petqua.domain.product.Product
 import com.petqua.domain.product.ProductRepository
+import com.petqua.domain.product.WishProductRepository
 import com.petqua.domain.store.Store
 import com.petqua.domain.store.StoreRepository
-import com.petqua.domain.wish.WishProductRepository
-
 import com.petqua.exception.member.MemberException
-import com.petqua.exception.member.MemberExceptionType.NOT_FOUND_MEMBER
+import com.petqua.exception.member.MemberExceptionType
 import com.petqua.exception.product.ProductException
-import com.petqua.exception.product.ProductExceptionType.NOT_FOUND_PRODUCT
-import com.petqua.exception.wish.WishProductException
-import com.petqua.exception.wish.WishProductExceptionType.ALREADY_EXIST_WISH_PRODUCT
-import com.petqua.exception.wish.WishProductExceptionType.FORBIDDEN_WISH_PRODUCT
-import com.petqua.exception.wish.WishProductExceptionType.NOT_FOUND_WISH_PRODUCT
-import com.petqua.presentation.wish.WishProductResponse
+import com.petqua.exception.product.ProductExceptionType
+import com.petqua.exception.product.WishProductException
+import com.petqua.exception.product.WishProductExceptionType
+import com.petqua.presentation.product.WishProductResponse
 import com.petqua.test.DataCleaner
 import com.petqua.test.fixture.member
 import com.petqua.test.fixture.product
@@ -26,10 +25,9 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE
 import java.math.BigDecimal
 
-@SpringBootTest(webEnvironment = NONE)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 class WishProductServiceTest(
     private val wishProductService: WishProductService,
     private val wishProductRepository: WishProductRepository,
@@ -77,7 +75,7 @@ class WishProductServiceTest(
             Then("예외가 발생한다") {
                 shouldThrow<MemberException> {
                     wishProductService.save(command)
-                }.exceptionType() shouldBe NOT_FOUND_MEMBER
+                }.exceptionType() shouldBe MemberExceptionType.NOT_FOUND_MEMBER
             }
         }
 
@@ -90,7 +88,7 @@ class WishProductServiceTest(
             Then("예외가 발생한다") {
                 shouldThrow<ProductException> {
                     wishProductService.save(command)
-                }.exceptionType() shouldBe NOT_FOUND_PRODUCT
+                }.exceptionType() shouldBe ProductExceptionType.NOT_FOUND_PRODUCT
             }
         }
 
@@ -104,7 +102,7 @@ class WishProductServiceTest(
             Then("예외가 발생한다") {
                 shouldThrow<WishProductException> {
                     wishProductService.save(command)
-                }.exceptionType() shouldBe ALREADY_EXIST_WISH_PRODUCT
+                }.exceptionType() shouldBe WishProductExceptionType.ALREADY_EXIST_WISH_PRODUCT
             }
         }
     }
@@ -152,7 +150,7 @@ class WishProductServiceTest(
             Then("예외가 발생한다") {
                 shouldThrow<WishProductException> {
                     wishProductService.delete(command)
-                }.exceptionType() shouldBe NOT_FOUND_WISH_PRODUCT
+                }.exceptionType() shouldBe WishProductExceptionType.NOT_FOUND_WISH_PRODUCT
             }
         }
 
@@ -165,7 +163,7 @@ class WishProductServiceTest(
             Then("예외가 발생한다") {
                 shouldThrow<WishProductException> {
                     wishProductService.delete(command)
-                }.exceptionType() shouldBe FORBIDDEN_WISH_PRODUCT
+                }.exceptionType() shouldBe WishProductExceptionType.FORBIDDEN_WISH_PRODUCT
             }
         }
     }
@@ -205,7 +203,7 @@ class WishProductServiceTest(
             Then("예외가 발생한다") {
                 shouldThrow<MemberException> {
                     wishProductService.readAll(memberId = Long.MIN_VALUE)
-                }.exceptionType() shouldBe NOT_FOUND_MEMBER
+                }.exceptionType() shouldBe MemberExceptionType.NOT_FOUND_MEMBER
             }
         }
     }

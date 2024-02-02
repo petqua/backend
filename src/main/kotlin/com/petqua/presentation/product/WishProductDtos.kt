@@ -1,6 +1,6 @@
-package com.petqua.presentation.wish
+package com.petqua.presentation.product
 
-import com.petqua.application.wish.SaveWishCommand
+import com.petqua.application.product.dto.SaveWishCommand
 import com.petqua.domain.product.Product
 
 data class SaveWishRequest(

@@ -1,6 +1,6 @@
-package com.petqua.domain.wish
+package com.petqua.domain.product
 
-import com.petqua.presentation.wish.WishProductResponse
+import com.petqua.presentation.product.WishProductResponse
 
 interface WishProductCustomRepository {
 

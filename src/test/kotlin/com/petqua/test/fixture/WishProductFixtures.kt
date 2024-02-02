@@ -1,6 +1,6 @@
 package com.petqua.test.fixture
 
-import com.petqua.domain.wish.WishProduct
+import com.petqua.domain.product.WishProduct
 
 fun wishProduct(
     id: Long = 0,

@@ -1,6 +1,6 @@
-package com.petqua.application.wish
+package com.petqua.application.product.dto
 
-import com.petqua.domain.wish.WishProduct
+import com.petqua.domain.product.WishProduct
 
 data class SaveWishCommand(
     val memberId: Long,

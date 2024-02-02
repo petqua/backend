@@ -1,7 +1,7 @@
-package com.petqua.presentation.wish
+package com.petqua.presentation.product
 
-import com.petqua.application.wish.DeleteWishCommand
-import com.petqua.application.wish.WishProductService
+import com.petqua.application.product.dto.DeleteWishCommand
+import com.petqua.application.product.WishProductService
 import com.petqua.domain.auth.Auth
 import com.petqua.domain.auth.LoginMember
 import org.springframework.http.ResponseEntity

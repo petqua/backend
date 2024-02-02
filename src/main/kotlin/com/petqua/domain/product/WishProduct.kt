@@ -1,9 +1,9 @@
-package com.petqua.domain.wish
+package com.petqua.domain.product
 
 import com.petqua.common.domain.BaseEntity
 import com.petqua.common.util.throwExceptionWhen
-import com.petqua.exception.wish.WishProductException
-import com.petqua.exception.wish.WishProductExceptionType.FORBIDDEN_WISH_PRODUCT
+import com.petqua.exception.product.WishProductException
+import com.petqua.exception.product.WishProductExceptionType.FORBIDDEN_WISH_PRODUCT
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue

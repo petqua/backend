@@ -1,11 +1,11 @@
-package com.petqua.presentation.wish
+package com.petqua.presentation.product
 
 import com.petqua.domain.product.Product
 import com.petqua.domain.product.ProductRepository
 import com.petqua.domain.store.Store
 import com.petqua.domain.store.StoreRepository
-import com.petqua.domain.wish.WishProduct
-import com.petqua.domain.wish.WishProductRepository
+import com.petqua.domain.product.WishProduct
+import com.petqua.domain.product.WishProductRepository
 import com.petqua.test.ApiTestConfig
 import com.petqua.test.fixture.product
 import com.petqua.test.fixture.store
