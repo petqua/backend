@@ -29,6 +29,8 @@ class CartProductCustomRepositoryImpl(
                 leftJoin(Store::class).on(path(Product::storeId).eq(path(Store::id))),
             ).where(
                 path(CartProduct::memberId).eq(memberId)
+            ).orderBy(
+                path(CartProduct::createdAt).desc()
             )
         }
 
