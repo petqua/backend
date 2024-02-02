@@ -177,6 +177,22 @@ class ProductCustomRepositoryImplTest(
         }
     }
 
+    Given("다중 id로 ProductResponse를 조회 할 때") {
+        val product1 = productRepository.save(product(name = "상품1", storeId = store.id))
+        val product2 = productRepository.save(product(name = "상품2", storeId = store.id))
+
+        When("id 목록을 입력하면") {
+            val products = productRepository.findAllProductResponseByIdIn(listOf(product1.id, product2.id))
+
+            Then("해당 id의 ProductResponse를 반환한다") {
+                products shouldContainExactly listOf(
+                    ProductResponse(product1, store.name),
+                    ProductResponse(product2, store.name),
+                )
+            }
+        }
+    }
+
     afterContainer {
         dataCleaner.clean()
     }

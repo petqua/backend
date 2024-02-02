@@ -2,6 +2,7 @@ package com.petqua.presentation.cart
 
 import com.petqua.application.cart.CartProductService
 import com.petqua.application.cart.dto.DeleteCartProductCommand
+import com.petqua.application.cart.dto.CartProductResponse
 import com.petqua.application.product.dto.ProductDetailResponse
 import com.petqua.domain.auth.Auth
 import com.petqua.domain.auth.LoginMember
@@ -9,6 +10,7 @@ import com.petqua.presentation.cart.dto.SaveCartProductRequest
 import com.petqua.presentation.cart.dto.UpdateCartProductOptionRequest
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -59,5 +61,13 @@ class CartProductController(
         )
         cartProductService.delete(command)
         return ResponseEntity.noContent().build()
+    }
+
+    @GetMapping
+    fun readAll(
+        @Auth loginMember: LoginMember,
+    ): ResponseEntity<List<CartProductResponse>> {
+        val responses = cartProductService.readAll(loginMember.memberId)
+        return ResponseEntity.ok(responses)
     }
 }

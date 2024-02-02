@@ -96,4 +96,26 @@ class ProductCustomRepositoryImpl(
             jpqlRenderer
         )
     }
+
+    override fun findAllProductResponseByIdIn(ids: List<Long>): List<ProductResponse> {
+        val query = jpql {
+            selectNew<ProductResponse>(
+                entity(Product::class),
+                path(Store::name)
+            ).from(
+                entity(Product::class),
+                join(Store::class).on(path(Product::storeId).eq(path(Store::id))),
+            ).where(
+                predicateByIds(ids)
+            )
+        }
+
+        return entityManager.createQuery(
+            query,
+            jpqlRenderContext,
+            jpqlRenderer
+        )
+    }
+
+    private fun Jpql.predicateByIds(ids: List<Long>) = if (ids.isEmpty()) null else path(Product::id).`in`(ids)
 }

@@ -10,6 +10,7 @@ import com.petqua.domain.cart.DeliveryMethod.COMMON
 import com.petqua.domain.cart.DeliveryMethod.SAFETY
 import com.petqua.domain.member.MemberRepository
 import com.petqua.domain.product.ProductRepository
+import com.petqua.domain.store.StoreRepository
 import com.petqua.exception.cart.CartProductException
 import com.petqua.exception.cart.CartProductExceptionType.DUPLICATED_PRODUCT
 import com.petqua.exception.cart.CartProductExceptionType.FORBIDDEN_CART_PRODUCT
@@ -22,6 +23,7 @@ import com.petqua.test.DataCleaner
 import com.petqua.test.fixture.cartProduct
 import com.petqua.test.fixture.member
 import com.petqua.test.fixture.product
+import com.petqua.test.fixture.store
 import io.kotest.assertions.assertSoftly
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
@@ -35,6 +37,7 @@ class CartProductServiceTest(
     private val cartProductRepository: CartProductRepository,
     private val productRepository: ProductRepository,
     private val memberRepository: MemberRepository,
+    private val storeRepository: StoreRepository,
     private val dataCleaner: DataCleaner,
 ) : BehaviorSpec({
 
@@ -173,16 +176,16 @@ class CartProductServiceTest(
                 cartProduct(
                     memberId = memberId,
                     productId = productId,
-                    isMale = true,
-                    deliveryMethod = COMMON
+                    isMale = false,
+                    deliveryMethod = SAFETY
                 )
             )
             val command = UpdateCartProductOptionCommand(
                 cartProductId = cartProduct.id,
                 memberId = memberId,
                 quantity = CartProductQuantity(3),
-                isMale = true,
-                deliveryMethod = COMMON,
+                isMale = false,
+                deliveryMethod = SAFETY,
             )
             Then("예외가 발생 한다") {
                 shouldThrow<CartProductException> {
@@ -247,6 +250,58 @@ class CartProductServiceTest(
                 shouldThrow<CartProductException> {
                     cartProductService.delete(command)
                 }.exceptionType() shouldBe FORBIDDEN_CART_PRODUCT
+            }
+        }
+    }
+
+    Given("봉달 상품 조회시") {
+        val store = storeRepository.save(store(name = "store"))
+        val productAId = productRepository.save(product(storeId = store.id)).id
+        val productBId = productRepository.save(product(storeId = store.id)).id
+        val productCId = productRepository.save(product(storeId = store.id)).id
+        val memberId = memberRepository.save(member()).id
+        cartProductRepository.saveAll(
+            listOf(
+                cartProduct(memberId = memberId, productId = productAId),
+                cartProduct(memberId = memberId, productId = productBId),
+                cartProduct(memberId = memberId, productId = productCId),
+            )
+        )
+
+        When("봉달 상품이 있는 회원이 조회 하는 경우") {
+            val result = cartProductService.readAll(memberId)
+
+            Then("봉달 상품 리스트를 반환 한다") {
+                result.size shouldBe 3
+            }
+        }
+
+        When("봉달 상품이 없는 회원이 조회 하는 경우") {
+            val newMemberId = memberRepository.save(member()).id
+            val results = cartProductService.readAll(newMemberId)
+
+            Then("빈 리스트를 반환 한다") {
+                results.size shouldBe 0
+            }
+        }
+
+        When("봉달에 담아둔 상품이 삭제된 경우") {
+            productRepository.deleteById(productAId)
+            val results = cartProductService.readAll(memberId)
+
+            Then("상품의 판매 여부를 포함한 리스트를 반환 한다") {
+                assertSoftly(results) {
+                    size shouldBe 3
+                    find { it.productId == 0L }!!.isOnSale shouldBe false
+                }
+            }
+        }
+
+        When("존재 하지 않는 회원이 조회 하는 경우") {
+            Then("예외가 발생 한다") {
+                shouldThrow<MemberException> {
+                    cartProductService.readAll(Long.MIN_VALUE)
+                }.exceptionType() shouldBe NOT_FOUND_MEMBER
             }
         }
     }

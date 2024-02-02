@@ -1,5 +1,6 @@
 package com.petqua.application.cart
 
+import com.petqua.application.cart.dto.CartProductResponse
 import com.petqua.application.cart.dto.DeleteCartProductCommand
 import com.petqua.application.cart.dto.SaveCartProductCommand
 import com.petqua.application.cart.dto.UpdateCartProductOptionCommand
@@ -75,5 +76,11 @@ class CartProductService(
         )
         cartProduct.validateOwner(command.memberId)
         cartProductRepository.delete(cartProduct)
+    }
+
+    @Transactional(readOnly = true)
+    fun readAll(memberId: Long): List<CartProductResponse> {
+        memberRepository.existByIdOrThrow(memberId, MemberException(NOT_FOUND_MEMBER))
+        return cartProductRepository.findAllCartResultsByMemberId(memberId)
     }
 }

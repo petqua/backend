@@ -5,7 +5,7 @@ import com.petqua.domain.cart.CartProductQuantity
 import com.petqua.domain.cart.DeliveryMethod
 
 fun cartProduct(
-    id: Long = 1L,
+    id: Long = 0L,
     memberId: Long = 1L,
     productId: Long = 1L,
     quantity: Int = 1,
