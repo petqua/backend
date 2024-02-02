@@ -292,7 +292,7 @@ class CartProductServiceTest(
             Then("상품의 판매 여부를 포함한 리스트를 반환 한다") {
                 assertSoftly(results) {
                     size shouldBe 3
-                    find { it.productId == productAId }!!.isOnSale shouldBe false
+                    find { it.productId == 0L }!!.isOnSale shouldBe false
                 }
             }
         }

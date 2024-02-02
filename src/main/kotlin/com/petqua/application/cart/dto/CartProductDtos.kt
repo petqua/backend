@@ -53,17 +53,17 @@ data class CartProductResponse(
 ) {
 
     constructor(cartProduct: CartProduct, product: Product?, storeName: String?) : this(
-        cartProduct.id,
-        storeName ?: "",
-        product?.id ?: cartProduct.productId,
-        product?.name ?: "",
-        product?.thumbnailUrl ?: "",
-        product?.price?.intValueExact() ?: 0,
-        product?.discountRate ?: 0,
-        product?.discountPrice?.intValueExact() ?: 0,
-        cartProduct.quantity.value,
-        cartProduct.isMale,
-        cartProduct.deliveryMethod.name,
-        product != null
+        id = cartProduct.id,
+        storeName = storeName ?: "",
+        productId = product?.id ?: 0L,
+        productName = product?.name ?: "",
+        productThumbnailUrl = product?.thumbnailUrl ?: "",
+        productPrice = product?.price?.intValueExact() ?: 0,
+        productDiscountRate = product?.discountRate ?: 0,
+        productDiscountPrice = product?.discountPrice?.intValueExact() ?: 0,
+        quantity = cartProduct.quantity.value,
+        isMale = cartProduct.isMale,
+        deliveryMethod = cartProduct.deliveryMethod.name,
+        isOnSale = product != null
     )
 }

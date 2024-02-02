@@ -384,7 +384,7 @@ class CartProductControllerTest(
                     assertSoftly(response) {
                         statusCode shouldBe HttpStatus.OK.value()
                         responseBody.size shouldBe 3
-                        responseBody.find { it.productId == productA.id }!!.isOnSale shouldBe false
+                        responseBody.find { it.productId == 0L }!!.isOnSale shouldBe false
                     }
                 }
             }
