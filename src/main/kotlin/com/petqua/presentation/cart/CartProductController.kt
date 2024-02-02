@@ -1,10 +1,10 @@
 package com.petqua.presentation.cart
 
 import com.petqua.application.cart.CartProductService
+import com.petqua.application.cart.dto.DeleteCartProductCommand
 import com.petqua.application.product.dto.ProductDetailResponse
 import com.petqua.domain.auth.Auth
 import com.petqua.domain.auth.LoginMember
-import com.petqua.presentation.cart.dto.DeleteCartProductRequest
 import com.petqua.presentation.cart.dto.SaveCartProductRequest
 import com.petqua.presentation.cart.dto.UpdateCartProductOptionRequest
 import org.springframework.http.ResponseEntity
@@ -48,12 +48,15 @@ class CartProductController(
         return ResponseEntity.noContent().build()
     }
 
-    @DeleteMapping
+    @DeleteMapping("/{cartProductId}")
     fun delete(
         @Auth loginMember: LoginMember,
-        @RequestBody request: DeleteCartProductRequest
+        @PathVariable cartProductId: Long
     ): ResponseEntity<Void> {
-        val command = request.toCommand(loginMember.memberId)
+        val command = DeleteCartProductCommand(
+            memberId = loginMember.memberId,
+            cartProductId = cartProductId
+        )
         cartProductService.delete(command)
         return ResponseEntity.noContent().build()
     }

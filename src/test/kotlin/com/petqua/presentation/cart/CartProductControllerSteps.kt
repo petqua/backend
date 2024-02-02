@@ -1,6 +1,5 @@
 package com.petqua.presentation.cart
 
-import com.petqua.presentation.cart.dto.DeleteCartProductRequest
 import com.petqua.presentation.cart.dto.SaveCartProductRequest
 import com.petqua.presentation.cart.dto.UpdateCartProductOptionRequest
 import io.restassured.module.kotlin.extensions.Extract
@@ -63,16 +62,15 @@ fun requestUpdateCartProductOption(
 }
 
 fun requestDeleteCartProduct(
-    request: DeleteCartProductRequest,
+    deleteProductId: Long,
     accessToken: String
 ): Response {
     return Given {
         log().all()
-            .body(request)
             .header(HttpHeaders.AUTHORIZATION, accessToken)
             .contentType("application/json")
     } When {
-        delete("/carts")
+        delete("/carts/{cartProductId}", deleteProductId)
     } Then {
         log().all()
     } Extract {

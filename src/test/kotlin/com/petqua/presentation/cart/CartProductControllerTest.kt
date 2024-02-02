@@ -8,7 +8,6 @@ import com.petqua.exception.cart.CartProductExceptionType.INVALID_DELIVERY_METHO
 import com.petqua.exception.cart.CartProductExceptionType.NOT_FOUND_CART_PRODUCT
 import com.petqua.exception.cart.CartProductExceptionType.PRODUCT_QUANTITY_OVER_MAXIMUM
 import com.petqua.exception.product.ProductExceptionType.NOT_FOUND_PRODUCT
-import com.petqua.presentation.cart.dto.DeleteCartProductRequest
 import com.petqua.presentation.cart.dto.SaveCartProductRequest
 import com.petqua.presentation.cart.dto.UpdateCartProductOptionRequest
 import com.petqua.test.ApiTestConfig
@@ -282,9 +281,8 @@ class CartProductControllerTest(
 
 
             When("요청 하면") {
-                val request = DeleteCartProductRequest(cartProductAId)
                 val response = requestDeleteCartProduct(
-                    request,
+                    cartProductAId,
                     memberAuthResponse.accessToken
                 )
 
@@ -300,9 +298,8 @@ class CartProductControllerTest(
             val cartProductAId = saveCartProductAndReturnId(memberAuthResponse.accessToken, product.id)
 
             When("존재하지 않는 봉달 상품 삭제를 요청 하면") {
-                val request = DeleteCartProductRequest(Long.MIN_VALUE)
                 val response = requestDeleteCartProduct(
-                    request,
+                    Long.MIN_VALUE,
                     memberAuthResponse.accessToken
                 )
 
@@ -317,9 +314,8 @@ class CartProductControllerTest(
 
             When("다른 회원의 상품을 삭제 하면") {
                 val otherMemberResponse = signInAsMember()
-                val request = DeleteCartProductRequest(cartProductAId)
                 val response = requestDeleteCartProduct(
-                    request,
+                    cartProductAId,
                     otherMemberResponse.accessToken
                 )
 
