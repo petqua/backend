@@ -1,10 +1,10 @@
 package com.petqua.application.product
 
 import com.petqua.application.product.dto.ProductDetailResponse
-import com.petqua.application.product.dto.ProductKeywordCommand
+import com.petqua.application.product.dto.ProductKeywordQuery
 import com.petqua.application.product.dto.ProductKeywordResponse
-import com.petqua.application.product.dto.ProductReadCommand
-import com.petqua.application.product.dto.ProductSearchCommand
+import com.petqua.application.product.dto.ProductReadQuery
+import com.petqua.application.product.dto.ProductSearchQuery
 import com.petqua.application.product.dto.ProductsResponse
 import com.petqua.common.domain.findByIdOrThrow
 import com.petqua.domain.keyword.ProductKeywordRepository
@@ -34,29 +34,29 @@ class ProductService(
     }
 
     @Transactional(readOnly = true)
-    fun readAll(command: ProductReadCommand): ProductsResponse {
-        val products = productRepository.findAllByCondition(command.toReadConditions(), command.toPaging())
-        val totalProductsCount = productRepository.countByCondition(command.toReadConditions())
+    fun readAll(query: ProductReadQuery): ProductsResponse {
+        val products = productRepository.findAllByCondition(query.toReadConditions(), query.toPaging())
+        val totalProductsCount = productRepository.countByCondition(query.toReadConditions())
 
-        return ProductsResponse.of(products, command.limit, totalProductsCount)
+        return ProductsResponse.of(products, query.limit, totalProductsCount)
     }
 
     @Transactional(readOnly = true)
-    fun readBySearch(command: ProductSearchCommand): ProductsResponse {
-        return if (productKeywordRepository.existsByWord(command.word)) {
-            val products = productRepository.findByKeywordSearch(command.toSearchCondition(), command.toPaging())
-            val totalProductsCount = productRepository.countByKeywordCondition(command.toSearchCondition())
-            ProductsResponse.of(products, command.limit, totalProductsCount)
+    fun readBySearch(query: ProductSearchQuery): ProductsResponse {
+        return if (productKeywordRepository.existsByWord(query.word)) {
+            val products = productRepository.findByKeywordSearch(query.toSearchCondition(), query.toPaging())
+            val totalProductsCount = productRepository.countByKeywordCondition(query.toSearchCondition())
+            ProductsResponse.of(products, query.limit, totalProductsCount)
         } else {
-            val products = productRepository.findBySearch(command.toSearchCondition(), command.toPaging())
-            val totalProductsCount = productRepository.countByCondition(command.toSearchCondition())
-            ProductsResponse.of(products, command.limit, totalProductsCount)
+            val products = productRepository.findBySearch(query.toSearchCondition(), query.toPaging())
+            val totalProductsCount = productRepository.countByCondition(query.toSearchCondition())
+            ProductsResponse.of(products, query.limit, totalProductsCount)
         }
     }
 
     @Transactional(readOnly = true)
-    fun readKeywords(command: ProductKeywordCommand): List<ProductKeywordResponse> {
-        val productKeyword = command.toProductKeyword()
-        return productKeywordRepository.findBySearch(productKeyword.word, command.limit)
+    fun readKeywords(query: ProductKeywordQuery): List<ProductKeywordResponse> {
+        val productKeyword = query.toProductKeyword()
+        return productKeywordRepository.findBySearch(productKeyword.word, query.limit)
     }
 }

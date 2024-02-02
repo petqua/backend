@@ -1,10 +1,10 @@
 package com.petqua.application.product
 
 import com.petqua.application.product.dto.ProductDetailResponse
-import com.petqua.application.product.dto.ProductKeywordCommand
+import com.petqua.application.product.dto.ProductKeywordQuery
 import com.petqua.application.product.dto.ProductKeywordResponse
-import com.petqua.application.product.dto.ProductReadCommand
-import com.petqua.application.product.dto.ProductSearchCommand
+import com.petqua.application.product.dto.ProductReadQuery
+import com.petqua.application.product.dto.ProductSearchQuery
 import com.petqua.application.product.dto.ProductsResponse
 import com.petqua.domain.keyword.ProductKeywordRepository
 import com.petqua.domain.product.ProductRepository
@@ -52,14 +52,14 @@ class ProductServiceTest(
         val product1 = productRepository.save(product(storeId = store.id))
         val product2 = productRepository.save(product(storeId = store.id))
 
-        val request = ProductReadCommand(
+        val query = ProductReadQuery(
             sourceType = NONE,
             sorter = ENROLLMENT_DATE_DESC,
             limit = 2
         )
 
         When("상품을") {
-            val productsResponse = productService.readAll(request)
+            val productsResponse = productService.readAll(query)
 
             Then("조회할 수 있다") {
                 productsResponse shouldBe ProductsResponse(
@@ -84,10 +84,10 @@ class ProductServiceTest(
         productKeywordRepository.save(productKeyword(word = "구피", productId = product2.id))
         productKeywordRepository.save(productKeyword(word = "레드턱시도 구피", productId = product2.id))
 
-        val command = ProductKeywordCommand(word = "구피")
+        val query = ProductKeywordQuery(word = "구피")
 
         When("검색어를 입력하면") {
-            val productKeywordResponses = productService.readKeywords(command)
+            val productKeywordResponses = productService.readKeywords(query)
 
             Then("상품 키워드 목록이 문자 길이 오름차순으로 반환된다") {
                 productKeywordResponses shouldBe listOf(
@@ -110,9 +110,9 @@ class ProductServiceTest(
         productKeywordRepository.save(productKeyword(word = "레드턱시도 구피", productId = product2.id))
 
         When("검색어가 상품 키워드에 속하면") {
-            val command = ProductSearchCommand(word = "구피")
+            val query = ProductSearchQuery(word = "구피")
 
-            val productsResponse = productService.readBySearch(command)
+            val productsResponse = productService.readBySearch(query)
 
             Then("상품 키워드와 연관된 상품을 조회할 수 있다") {
                 productsResponse shouldBe ProductsResponse(
@@ -127,9 +127,9 @@ class ProductServiceTest(
         }
 
         When("검색어가 상품 키워드에 속하지 않으면") {
-            val command = ProductSearchCommand(word = "고등")
+            val query = ProductSearchQuery(word = "고등")
 
-            val productsResponse = productService.readBySearch(command)
+            val productsResponse = productService.readBySearch(query)
 
             Then("상품 이름과 연관된 상품을 조회할 수 있다") {
                 productsResponse shouldBe ProductsResponse(

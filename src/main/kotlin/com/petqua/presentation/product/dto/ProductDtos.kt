@@ -1,8 +1,8 @@
 package com.petqua.presentation.product.dto
 
-import com.petqua.application.product.dto.ProductKeywordCommand
-import com.petqua.application.product.dto.ProductReadCommand
-import com.petqua.application.product.dto.ProductSearchCommand
+import com.petqua.application.product.dto.ProductKeywordQuery
+import com.petqua.application.product.dto.ProductReadQuery
+import com.petqua.application.product.dto.ProductSearchQuery
 import com.petqua.domain.product.ProductSourceType
 import com.petqua.domain.product.Sorter
 import com.petqua.domain.product.dto.LIMIT_CEILING
@@ -14,8 +14,8 @@ data class ProductReadRequest(
     val limit: Int = LIMIT_CEILING,
 ) {
 
-    fun toCommand(memberId: Long): ProductReadCommand {
-        return ProductReadCommand(
+    fun toQuery(memberId: Long): ProductReadQuery {
+        return ProductReadQuery(
             sourceType = sourceType,
             sorter = sorter,
             lastViewedId = lastViewedId,
@@ -30,8 +30,8 @@ data class ProductSearchRequest(
     val limit: Int = LIMIT_CEILING,
 ) {
 
-    fun toCommand(memberId: Long): ProductSearchCommand {
-        return ProductSearchCommand(
+    fun toQuery(memberId: Long): ProductSearchQuery {
+        return ProductSearchQuery(
             word = word,
             lastViewedId = lastViewedId,
             limit = limit,
@@ -44,8 +44,8 @@ data class ProductKeywordRequest(
     val limit: Int = LIMIT_CEILING,
 ) {
 
-    fun toCommand(memberId: Long): ProductKeywordCommand {
-        return ProductKeywordCommand(
+    fun toQuery(memberId: Long): ProductKeywordQuery {
+        return ProductKeywordQuery(
             word = word,
             limit = limit,
         )

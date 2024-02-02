@@ -40,7 +40,7 @@ data class ProductDetailResponse(
     )
 }
 
-data class ProductReadCommand(
+data class ProductReadQuery(
     val sourceType: ProductSourceType = ProductSourceType.NONE,
     val sorter: Sorter = Sorter.NONE,
     val lastViewedId: Long? = null,
@@ -71,7 +71,7 @@ data class ProductsResponse(
     }
 }
 
-data class ProductSearchCommand(
+data class ProductSearchQuery(
     val word: String = "",
     val lastViewedId: Long? = null,
     val limit: Int = LIMIT_CEILING,
@@ -86,7 +86,7 @@ data class ProductSearchCommand(
     }
 }
 
-data class ProductKeywordCommand(
+data class ProductKeywordQuery(
     val word: String = "",
     val limit: Int = LIMIT_CEILING,
 ) {

@@ -35,7 +35,7 @@ class ProductController(
         @Auth loginMember: LoginMember,
         request: ProductReadRequest
     ): ResponseEntity<ProductsResponse> {
-        val command = request.toCommand(loginMember.memberId)
+        val command = request.toQuery(loginMember.memberId)
         val response = productService.readAll(command)
         return ResponseEntity.ok(response)
     }
@@ -45,7 +45,7 @@ class ProductController(
         @Auth loginMember: LoginMember,
         request: ProductSearchRequest
     ): ResponseEntity<ProductsResponse> {
-        val command = request.toCommand(loginMember.memberId)
+        val command = request.toQuery(loginMember.memberId)
         val response = productService.readBySearch(command)
         return ResponseEntity.ok(response)
     }
@@ -55,7 +55,7 @@ class ProductController(
         @Auth loginMember: LoginMember,
         request: ProductKeywordRequest
     ): ResponseEntity<List<ProductKeywordResponse>> {
-        val command = request.toCommand(loginMember.memberId)
+        val command = request.toQuery(loginMember.memberId)
         val response = productService.readKeywords(command)
         return ResponseEntity.ok(response)
     }
