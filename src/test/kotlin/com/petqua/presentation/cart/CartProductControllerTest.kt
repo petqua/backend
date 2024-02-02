@@ -125,9 +125,9 @@ class CartProductControllerTest(
         }
 
         Given("봉달 상품의 옵션 수정을") {
-            productRepository.save(product(id = 1L))
+            val savedProduct = productRepository.save(product(id = 1L))
             val memberAuthResponse = signInAsMember()
-            val cartProductId = saveCartProductAndReturnId(memberAuthResponse.accessToken)
+            val cartProductId = saveCartProductAndReturnId(memberAuthResponse.accessToken, savedProduct.id)
 
             When("요청 하면") {
                 val request = UpdateCartProductOptionRequest(
@@ -151,7 +151,7 @@ class CartProductControllerTest(
         Given("봉달 상품의 옵션 수정시") {
             val savedProduct = productRepository.save(product(id = 1L))
             val memberAuthResponse = signInAsMember()
-            val cartProductId = saveCartProductAndReturnId(memberAuthResponse.accessToken)
+            val cartProductId = saveCartProductAndReturnId(memberAuthResponse.accessToken, savedProduct.id)
 
             When("존재하지 않는 봉달 상품 수정을 요청 하면") {
                 val request = UpdateCartProductOptionRequest(
@@ -269,6 +269,61 @@ class CartProductControllerTest(
                     assertSoftly {
                         it.assertThat(response.statusCode).isEqualTo(BAD_REQUEST.value())
                         it.assertThat(errorResponse.message).isEqualTo(DUPLICATED_PRODUCT.errorMessage())
+                    }
+                }
+            }
+        }
+
+        Given("봉달 상품 삭제를") {
+            val product = productRepository.save(product(id = 1L))
+            val memberAuthResponse = signInAsMember()
+            val cartProductAId = saveCartProductAndReturnId(memberAuthResponse.accessToken, product.id)
+
+
+            When("요청 하면") {
+                val response = requestDeleteCartProduct(
+                    cartProductAId,
+                    memberAuthResponse.accessToken
+                )
+
+                Then("봉달 상품이 삭제된다") {
+                    assertThat(response.statusCode).isEqualTo(NO_CONTENT.value())
+                }
+            }
+        }
+
+        Given("봉달 상품 삭제시") {
+            val product = productRepository.save(product(id = 1L))
+            val memberAuthResponse = signInAsMember()
+            val cartProductAId = saveCartProductAndReturnId(memberAuthResponse.accessToken, product.id)
+
+            When("존재하지 않는 봉달 상품 삭제를 요청 하면") {
+                val response = requestDeleteCartProduct(
+                    Long.MIN_VALUE,
+                    memberAuthResponse.accessToken
+                )
+
+                Then("예외가 발생한다") {
+                    val errorResponse = response.`as`(ExceptionResponse::class.java)
+                    assertSoftly {
+                        it.assertThat(response.statusCode).isEqualTo(NOT_FOUND.value())
+                        it.assertThat(errorResponse.message).isEqualTo(NOT_FOUND_CART_PRODUCT.errorMessage())
+                    }
+                }
+            }
+
+            When("다른 회원의 상품을 삭제 하면") {
+                val otherMemberResponse = signInAsMember()
+                val response = requestDeleteCartProduct(
+                    cartProductAId,
+                    otherMemberResponse.accessToken
+                )
+
+                Then("예외가 발생한다") {
+                    val errorResponse = response.`as`(ExceptionResponse::class.java)
+                    assertSoftly {
+                        it.assertThat(response.statusCode).isEqualTo(FORBIDDEN.value())
+                        it.assertThat(errorResponse.message).isEqualTo(FORBIDDEN_CART_PRODUCT.errorMessage())
                     }
                 }
             }

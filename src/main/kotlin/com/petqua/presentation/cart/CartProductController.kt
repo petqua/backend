@@ -1,12 +1,14 @@
 package com.petqua.presentation.cart
 
 import com.petqua.application.cart.CartProductService
+import com.petqua.application.cart.dto.DeleteCartProductCommand
 import com.petqua.application.product.dto.ProductDetailResponse
 import com.petqua.domain.auth.Auth
 import com.petqua.domain.auth.LoginMember
 import com.petqua.presentation.cart.dto.SaveCartProductRequest
 import com.petqua.presentation.cart.dto.UpdateCartProductOptionRequest
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -35,7 +37,7 @@ class CartProductController(
         return ResponseEntity.created(location).build()
     }
 
-    @PatchMapping("/products/{cartProductId}/options")
+    @PatchMapping("/{cartProductId}/options")
     fun updateOptions(
         @Auth loginMember: LoginMember,
         @PathVariable cartProductId: Long,
@@ -43,6 +45,19 @@ class CartProductController(
     ): ResponseEntity<Void> {
         val command = request.toCommand(loginMember.memberId, cartProductId)
         cartProductService.updateOptions(command)
+        return ResponseEntity.noContent().build()
+    }
+
+    @DeleteMapping("/{cartProductId}")
+    fun delete(
+        @Auth loginMember: LoginMember,
+        @PathVariable cartProductId: Long
+    ): ResponseEntity<Void> {
+        val command = DeleteCartProductCommand(
+            memberId = loginMember.memberId,
+            cartProductId = cartProductId
+        )
+        cartProductService.delete(command)
         return ResponseEntity.noContent().build()
     }
 }

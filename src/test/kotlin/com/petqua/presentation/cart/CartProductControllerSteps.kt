@@ -27,9 +27,9 @@ fun requestSaveCartProduct(
     }
 }
 
-fun saveCartProductAndReturnId(accessToken: String): Long {
+fun saveCartProductAndReturnId(accessToken: String, productId: Long = 1L): Long {
     val sampleCartProduct = SaveCartProductRequest(
-        productId = 1L,
+        productId = productId,
         quantity = 1,
         isMale = true,
         deliveryMethod = "COMMON"
@@ -53,7 +53,24 @@ fun requestUpdateCartProductOption(
             .header(HttpHeaders.AUTHORIZATION, accessToken)
             .contentType("application/json")
     } When {
-        patch("/carts/products/{cartProductId}/options", cartProductId)
+        patch("/carts/{cartProductId}/options", cartProductId)
+    } Then {
+        log().all()
+    } Extract {
+        response()
+    }
+}
+
+fun requestDeleteCartProduct(
+    deleteProductId: Long,
+    accessToken: String
+): Response {
+    return Given {
+        log().all()
+            .header(HttpHeaders.AUTHORIZATION, accessToken)
+            .contentType("application/json")
+    } When {
+        delete("/carts/{cartProductId}", deleteProductId)
     } Then {
         log().all()
     } Extract {

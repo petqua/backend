@@ -1,5 +1,6 @@
 package com.petqua.application.cart
 
+import com.petqua.application.cart.dto.DeleteCartProductCommand
 import com.petqua.application.cart.dto.SaveCartProductCommand
 import com.petqua.application.cart.dto.UpdateCartProductOptionCommand
 import com.petqua.common.domain.existByIdOrThrow
@@ -65,5 +66,14 @@ class CartProductService(
             isMale = isMale,
             deliveryMethod = deliveryMethod
         )?.also { throw CartProductException(DUPLICATED_PRODUCT) }
+    }
+
+    fun delete(command: DeleteCartProductCommand) {
+        val cartProduct = cartProductRepository.findByIdOrThrow(
+            command.cartProductId,
+            CartProductException(NOT_FOUND_CART_PRODUCT)
+        )
+        cartProduct.validateOwner(command.memberId)
+        cartProductRepository.delete(cartProduct)
     }
 }

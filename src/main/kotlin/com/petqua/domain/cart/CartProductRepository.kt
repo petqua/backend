@@ -10,4 +10,6 @@ interface CartProductRepository : JpaRepository<CartProduct, Long> {
         isMale: Boolean,
         deliveryMethod: DeliveryMethod
     ): CartProduct?
+
+    fun findAllByIdIn(ids: List<Long>): List<CartProduct>
 }
