@@ -18,7 +18,7 @@ class ProductKeyword(
     val productId: Long = 0L,
 
     @Column(nullable = false)
-    val word: String = "keyword",
+    val word: String,
 ) {
 
     init {
