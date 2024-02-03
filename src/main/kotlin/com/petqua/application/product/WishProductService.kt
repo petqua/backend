@@ -1,21 +1,18 @@
 package com.petqua.application.product
 
-import com.petqua.application.product.dto.DeleteWishCommand
 import com.petqua.application.product.dto.ReadAllWishProductCommand
-import com.petqua.application.product.dto.SaveWishCommand
+import com.petqua.application.product.dto.UpdateWishCommand
 import com.petqua.common.domain.existByIdOrThrow
 import com.petqua.common.domain.findActiveByIdOrThrow
 import com.petqua.common.domain.findByIdOrThrow
 import com.petqua.domain.member.MemberRepository
 import com.petqua.domain.product.ProductRepository
+import com.petqua.domain.product.WishProduct
 import com.petqua.domain.product.WishProductRepository
 import com.petqua.exception.member.MemberException
 import com.petqua.exception.member.MemberExceptionType.NOT_FOUND_MEMBER
 import com.petqua.exception.product.ProductException
 import com.petqua.exception.product.ProductExceptionType.NOT_FOUND_PRODUCT
-import com.petqua.exception.product.WishProductException
-import com.petqua.exception.product.WishProductExceptionType.ALREADY_EXIST_WISH_PRODUCT
-import com.petqua.exception.product.WishProductExceptionType.NOT_FOUND_WISH_PRODUCT
 import com.petqua.presentation.product.WishProductsResponse
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -27,24 +24,20 @@ class WishProductService(
     private val productRepository: ProductRepository,
     private val memberRepository: MemberRepository,
 ) {
-    fun save(command: SaveWishCommand) {
+    fun update(command: UpdateWishCommand) {
         memberRepository.existByIdOrThrow(command.memberId, MemberException(NOT_FOUND_MEMBER))
-        if (wishProductRepository.existsByProductIdAndMemberId(command.productId, command.memberId)) {
-            throw WishProductException(ALREADY_EXIST_WISH_PRODUCT)
-        }
-        val wishProduct = command.toWishProduct()
+        wishProductRepository.findByProductIdAndMemberId(command.productId, command.memberId)
+            ?.let { delete(it) } ?: save(command.toWishProduct())
+    }
+
+    private fun save(wishProduct: WishProduct) {
         wishProductRepository.save(wishProduct)
         val product =
             productRepository.findActiveByIdOrThrow(wishProduct.productId, ProductException(NOT_FOUND_PRODUCT))
         product.increaseWishCount()
     }
 
-    fun delete(command: DeleteWishCommand) {
-        val wishProduct = wishProductRepository.findByIdOrThrow(
-            id = command.wishProductId,
-            e = WishProductException(NOT_FOUND_WISH_PRODUCT)
-        )
-        wishProduct.validateOwner(command.memberId)
+    private fun delete(wishProduct: WishProduct) {
         wishProductRepository.delete(wishProduct)
         val product = productRepository.findByIdOrThrow(wishProduct.productId, ProductException(NOT_FOUND_PRODUCT))
         product.decreaseWishCount()

@@ -4,7 +4,7 @@ import com.petqua.domain.product.WishProduct
 import com.petqua.domain.product.dto.LIMIT_CEILING
 import com.petqua.domain.product.dto.ProductPaging
 
-data class SaveWishCommand(
+data class UpdateWishCommand(
     val memberId: Long,
     val productId: Long,
 ) {
@@ -15,11 +15,6 @@ data class SaveWishCommand(
         )
     }
 }
-
-data class DeleteWishCommand(
-    val memberId: Long,
-    val wishProductId: Long,
-)
 
 data class ReadAllWishProductCommand(
     val memberId: Long,

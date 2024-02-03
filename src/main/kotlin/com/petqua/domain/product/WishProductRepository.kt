@@ -6,5 +6,7 @@ interface WishProductRepository : JpaRepository<WishProduct, Long>, WishProductC
 
     fun existsByProductIdAndMemberId(productId: Long, memberId: Long): Boolean
 
+    fun findByProductIdAndMemberId(productId: Long, memberId: Long): WishProduct?
+
     fun countByMemberId(memberId: Long): Int
 }

@@ -9,14 +9,12 @@ import com.petqua.domain.store.StoreRepository
 import com.petqua.test.ApiTestConfig
 import com.petqua.test.fixture.product
 import com.petqua.test.fixture.store
-import com.petqua.test.fixture.wishProduct
 import io.kotest.matchers.shouldBe
 import io.restassured.module.kotlin.extensions.Extract
 import io.restassured.module.kotlin.extensions.Given
 import io.restassured.module.kotlin.extensions.Then
 import io.restassured.module.kotlin.extensions.When
 import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpStatus.CREATED
 import org.springframework.http.HttpStatus.NO_CONTENT
 import org.springframework.http.HttpStatus.OK
 import org.springframework.http.MediaType
@@ -29,10 +27,10 @@ class WishProductControllerTest(
 ) : ApiTestConfig() {
 
     init {
-        Given("찜 추가를") {
+        Given("찜 상품 수정을") {
             val memberAuthResponse = signInAsMember()
             val product = productRepository.save(product())
-            val request = SaveWishRequest(
+            val request = UpdateWishRequest(
                 productId = product.id
             )
 
@@ -50,34 +48,7 @@ class WishProductControllerTest(
                     response()
                 }
 
-                Then("찜 목록에 상품이 추가된다") {
-                    response.statusCode shouldBe CREATED.value()
-                }
-            }
-        }
-
-        Given("찜 삭제를") {
-            val memberAuthResponse = signInAsMember()
-            val product = productRepository.save(
-                product(
-                    wishCount = 1
-                )
-            )
-            val wishProduct = wishProductRepository.save(wishProduct())
-
-            When("요청하면") {
-                val response = Given {
-                    log().all()
-                        .header(HttpHeaders.AUTHORIZATION, memberAuthResponse.accessToken)
-                } When {
-                    delete("/products/wishes/1")
-                } Then {
-                    log().all()
-                } Extract {
-                    response()
-                }
-
-                Then("찜 목록에서 상품이 삭제된다") {
+                Then("찜 목록에 상품이 추가되거나 제거된다") {
                     response.statusCode shouldBe NO_CONTENT.value()
                 }
             }

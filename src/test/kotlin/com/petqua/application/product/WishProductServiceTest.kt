@@ -1,8 +1,7 @@
 package com.petqua.application.product
 
-import com.petqua.application.product.dto.DeleteWishCommand
 import com.petqua.application.product.dto.ReadAllWishProductCommand
-import com.petqua.application.product.dto.SaveWishCommand
+import com.petqua.application.product.dto.UpdateWishCommand
 import com.petqua.common.domain.findByIdOrThrow
 import com.petqua.domain.member.MemberRepository
 import com.petqua.domain.product.Product
@@ -14,8 +13,6 @@ import com.petqua.exception.member.MemberException
 import com.petqua.exception.member.MemberExceptionType
 import com.petqua.exception.product.ProductException
 import com.petqua.exception.product.ProductExceptionType
-import com.petqua.exception.product.WishProductException
-import com.petqua.exception.product.WishProductExceptionType
 import com.petqua.presentation.product.WishProductResponse
 import com.petqua.test.DataCleaner
 import com.petqua.test.fixture.member
@@ -38,21 +35,21 @@ class WishProductServiceTest(
     private val dataCleaner: DataCleaner,
 ) : BehaviorSpec({
 
-    Given("찜 상품 생성을") {
-        val originalWishCount = 0
+    Given("올바른 찜 상품 수정 요청시") {
+        val originalWishCount = 1
         val product = productRepository.save(
             product(
                 wishCount = originalWishCount
             )
         )
         val member = memberRepository.save(member())
-        val command = SaveWishCommand(
+        val command = UpdateWishCommand(
             memberId = member.id,
             productId = product.id
         )
 
-        When("요청하면") {
-            wishProductService.save(command)
+        When("해당 상품이 찜 상태가 아니라면") {
+            wishProductService.update(command)
 
             Then("찜 상품이 추가되고, 상품의 찜 개수가 증가한다") {
                 wishProductRepository.existsByProductIdAndMemberId(product.id, member.id) shouldBe true
@@ -61,68 +58,10 @@ class WishProductServiceTest(
                 updatedProduct.wishCount shouldBe product.wishCount.plus()
             }
         }
-    }
 
-    Given("찜 상품 생성시") {
-        val product = productRepository.save(product())
-        val member = memberRepository.save(member())
-
-        When("멤버가 존재하지 않으면") {
-            val command = SaveWishCommand(
-                memberId = Long.MIN_VALUE,
-                productId = product.id
-            )
-
-            Then("예외가 발생한다") {
-                shouldThrow<MemberException> {
-                    wishProductService.save(command)
-                }.exceptionType() shouldBe MemberExceptionType.NOT_FOUND_MEMBER
-            }
-        }
-
-        When("상품이 존재하지 않으면") {
-            val command = SaveWishCommand(
-                memberId = member.id,
-                productId = Long.MIN_VALUE
-            )
-
-            Then("예외가 발생한다") {
-                shouldThrow<ProductException> {
-                    wishProductService.save(command)
-                }.exceptionType() shouldBe ProductExceptionType.NOT_FOUND_PRODUCT
-            }
-        }
-
-        When("이미 해당 상품이 찜으로 등록되어 있다면") {
-            val command = SaveWishCommand(
-                memberId = member.id,
-                productId = product.id
-            )
-            wishProductService.save(command)
-
-            Then("예외가 발생한다") {
-                shouldThrow<WishProductException> {
-                    wishProductService.save(command)
-                }.exceptionType() shouldBe WishProductExceptionType.ALREADY_EXIST_WISH_PRODUCT
-            }
-        }
-    }
-
-    Given("찜 상품 삭제를") {
-        val product = productRepository.save(
-            product(
-                wishCount = 1
-            )
-        )
-        val member = memberRepository.save(member())
-        val wishProduct = wishProductRepository.save(wishProduct())
-        val command = DeleteWishCommand(
-            memberId = member.id,
-            wishProductId = wishProduct.id
-        )
-
-        When("요청하면") {
-            wishProductService.delete(command)
+        When("해당 상품이 이미 찜 상태라면") {
+            val wishProduct = wishProductRepository.save(wishProduct())
+            wishProductService.update(command)
 
             Then("찜 상품이 삭제되고, 상품의 찜 개수가 감소한다") {
                 wishProductRepository.existsByProductIdAndMemberId(product.id, member.id) shouldBe false
@@ -131,40 +70,36 @@ class WishProductServiceTest(
                 updatedProduct.wishCount shouldBe product.wishCount.minus()
             }
         }
+
     }
 
-    Given("찜 삭제시") {
-        productRepository.save(
-            product(
-                wishCount = 1
-            )
-        )
+    Given("찜 상품 수정시") {
+        val product = productRepository.save(product())
         val member = memberRepository.save(member())
-        val wishProduct = wishProductRepository.save(wishProduct())
 
-        When("해당 찜 상품이 존재 하지 않으면") {
-            val command = DeleteWishCommand(
-                memberId = member.id,
-                wishProductId = Long.MIN_VALUE
+        When("멤버가 존재하지 않으면") {
+            val command = UpdateWishCommand(
+                memberId = Long.MIN_VALUE,
+                productId = product.id
             )
 
             Then("예외가 발생한다") {
-                shouldThrow<WishProductException> {
-                    wishProductService.delete(command)
-                }.exceptionType() shouldBe WishProductExceptionType.NOT_FOUND_WISH_PRODUCT
+                shouldThrow<MemberException> {
+                    wishProductService.update(command)
+                }.exceptionType() shouldBe MemberExceptionType.NOT_FOUND_MEMBER
             }
         }
 
-        When("요청한 멤버가 해당 찜 상품의 주인이 아닐시") {
-            val command = DeleteWishCommand(
-                memberId = Long.MIN_VALUE,
-                wishProductId = wishProduct.id
+        When("상품이 존재하지 않으면") {
+            val command = UpdateWishCommand(
+                memberId = member.id,
+                productId = Long.MIN_VALUE
             )
 
             Then("예외가 발생한다") {
-                shouldThrow<WishProductException> {
-                    wishProductService.delete(command)
-                }.exceptionType() shouldBe WishProductExceptionType.FORBIDDEN_WISH_PRODUCT
+                shouldThrow<ProductException> {
+                    wishProductService.update(command)
+                }.exceptionType() shouldBe ProductExceptionType.NOT_FOUND_PRODUCT
             }
         }
     }

@@ -1,17 +1,16 @@
 package com.petqua.presentation.product
 
 import com.petqua.application.product.dto.ReadAllWishProductCommand
-import com.petqua.application.product.dto.SaveWishCommand
+import com.petqua.application.product.dto.UpdateWishCommand
 import com.petqua.domain.product.Product
 import com.petqua.domain.product.dto.LIMIT_CEILING
 import com.petqua.domain.product.dto.PADDING_FOR_PAGING
 
-data class SaveWishRequest(
+data class UpdateWishRequest(
     val productId: Long,
 ) {
-
-    fun toCommand(memberId: Long): SaveWishCommand {
-        return SaveWishCommand(
+    fun toCommand(memberId: Long): UpdateWishCommand {
+        return UpdateWishCommand(
             memberId = memberId,
             productId = productId
         )
