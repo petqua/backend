@@ -34,7 +34,8 @@ class WishProductService(
         }
         val wishProduct = command.toWishProduct()
         wishProductRepository.save(wishProduct)
-        val product = productRepository.findActiveByIdOrThrow(wishProduct.productId, ProductException(NOT_FOUND_PRODUCT))
+        val product =
+            productRepository.findActiveByIdOrThrow(wishProduct.productId, ProductException(NOT_FOUND_PRODUCT))
         product.increaseWishCount()
     }
 
@@ -45,7 +46,7 @@ class WishProductService(
         )
         wishProduct.validateOwner(command.memberId)
         wishProductRepository.delete(wishProduct)
-        val product = productRepository.findActiveByIdOrThrow(wishProduct.productId, ProductException(NOT_FOUND_PRODUCT))
+        val product = productRepository.findByIdOrThrow(wishProduct.productId, ProductException(NOT_FOUND_PRODUCT))
         product.decreaseWishCount()
     }
 
