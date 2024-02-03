@@ -55,7 +55,7 @@ class ProductService(
     }
 
     @Transactional(readOnly = true)
-    fun readKeywords(query: ProductKeywordQuery): List<ProductKeywordResponse> {
+    fun readAutoCompleteKeywords(query: ProductKeywordQuery): List<ProductKeywordResponse> {
         val productKeyword = query.toProductKeyword()
         return productKeywordRepository.findBySearch(productKeyword.word, query.limit)
     }

@@ -44,10 +44,10 @@ class ProductController(
     }
 
     @GetMapping("/keywords")
-    fun readKeywords(
+    fun readAutoCompleteKeywords(
         request: ProductKeywordRequest
     ): ResponseEntity<List<ProductKeywordResponse>> {
-        val response = productService.readKeywords(request.toQuery())
+        val response = productService.readAutoCompleteKeywords(request.toQuery())
         return ResponseEntity.ok(response)
     }
 }

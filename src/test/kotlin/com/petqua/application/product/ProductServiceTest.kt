@@ -87,7 +87,7 @@ class ProductServiceTest(
         val query = ProductKeywordQuery(word = "구피")
 
         When("검색어를 입력하면") {
-            val productKeywordResponses = productService.readKeywords(query)
+            val productKeywordResponses = productService.readAutoCompleteKeywords(query)
 
             Then("상품 키워드 목록이 문자 길이 오름차순으로 반환된다") {
                 productKeywordResponses shouldBe listOf(
