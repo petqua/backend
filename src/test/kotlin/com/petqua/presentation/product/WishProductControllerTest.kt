@@ -2,10 +2,10 @@ package com.petqua.presentation.product
 
 import com.petqua.domain.product.Product
 import com.petqua.domain.product.ProductRepository
-import com.petqua.domain.store.Store
-import com.petqua.domain.store.StoreRepository
 import com.petqua.domain.product.WishProduct
 import com.petqua.domain.product.WishProductRepository
+import com.petqua.domain.store.Store
+import com.petqua.domain.store.StoreRepository
 import com.petqua.test.ApiTestConfig
 import com.petqua.test.fixture.product
 import com.petqua.test.fixture.store
@@ -16,6 +16,7 @@ import io.restassured.module.kotlin.extensions.Given
 import io.restassured.module.kotlin.extensions.Then
 import io.restassured.module.kotlin.extensions.When
 import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpStatus.CREATED
 import org.springframework.http.HttpStatus.NO_CONTENT
 import org.springframework.http.HttpStatus.OK
 import org.springframework.http.MediaType
@@ -42,7 +43,7 @@ class WishProductControllerTest(
                         .header(HttpHeaders.AUTHORIZATION, memberAuthResponse.accessToken)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                 } When {
-                    post("/wishes")
+                    post("/products/wishes")
                 } Then {
                     log().all()
                 } Extract {
@@ -50,7 +51,7 @@ class WishProductControllerTest(
                 }
 
                 Then("찜 목록에 상품이 추가된다") {
-                    response.statusCode shouldBe NO_CONTENT.value()
+                    response.statusCode shouldBe CREATED.value()
                 }
             }
         }
@@ -69,7 +70,7 @@ class WishProductControllerTest(
                     log().all()
                         .header(HttpHeaders.AUTHORIZATION, memberAuthResponse.accessToken)
                 } When {
-                    delete("/wishes/1")
+                    delete("/products/wishes/1")
                 } Then {
                     log().all()
                 } Extract {
@@ -110,7 +111,7 @@ class WishProductControllerTest(
                     log().all()
                         .header(HttpHeaders.AUTHORIZATION, memberAuthResponse.accessToken)
                 } When {
-                    get("/wishes")
+                    get("/products/wishes")
                 } Then {
                     log().all()
                 } Extract {

@@ -1,9 +1,10 @@
 package com.petqua.presentation.product
 
-import com.petqua.application.product.dto.DeleteWishCommand
 import com.petqua.application.product.WishProductService
+import com.petqua.application.product.dto.DeleteWishCommand
 import com.petqua.domain.auth.Auth
 import com.petqua.domain.auth.LoginMember
+import org.springframework.http.HttpStatus.CREATED
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
-@RequestMapping("/wishes")
+@RequestMapping("/products/wishes")
 @RestController
 class WishProductController(
     private val wishProductService: WishProductService
@@ -27,7 +28,7 @@ class WishProductController(
         val command = request.toCommand(loginMember.memberId)
         wishProductService.save(command)
         return ResponseEntity
-            .noContent()
+            .status(CREATED)
             .build()
     }
 
