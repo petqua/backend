@@ -1,8 +1,8 @@
 package com.petqua.presentation.cart
 
 import com.petqua.application.cart.CartProductService
-import com.petqua.application.cart.dto.DeleteCartProductCommand
 import com.petqua.application.cart.dto.CartProductResponse
+import com.petqua.application.cart.dto.DeleteCartProductCommand
 import com.petqua.application.product.dto.ProductDetailResponse
 import com.petqua.common.config.ACCESS_TOKEN_SECURITY_SCHEME_KEY
 import com.petqua.domain.auth.Auth
@@ -10,6 +10,7 @@ import com.petqua.domain.auth.LoginMember
 import com.petqua.presentation.cart.dto.SaveCartProductRequest
 import com.petqua.presentation.cart.dto.UpdateCartProductOptionRequest
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -61,9 +62,12 @@ class CartProductController(
         return ResponseEntity.noContent().build()
     }
 
+    @Operation(summary = "봉달 삭제 API", description = "상품을 봉달에서 삭제합니다")
+    @ApiResponse(responseCode = "204", description = "봉달 삭제 성공")
     @DeleteMapping("/{cartProductId}")
     fun delete(
         @Auth loginMember: LoginMember,
+        @Schema(description = "봉달 상품 id", example = "1")
         @PathVariable cartProductId: Long
     ): ResponseEntity<Void> {
         val command = DeleteCartProductCommand(
@@ -74,6 +78,8 @@ class CartProductController(
         return ResponseEntity.noContent().build()
     }
 
+    @Operation(summary = "봉달 목록 조회 API", description = "봉달 목록을 조회합니다")
+    @ApiResponse(responseCode = "200", description = "봉달 목록 조회 성공")
     @GetMapping
     fun readAll(
         @Auth loginMember: LoginMember,
