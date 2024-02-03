@@ -1,6 +1,7 @@
 package com.petqua.application.product
 
 import com.petqua.application.product.dto.DeleteWishCommand
+import com.petqua.application.product.dto.ReadAllWishProductCommand
 import com.petqua.application.product.dto.SaveWishCommand
 import com.petqua.common.domain.findByIdOrThrow
 import com.petqua.domain.member.MemberRepository
@@ -178,7 +179,10 @@ class WishProductServiceTest(
         val wish3 = wishProductRepository.save(wishProduct(productId = product1.id))
 
         When("요청하면") {
-            val responses = wishProductRepository.readAllWishProductResponse(member.id)
+            val command = ReadAllWishProductCommand(
+                memberId = member.id
+            )
+            val responses = wishProductService.readAll(command)
 
             Then("찜 목록이 찜 등록 순서대로 반환된다") {
                 responses shouldBe listOf(
@@ -199,10 +203,13 @@ class WishProductServiceTest(
         wishProductRepository.save(wishProduct(productId = product1.id))
 
         When("멤버가 존재하지 않으면") {
+            val command = ReadAllWishProductCommand(
+                memberId = Long.MIN_VALUE
+            )
 
             Then("예외가 발생한다") {
                 shouldThrow<MemberException> {
-                    wishProductService.readAll(memberId = Long.MIN_VALUE)
+                    wishProductService.readAll(command)
                 }.exceptionType() shouldBe MemberExceptionType.NOT_FOUND_MEMBER
             }
         }

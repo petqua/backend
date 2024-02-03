@@ -1,6 +1,7 @@
 package com.petqua.application.product
 
 import com.petqua.application.product.dto.DeleteWishCommand
+import com.petqua.application.product.dto.ReadAllWishProductCommand
 import com.petqua.application.product.dto.SaveWishCommand
 import com.petqua.common.domain.existByIdOrThrow
 import com.petqua.common.domain.findByIdOrThrow
@@ -48,8 +49,8 @@ class WishProductService(
     }
 
     @Transactional(readOnly = true)
-    fun readAll(memberId: Long): List<WishProductResponse> {
-        memberRepository.existByIdOrThrow(memberId, MemberException(NOT_FOUND_MEMBER))
-        return wishProductRepository.readAllWishProductResponse(memberId)
+    fun readAll(command: ReadAllWishProductCommand): List<WishProductResponse> {
+        memberRepository.existByIdOrThrow(command.memberId, MemberException(NOT_FOUND_MEMBER))
+        return wishProductRepository.readAllWishProductResponse(command.memberId, command.toPaging())
     }
 }

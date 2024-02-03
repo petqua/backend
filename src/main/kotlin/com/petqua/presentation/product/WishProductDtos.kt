@@ -1,7 +1,9 @@
 package com.petqua.presentation.product
 
+import com.petqua.application.product.dto.ReadAllWishProductCommand
 import com.petqua.application.product.dto.SaveWishCommand
 import com.petqua.domain.product.Product
+import com.petqua.domain.product.dto.LIMIT_CEILING
 
 data class SaveWishRequest(
     val productId: Long,
@@ -11,6 +13,20 @@ data class SaveWishRequest(
         return SaveWishCommand(
             memberId = memberId,
             productId = productId
+        )
+    }
+}
+
+data class ReadAllWishProductRequest(
+    val lastViewedId: Long? = null,
+    val limit: Int = LIMIT_CEILING,
+) {
+
+    fun toCommand(memberId: Long): ReadAllWishProductCommand {
+        return ReadAllWishProductCommand(
+            memberId = memberId,
+            lastViewedId = lastViewedId,
+            limit = limit
         )
     }
 }
