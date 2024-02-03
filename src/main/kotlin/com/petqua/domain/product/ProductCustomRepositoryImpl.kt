@@ -105,7 +105,7 @@ class ProductCustomRepositoryImpl(
                 join(Store::class).on(path(Product::storeId).eq(path(Store::id))),
             ).whereAnd(
                 productIdLt(paging.lastViewedId),
-                path(ProductKeyword::word).like(pattern = condition.word, escape = ESCAPE_LETTER)
+                path(ProductKeyword::word).eq(condition.word)
             ).orderBy(
                 sortBy(ENROLLMENT_DATE_DESC),
             )
