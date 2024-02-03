@@ -4,8 +4,6 @@ import com.petqua.application.product.ProductService
 import com.petqua.application.product.dto.ProductDetailResponse
 import com.petqua.application.product.dto.ProductKeywordResponse
 import com.petqua.application.product.dto.ProductsResponse
-import com.petqua.domain.auth.Auth
-import com.petqua.domain.auth.LoginMember
 import com.petqua.presentation.product.dto.ProductKeywordRequest
 import com.petqua.presentation.product.dto.ProductReadRequest
 import com.petqua.presentation.product.dto.ProductSearchRequest
@@ -23,7 +21,6 @@ class ProductController(
 
     @GetMapping("/{productId}")
     fun readById(
-        @Auth loginMember: LoginMember,
         @PathVariable productId: Long
     ): ResponseEntity<ProductDetailResponse> {
         val response = productService.readById(productId)
@@ -32,31 +29,25 @@ class ProductController(
 
     @GetMapping
     fun readAll(
-        @Auth loginMember: LoginMember,
         request: ProductReadRequest
     ): ResponseEntity<ProductsResponse> {
-        val command = request.toQuery(loginMember.memberId)
-        val response = productService.readAll(command)
+        val response = productService.readAll(request.toQuery())
         return ResponseEntity.ok(response)
     }
 
     @GetMapping("/search")
     fun readBySearch(
-        @Auth loginMember: LoginMember,
         request: ProductSearchRequest
     ): ResponseEntity<ProductsResponse> {
-        val command = request.toQuery(loginMember.memberId)
-        val response = productService.readBySearch(command)
+        val response = productService.readBySearch(request.toQuery())
         return ResponseEntity.ok(response)
     }
 
     @GetMapping("/keywords")
     fun readKeywords(
-        @Auth loginMember: LoginMember,
         request: ProductKeywordRequest
     ): ResponseEntity<List<ProductKeywordResponse>> {
-        val command = request.toQuery(loginMember.memberId)
-        val response = productService.readKeywords(command)
+        val response = productService.readKeywords(request.toQuery())
         return ResponseEntity.ok(response)
     }
 }

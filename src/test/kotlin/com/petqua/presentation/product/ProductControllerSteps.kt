@@ -8,7 +8,6 @@ import io.restassured.module.kotlin.extensions.Given
 import io.restassured.module.kotlin.extensions.Then
 import io.restassured.module.kotlin.extensions.When
 import io.restassured.response.Response
-import org.springframework.http.HttpHeaders
 
 fun requestReadProductById(
     productId: Long,
@@ -16,7 +15,6 @@ fun requestReadProductById(
 ): Response {
     return Given {
         log().all()
-        header(HttpHeaders.AUTHORIZATION, accessToken)
         pathParam("productId", productId)
     } When {
         get("/products/{productId}")
@@ -36,7 +34,6 @@ fun requestReadAllProducts(
 ): Response {
     return Given {
         log().all()
-        header(HttpHeaders.AUTHORIZATION, accessToken)
         params(
             "sourceType", sourceType,
             "sorter", sorter,
@@ -59,7 +56,6 @@ fun requestReadProductKeyword(
 ): Response {
     return Given {
         log().all()
-        header(HttpHeaders.AUTHORIZATION, accessToken)
         params(
             "word", word,
             "limit", limit
@@ -81,7 +77,6 @@ fun requestReadProductBySearch(
 ): Response {
     return Given {
         log().all()
-        header(HttpHeaders.AUTHORIZATION, accessToken)
         params(
             "word", word,
             "lastViewedId", lastViewedId,

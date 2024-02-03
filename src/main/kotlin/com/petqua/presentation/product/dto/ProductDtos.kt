@@ -14,7 +14,7 @@ data class ProductReadRequest(
     val limit: Int = LIMIT_CEILING,
 ) {
 
-    fun toQuery(memberId: Long): ProductReadQuery {
+    fun toQuery(): ProductReadQuery {
         return ProductReadQuery(
             sourceType = sourceType,
             sorter = sorter,
@@ -30,7 +30,7 @@ data class ProductSearchRequest(
     val limit: Int = LIMIT_CEILING,
 ) {
 
-    fun toQuery(memberId: Long): ProductSearchQuery {
+    fun toQuery(): ProductSearchQuery {
         return ProductSearchQuery(
             word = word,
             lastViewedId = lastViewedId,
@@ -44,7 +44,7 @@ data class ProductKeywordRequest(
     val limit: Int = LIMIT_CEILING,
 ) {
 
-    fun toQuery(memberId: Long): ProductKeywordQuery {
+    fun toQuery(): ProductKeywordQuery {
         return ProductKeywordQuery(
             word = word,
             limit = limit,
