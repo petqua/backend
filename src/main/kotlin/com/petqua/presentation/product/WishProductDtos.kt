@@ -4,6 +4,7 @@ import com.petqua.application.product.dto.ReadAllWishProductCommand
 import com.petqua.application.product.dto.SaveWishCommand
 import com.petqua.domain.product.Product
 import com.petqua.domain.product.dto.LIMIT_CEILING
+import com.petqua.domain.product.dto.PADDING_FOR_PAGING
 
 data class SaveWishRequest(
     val productId: Long,
@@ -28,6 +29,26 @@ data class ReadAllWishProductRequest(
             lastViewedId = lastViewedId,
             limit = limit
         )
+    }
+}
+
+data class WishProductsResponse(
+    val wishProducts: List<WishProductResponse>,
+    val hasNextPage: Boolean,
+    val totalWishProductsCount: Int,
+) {
+    companion object {
+        fun of(wishProducts: List<WishProductResponse>, limit: Int, totalWishProductsCount: Int): WishProductsResponse {
+            return if (wishProducts.size > limit) {
+                WishProductsResponse(
+                    wishProducts.dropLast(PADDING_FOR_PAGING),
+                    hasNextPage = true,
+                    totalWishProductsCount
+                )
+            } else {
+                WishProductsResponse(wishProducts, hasNextPage = false, totalWishProductsCount)
+            }
+        }
     }
 }
 

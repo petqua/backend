@@ -182,13 +182,43 @@ class WishProductServiceTest(
             val command = ReadAllWishProductCommand(
                 memberId = member.id
             )
-            val responses = wishProductService.readAll(command)
+            val response = wishProductService.readAll(command)
 
             Then("찜 목록이 찜 등록 순서대로 반환된다") {
-                responses shouldBe listOf(
+                response.totalWishProductsCount shouldBe 3
+                response.hasNextPage shouldBe false
+                response.wishProducts shouldBe listOf(
                     WishProductResponse(wish3.id, product1, store.name),
                     WishProductResponse(wish2.id, product2, store.name),
                     WishProductResponse(wish1.id, product3, store.name)
+                )
+
+            }
+        }
+    }
+
+    Given("조회 사이즈 제한보다 많은 수의 찜이 저장되어 있을 때") {
+        val member = memberRepository.save(member())
+        val store = storeRepository.save(store())
+        val (product1, product2, product3) = saveProducts(productRepository, store)
+
+        val wish1 = wishProductRepository.save(wishProduct(productId = product3.id))
+        val wish2 = wishProductRepository.save(wishProduct(productId = product2.id))
+        val wish3 = wishProductRepository.save(wishProduct(productId = product1.id))
+
+        When("찜 목록 조회를 요청하면") {
+            val command = ReadAllWishProductCommand(
+                memberId = member.id,
+                limit = 2
+            )
+            val response = wishProductService.readAll(command)
+
+            Then("정해진 개수만큼 찜 목록이 찜 등록 순서대로 반환된다") {
+                response.totalWishProductsCount shouldBe 3
+                response.hasNextPage shouldBe true
+                response.wishProducts shouldBe listOf(
+                    WishProductResponse(wish3.id, product1, store.name),
+                    WishProductResponse(wish2.id, product2, store.name),
                 )
             }
         }

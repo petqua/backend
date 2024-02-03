@@ -15,7 +15,7 @@ import com.petqua.exception.product.ProductExceptionType.NOT_FOUND_PRODUCT
 import com.petqua.exception.product.WishProductException
 import com.petqua.exception.product.WishProductExceptionType.ALREADY_EXIST_WISH_PRODUCT
 import com.petqua.exception.product.WishProductExceptionType.NOT_FOUND_WISH_PRODUCT
-import com.petqua.presentation.product.WishProductResponse
+import com.petqua.presentation.product.WishProductsResponse
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -49,8 +49,10 @@ class WishProductService(
     }
 
     @Transactional(readOnly = true)
-    fun readAll(command: ReadAllWishProductCommand): List<WishProductResponse> {
+    fun readAll(command: ReadAllWishProductCommand): WishProductsResponse {
         memberRepository.existByIdOrThrow(command.memberId, MemberException(NOT_FOUND_MEMBER))
-        return wishProductRepository.readAllWishProductResponse(command.memberId, command.toPaging())
+        val totalWishProductsCount = wishProductRepository.countByMemberId(command.memberId)
+        val wishProductResponse = wishProductRepository.readAllWishProductResponse(command.memberId, command.toPaging())
+        return WishProductsResponse.of(wishProductResponse, command.limit, totalWishProductsCount)
     }
 }

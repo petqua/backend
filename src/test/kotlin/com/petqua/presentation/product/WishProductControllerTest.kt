@@ -123,10 +123,12 @@ class WishProductControllerTest(
                 }
 
                 Then("찜 상품들이 반환된다") {
-                    val wishProductRespons = responses.`as`(Array<WishProductResponse>::class.java)
+                    val wishProductsResponse = responses.`as`(WishProductsResponse::class.java)
 
                     responses.statusCode shouldBe OK.value()
-                    wishProductRespons.size shouldBe 3
+                    wishProductsResponse.totalWishProductsCount shouldBe 3
+                    wishProductsResponse.wishProducts.size shouldBe 3
+                    wishProductsResponse.hasNextPage shouldBe false
                 }
             }
         }
