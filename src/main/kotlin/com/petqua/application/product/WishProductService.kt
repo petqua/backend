@@ -47,6 +47,7 @@ class WishProductService(
         product.decreaseWishCount()
     }
 
+    @Transactional(readOnly = true)
     fun readAll(memberId: Long): List<WishProductResponse> {
         memberRepository.existByIdOrThrow(memberId, MemberException(NOT_FOUND_MEMBER))
         return wishProductRepository.readAllWishProductResponse(memberId)
