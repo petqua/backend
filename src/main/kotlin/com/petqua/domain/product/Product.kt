@@ -1,6 +1,9 @@
 package com.petqua.domain.product
 
 import com.petqua.common.domain.BaseEntity
+import com.petqua.common.domain.SoftDeleteEntity
+import com.petqua.exception.product.ProductException
+import com.petqua.exception.product.ProductExceptionType.NOT_FOUND_PRODUCT
 import jakarta.persistence.AttributeOverride
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
@@ -51,7 +54,10 @@ class Product(
 
     @Column(nullable = false)
     val description: String,
-) : BaseEntity() {
+
+    @Column(nullable = false)
+    var isDeleted: Boolean = false
+) : BaseEntity(), SoftDeleteEntity {
 
     fun averageReviewScore(): Double {
         return if (reviewCount == ZERO) ZERO.toDouble()
@@ -68,7 +74,13 @@ class Product(
         wishCount = wishCount.minus()
     }
 
+    override fun validateDeleted() {
+        if (isDeleted) {
+            throw ProductException(NOT_FOUND_PRODUCT)
+        }
+    }
+
     override fun toString(): String {
-        return "Product(id=$id, name='$name', category='$category', price=$price, storeId=$storeId, discountRate=$discountRate, discountPrice=$discountPrice, wishCount=$wishCount., reviewCount=$reviewCount, reviewTotalScore=$reviewTotalScore, thumbnailUrl='$thumbnailUrl', description='$description')"
+        return "Product(id=$id, name='$name', category='$category', price=$price, storeId=$storeId, discountRate=$discountRate, discountPrice=$discountPrice, wishCount=$wishCount., reviewCount=$reviewCount, reviewTotalScore=$reviewTotalScore, thumbnailUrl='$thumbnailUrl', description='$description', isDeleted='$isDeleted')"
     }
 }

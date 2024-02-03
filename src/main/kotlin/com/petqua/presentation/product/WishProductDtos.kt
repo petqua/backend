@@ -65,6 +65,7 @@ data class WishProductResponse(
     val reviewCount: Int,
     val reviewAverageScore: Double,
     val thumbnailUrl: String,
+    val isDeletedProduct: Boolean,
 ) {
     constructor(wishProductId: Long, product: Product, storeName: String) : this(
         wishProductId,
@@ -79,5 +80,6 @@ data class WishProductResponse(
         product.reviewCount,
         product.averageReviewScore(),
         product.thumbnailUrl,
+        product.isDeleted,
     )
 }

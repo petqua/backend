@@ -4,6 +4,7 @@ import com.petqua.application.product.dto.DeleteWishCommand
 import com.petqua.application.product.dto.ReadAllWishProductCommand
 import com.petqua.application.product.dto.SaveWishCommand
 import com.petqua.common.domain.existByIdOrThrow
+import com.petqua.common.domain.findActiveByIdOrThrow
 import com.petqua.common.domain.findByIdOrThrow
 import com.petqua.domain.member.MemberRepository
 import com.petqua.domain.product.ProductRepository
@@ -33,7 +34,7 @@ class WishProductService(
         }
         val wishProduct = command.toWishProduct()
         wishProductRepository.save(wishProduct)
-        val product = productRepository.findByIdOrThrow(wishProduct.productId, ProductException(NOT_FOUND_PRODUCT))
+        val product = productRepository.findActiveByIdOrThrow(wishProduct.productId, ProductException(NOT_FOUND_PRODUCT))
         product.increaseWishCount()
     }
 
@@ -44,7 +45,7 @@ class WishProductService(
         )
         wishProduct.validateOwner(command.memberId)
         wishProductRepository.delete(wishProduct)
-        val product = productRepository.findByIdOrThrow(wishProduct.productId, ProductException(NOT_FOUND_PRODUCT))
+        val product = productRepository.findActiveByIdOrThrow(wishProduct.productId, ProductException(NOT_FOUND_PRODUCT))
         product.decreaseWishCount()
     }
 

@@ -19,7 +19,8 @@ fun product(
     reviewCount: Int = 0,
     reviewTotalScore: Int = 0,
     thumbnailUrl: String = "image.jpg",
-    description: String = "description"
+    description: String = "description",
+    isDeleted: Boolean = false
 ): Product {
     return Product(
         id,
@@ -33,7 +34,8 @@ fun product(
         reviewCount,
         reviewTotalScore,
         thumbnailUrl,
-        description
+        description,
+        isDeleted
     )
 }
 
