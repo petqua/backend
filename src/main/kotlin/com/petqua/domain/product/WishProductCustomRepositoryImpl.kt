@@ -45,6 +45,6 @@ class WishProductCustomRepositoryImpl(
     }
 
     private fun Jpql.productIdLt(lastViewedId: Long?): Predicate? {
-        return lastViewedId?.let { path(Product::id).lt(it) }
+        return lastViewedId?.let { path(WishProduct::id).lt(it) }
     }
 }
