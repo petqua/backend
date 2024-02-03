@@ -57,7 +57,7 @@ class WishProductServiceTest(
                 wishProductRepository.existsByProductIdAndMemberId(product.id, member.id) shouldBe true
 
                 val updatedProduct = productRepository.findByIdOrThrow(product.id)
-                updatedProduct.wishCount shouldBe product.wishCount + 1
+                updatedProduct.wishCount shouldBe product.wishCount.plus()
             }
         }
     }
@@ -127,7 +127,7 @@ class WishProductServiceTest(
                 wishProductRepository.existsByProductIdAndMemberId(product.id, member.id) shouldBe false
 
                 val updatedProduct = productRepository.findByIdOrThrow(product.id)
-                updatedProduct.wishCount shouldBe product.wishCount - 1
+                updatedProduct.wishCount shouldBe product.wishCount.minus()
             }
         }
     }

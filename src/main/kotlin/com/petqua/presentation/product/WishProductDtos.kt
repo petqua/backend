@@ -38,7 +38,7 @@ data class WishProductResponse(
         storeName,
         product.discountRate,
         product.discountPrice.intValueExact(),
-        product.wishCount,
+        product.wishCount.value,
         product.reviewCount,
         product.averageReviewScore(),
         product.thumbnailUrl,

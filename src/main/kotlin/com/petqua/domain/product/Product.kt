@@ -1,9 +1,7 @@
 package com.petqua.domain.product
 
 import com.petqua.common.domain.BaseEntity
-import com.petqua.common.util.throwExceptionWhen
-import com.petqua.exception.product.ProductException
-import com.petqua.exception.product.ProductExceptionType.WISH_COUNT_UNDER_MINIMUM
+import jakarta.persistence.AttributeOverride
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
@@ -39,7 +37,8 @@ class Product(
     val discountPrice: BigDecimal = price,
 
     @Column(nullable = false)
-    var wishCount: Int = 0,
+    @AttributeOverride(name = "value", column = Column(name = "wish_count", nullable = false))
+    var wishCount: WishCount = WishCount(),
 
     @Column(nullable = false)
     val reviewCount: Int = 0,
@@ -54,10 +53,6 @@ class Product(
     val description: String,
 ) : BaseEntity() {
 
-    init {
-        throwExceptionWhen(wishCount < 0) { ProductException(WISH_COUNT_UNDER_MINIMUM) }
-    }
-
     fun averageReviewScore(): Double {
         return if (reviewCount == ZERO) ZERO.toDouble()
         else BigDecimal.valueOf(reviewTotalScore / reviewCount.toDouble())
@@ -66,15 +61,14 @@ class Product(
     }
 
     fun increaseWishCount() {
-        wishCount++
+        wishCount = wishCount.plus()
     }
 
     fun decreaseWishCount() {
-        wishCount--
-        throwExceptionWhen(wishCount < 0) { ProductException(WISH_COUNT_UNDER_MINIMUM) }
+        wishCount = wishCount.minus()
     }
 
     override fun toString(): String {
-        return "Product(id=$id, name='$name', category='$category', price=$price, storeId=$storeId, discountRate=$discountRate, discountPrice=$discountPrice, wishCount=$wishCount, reviewCount=$reviewCount, reviewTotalScore=$reviewTotalScore, thumbnailUrl='$thumbnailUrl', description='$description')"
+        return "Product(id=$id, name='$name', category='$category', price=$price, storeId=$storeId, discountRate=$discountRate, discountPrice=$discountPrice, wishCount=$wishCount., reviewCount=$reviewCount, reviewTotalScore=$reviewTotalScore, thumbnailUrl='$thumbnailUrl', description='$description')"
     }
 }
