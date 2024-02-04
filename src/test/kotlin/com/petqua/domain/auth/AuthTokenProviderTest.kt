@@ -13,13 +13,13 @@ import io.kotest.assertions.assertSoftly
 import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import org.springframework.boot.test.context.SpringBootTest
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZoneOffset
-import java.util.*
-import org.springframework.boot.test.context.SpringBootTest
+import java.util.Date
 
 @SpringBootTest
 class AuthTokenProviderTest(

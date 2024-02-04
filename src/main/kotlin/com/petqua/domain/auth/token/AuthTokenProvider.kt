@@ -5,10 +5,10 @@ import com.petqua.exception.auth.AuthException
 import com.petqua.exception.auth.AuthExceptionType.INVALID_ACCESS_TOKEN
 import com.petqua.exception.auth.AuthExceptionType.INVALID_REFRESH_TOKEN
 import io.jsonwebtoken.JwtException
-import java.util.*
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.stereotype.Component
+import java.util.Date
 
 private const val EMPTY_SUBJECT = ""
 

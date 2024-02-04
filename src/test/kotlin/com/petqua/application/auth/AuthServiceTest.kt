@@ -17,11 +17,11 @@ import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import java.lang.System.currentTimeMillis
-import java.util.*
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE
 import org.springframework.context.annotation.Import
+import java.lang.System.currentTimeMillis
+import java.util.Date
 
 @SpringBootTest(webEnvironment = NONE)
 @Import(OauthTestConfig::class)
