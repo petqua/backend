@@ -2,6 +2,7 @@ package com.petqua.application.product
 
 import com.petqua.application.product.dto.ProductDetailResponse
 import com.petqua.application.product.dto.ProductReadRequest
+import com.petqua.application.product.dto.ProductSearchCommand
 import com.petqua.application.product.dto.ProductsResponse
 import com.petqua.domain.product.ProductRepository
 import com.petqua.domain.product.ProductSourceType.NONE
@@ -54,6 +55,29 @@ class ProductServiceTest(
 
         When("상품을") {
             val productsResponse = productService.readAll(request)
+
+            Then("조회할 수 있다") {
+                productsResponse shouldBe ProductsResponse(
+                    products = listOf(
+                        ProductResponse(product2, store.name),
+                        ProductResponse(product1, store.name),
+                    ),
+                    hasNextPage = false,
+                    totalProductsCount = 2
+                )
+            }
+        }
+    }
+
+    Given("상품 이름을 검색해서") {
+        val product1 = productRepository.save(product(name = "상품A", storeId = store.id))
+        val product2 = productRepository.save(product(name = "상품AA", storeId = store.id))
+        val product3 = productRepository.save(product(name = "상품B", storeId = store.id))
+
+        val request = ProductSearchCommand(word = "상품A")
+
+        When("연관된 상품을") {
+            val productsResponse = productService.readBySearch(request)
 
             Then("조회할 수 있다") {
                 productsResponse shouldBe ProductsResponse(

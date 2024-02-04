@@ -46,7 +46,7 @@ data class ProductReadRequest(
     val limit: Int = LIMIT_CEILING,
 ) {
     fun toReadConditions(): ProductReadCondition {
-        return ProductReadCondition.of(sourceType, sorter)
+        return ProductReadCondition.toCondition(sourceType, sorter)
     }
 
     fun toPaging(): ProductPaging {
@@ -67,5 +67,21 @@ data class ProductsResponse(
                 ProductsResponse(products, hasNextPage = false, totalProductsCount)
             }
         }
+    }
+}
+
+data class ProductSearchCommand(
+    val memberId: Long = 0L,
+    val word: String = "",
+    val lastViewedId: Long? = null,
+    val limit: Int = LIMIT_CEILING,
+) {
+
+    fun toSearchCondition(): ProductReadCondition {
+        return ProductReadCondition.toSearchCondition(word)
+    }
+
+    fun toPaging(): ProductPaging {
+        return ProductPaging.of(lastViewedId, limit)
     }
 }

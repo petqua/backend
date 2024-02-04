@@ -14,16 +14,19 @@ import com.petqua.test.ApiTestConfig
 import com.petqua.test.fixture.product
 import com.petqua.test.fixture.productRecommendation
 import com.petqua.test.fixture.store
+import io.kotest.matchers.shouldBe
 import io.restassured.module.kotlin.extensions.Extract
 import io.restassured.module.kotlin.extensions.Given
 import io.restassured.module.kotlin.extensions.Then
 import io.restassured.module.kotlin.extensions.When
-import java.math.BigDecimal
-import kotlin.Long.Companion.MIN_VALUE
 import org.assertj.core.api.SoftAssertions.assertSoftly
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.NOT_FOUND
+import java.math.BigDecimal.ONE
+import java.math.BigDecimal.TEN
+import java.math.BigDecimal.ZERO
+import kotlin.Long.Companion.MIN_VALUE
 
 class ProductControllerTest(
     private val productRepository: ProductRepository,
@@ -86,7 +89,7 @@ class ProductControllerTest(
                 product(
                     name = "상품1",
                     storeId = store.id,
-                    discountPrice = BigDecimal.ZERO,
+                    discountPrice = ZERO,
                     reviewCount = 0,
                     reviewTotalScore = 0
                 )
@@ -95,7 +98,7 @@ class ProductControllerTest(
                 product(
                     name = "상품2",
                     storeId = store.id,
-                    discountPrice = BigDecimal.ONE,
+                    discountPrice = ONE,
                     reviewCount = 1,
                     reviewTotalScore = 1
                 )
@@ -104,7 +107,7 @@ class ProductControllerTest(
                 product(
                     name = "상품3",
                     storeId = store.id,
-                    discountPrice = BigDecimal.ONE,
+                    discountPrice = ONE,
                     reviewCount = 1,
                     reviewTotalScore = 5
                 )
@@ -113,7 +116,7 @@ class ProductControllerTest(
                 product(
                     name = "상품4",
                     storeId = store.id,
-                    discountPrice = BigDecimal.TEN,
+                    discountPrice = TEN,
                     reviewCount = 2,
                     reviewTotalScore = 10
                 )
@@ -331,6 +334,103 @@ class ProductControllerTest(
                 }
             }
         }
+
+        Given("상품 이름 검색으로 상품을 조회할 때") {
+            val product1 = productRepository.save(
+                product(
+                    name = "상품A",
+                    storeId = store.id,
+                )
+            )
+            val product2 = productRepository.save(
+                product(
+                    name = "상품AA",
+                    storeId = store.id,
+                )
+            )
+            val product3 = productRepository.save(
+                product(
+                    name = "상품B",
+                    storeId = store.id,
+                )
+            )
+            val product4 = productRepository.save(
+                product(
+                    name = "상품C",
+                    storeId = store.id,
+                )
+            )
+
+            When("검색어를 입력하면") {
+                val response = Given {
+                    log().all()
+                    param("word", "상품A")
+                } When {
+                    get("/products/search")
+                } Then {
+                    log().all()
+                } Extract {
+                    response()
+                }
+
+                Then("연관된 상품들이 최신 등록 순으로 반환된다") {
+                    val productsResponse = response.`as`(ProductsResponse::class.java)
+
+                    response.statusCode shouldBe HttpStatus.OK.value()
+                    productsResponse shouldBe ProductsResponse(
+                        products = listOf(
+                            ProductResponse(product2, store.name),
+                            ProductResponse(product1, store.name)
+                        ),
+                        hasNextPage = false,
+                        totalProductsCount = 2
+                    )
+                }
+            }
+
+            When("검색어를 입력하지 않으면") {
+
+                Then("예외가 발생한다") {
+                    Given {
+                        log().all()
+                    } When {
+                        get("/products/search")
+                    } Then {
+                        log().all()
+                        statusCode(BAD_REQUEST.value())
+                    }
+                }
+            }
+
+            When("검색어를 빈 문자로 입력하면") {
+
+                Then("예외가 발생한다") {
+                    Given {
+                        log().all()
+                        param("word", " ")
+                    } When {
+                        get("/products/search")
+                    } Then {
+                        log().all()
+                        statusCode(BAD_REQUEST.value())
+                    }
+                }
+            }
+
+            When("검색어를 입력하지 않으면") {
+
+                Then("예외가 발생한다") {
+                    Given {
+                        log().all()
+                        param("word", "")
+                    } When {
+                        get("/products/search")
+                    } Then {
+                        log().all()
+                        statusCode(BAD_REQUEST.value())
+                    }
+                }
+            }
+        }
     }
 }
-
