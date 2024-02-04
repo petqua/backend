@@ -74,7 +74,7 @@ class ProductServiceTest(
         }
     }
 
-    Given("상품 검색창을 이용할 때") {
+    Given("상품 검색창에서 추천 검색어 기능을 이용할 때") {
         val product1 = productRepository.save(product(name = "블루네온 구피", storeId = store.id))
         val product2 = productRepository.save(product(name = "레드턱시도 구피", storeId = store.id))
         val product3 = productRepository.save(product(name = "고등어", storeId = store.id))
@@ -89,7 +89,7 @@ class ProductServiceTest(
         When("검색어를 입력하면") {
             val productKeywordResponses = productService.readKeywords(command)
 
-            Then("추천 검색어로 상품 키워드 목록이 문자 길이 오름차순으로 반환된다") {
+            Then("상품 키워드 목록이 문자 길이 오름차순으로 반환된다") {
                 productKeywordResponses shouldBe listOf(
                     ProductKeywordResponse("구피"),
                     ProductKeywordResponse("블루네온 구피"),

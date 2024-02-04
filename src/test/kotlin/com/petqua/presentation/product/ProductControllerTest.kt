@@ -3,6 +3,7 @@ package com.petqua.presentation.product
 import com.petqua.application.product.dto.ProductDetailResponse
 import com.petqua.application.product.dto.ProductKeywordResponse
 import com.petqua.application.product.dto.ProductsResponse
+import com.petqua.common.exception.ExceptionResponse
 import com.petqua.domain.keyword.ProductKeywordRepository
 import com.petqua.domain.product.ProductRepository
 import com.petqua.domain.product.ProductSourceType.HOME_NEW_ENROLLMENT
@@ -12,6 +13,8 @@ import com.petqua.domain.product.Sorter.SALE_PRICE_DESC
 import com.petqua.domain.product.dto.ProductResponse
 import com.petqua.domain.recommendation.ProductRecommendationRepository
 import com.petqua.domain.store.StoreRepository
+import com.petqua.exception.product.ProductExceptionType.INVALID_SEARCH_WORD
+import com.petqua.exception.product.ProductExceptionType.NOT_FOUND_PRODUCT
 import com.petqua.test.ApiTestConfig
 import com.petqua.test.fixture.product
 import com.petqua.test.fixture.productKeyword
@@ -20,11 +23,6 @@ import com.petqua.test.fixture.store
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import io.restassured.common.mapper.TypeRef
-import io.restassured.module.kotlin.extensions.Extract
-import io.restassured.module.kotlin.extensions.Given
-import io.restassured.module.kotlin.extensions.Then
-import io.restassured.module.kotlin.extensions.When
-import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.NOT_FOUND
@@ -32,8 +30,6 @@ import java.math.BigDecimal.ONE
 import java.math.BigDecimal.TEN
 import java.math.BigDecimal.ZERO
 import kotlin.Long.Companion.MIN_VALUE
-
-private const val s = " "
 
 class ProductControllerTest(
     private val productRepository: ProductRepository,
@@ -46,21 +42,15 @@ class ProductControllerTest(
         val store = storeRepository.save(store())
 
         Given("개별 상품을 조회할 때") {
-            val token = signInAsMember().accessToken
+            val accessToken = signInAsMember().accessToken
 
             val productId = productRepository.save(product(storeId = store.id)).id
 
             When("상품 ID를 입력하면") {
-                val response = Given {
-                    log().all()
-                    pathParam("productId", productId)
-                } When {
-                    get("/products/{productId}")
-                } Then {
-                    log().all()
-                } Extract {
-                    response()
-                }
+                val response = requestReadProductById(
+                    productId,
+                    accessToken
+                )
 
                 Then("해당 ID의 상품이 반환된다") {
                     val productDetailResponse = response.`as`(ProductDetailResponse::class.java)
@@ -75,23 +65,22 @@ class ProductControllerTest(
             }
 
             When("존재하지 않는 상품 ID를 입력하면") {
+                val response = requestReadProductById(
+                    MIN_VALUE,
+                    accessToken
+                )
 
                 Then("예외가 발생한다") {
-                    Given {
-                        log().all()
-                        pathParam("productId", MIN_VALUE)
-                    } When {
-                        get("/products/{productId}")
-                    } Then {
-                        log().all()
-                        statusCode(NOT_FOUND.value())
-                    }
+                    val exceptionResponse = response.`as`(ExceptionResponse::class.java)
+
+                    response.statusCode shouldBe NOT_FOUND.value()
+                    exceptionResponse.message shouldBe NOT_FOUND_PRODUCT.errorMessage()
                 }
             }
         }
 
         Given("조건에 따라 상품을 조회할 때") {
-            val token = signInAsMember().accessToken
+            val accessToken = signInAsMember().accessToken
 
             val product1 = productRepository.save(
                 product(
@@ -134,16 +123,10 @@ class ProductControllerTest(
             recommendationRepository.save(productRecommendation(productId = product2.id))
 
             When("마지막으로 조회한 Id를 입력하면") {
-                val response = Given {
-                    log().all()
-                    param("lastViewedId", product4.id)
-                } When {
-                    get("/products")
-                } Then {
-                    log().all()
-                } Extract {
-                    response()
-                }
+                val response = requestReadAllProducts(
+                    lastViewedId = product4.id,
+                    accessToken = accessToken
+                )
 
                 Then("해당 ID의 다음 상품들이 최신 등록 순으로 반환된다") {
                     val productsResponse = response.`as`(ProductsResponse::class.java)
@@ -162,16 +145,10 @@ class ProductControllerTest(
             }
 
             When("개수 제한을 입력하면") {
-                val response = Given {
-                    log().all()
-                    param("limit", 1)
-                } When {
-                    get("/products")
-                } Then {
-                    log().all()
-                } Extract {
-                    response()
-                }
+                val response = requestReadAllProducts(
+                    limit = 1,
+                    accessToken = accessToken
+                )
 
                 Then("해당 개수와 함께 다음 페이지가 존재하는지 여부가 반환된다") {
                     val productsResponse = response.`as`(ProductsResponse::class.java)
@@ -186,16 +163,10 @@ class ProductControllerTest(
             }
 
             When("추천 조건으로 조회하면") {
-                val response = Given {
-                    log().all()
-                    param("sourceType", HOME_RECOMMENDED.name)
-                } When {
-                    get("/products")
-                } Then {
-                    log().all()
-                } Extract {
-                    response()
-                }
+                val response = requestReadAllProducts(
+                    sourceType = HOME_RECOMMENDED.name,
+                    accessToken = accessToken
+                )
 
                 Then("추천 상품들이, 최신 등록 순으로 반환된다") {
                     val productsResponse = response.`as`(ProductsResponse::class.java)
@@ -213,19 +184,11 @@ class ProductControllerTest(
             }
 
             When("추천 조건으로, 가격 낮은 순으로 조회하면") {
-                val response = Given {
-                    log().all()
-                    params(
-                        "sourceType", HOME_RECOMMENDED.name,
-                        "sorter", SALE_PRICE_ASC.name
-                    )
-                } When {
-                    get("/products")
-                } Then {
-                    log().all()
-                } Extract {
-                    response()
-                }
+                val response = requestReadAllProducts(
+                    sourceType = HOME_RECOMMENDED.name,
+                    sorter = SALE_PRICE_ASC.name,
+                    accessToken = accessToken
+                )
 
                 Then("추천 상품들이, 가격 낮은 순으로 반환된다") {
                     val productsResponse = response.`as`(ProductsResponse::class.java)
@@ -243,16 +206,10 @@ class ProductControllerTest(
             }
 
             When("신규 입고 조건으로 조회하면") {
-                val response = Given {
-                    log().all()
-                    param("sourceType", HOME_NEW_ENROLLMENT.name)
-                } When {
-                    get("/products")
-                } Then {
-                    log().all()
-                } Extract {
-                    response()
-                }
+                val response = requestReadAllProducts(
+                    sourceType = HOME_NEW_ENROLLMENT.name,
+                    accessToken = accessToken
+                )
 
                 Then("신규 입고 상품들이 반환된다") {
                     val productsResponse = response.`as`(ProductsResponse::class.java)
@@ -272,19 +229,11 @@ class ProductControllerTest(
             }
 
             When("신규 입고 조건으로, 가격 높은 순으로 조회하면") {
-                val response = Given {
-                    log().all()
-                    params(
-                        "sourceType", HOME_NEW_ENROLLMENT.name,
-                        "sorter", SALE_PRICE_DESC.name
-                    )
-                } When {
-                    get("/products")
-                } Then {
-                    log().all()
-                } Extract {
-                    response()
-                }
+                val response = requestReadAllProducts(
+                    sourceType = HOME_NEW_ENROLLMENT.name,
+                    sorter = SALE_PRICE_DESC.name,
+                    accessToken = accessToken
+                )
 
                 Then("상품들이 최신 등록 순으로 반환된다") {
                     val productsResponse = response.`as`(ProductsResponse::class.java)
@@ -304,23 +253,19 @@ class ProductControllerTest(
             }
 
             When("조건을 잘못 기입해서 조회하면") {
+                val response = requestReadAllProducts(
+                    sourceType = "WRONG_TYPE",
+                    accessToken = accessToken
+                )
 
                 Then("예외가 발생한다") {
-                    Given {
-                        log().all()
-                        param("sourceType", "wrongType")
-                    } When {
-                        get("/products")
-                    } Then {
-                        log().all()
-                        statusCode(BAD_REQUEST.value())
-                    }
+                    response.statusCode shouldBe BAD_REQUEST.value()
                 }
             }
         }
 
-        Given("상품 검색창을 이용할 때") {
-            val token = signInAsMember().accessToken
+        Given("상품 검색창에서 추천 검색어 기능을 이용할 때") {
+            val accessToken = signInAsMember().accessToken
 
             val product1 = productRepository.save(
                 product(
@@ -379,21 +324,12 @@ class ProductControllerTest(
             )
 
             When("검색어를 입력하면") {
-                val word = "구피"
+                val response = requestReadProductKeyword(
+                    word = "구피",
+                    accessToken = accessToken
+                )
 
-                val response = Given {
-                    log().all()
-                    header(HttpHeaders.AUTHORIZATION, token)
-                    param("word", word)
-                } When {
-                    get("/products/keywords")
-                } Then {
-                    log().all()
-                } Extract {
-                    response()
-                }
-
-                Then("추천 검색어로 상품 키워드 목록이 문자 길이 오름차순으로 반환된다") {
+                Then("상품 키워드 목록이 문자 길이 오름차순으로 반환된다") {
                     val productKeywordResponses = response.`as`(object : TypeRef<List<ProductKeywordResponse>>() {})
 
                     response.statusCode shouldBe HttpStatus.OK.value()
@@ -407,38 +343,36 @@ class ProductControllerTest(
             }
 
             When("검색어를 입력하지 않으면") {
+                val response = requestReadProductKeyword(
+                    word = "",
+                    accessToken = accessToken
+                )
 
                 Then("예외가 발생한다") {
-                    Given {
-                        log().all()
-                    } When {
-                        get("/products/keywords")
-                    } Then {
-                        log().all()
-                        statusCode(BAD_REQUEST.value())
-                    }
+                    val exceptionResponse = response.`as`(ExceptionResponse::class.java)
+
+                    response.statusCode shouldBe BAD_REQUEST.value()
+                    exceptionResponse.message shouldBe INVALID_SEARCH_WORD.errorMessage()
                 }
             }
 
             When("검색어를 빈 문자로 입력하면") {
-                val emptyWord = " "
+                val response = requestReadProductKeyword(
+                    word = " ",
+                    accessToken = accessToken
+                )
 
                 Then("예외가 발생한다") {
-                    Given {
-                        log().all()
-                        param("word", emptyWord)
-                    } When {
-                        get("/products/keywords")
-                    } Then {
-                        log().all()
-                        statusCode(BAD_REQUEST.value())
-                    }
+                    val exceptionResponse = response.`as`(ExceptionResponse::class.java)
+
+                    response.statusCode shouldBe BAD_REQUEST.value()
+                    exceptionResponse.message shouldBe INVALID_SEARCH_WORD.errorMessage()
                 }
             }
         }
 
         Given("검색으로 상품을 조회할 때") {
-            val token = signInAsMember().accessToken
+            val accessToken = signInAsMember().accessToken
 
             val product1 = productRepository.save(
                 product(
@@ -505,16 +439,10 @@ class ProductControllerTest(
             When("검색어가 상품 키워드에 속하면") {
                 val keyword = "열대어"
 
-                val response = Given {
-                    log().all()
-                    param("word", keyword)
-                } When {
-                    get("/products/search")
-                } Then {
-                    log().all()
-                } Extract {
-                    response()
-                }
+                val response = requestReadProductBySearch(
+                    word = keyword,
+                    accessToken = accessToken
+                )
 
                 Then("상품 키워드와 연관된 상품들이 최신 등록 순으로 반환된다") {
                     val productsResponse = response.`as`(ProductsResponse::class.java)
@@ -534,16 +462,10 @@ class ProductControllerTest(
             When("검색어가 상품 키워드에 속하지 않으면") {
                 val nonKeyword = "구"
 
-                val response = Given {
-                    log().all()
-                    param("word", nonKeyword)
-                } When {
-                    get("/products/search")
-                } Then {
-                    log().all()
-                } Extract {
-                    response()
-                }
+                val response = requestReadProductBySearch(
+                    word = nonKeyword,
+                    accessToken = accessToken
+                )
 
                 Then("상품 이름과 연관된 상품들이 최신 등록 순으로 반환된다") {
                     val productsResponse = response.`as`(ProductsResponse::class.java)
@@ -562,31 +484,32 @@ class ProductControllerTest(
             }
 
             When("검색어를 입력하지 않으면") {
+                val response = requestReadProductBySearch(
+                    word = "",
+                    accessToken = accessToken
+                )
 
                 Then("예외가 발생한다") {
-                    Given {
-                        log().all()
-                    } When {
-                        get("/products/search")
-                    } Then {
-                        log().all()
-                        statusCode(BAD_REQUEST.value())
-                    }
+                    val exceptionResponse = response.`as`(ExceptionResponse::class.java)
+
+                    response.statusCode shouldBe BAD_REQUEST.value()
+                    exceptionResponse.message shouldBe INVALID_SEARCH_WORD.errorMessage()
+
                 }
             }
 
             When("검색어를 빈 문자로 입력하면") {
+                val response = requestReadProductBySearch(
+                    word = " ",
+                    accessToken = accessToken
+                )
 
                 Then("예외가 발생한다") {
-                    Given {
-                        log().all()
-                        param("word", " ")
-                    } When {
-                        get("/products/search")
-                    } Then {
-                        log().all()
-                        statusCode(BAD_REQUEST.value())
-                    }
+                    val exceptionResponse = response.`as`(ExceptionResponse::class.java)
+
+                    response.statusCode shouldBe BAD_REQUEST.value()
+                    exceptionResponse.message shouldBe INVALID_SEARCH_WORD.errorMessage()
+
                 }
             }
         }
