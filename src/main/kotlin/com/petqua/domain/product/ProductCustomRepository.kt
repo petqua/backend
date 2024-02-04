@@ -13,4 +13,8 @@ interface ProductCustomRepository {
     fun findBySearch(condition: ProductReadCondition, paging: ProductPaging): List<ProductResponse>
 
     fun findAllProductResponseByIdIn(ids: List<Long>): List<ProductResponse>
+
+    fun findByKeywordSearch(condition: ProductReadCondition, paging: ProductPaging): List<ProductResponse>
+
+    fun countByKeywordCondition(condition: ProductReadCondition): Int
 }

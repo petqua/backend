@@ -1,5 +1,6 @@
 package com.petqua.domain.product
 
+import com.petqua.domain.keyword.ProductKeyword
 import com.petqua.exception.product.ProductException
 import com.petqua.exception.product.ProductExceptionType.INVALID_SEARCH_WORD
 import io.kotest.assertions.throwables.shouldNotThrow

@@ -3,7 +3,7 @@ package com.petqua.presentation.product
 import com.petqua.application.product.dto.ProductDetailResponse
 import com.petqua.application.product.dto.ProductKeywordResponse
 import com.petqua.application.product.dto.ProductsResponse
-import com.petqua.domain.product.ProductKeywordRepository
+import com.petqua.domain.keyword.ProductKeywordRepository
 import com.petqua.domain.product.ProductRepository
 import com.petqua.domain.product.ProductSourceType.HOME_NEW_ENROLLMENT
 import com.petqua.domain.product.ProductSourceType.HOME_RECOMMENDED
@@ -24,6 +24,7 @@ import io.restassured.module.kotlin.extensions.Extract
 import io.restassured.module.kotlin.extensions.Given
 import io.restassured.module.kotlin.extensions.Then
 import io.restassured.module.kotlin.extensions.When
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.NOT_FOUND
@@ -318,7 +319,7 @@ class ProductControllerTest(
             }
         }
 
-        Given("검색으로 상품을 조회할 때") {
+        Given("상품 검색창을 이용할 때") {
             val token = signInAsMember().accessToken
 
             val product1 = productRepository.save(
@@ -392,7 +393,7 @@ class ProductControllerTest(
                     response()
                 }
 
-                Then("추천 검색어들이 이름 길이 오름차순으로 반환된다") {
+                Then("추천 검색어로 상품 키워드 목록이 문자 길이 오름차순으로 반환된다") {
                     val productKeywordResponses = response.`as`(object : TypeRef<List<ProductKeywordResponse>>() {})
 
                     response.statusCode shouldBe HttpStatus.OK.value()
@@ -410,7 +411,6 @@ class ProductControllerTest(
                 Then("예외가 발생한다") {
                     Given {
                         log().all()
-                        header(HttpHeaders.AUTHORIZATION, token)
                     } When {
                         get("/products/keywords")
                     } Then {
@@ -426,7 +426,6 @@ class ProductControllerTest(
                 Then("예외가 발생한다") {
                     Given {
                         log().all()
-                        header(HttpHeaders.AUTHORIZATION, token)
                         param("word", emptyWord)
                     } When {
                         get("/products/keywords")
@@ -438,38 +437,77 @@ class ProductControllerTest(
             }
         }
 
-        Given("상품 이름 검색으로 상품을 조회할 때") {
+        Given("검색으로 상품을 조회할 때") {
             val token = signInAsMember().accessToken
 
             val product1 = productRepository.save(
                 product(
-                    name = "상품A",
+                    name = "블루네온 구피",
                     storeId = store.id,
                 )
             )
             val product2 = productRepository.save(
                 product(
-                    name = "상품AA",
+                    name = "레드턱시도 구피",
                     storeId = store.id,
                 )
             )
             val product3 = productRepository.save(
                 product(
-                    name = "상품B",
+                    name = "열대어 브론디 턱시도 구피",
                     storeId = store.id,
                 )
             )
             val product4 = productRepository.save(
                 product(
-                    name = "상품C",
+                    name = "단정 금붕어",
                     storeId = store.id,
                 )
             )
 
-            When("검색어를 입력하면") {
+            productKeywordRepository.save(
+                productKeyword(
+                    productId = product1.id,
+                    word = "구피"
+                )
+            )
+            productKeywordRepository.save(
+                productKeyword(
+                    productId = product1.id,
+                    word = "열대어"
+                )
+            )
+            productKeywordRepository.save(
+                productKeyword(
+                    productId = product2.id,
+                    word = "구피"
+                )
+            )
+            productKeywordRepository.save(
+                productKeyword(
+                    productId = product3.id,
+                    word = "구피"
+                )
+            )
+            productKeywordRepository.save(
+                productKeyword(
+                    productId = product4.id,
+                    word = "금붕어"
+                )
+            )
+            productKeywordRepository.save(
+                productKeyword(
+                    productId = product4.id,
+                    word = "열대어"
+                )
+            )
+
+            When("검색어가 상품 키워드에 속하면") {
+                val keyword = "열대어"
+
                 val response = Given {
                     log().all()
-                    param("word", "상품A")
+                    param("word", keyword)
                 } When {
                     get("/products/search")
                 } Then {
@@ -478,17 +516,47 @@ class ProductControllerTest(
                     response()
                 }
 
-                Then("연관된 상품들이 최신 등록 순으로 반환된다") {
+                Then("상품 키워드와 연관된 상품들이 최신 등록 순으로 반환된다") {
                     val productsResponse = response.`as`(ProductsResponse::class.java)
 
                     response.statusCode shouldBe HttpStatus.OK.value()
                     productsResponse shouldBe ProductsResponse(
                         products = listOf(
-                            ProductResponse(product2, store.name),
+                            ProductResponse(product4, store.name),
                             ProductResponse(product1, store.name)
                         ),
                         hasNextPage = false,
                         totalProductsCount = 2
+                    )
+                }
+            }
+
+            When("검색어가 상품 키워드에 속하지 않으면") {
+                val nonKeyword = "구"
+
+                val response = Given {
+                    log().all()
+                    param("word", nonKeyword)
+                } When {
+                    get("/products/search")
+                } Then {
+                    log().all()
+                } Extract {
+                    response()
+                }
+
+                Then("상품 이름과 연관된 상품들이 최신 등록 순으로 반환된다") {
+                    val productsResponse = response.`as`(ProductsResponse::class.java)
+
+                    response.statusCode shouldBe HttpStatus.OK.value()
+                    productsResponse shouldBe ProductsResponse(
+                        products = listOf(
+                            ProductResponse(product3, store.name),
+                            ProductResponse(product2, store.name),
+                            ProductResponse(product1, store.name)
+                        ),
+                        hasNextPage = false,
+                        totalProductsCount = 3
                     )
                 }
             }

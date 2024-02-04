@@ -1,4 +1,4 @@
-package com.petqua.domain.product
+package com.petqua.domain.keyword
 
 import org.springframework.data.jpa.repository.JpaRepository
 

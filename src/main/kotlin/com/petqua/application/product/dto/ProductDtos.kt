@@ -1,7 +1,7 @@
 package com.petqua.application.product.dto
 
+import com.petqua.domain.keyword.ProductKeyword
 import com.petqua.domain.product.Product
-import com.petqua.domain.product.ProductKeyword
 import com.petqua.domain.product.ProductSourceType
 import com.petqua.domain.product.Sorter
 import com.petqua.domain.product.dto.LIMIT_CEILING

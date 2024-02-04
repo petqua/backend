@@ -1,4 +1,4 @@
-package com.petqua.domain.product
+package com.petqua.domain.keyword
 
 import com.petqua.common.util.throwExceptionWhen
 import com.petqua.exception.product.ProductException
