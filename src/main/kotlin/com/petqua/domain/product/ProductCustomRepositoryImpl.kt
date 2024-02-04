@@ -1,6 +1,5 @@
 package com.petqua.domain.product
 
-import com.linecorp.kotlinjdsl.dsl.jpql.Jpql
 import com.linecorp.kotlinjdsl.dsl.jpql.jpql
 import com.linecorp.kotlinjdsl.render.jpql.JpqlRenderContext
 import com.linecorp.kotlinjdsl.render.jpql.JpqlRenderer
@@ -140,7 +139,7 @@ class ProductCustomRepositoryImpl(
     }
 
     override fun findAllProductResponseByIdIn(ids: List<Long>): List<ProductResponse> {
-        val query = jpql {
+        val query = jpql(ProductDynamicJpqlGenerator) {
             selectNew<ProductResponse>(
                 entity(Product::class),
                 path(Store::name)
@@ -158,6 +157,4 @@ class ProductCustomRepositoryImpl(
             jpqlRenderer
         )
     }
-
-    private fun Jpql.predicateByIds(ids: List<Long>) = if (ids.isEmpty()) null else path(Product::id).`in`(ids)
 }

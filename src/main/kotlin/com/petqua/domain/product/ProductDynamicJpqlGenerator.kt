@@ -40,4 +40,8 @@ class ProductDynamicJpqlGenerator : Jpql() {
     fun Jpql.productNameLike(word: String): Predicate? {
         return if (word.isBlank()) null else path(Product::name).like(pattern = "%$word%", escape = ESCAPE_LETTER)
     }
+
+    fun Jpql.predicateByIds(ids: List<Long>): Predicate? {
+        return if (ids.isEmpty()) null else path(Product::id).`in`(ids)
+    }
 }
