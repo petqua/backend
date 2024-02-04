@@ -25,7 +25,7 @@ class AuthExtractor(
     private val jwtProvider: JwtProvider,
 ) {
 
-    fun extractHeaderToken(request: HttpServletRequest): String {
+    fun extractAccessToken(request: HttpServletRequest): String {
         val header = request.getHeaderOrThrow(AUTHORIZATION) { AuthException(INVALID_AUTH_HEADER) }
         return parse(header)
     }
@@ -40,7 +40,7 @@ class AuthExtractor(
         { AuthException(INVALID_AUTH_HEADER) }
     }
 
-    fun extractCookieToken(request: HttpServletRequest): String {
+    fun extractRefreshToken(request: HttpServletRequest): String {
         return request.getCookieValueOrThrow(REFRESH_TOKEN) { AuthException(INVALID_AUTH_COOKIE) }
     }
 

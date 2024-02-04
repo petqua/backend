@@ -27,7 +27,7 @@ class LoginArgumentResolver(
         binderFactory: WebDataBinderFactory?
     ): LoginMember {
         val request = webRequest.getHttpServletRequestOrThrow()
-        val token = authExtractor.extractHeaderToken(request)
+        val token = authExtractor.extractAccessToken(request)
         val accessTokenClaims = authExtractor.getAccessTokenClaimsOrThrow(token)
         return LoginMember.from(accessTokenClaims)
     }

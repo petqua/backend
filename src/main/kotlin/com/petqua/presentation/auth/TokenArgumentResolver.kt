@@ -27,8 +27,8 @@ class TokenArgumentResolver(
         binderFactory: WebDataBinderFactory?
     ): AuthToken {
         val request = webRequest.getHttpServletRequestOrThrow()
-        val accessToken = authExtractor.extractHeaderToken(request)
-        val refreshToken = authExtractor.extractCookieToken(request)
+        val accessToken = authExtractor.extractAccessToken(request)
+        val refreshToken = authExtractor.extractRefreshToken(request)
         return AuthToken(accessToken, refreshToken)
     }
 }
