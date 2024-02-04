@@ -1,5 +1,6 @@
 package com.petqua.application.product.dto
 
+import com.petqua.domain.keyword.ProductKeyword
 import com.petqua.domain.product.Product
 import com.petqua.domain.product.ProductSourceType
 import com.petqua.domain.product.Sorter
@@ -39,14 +40,14 @@ data class ProductDetailResponse(
     )
 }
 
-data class ProductReadRequest(
+data class ProductReadQuery(
     val sourceType: ProductSourceType = ProductSourceType.NONE,
     val sorter: Sorter = Sorter.NONE,
     val lastViewedId: Long? = null,
     val limit: Int = LIMIT_CEILING,
 ) {
     fun toReadConditions(): ProductReadCondition {
-        return ProductReadCondition.of(sourceType, sorter)
+        return ProductReadCondition.toCondition(sourceType, sorter)
     }
 
     fun toPaging(): ProductPaging {
@@ -69,3 +70,32 @@ data class ProductsResponse(
         }
     }
 }
+
+data class ProductSearchQuery(
+    val word: String = "",
+    val lastViewedId: Long? = null,
+    val limit: Int = LIMIT_CEILING,
+) {
+
+    fun toSearchCondition(): ProductReadCondition {
+        return ProductReadCondition.toSearchCondition(word)
+    }
+
+    fun toPaging(): ProductPaging {
+        return ProductPaging.of(lastViewedId, limit)
+    }
+}
+
+data class ProductKeywordQuery(
+    val word: String = "",
+    val limit: Int = LIMIT_CEILING,
+) {
+
+    fun toProductKeyword(): ProductKeyword {
+        return ProductKeyword(word = word)
+    }
+}
+
+data class ProductKeywordResponse(
+    val keyword: String,
+)

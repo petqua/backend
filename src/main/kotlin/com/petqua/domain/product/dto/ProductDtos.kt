@@ -1,8 +1,11 @@
 package com.petqua.domain.product.dto
 
+import com.petqua.common.util.throwExceptionWhen
 import com.petqua.domain.product.Product
 import com.petqua.domain.product.ProductSourceType
 import com.petqua.domain.product.Sorter
+import com.petqua.exception.product.ProductException
+import com.petqua.exception.product.ProductExceptionType.INVALID_SEARCH_WORD
 
 const val PADDING_FOR_PAGING = 1
 const val LIMIT_CEILING = 20
@@ -10,15 +13,22 @@ const val LIMIT_CEILING = 20
 data class ProductReadCondition(
     val sourceType: ProductSourceType = ProductSourceType.NONE,
     val sorter: Sorter = Sorter.NONE,
+    val word: String = "",
+    val keyword: String = "",
 ) {
 
     companion object {
-        fun of(sourceType: ProductSourceType, sorter: Sorter): ProductReadCondition {
+        fun toCondition(sourceType: ProductSourceType, sorter: Sorter): ProductReadCondition {
             return if (sourceType == ProductSourceType.HOME_NEW_ENROLLMENT) ProductReadCondition(
                 sourceType,
                 Sorter.ENROLLMENT_DATE_DESC
             )
             else ProductReadCondition(sourceType, sorter)
+        }
+
+        fun toSearchCondition(word: String): ProductReadCondition {
+            throwExceptionWhen(word.isBlank()) { ProductException(INVALID_SEARCH_WORD) }
+            return ProductReadCondition(word = word)
         }
     }
 }

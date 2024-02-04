@@ -29,6 +29,19 @@ inline fun <reified T> EntityManager.createQuery(
         .resultList
 }
 
+inline fun <reified T> EntityManager.exists(
+    query: SelectQuery<*>,
+    context: JpqlRenderContext,
+    renderer: JpqlRenderer,
+): Boolean {
+    val rendered = renderer.render(query, context)
+    val resultList = this.createQuery(rendered.query, T::class.java)
+        .apply { rendered.params.forEach { (name, value) -> setParameter(name, value) } }
+        .setMaxResults(1)
+        .resultList
+    return resultList.isNotEmpty()
+}
+
 inline fun <reified T> EntityManager.createQuery(
     query: SelectQuery<*>,
     context: JpqlRenderContext,

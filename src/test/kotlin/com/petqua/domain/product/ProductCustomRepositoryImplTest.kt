@@ -193,6 +193,85 @@ class ProductCustomRepositoryImplTest(
         }
     }
 
+    Given("검색으로 상품을 조회할 때") {
+        val product1 = productRepository.save(
+            product(
+                name = "상품1",
+                storeId = store.id,
+                discountPrice = ZERO,
+                reviewCount = 0,
+                reviewTotalScore = 0
+            )
+        )
+        val product2 = productRepository.save(
+            product(
+                name = "상품2",
+                storeId = store.id,
+                discountPrice = ONE,
+                reviewCount = 1,
+                reviewTotalScore = 1
+            )
+        )
+        val product3 = productRepository.save(
+            product(
+                name = "상품3",
+                storeId = store.id,
+                discountPrice = ONE,
+                reviewCount = 1,
+                reviewTotalScore = 5
+            )
+        )
+        val product4 = productRepository.save(
+            product(
+                name = "상품4",
+                storeId = store.id,
+                discountPrice = TEN,
+                reviewCount = 2,
+                reviewTotalScore = 10
+            )
+        )
+
+        When("상품 이름을 정확히 입력하면") {
+            val products = productRepository.findBySearch(
+                condition = ProductReadCondition(word = "상품1"),
+                paging = ProductPaging()
+            )
+
+            Then("해당 이름의 상품을 반환한다") {
+                products shouldContainExactly listOf(
+                    ProductResponse(product1, store.name),
+                )
+            }
+        }
+
+        When("상품 이름을 입력하면") {
+            val products = productRepository.findBySearch(
+                condition = ProductReadCondition(word = "상품"),
+                paging = ProductPaging()
+            )
+
+            Then("관련된 이름의 상품들을 반환한다") {
+                products shouldContainExactly listOf(
+                    ProductResponse(product4, store.name),
+                    ProductResponse(product3, store.name),
+                    ProductResponse(product2, store.name),
+                    ProductResponse(product1, store.name),
+                )
+            }
+        }
+
+        When("존재하지 않는 상품 이름을 입력하면") {
+            val products = productRepository.findBySearch(
+                condition = ProductReadCondition(word = "NON EXISTENT PRODUCT"),
+                paging = ProductPaging()
+            )
+
+            Then("상품을 반환하지 않는다") {
+                products shouldHaveSize 0
+            }
+        }
+    }
+
     afterContainer {
         dataCleaner.clean()
     }

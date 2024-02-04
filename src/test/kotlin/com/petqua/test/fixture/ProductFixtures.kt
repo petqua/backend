@@ -1,5 +1,6 @@
 package com.petqua.test.fixture
 
+import com.petqua.domain.keyword.ProductKeyword
 import com.petqua.domain.product.Product
 import java.math.BigDecimal
 
@@ -32,5 +33,17 @@ fun product(
         reviewTotalScore,
         thumbnailUrl,
         description
+    )
+}
+
+fun productKeyword(
+    id: Long = 0L,
+    productId: Long = 0L,
+    word: String = "word",
+): ProductKeyword {
+    return ProductKeyword(
+        id = id,
+        productId = productId,
+        word = word
     )
 }
