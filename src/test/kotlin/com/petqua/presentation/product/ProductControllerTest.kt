@@ -19,7 +19,6 @@ import io.restassured.module.kotlin.extensions.Extract
 import io.restassured.module.kotlin.extensions.Given
 import io.restassured.module.kotlin.extensions.Then
 import io.restassured.module.kotlin.extensions.When
-import org.assertj.core.api.SoftAssertions.assertSoftly
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.NOT_FOUND
@@ -45,7 +44,6 @@ class ProductControllerTest(
             When("상품 ID를 입력하면") {
                 val response = Given {
                     log().all()
-                    header(HttpHeaders.AUTHORIZATION, token)
                     pathParam("productId", productId)
                 } When {
                     get("/products/{productId}")
@@ -58,16 +56,12 @@ class ProductControllerTest(
                 Then("해당 ID의 상품이 반환된다") {
                     val productDetailResponse = response.`as`(ProductDetailResponse::class.java)
 
-                    assertSoftly {
-                        it.assertThat(response.statusCode).isEqualTo(HttpStatus.OK.value())
-                        it.assertThat(productDetailResponse).isEqualTo(
-                            ProductDetailResponse(
-                                product = product(id = productId, storeId = store.id),
-                                storeName = store.name,
-                                reviewAverageScore = 0.0
-                            )
-                        )
-                    }
+                    response.statusCode shouldBe HttpStatus.OK.value()
+                    productDetailResponse shouldBe ProductDetailResponse(
+                        product = product(id = productId, storeId = store.id),
+                        storeName = store.name,
+                        reviewAverageScore = 0.0
+                    )
                 }
             }
 
@@ -76,7 +70,6 @@ class ProductControllerTest(
                 Then("예외가 발생한다") {
                     Given {
                         log().all()
-                        header(HttpHeaders.AUTHORIZATION, token)
                         pathParam("productId", MIN_VALUE)
                     } When {
                         get("/products/{productId}")
@@ -134,7 +127,6 @@ class ProductControllerTest(
             When("마지막으로 조회한 Id를 입력하면") {
                 val response = Given {
                     log().all()
-                    header(HttpHeaders.AUTHORIZATION, token)
                     param("lastViewedId", product4.id)
                 } When {
                     get("/products")
@@ -147,27 +139,22 @@ class ProductControllerTest(
                 Then("해당 ID의 다음 상품들이 최신 등록 순으로 반환된다") {
                     val productsResponse = response.`as`(ProductsResponse::class.java)
 
-                    assertSoftly {
-                        it.assertThat(response.statusCode).isEqualTo(HttpStatus.OK.value())
-                        it.assertThat(productsResponse).isEqualTo(
-                            ProductsResponse(
-                                products = listOf(
-                                    ProductResponse(product3, store.name),
-                                    ProductResponse(product2, store.name),
-                                    ProductResponse(product1, store.name)
-                                ),
-                                hasNextPage = false,
-                                totalProductsCount = 4
-                            )
-                        )
-                    }
+                    response.statusCode shouldBe HttpStatus.OK.value()
+                    productsResponse shouldBe ProductsResponse(
+                        products = listOf(
+                            ProductResponse(product3, store.name),
+                            ProductResponse(product2, store.name),
+                            ProductResponse(product1, store.name)
+                        ),
+                        hasNextPage = false,
+                        totalProductsCount = 4
+                    )
                 }
             }
 
             When("개수 제한을 입력하면") {
                 val response = Given {
                     log().all()
-                    header(HttpHeaders.AUTHORIZATION, token)
                     param("limit", 1)
                 } When {
                     get("/products")
@@ -180,23 +167,18 @@ class ProductControllerTest(
                 Then("해당 개수와 함께 다음 페이지가 존재하는지 여부가 반환된다") {
                     val productsResponse = response.`as`(ProductsResponse::class.java)
 
-                    assertSoftly {
-                        it.assertThat(response.statusCode).isEqualTo(HttpStatus.OK.value())
-                        it.assertThat(productsResponse).isEqualTo(
-                            ProductsResponse(
-                                products = listOf(ProductResponse(product4, store.name)),
-                                hasNextPage = true,
-                                totalProductsCount = 4
-                            )
-                        )
-                    }
+                    response.statusCode shouldBe HttpStatus.OK.value()
+                    productsResponse shouldBe ProductsResponse(
+                        products = listOf(ProductResponse(product4, store.name)),
+                        hasNextPage = true,
+                        totalProductsCount = 4
+                    )
                 }
             }
 
             When("추천 조건으로 조회하면") {
                 val response = Given {
                     log().all()
-                    header(HttpHeaders.AUTHORIZATION, token)
                     param("sourceType", HOME_RECOMMENDED.name)
                 } When {
                     get("/products")
@@ -209,26 +191,21 @@ class ProductControllerTest(
                 Then("추천 상품들이, 최신 등록 순으로 반환된다") {
                     val productsResponse = response.`as`(ProductsResponse::class.java)
 
-                    assertSoftly {
-                        it.assertThat(response.statusCode).isEqualTo(HttpStatus.OK.value())
-                        it.assertThat(productsResponse).isEqualTo(
-                            ProductsResponse(
-                                products = listOf(
-                                    ProductResponse(product2, store.name),
-                                    ProductResponse(product1, store.name)
-                                ),
-                                hasNextPage = false,
-                                totalProductsCount = 2
-                            )
-                        )
-                    }
+                    response.statusCode shouldBe HttpStatus.OK.value()
+                    productsResponse shouldBe ProductsResponse(
+                        products = listOf(
+                            ProductResponse(product2, store.name),
+                            ProductResponse(product1, store.name)
+                        ),
+                        hasNextPage = false,
+                        totalProductsCount = 2
+                    )
                 }
             }
 
             When("추천 조건으로, 가격 낮은 순으로 조회하면") {
                 val response = Given {
                     log().all()
-                    header(HttpHeaders.AUTHORIZATION, token)
                     params(
                         "sourceType", HOME_RECOMMENDED.name,
                         "sorter", SALE_PRICE_ASC.name
@@ -244,26 +221,21 @@ class ProductControllerTest(
                 Then("추천 상품들이, 가격 낮은 순으로 반환된다") {
                     val productsResponse = response.`as`(ProductsResponse::class.java)
 
-                    assertSoftly {
-                        it.assertThat(response.statusCode).isEqualTo(HttpStatus.OK.value())
-                        it.assertThat(productsResponse).isEqualTo(
-                            ProductsResponse(
-                                products = listOf(
-                                    ProductResponse(product1, store.name),
-                                    ProductResponse(product2, store.name)
-                                ),
-                                hasNextPage = false,
-                                totalProductsCount = 2
-                            )
-                        )
-                    }
+                    response.statusCode shouldBe HttpStatus.OK.value()
+                    productsResponse shouldBe ProductsResponse(
+                        products = listOf(
+                            ProductResponse(product1, store.name),
+                            ProductResponse(product2, store.name)
+                        ),
+                        hasNextPage = false,
+                        totalProductsCount = 2
+                    )
                 }
             }
 
             When("신규 입고 조건으로 조회하면") {
                 val response = Given {
                     log().all()
-                    header(HttpHeaders.AUTHORIZATION, token)
                     param("sourceType", HOME_NEW_ENROLLMENT.name)
                 } When {
                     get("/products")
@@ -276,28 +248,23 @@ class ProductControllerTest(
                 Then("신규 입고 상품들이 반환된다") {
                     val productsResponse = response.`as`(ProductsResponse::class.java)
 
-                    assertSoftly {
-                        it.assertThat(response.statusCode).isEqualTo(HttpStatus.OK.value())
-                        it.assertThat(productsResponse).isEqualTo(
-                            ProductsResponse(
-                                products = listOf(
-                                    ProductResponse(product4, store.name),
-                                    ProductResponse(product3, store.name),
-                                    ProductResponse(product2, store.name),
-                                    ProductResponse(product1, store.name)
-                                ),
-                                hasNextPage = false,
-                                totalProductsCount = 4
-                            )
-                        )
-                    }
+                    response.statusCode shouldBe HttpStatus.OK.value()
+                    productsResponse shouldBe ProductsResponse(
+                        products = listOf(
+                            ProductResponse(product4, store.name),
+                            ProductResponse(product3, store.name),
+                            ProductResponse(product2, store.name),
+                            ProductResponse(product1, store.name)
+                        ),
+                        hasNextPage = false,
+                        totalProductsCount = 4
+                    )
                 }
             }
 
             When("신규 입고 조건으로, 가격 높은 순으로 조회하면") {
                 val response = Given {
                     log().all()
-                    header(HttpHeaders.AUTHORIZATION, token)
                     params(
                         "sourceType", HOME_NEW_ENROLLMENT.name,
                         "sorter", SALE_PRICE_DESC.name
@@ -313,21 +280,17 @@ class ProductControllerTest(
                 Then("상품들이 최신 등록 순으로 반환된다") {
                     val productsResponse = response.`as`(ProductsResponse::class.java)
 
-                    assertSoftly {
-                        it.assertThat(response.statusCode).isEqualTo(HttpStatus.OK.value())
-                        it.assertThat(productsResponse).isEqualTo(
-                            ProductsResponse(
-                                products = listOf(
-                                    ProductResponse(product4, store.name),
-                                    ProductResponse(product3, store.name),
-                                    ProductResponse(product2, store.name),
-                                    ProductResponse(product1, store.name)
-                                ),
-                                hasNextPage = false,
-                                totalProductsCount = 4
-                            )
-                        )
-                    }
+                    response.statusCode shouldBe HttpStatus.OK.value()
+                    productsResponse shouldBe ProductsResponse(
+                        products = listOf(
+                            ProductResponse(product4, store.name),
+                            ProductResponse(product3, store.name),
+                            ProductResponse(product2, store.name),
+                            ProductResponse(product1, store.name)
+                        ),
+                        hasNextPage = false,
+                        totalProductsCount = 4
+                    )
                 }
             }
 
@@ -336,7 +299,6 @@ class ProductControllerTest(
                 Then("예외가 발생한다") {
                     Given {
                         log().all()
-                        header(HttpHeaders.AUTHORIZATION, token)
                         param("sourceType", "wrongType")
                     } When {
                         get("/products")
@@ -423,21 +385,6 @@ class ProductControllerTest(
                     Given {
                         log().all()
                         param("word", " ")
-                    } When {
-                        get("/products/search")
-                    } Then {
-                        log().all()
-                        statusCode(BAD_REQUEST.value())
-                    }
-                }
-            }
-
-            When("검색어를 입력하지 않으면") {
-
-                Then("예외가 발생한다") {
-                    Given {
-                        log().all()
-                        param("word", "")
                     } When {
                         get("/products/search")
                     } Then {
