@@ -17,7 +17,6 @@ import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.stereotype.Component
 
 private const val AUTHORIZATION_PREFIX = "Bearer "
-private const val EMPTY = ""
 private const val REFRESH_TOKEN = "refresh-token"
 
 @Component
@@ -32,7 +31,7 @@ class AuthExtractor(
 
     private fun parse(header: String): String {
         validateHeader(header)
-        return header.replace(AUTHORIZATION_PREFIX, EMPTY)
+        return header.removePrefix(AUTHORIZATION_PREFIX)
     }
 
     private fun validateHeader(header: String) {
