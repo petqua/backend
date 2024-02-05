@@ -2,17 +2,14 @@ package com.petqua.presentation.banner
 
 import com.petqua.application.banner.BannerService
 import com.petqua.application.banner.dto.BannerResponse
-import com.petqua.common.config.ACCESS_TOKEN_SECURITY_SCHEME_KEY
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
-import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
-@SecurityRequirement(name = ACCESS_TOKEN_SECURITY_SCHEME_KEY)
 @Tag(name = "Banner", description = "배너 관련 API 명세")
 @RequestMapping("/banners")
 @RestController

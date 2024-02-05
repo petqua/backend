@@ -9,7 +9,7 @@ import io.swagger.v3.oas.models.servers.Server
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
-const val ACCESS_TOKEN_SECURITY_SCHEME_KEY = "Access Token (Bearer)"
+const val ACCESS_TOKEN_SECURITY_SCHEME_KEY = "AccessToken(Bearer)"
 
 @Configuration
 class SwaggerConfig {
