@@ -43,6 +43,8 @@ class ProductController(
         return ResponseEntity.ok(response)
     }
 
+    @Operation(summary = "상품 검색 API", description = "검색으로 상품을 조회합니다")
+    @ApiResponse(responseCode = "200", description = "상품 검색 조회 성공")
     @GetMapping("/search")
     fun readBySearch(
         request: ProductSearchRequest
@@ -51,6 +53,8 @@ class ProductController(
         return ResponseEntity.ok(response)
     }
 
+    @Operation(summary = "상품 추천 검색어(자동완성) 조회 API", description = "추천 검색어를 조회합니다")
+    @ApiResponse(responseCode = "200", description = "추천 검색어 조회 성공")
     @GetMapping("/keywords")
     fun readAutoCompleteKeywords(
         request: ProductKeywordRequest

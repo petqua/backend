@@ -47,7 +47,7 @@ data class SaveCartProductRequest(
 
 data class UpdateCartProductOptionRequest(
     @Schema(
-        description = "상품 개수",
+        description = "봉달(장바구니) 수량",
         example = "1"
     )
     val quantity: Int,

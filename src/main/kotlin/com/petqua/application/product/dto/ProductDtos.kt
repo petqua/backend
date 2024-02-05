@@ -101,30 +101,9 @@ data class ProductDetailResponse(
 }
 
 data class ProductReadQuery(
-    @Schema(
-        description = "상품 조회 출처",
-        example = "HOME_RECOMMENDED",
-        allowableValues = ["HOME_RECOMMENDED", "HOME_NEW_ENROLLMENT"]
-    )
     val sourceType: ProductSourceType = ProductSourceType.NONE,
-
-    @Schema(
-        description = "정렬 기준",
-        defaultValue = "ENROLLMENT_DATE_DESC",
-        allowableValues = ["SALE_PRICE_ASC", "SALE_PRICE_DESC", "REVIEW_COUNT_DESC", "ENROLLMENT_DATE_DESC"]
-    )
     val sorter: Sorter = Sorter.NONE,
-
-    @Schema(
-        description = "마지막으로 조회한 상품의 Id",
-        example = "1"
-    )
     val lastViewedId: Long? = null,
-
-    @Schema(
-        description = "조회할 상품 개수",
-        defaultValue = "20"
-    )
     val limit: Int = LIMIT_CEILING,
 ) {
     fun toReadConditions(): ProductReadCondition {
@@ -188,5 +167,9 @@ data class ProductKeywordQuery(
 }
 
 data class ProductKeywordResponse(
+    @Schema(
+        description = "추천 검색어",
+        example = "구피"
+    )
     val keyword: String,
 )
