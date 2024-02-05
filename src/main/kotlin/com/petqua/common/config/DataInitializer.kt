@@ -111,9 +111,29 @@ class DataInitializer(
             description = "니모를 찾아서 주연 조연"
         )
         productRepository.saveAll(listOf(product1, product2, product3))
+        saveProducts(store1.id)
 
         // productRecommendation
         val productRecommendation1 = ProductRecommendation(productId = product3.id)
         recommendationRepository.saveAll(listOf(productRecommendation1))
+    }
+
+    private fun saveProducts(storeId: Long) {
+        val products = (1..100).map {
+            Product(
+                name = "니모를 찾아서 세트$it",
+                category = "기타과",
+                price = BigDecimal.valueOf(80000L).setScale(2),
+                storeId = storeId,
+                discountRate = 50,
+                discountPrice = BigDecimal(40000L).setScale(2),
+                wishCount = WishCount(100),
+                reviewCount = 50,
+                reviewTotalScore = 250,
+                thumbnailUrl = "https://docs.petqua.co.kr/products/thumbnails/thumbnail3.jpeg",
+                description = "니모를 찾아서 주연 조연"
+            )
+        }
+        productRepository.saveAll(products)
     }
 }
