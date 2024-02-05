@@ -67,11 +67,11 @@ class Product(
     }
 
     fun increaseWishCount() {
-        wishCount = wishCount.plus()
+        wishCount = wishCount.increase()
     }
 
     fun decreaseWishCount() {
-        wishCount = wishCount.minus()
+        wishCount = wishCount.decrease()
     }
 
     override fun validateDeleted() {

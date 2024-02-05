@@ -16,11 +16,11 @@ class WishCount(
         throwExceptionWhen(value < MIN_QUANTITY) { ProductException(WISH_COUNT_UNDER_MINIMUM) }
     }
 
-    fun plus(): WishCount {
+    fun increase(): WishCount {
         return WishCount(value + 1)
     }
 
-    fun minus(): WishCount {
+    fun decrease(): WishCount {
         return WishCount(value - 1)
     }
 
