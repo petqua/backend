@@ -2,6 +2,7 @@ package com.petqua.test.fixture
 
 import com.petqua.domain.keyword.ProductKeyword
 import com.petqua.domain.product.Product
+import com.petqua.domain.product.WishCount
 import java.math.BigDecimal
 
 private const val DEFAULT_SCALE = 2
@@ -18,7 +19,8 @@ fun product(
     reviewCount: Int = 0,
     reviewTotalScore: Int = 0,
     thumbnailUrl: String = "image.jpg",
-    description: String = "description"
+    description: String = "description",
+    isDeleted: Boolean = false
 ): Product {
     return Product(
         id,
@@ -28,11 +30,12 @@ fun product(
         storeId,
         discountRate,
         discountPrice.setScale(DEFAULT_SCALE),
-        wishCount,
+        WishCount(wishCount),
         reviewCount,
         reviewTotalScore,
         thumbnailUrl,
-        description
+        description,
+        isDeleted
     )
 }
 

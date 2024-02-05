@@ -1,5 +1,6 @@
 package com.petqua.domain.product
 
+import com.linecorp.kotlinjdsl.dsl.jpql.Jpql
 import com.linecorp.kotlinjdsl.dsl.jpql.jpql
 import com.linecorp.kotlinjdsl.render.jpql.JpqlRenderContext
 import com.linecorp.kotlinjdsl.render.jpql.JpqlRenderer
@@ -34,6 +35,7 @@ class ProductCustomRepositoryImpl(
                 join(Store::class).on(path(Product::storeId).eq(path(Store::id))),
             ).whereAnd(
                 productIdLt(paging.lastViewedId),
+                active(),
             ).orderBy(
                 sortBy(condition.sorter),
                 sortBy(ENROLLMENT_DATE_DESC),
@@ -58,7 +60,8 @@ class ProductCustomRepositoryImpl(
                 joinBySourceType(condition.sourceType),
                 join(Store::class).on(path(Product::storeId).eq(path(Store::id))),
             ).whereAnd(
-                productNameLike(condition.word)
+                productNameLike(condition.word),
+                active(),
             )
         }
 
@@ -157,4 +160,6 @@ class ProductCustomRepositoryImpl(
             jpqlRenderer
         )
     }
+
+    private fun Jpql.active() = path(Product::isDeleted).eq(false)
 }

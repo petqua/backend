@@ -4,6 +4,7 @@ import com.petqua.application.cart.dto.CartProductResponse
 import com.petqua.application.cart.dto.DeleteCartProductCommand
 import com.petqua.application.cart.dto.SaveCartProductCommand
 import com.petqua.application.cart.dto.UpdateCartProductOptionCommand
+import com.petqua.common.domain.existActiveByIdOrThrow
 import com.petqua.common.domain.existByIdOrThrow
 import com.petqua.common.domain.findByIdOrThrow
 import com.petqua.domain.cart.CartProductRepository
@@ -30,7 +31,7 @@ class CartProductService(
 
     fun save(command: SaveCartProductCommand): Long {
         memberRepository.existByIdOrThrow(command.memberId, MemberException(NOT_FOUND_MEMBER))
-        productRepository.existByIdOrThrow(command.productId, ProductException(NOT_FOUND_PRODUCT))
+        productRepository.existActiveByIdOrThrow(command.productId, ProductException(NOT_FOUND_PRODUCT))
         validateDuplicatedProduct(
             memberId = command.memberId,
             productId = command.productId,

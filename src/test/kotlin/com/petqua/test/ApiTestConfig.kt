@@ -1,5 +1,6 @@
 package com.petqua.test
 
+import com.petqua.domain.auth.token.AuthTokenProvider
 import com.petqua.presentation.auth.AuthResponse
 import com.petqua.test.config.OauthTestConfig
 import io.kotest.core.spec.style.BehaviorSpec
@@ -17,13 +18,16 @@ import org.springframework.context.annotation.Import
 
 @Import(OauthTestConfig::class)
 @SpringBootTest(webEnvironment = RANDOM_PORT)
-abstract class ApiTestConfig : BehaviorSpec() {
+abstract class ApiTestConfig() : BehaviorSpec() {
 
     @LocalServerPort
     protected var port: Int = 0
 
     @Autowired
     private lateinit var dataCleaner: DataCleaner
+
+    @Autowired
+    protected lateinit var authTokenProvider: AuthTokenProvider
 
     init {
         this.beforeTest {
@@ -33,6 +37,10 @@ abstract class ApiTestConfig : BehaviorSpec() {
         afterContainer {
             dataCleaner.clean()
         }
+    }
+
+    final fun getMemberIdFromAuthResponse(authResponse: AuthResponse): Long {
+        return authTokenProvider.getAccessTokenClaimsOrThrow(authResponse.accessToken).memberId
     }
 
     final fun signInAsMember(): AuthResponse {

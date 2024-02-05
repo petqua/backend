@@ -1,6 +1,10 @@
 package com.petqua.domain.product
 
 import com.petqua.common.domain.BaseEntity
+import com.petqua.common.domain.SoftDeleteEntity
+import com.petqua.exception.product.ProductException
+import com.petqua.exception.product.ProductExceptionType.NOT_FOUND_PRODUCT
+import jakarta.persistence.AttributeOverride
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
@@ -36,7 +40,8 @@ class Product(
     val discountPrice: BigDecimal = price,
 
     @Column(nullable = false)
-    val wishCount: Int = 0,
+    @AttributeOverride(name = "value", column = Column(name = "wish_count", nullable = false))
+    var wishCount: WishCount = WishCount(),
 
     @Column(nullable = false)
     val reviewCount: Int = 0,
@@ -49,7 +54,10 @@ class Product(
 
     @Column(nullable = false)
     val description: String,
-) : BaseEntity() {
+
+    @Column(nullable = false)
+    var isDeleted: Boolean = false
+) : BaseEntity(), SoftDeleteEntity {
 
     fun averageReviewScore(): Double {
         return if (reviewCount == ZERO) ZERO.toDouble()
@@ -58,7 +66,21 @@ class Product(
             .toDouble()
     }
 
+    fun increaseWishCount() {
+        wishCount = wishCount.increase()
+    }
+
+    fun decreaseWishCount() {
+        wishCount = wishCount.decrease()
+    }
+
+    override fun validateDeleted() {
+        if (isDeleted) {
+            throw ProductException(NOT_FOUND_PRODUCT)
+        }
+    }
+
     override fun toString(): String {
-        return "Product(id=$id, name='$name', category='$category', price=$price, storeId=$storeId, discountRate=$discountRate, discountPrice=$discountPrice, wishCount=$wishCount, reviewCount=$reviewCount, reviewTotalScore=$reviewTotalScore, thumbnailUrl='$thumbnailUrl', description='$description')"
+        return "Product(id=$id, name='$name', category='$category', price=$price, storeId=$storeId, discountRate=$discountRate, discountPrice=$discountPrice, wishCount=$wishCount., reviewCount=$reviewCount, reviewTotalScore=$reviewTotalScore, thumbnailUrl='$thumbnailUrl', description='$description', isDeleted='$isDeleted')"
     }
 }

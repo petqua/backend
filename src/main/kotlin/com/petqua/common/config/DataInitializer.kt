@@ -6,6 +6,7 @@ import com.petqua.domain.banner.Banner
 import com.petqua.domain.banner.BannerRepository
 import com.petqua.domain.product.Product
 import com.petqua.domain.product.ProductRepository
+import com.petqua.domain.product.WishCount
 import com.petqua.domain.recommendation.ProductRecommendation
 import com.petqua.domain.recommendation.ProductRecommendationRepository
 import com.petqua.domain.store.Store
@@ -77,7 +78,7 @@ class DataInitializer(
             storeId = store1.id,
             discountRate = 10,
             discountPrice = BigDecimal(27000L).setScale(2),
-            wishCount = 3,
+            wishCount = WishCount(3),
             reviewCount = 10,
             reviewTotalScore = 50,
             thumbnailUrl = "https://docs.petqua.co.kr/products/thumbnails/thumbnail1.jpeg",
@@ -90,7 +91,7 @@ class DataInitializer(
             storeId = store1.id,
             discountRate = 10,
             discountPrice = BigDecimal(18000L).setScale(2),
-            wishCount = 5,
+            wishCount = WishCount(5),
             reviewCount = 3,
             reviewTotalScore = 15,
             thumbnailUrl = "https://docs.petqua.co.kr/products/thumbnails/thumbnail2.jpeg",
@@ -103,7 +104,7 @@ class DataInitializer(
             storeId = store1.id,
             discountRate = 50,
             discountPrice = BigDecimal(40000L).setScale(2),
-            wishCount = 100,
+            wishCount = WishCount(100),
             reviewCount = 50,
             reviewTotalScore = 250,
             thumbnailUrl = "https://docs.petqua.co.kr/products/thumbnails/thumbnail3.jpeg",
