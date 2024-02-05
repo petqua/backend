@@ -1,21 +1,25 @@
 package com.petqua.domain.auth
 
 import com.petqua.domain.auth.oauth.OauthServerType
+import com.petqua.domain.auth.token.AccessTokenClaims
 import com.petqua.domain.auth.token.AuthTokenProperties
 import com.petqua.domain.auth.token.AuthTokenProvider
 import com.petqua.domain.auth.token.JwtProvider
 import com.petqua.domain.member.Member
+import com.petqua.exception.member.MemberException
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jws
+import io.kotest.assertions.assertSoftly
+import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import org.springframework.boot.test.context.SpringBootTest
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZoneOffset
-import java.util.Date
+import java.util.*
+import org.springframework.boot.test.context.SpringBootTest
 
 @SpringBootTest
 class AuthTokenProviderTest(
@@ -31,17 +35,30 @@ class AuthTokenProviderTest(
 
         When("인증 토큰을 발급하면") {
             val authToken = authTokenProvider.createAuthToken(member, issuedDate)
-            val accessTokenExpirationTime = parseExpirationTime(jwtProvider.parseToken(authToken.accessToken))
-            val refreshTokenExpirationTime = parseExpirationTime(jwtProvider.parseToken(authToken.refreshToken))
-            val accessTokenClaims = authTokenProvider.getAccessTokenClaimsOrThrow(authToken.accessToken)
 
             Then("JWT타입인 accessToken과 refreshToken이 발급된다") {
-                accessTokenClaims.memberId shouldBe member.id
-                accessTokenClaims.authority shouldBe member.authority
-                authTokenProvider.isValidToken(authToken.accessToken) shouldBe true
-                authTokenProvider.isValidToken(authToken.refreshToken) shouldBe true
-                accessTokenExpirationTime shouldBe calculateExpirationTime(issuedDate, properties.accessTokenLiveTime)
-                refreshTokenExpirationTime shouldBe calculateExpirationTime(issuedDate, properties.refreshTokenLiveTime)
+                val accessTokenExpirationTime = parseExpirationTime(jwtProvider.parseToken(authToken.accessToken))
+                val refreshTokenExpirationTime = parseExpirationTime(jwtProvider.parseToken(authToken.refreshToken))
+                val accessTokenClaims = AccessTokenClaims.from(jwtProvider.getPayload(authToken.accessToken))
+
+                assertSoftly {
+                    accessTokenClaims.memberId shouldBe member.id
+                    accessTokenClaims.authority shouldBe member.authority
+                    shouldNotThrow<MemberException> {
+                        jwtProvider.parseToken(authToken.accessToken)
+                    }
+                    shouldNotThrow<MemberException> {
+                        jwtProvider.parseToken(authToken.refreshToken)
+                    }
+                    accessTokenExpirationTime shouldBe calculateExpirationTime(
+                        issuedDate,
+                        properties.accessTokenLiveTime
+                    )
+                    refreshTokenExpirationTime shouldBe calculateExpirationTime(
+                        issuedDate,
+                        properties.refreshTokenLiveTime
+                    )
+                }
             }
         }
     }

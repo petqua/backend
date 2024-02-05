@@ -2,16 +2,15 @@ package com.petqua.presentation.auth
 
 import com.petqua.application.auth.AuthService
 import com.petqua.application.auth.AuthTokenInfo
+import com.petqua.domain.auth.Auth
 import com.petqua.domain.auth.oauth.OauthServerType
-import org.springframework.http.HttpHeaders.AUTHORIZATION
+import com.petqua.domain.auth.token.AuthToken
 import org.springframework.http.HttpHeaders.SET_COOKIE
 import org.springframework.http.HttpStatus.FOUND
 import org.springframework.http.ResponseCookie
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.CookieValue
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
@@ -50,10 +49,9 @@ class AuthController(
 
     @GetMapping("/token")
     fun extendLogin(
-        @RequestHeader(AUTHORIZATION) accessToken: String,
-        @CookieValue("refresh-token") refreshToken: String,
+        @Auth authToken: AuthToken,
     ): ResponseEntity<AuthResponse> {
-        val authTokenInfo = authService.extendLogin(accessToken, refreshToken)
+        val authTokenInfo = authService.extendLogin(authToken.accessToken, authToken.refreshToken)
         val refreshTokenCookie = createRefreshTokenCookie(authTokenInfo)
         val authResponse = AuthResponse(
             accessToken = authTokenInfo.accessToken

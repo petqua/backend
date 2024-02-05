@@ -8,10 +8,10 @@ import io.jsonwebtoken.Jws
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.security.Keys
+import java.nio.charset.StandardCharsets
+import java.util.*
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
-import java.nio.charset.StandardCharsets
-import java.util.Date
 import javax.crypto.SecretKey
 
 
@@ -47,15 +47,6 @@ class JwtProvider(
             .compact()
     }
 
-    fun isValidToken(token: String): Boolean {
-        try {
-            parseToken(token)
-        } catch (e: Exception) {
-            return false
-        }
-        return true
-    }
-
     fun isExpiredToken(token: String): Boolean {
         try {
             parseToken(token)
@@ -67,7 +58,7 @@ class JwtProvider(
 
     fun getPayload(token: String): Map<String, String> {
         val tokenClaims = parseToken(token)
-        return tokenClaims.body.entries.associate {(key, value) ->
+        return tokenClaims.body.entries.associate { (key, value) ->
             key to value.toString()
         }
     }
