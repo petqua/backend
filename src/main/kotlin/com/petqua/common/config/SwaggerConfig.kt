@@ -3,8 +3,12 @@ package com.petqua.common.config
 import io.swagger.v3.oas.models.Components
 import io.swagger.v3.oas.models.OpenAPI
 import io.swagger.v3.oas.models.info.Info
+import io.swagger.v3.oas.models.security.SecurityScheme
+import io.swagger.v3.oas.models.security.SecurityScheme.Type.HTTP
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+
+const val ACCESS_TOKEN_SECURITY_SCHEME_KEY = "Access Token (Bearer)"
 
 @Configuration
 class SwaggerConfig {
@@ -12,8 +16,20 @@ class SwaggerConfig {
     @Bean
     fun openAPI(): OpenAPI {
         return OpenAPI()
-            .components(Components())
+            .components(authComponents())
             .info(info())
+    }
+
+    private fun authComponents(): Components {
+        return Components().addSecuritySchemes(ACCESS_TOKEN_SECURITY_SCHEME_KEY, accessTokenSecurityScheme())
+    }
+
+    private fun accessTokenSecurityScheme(): SecurityScheme {
+        return SecurityScheme()
+            .name(ACCESS_TOKEN_SECURITY_SCHEME_KEY)
+            .type(HTTP)
+            .scheme("bearer")
+            .bearerFormat("JWT")
     }
 
     private fun info(): Info {
