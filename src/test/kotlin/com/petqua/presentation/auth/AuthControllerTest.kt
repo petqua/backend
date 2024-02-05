@@ -21,6 +21,7 @@ import java.util.Date
 class AuthControllerTest(
     private val memberRepository: MemberRepository,
     private val refreshTokenRepository: RefreshTokenRepository,
+    private val authTokenProvider: AuthTokenProvider,
 ) : ApiTestConfig() {
 
     init {

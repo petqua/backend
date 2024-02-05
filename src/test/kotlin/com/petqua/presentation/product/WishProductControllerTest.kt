@@ -14,7 +14,6 @@ import io.restassured.module.kotlin.extensions.Extract
 import io.restassured.module.kotlin.extensions.Given
 import io.restassured.module.kotlin.extensions.Then
 import io.restassured.module.kotlin.extensions.When
-import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus.NO_CONTENT
 import org.springframework.http.HttpStatus.OK
 import org.springframework.http.MediaType
@@ -28,7 +27,7 @@ class WishProductControllerTest(
 
     init {
         Given("찜 상품 수정을") {
-            val memberAuthResponse = signInAsMember()
+            val accessToken = signInAsMember().accessToken
             val product = productRepository.save(product())
             val request = UpdateWishRequest(
                 productId = product.id
@@ -38,7 +37,7 @@ class WishProductControllerTest(
                 val response = Given {
                     log().all()
                         .body(request)
-                        .header(HttpHeaders.AUTHORIZATION, memberAuthResponse.accessToken)
+                        .auth().preemptive().oauth2(accessToken)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                 } When {
                     post("/products/wishes")
@@ -55,25 +54,26 @@ class WishProductControllerTest(
         }
 
         Given("찜 목록 조회를") {
-            val memberAuthResponse = signInAsMember()
+            val accessToken = signInAsMember().accessToken
+            val memberId = getMemberIdByAccessToken(accessToken)
             val store = storeRepository.save(store())
             val (product1, product2, product3) = saveProducts(productRepository, store)
             wishProductRepository.save(
                 WishProduct(
                     productId = product1.id,
-                    memberId = getMemberIdFromAuthResponse(memberAuthResponse)
+                    memberId = memberId
                 )
             )
             wishProductRepository.save(
                 WishProduct(
                     productId = product2.id,
-                    memberId = getMemberIdFromAuthResponse(memberAuthResponse)
+                    memberId = memberId
                 )
             )
             wishProductRepository.save(
                 WishProduct(
                     productId = product3.id,
-                    memberId = getMemberIdFromAuthResponse(memberAuthResponse)
+                    memberId = memberId
                 )
             )
 
@@ -82,7 +82,7 @@ class WishProductControllerTest(
                     log().all()
                         .param("lastViewedId", -1L)
                         .param("limit", 20)
-                        .header(HttpHeaders.AUTHORIZATION, memberAuthResponse.accessToken)
+                        .auth().preemptive().oauth2(accessToken)
                 } When {
                     get("/products/wishes")
                 } Then {
