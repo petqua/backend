@@ -31,7 +31,7 @@ class WishProductController(
     @GetMapping
     fun readAll(
         @Auth loginMember: LoginMember,
-        @RequestBody request: ReadAllWishProductRequest,
+        request: ReadAllWishProductRequest,
     ): ResponseEntity<WishProductsResponse> {
         val responses = wishProductService.readAll(request.toCommand(loginMember.memberId))
         return ResponseEntity.ok(responses)
