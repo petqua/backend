@@ -132,7 +132,7 @@ class WishProductServiceTest(
         }
     }
 
-    Given("조회 사이즈 제한보다 많은 수의 찜이 저장되어 있을 때") {
+    Given("찜 목록 조회시") {
         val member = memberRepository.save(member())
         val store = storeRepository.save(store())
         val (product1, product2, product3) = saveProducts(productRepository, store)
@@ -141,7 +141,7 @@ class WishProductServiceTest(
         val wish2 = wishProductRepository.save(wishProduct(productId = product2.id))
         val wish3 = wishProductRepository.save(wishProduct(productId = product1.id))
 
-        When("찜 목록 조회를 요청하면") {
+        When("조회 개수 제한이 있는 상태에서 찜 목록 조회를 요청하면") {
             val command = ReadAllWishProductCommand(
                 memberId = member.id,
                 limit = 2
@@ -157,15 +157,23 @@ class WishProductServiceTest(
                 )
             }
         }
-    }
 
-    Given("찜 목록 조회시") {
-        memberRepository.save(member())
-        val store = storeRepository.save(store())
-        val (product1, product2, product3) = saveProducts(productRepository, store)
-        wishProductRepository.save(wishProduct(productId = product3.id))
-        wishProductRepository.save(wishProduct(productId = product2.id))
-        wishProductRepository.save(wishProduct(productId = product1.id))
+        When("마지막으로 조회한 찜 상품 아이디가 주어진 상태에서 찜 목록 조회를 요청하면") {
+            val command = ReadAllWishProductCommand(
+                memberId = member.id,
+                lastViewedId = 3L,
+            )
+            val response = wishProductService.readAll(command)
+
+            Then("마지막으로 조호한 찜 상품 이후부터 찜 목록이 찜 등록 순서대로 반환된다") {
+                response.totalWishProductsCount shouldBe 3
+                response.hasNextPage shouldBe false
+                response.wishProducts shouldBe listOf(
+                    WishProductResponse(wish2.id, product2, store.name),
+                    WishProductResponse(wish1.id, product3, store.name),
+                )
+            }
+        }
 
         When("멤버가 존재하지 않으면") {
             val command = ReadAllWishProductCommand(

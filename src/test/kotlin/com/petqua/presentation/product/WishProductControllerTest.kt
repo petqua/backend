@@ -76,15 +76,13 @@ class WishProductControllerTest(
                     memberId = getMemberIdFromAuthResponse(memberAuthResponse)
                 )
             )
-            val request = ReadAllWishProductRequest()
-
 
             When("요청하면") {
                 val responses = Given {
                     log().all()
-                        .body(request)
+                        .param("lastViewedId", -1L)
+                        .param("limit", 20)
                         .header(HttpHeaders.AUTHORIZATION, memberAuthResponse.accessToken)
-                        .contentType(MediaType.APPLICATION_JSON_VALUE)
                 } When {
                     get("/products/wishes")
                 } Then {
