@@ -3,8 +3,10 @@ package com.petqua.presentation.product
 import com.petqua.application.product.dto.ReadAllWishProductCommand
 import com.petqua.application.product.dto.UpdateWishCommand
 import com.petqua.domain.product.Product
-import com.petqua.domain.product.dto.LIMIT_CEILING
-import com.petqua.domain.product.dto.PADDING_FOR_PAGING
+
+private const val PADDING_FOR_PAGING = 1
+private const val LIMIT_CEILING = 20
+private const val DEFAULT_LAST_VIEWED_ID = -1L
 
 data class UpdateWishRequest(
     val productId: Long,
@@ -23,9 +25,10 @@ data class ReadAllWishProductRequest(
 ) {
 
     fun toCommand(memberId: Long): ReadAllWishProductCommand {
+        val adjustedLastViewedId = if (lastViewedId == DEFAULT_LAST_VIEWED_ID) null else lastViewedId
         return ReadAllWishProductCommand(
             memberId = memberId,
-            lastViewedId = lastViewedId,
+            lastViewedId = adjustedLastViewedId,
             limit = limit
         )
     }
