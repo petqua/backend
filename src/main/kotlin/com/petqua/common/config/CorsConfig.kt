@@ -21,6 +21,7 @@ class CorsConfig : WebMvcConfigurer {
                 "http://localhost:5173",
                 "http://localhost:4173",
             )
+            .allowedOriginPatterns("https://frontend-git-*-api-blueapple99s-projects.vercel.app")
             .allowedMethods(
                 OPTIONS.name(),
                 GET.name(),
