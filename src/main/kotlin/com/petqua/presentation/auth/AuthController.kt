@@ -5,6 +5,7 @@ import com.petqua.application.auth.AuthTokenInfo
 import com.petqua.domain.auth.Auth
 import com.petqua.domain.auth.oauth.OauthServerType
 import com.petqua.domain.auth.token.AuthToken
+import io.swagger.v3.oas.annotations.Hidden
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -26,19 +27,21 @@ class AuthController(
     private val authService: AuthService
 ) {
 
+    @Hidden
     @Operation(summary = "리다이렉트 요청 API", description = "Oauth 로그인 페이지로 리다이렉트합니다")
     @ApiResponse(responseCode = "302", description = "리다이렉트 성공")
     @GetMapping("/{oauthServerType}")
     fun redirectToAuthCodeRequestUrl(
         @Schema(description = "Oauth 서버", example = "KAKAO")
         @PathVariable oauthServerType: OauthServerType,
-    ): ResponseEntity<Void> {
+    ): ResponseEntity<Unit> {
         val redirectUri = authService.getAuthCodeRequestUrl(oauthServerType)
         return ResponseEntity.status(FOUND)
             .location(redirectUri)
             .build()
     }
 
+    @Hidden
     @Operation(summary = "소셜 로그인 API", description = "소셜 로그인을 합니다")
     @ApiResponse(responseCode = "200", description = "로그인 성공")
     @GetMapping("/login/{oauthServerType}")
