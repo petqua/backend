@@ -2,8 +2,11 @@ package com.petqua.common.config
 
 import com.petqua.domain.announcement.Announcement
 import com.petqua.domain.announcement.AnnouncementRepository
+import com.petqua.domain.auth.Authority.MEMBER
 import com.petqua.domain.banner.Banner
 import com.petqua.domain.banner.BannerRepository
+import com.petqua.domain.member.Member
+import com.petqua.domain.member.MemberRepository
 import com.petqua.domain.product.Product
 import com.petqua.domain.product.ProductRepository
 import com.petqua.domain.product.WishCount
@@ -26,6 +29,7 @@ class DataInitializer(
     private val productRepository: ProductRepository,
     private val recommendationRepository: ProductRecommendationRepository,
     private val storeRepository: StoreRepository,
+    private val memberRepository: MemberRepository,
 ) {
 
     @EventListener(ApplicationReadyEvent::class)
@@ -116,6 +120,14 @@ class DataInitializer(
         // productRecommendation
         val productRecommendation1 = ProductRecommendation(productId = product3.id)
         recommendationRepository.saveAll(listOf(productRecommendation1))
+
+        // member
+        val member = Member(
+            oauthId = "oauthId",
+            oauthServerNumber = 1,
+            authority = MEMBER,
+        )
+        memberRepository.save(member)
     }
 
     private fun saveProducts(storeId: Long) {
