@@ -9,6 +9,7 @@ import com.petqua.exception.product.ProductExceptionType.INVALID_SEARCH_WORD
 
 const val PADDING_FOR_PAGING = 1
 const val LIMIT_CEILING = 20
+private const val DEFAULT_LAST_VIEWED_ID = -1L
 
 data class ProductReadCondition(
     val sourceType: ProductSourceType = ProductSourceType.NONE,
@@ -40,8 +41,9 @@ data class ProductPaging(
 
     companion object {
         fun of(lastViewedId: Long?, limit: Int): ProductPaging {
+            val adjustedLastViewedId = if (lastViewedId == DEFAULT_LAST_VIEWED_ID) null else lastViewedId
             val adjustedLimit = if (limit > LIMIT_CEILING) LIMIT_CEILING else limit
-            return ProductPaging(lastViewedId, adjustedLimit + PADDING_FOR_PAGING)
+            return ProductPaging(adjustedLastViewedId, adjustedLimit + PADDING_FOR_PAGING)
         }
     }
 }
