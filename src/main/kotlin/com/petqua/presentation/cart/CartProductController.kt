@@ -4,10 +4,15 @@ import com.petqua.application.cart.CartProductService
 import com.petqua.application.cart.dto.DeleteCartProductCommand
 import com.petqua.application.cart.dto.CartProductResponse
 import com.petqua.application.product.dto.ProductDetailResponse
+import com.petqua.common.config.ACCESS_TOKEN_SECURITY_SCHEME_KEY
 import com.petqua.domain.auth.Auth
 import com.petqua.domain.auth.LoginMember
 import com.petqua.presentation.cart.dto.SaveCartProductRequest
 import com.petqua.presentation.cart.dto.UpdateCartProductOptionRequest
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -19,12 +24,16 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder
 
+@SecurityRequirement(name = ACCESS_TOKEN_SECURITY_SCHEME_KEY)
+@Tag(name = "Cart", description = "봉달(장바구니) 관련 API 명세")
 @RequestMapping("/carts")
 @RestController
 class CartProductController(
     private val cartProductService: CartProductService,
 ) {
 
+    @Operation(summary = "봉달 추가 API", description = "상품을 봉달에 추가합니다")
+    @ApiResponse(responseCode = "201", description = "봉달 추가 성공")
     @PostMapping
     fun save(
         @Auth loginMember: LoginMember,
@@ -39,6 +48,8 @@ class CartProductController(
         return ResponseEntity.created(location).build()
     }
 
+    @Operation(summary = "봉달 옵션 수정 API", description = "봉달에 있는 상품의 옵션을 변경합니다")
+    @ApiResponse(responseCode = "204", description = "봉달 상품 옵션 변경 성공")
     @PatchMapping("/{cartProductId}/options")
     fun updateOptions(
         @Auth loginMember: LoginMember,

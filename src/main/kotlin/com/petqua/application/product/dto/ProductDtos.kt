@@ -13,7 +13,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 
 data class ProductDetailResponse(
     @Schema(
-        description = "상품 Id",
+        description = "상품 id",
         example = "1"
     )
     val id: Long,
