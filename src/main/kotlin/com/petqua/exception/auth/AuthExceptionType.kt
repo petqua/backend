@@ -15,6 +15,8 @@ enum class AuthExceptionType(
     NOT_RENEWABLE_ACCESS_TOKEN(BAD_REQUEST, "유효한 AccessToken은 갱신할 수 없습니다."),
     INVALID_ACCESS_TOKEN(BAD_REQUEST, "올바른 형태의 AccessToken이 아닙니다."),
     INVALID_REFRESH_TOKEN(BAD_REQUEST, "올바른 형태의 RefreshToken이 아닙니다."),
+    INVALID_AUTH_HEADER(BAD_REQUEST, "올바른 형태의 Authorization 헤더가 아닙니다."),
+    INVALID_AUTH_COOKIE(BAD_REQUEST, "올바른 형태의 쿠키가 아닙니다."),
 
     UNSUPPORTED_AUTHORITY(BAD_REQUEST, "해당하는 권한이 존재하지 않습니다."),
     ;

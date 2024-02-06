@@ -1,16 +1,19 @@
 package com.petqua.application.auth
 
-import com.petqua.exception.auth.AuthException
-import com.petqua.exception.auth.AuthExceptionType
 import com.petqua.domain.auth.oauth.OauthServerType.KAKAO
 import com.petqua.domain.auth.token.AuthTokenProvider
+import com.petqua.domain.auth.token.JwtProvider
 import com.petqua.domain.auth.token.RefreshToken
 import com.petqua.domain.auth.token.RefreshTokenRepository
 import com.petqua.domain.member.MemberRepository
+import com.petqua.exception.auth.AuthException
+import com.petqua.exception.auth.AuthExceptionType
+import com.petqua.exception.member.MemberException
 import com.petqua.test.DataCleaner
 import com.petqua.test.config.OauthTestConfig
 import com.petqua.test.fixture.member
 import io.kotest.assertions.assertSoftly
+import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -20,13 +23,13 @@ import org.springframework.context.annotation.Import
 import java.lang.System.currentTimeMillis
 import java.util.Date
 
-
 @SpringBootTest(webEnvironment = NONE)
 @Import(OauthTestConfig::class)
 class AuthServiceTest(
     private var authService: AuthService,
     private val refreshTokenRepository: RefreshTokenRepository,
     private val authTokenProvider: AuthTokenProvider,
+    private val jwtProvider: JwtProvider,
     private val memberRepository: MemberRepository,
     private val dataCleaner: DataCleaner,
 ) : BehaviorSpec({
@@ -38,8 +41,12 @@ class AuthServiceTest(
 
             Then("멤버의 인증 토큰을 발급한다") {
                 assertSoftly(authTokenInfo) {
-                    authTokenProvider.isValidToken(accessToken) shouldBe true
-                    authTokenProvider.isValidToken(refreshToken) shouldBe true
+                    shouldNotThrow<MemberException> {
+                        jwtProvider.parseToken(accessToken)
+                    }
+                    shouldNotThrow<MemberException> {
+                        jwtProvider.parseToken(refreshToken)
+                    }
                 }
             }
 
@@ -64,8 +71,14 @@ class AuthServiceTest(
             val authTokenInfo = authService.extendLogin(expiredAccessToken, refreshToken)
 
             Then("멤버의 인증 토큰을 발급한다") {
-                authTokenProvider.isValidToken(authTokenInfo.accessToken) shouldBe true
-                authTokenProvider.isValidToken(authTokenInfo.refreshToken) shouldBe true
+                assertSoftly(authTokenInfo) {
+                    shouldNotThrow<MemberException> {
+                        jwtProvider.parseToken(accessToken)
+                    }
+                    shouldNotThrow<MemberException> {
+                        jwtProvider.parseToken(refreshToken)
+                    }
+                }
             }
 
             Then("발급한 refreshToken을 저장한다") {

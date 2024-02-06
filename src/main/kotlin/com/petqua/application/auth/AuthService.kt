@@ -1,10 +1,6 @@
 package com.petqua.application.auth
 
 import com.petqua.common.domain.findByIdOrThrow
-import com.petqua.exception.auth.AuthException
-import com.petqua.exception.auth.AuthExceptionType.EXPIRED_REFRESH_TOKEN
-import com.petqua.exception.auth.AuthExceptionType.INVALID_REFRESH_TOKEN
-import com.petqua.exception.auth.AuthExceptionType.NOT_RENEWABLE_ACCESS_TOKEN
 import com.petqua.domain.auth.Authority.MEMBER
 import com.petqua.domain.auth.oauth.OauthClientProvider
 import com.petqua.domain.auth.oauth.OauthServerType
@@ -15,6 +11,12 @@ import com.petqua.domain.auth.token.RefreshToken
 import com.petqua.domain.auth.token.RefreshTokenRepository
 import com.petqua.domain.member.Member
 import com.petqua.domain.member.MemberRepository
+import com.petqua.exception.auth.AuthException
+import com.petqua.exception.auth.AuthExceptionType.EXPIRED_REFRESH_TOKEN
+import com.petqua.exception.auth.AuthExceptionType.INVALID_REFRESH_TOKEN
+import com.petqua.exception.auth.AuthExceptionType.NOT_RENEWABLE_ACCESS_TOKEN
+import com.petqua.exception.member.MemberException
+import com.petqua.exception.member.MemberExceptionType.NOT_FOUND_MEMBER
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.net.URI
@@ -53,7 +55,7 @@ class AuthService(
         if (savedRefreshToken.token != refreshToken) {
             throw AuthException(INVALID_REFRESH_TOKEN)
         }
-        val member = memberRepository.findByIdOrThrow(savedRefreshToken.memberId)
+        val member = memberRepository.findByIdOrThrow(savedRefreshToken.memberId, MemberException(NOT_FOUND_MEMBER))
         val authToken = createAuthToken(member)
         return AuthTokenInfo(
             accessToken = authToken.accessToken,

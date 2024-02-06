@@ -1,5 +1,6 @@
 package com.petqua.presentation.auth
 
+import com.petqua.domain.auth.token.AuthTokenProvider
 import com.petqua.domain.auth.token.RefreshToken
 import com.petqua.domain.auth.token.RefreshTokenRepository
 import com.petqua.domain.member.MemberRepository
@@ -13,14 +14,14 @@ import io.restassured.module.kotlin.extensions.Given
 import io.restassured.module.kotlin.extensions.Then
 import io.restassured.module.kotlin.extensions.When
 import org.springframework.context.annotation.Import
-import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus.OK
 import java.util.Date
 
 @Import(OauthTestConfig::class)
 class AuthControllerTest(
-        private val memberRepository: MemberRepository,
-        private val refreshTokenRepository: RefreshTokenRepository,
+    private val memberRepository: MemberRepository,
+    private val refreshTokenRepository: RefreshTokenRepository,
+    private val authTokenProvider: AuthTokenProvider,
 ) : ApiTestConfig() {
 
     init {
@@ -51,11 +52,18 @@ class AuthControllerTest(
             val member = memberRepository.save(member())
             val expiredAccessToken = authTokenProvider.createAuthToken(member, Date(0)).accessToken
             val refreshToken = authTokenProvider.createAuthToken(member, Date()).refreshToken
-            refreshTokenRepository.save(RefreshToken(memberId = member.id, token = refreshToken))
+            refreshTokenRepository.save(
+                RefreshToken(
+                    memberId = member.id,
+                    token = refreshToken
+                )
+            )
 
             When("요청하면") {
                 val response = Given {
-                    log().all().header(HttpHeaders.AUTHORIZATION, expiredAccessToken).cookie("refresh-token", refreshToken)
+                    log().all()
+                    auth().preemptive().oauth2(expiredAccessToken)
+                    cookie("refresh-token", refreshToken)
                 } When {
                     get("/auth/token")
                 } Then {

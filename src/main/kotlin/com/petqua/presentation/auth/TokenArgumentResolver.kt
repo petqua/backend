@@ -2,7 +2,7 @@ package com.petqua.presentation.auth
 
 import com.petqua.common.util.getHttpServletRequestOrThrow
 import com.petqua.domain.auth.Auth
-import com.petqua.domain.auth.LoginMember
+import com.petqua.domain.auth.token.AuthToken
 import org.springframework.core.MethodParameter
 import org.springframework.stereotype.Component
 import org.springframework.web.bind.support.WebDataBinderFactory
@@ -11,13 +11,13 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver
 import org.springframework.web.method.support.ModelAndViewContainer
 
 @Component
-class LoginArgumentResolver(
+class TokenArgumentResolver(
     private val authExtractor: AuthExtractor,
 ) : HandlerMethodArgumentResolver {
 
     override fun supportsParameter(parameter: MethodParameter): Boolean {
         return parameter.hasParameterAnnotation(Auth::class.java)
-                && parameter.parameterType == LoginMember::class.java
+                && parameter.parameterType == AuthToken::class.java
     }
 
     override fun resolveArgument(
@@ -25,10 +25,10 @@ class LoginArgumentResolver(
         mavContainer: ModelAndViewContainer?,
         webRequest: NativeWebRequest,
         binderFactory: WebDataBinderFactory?
-    ): LoginMember {
+    ): AuthToken {
         val request = webRequest.getHttpServletRequestOrThrow()
-        val token = authExtractor.extractAccessToken(request)
-        val accessTokenClaims = authExtractor.getAccessTokenClaimsOrThrow(token)
-        return LoginMember.from(accessTokenClaims)
+        val accessToken = authExtractor.extractAccessToken(request)
+        val refreshToken = authExtractor.extractRefreshToken(request)
+        return AuthToken(accessToken, refreshToken)
     }
 }

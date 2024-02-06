@@ -1,6 +1,6 @@
 package com.petqua.test
 
-import com.petqua.domain.auth.token.AuthTokenProvider
+import com.petqua.presentation.auth.AuthExtractor
 import com.petqua.presentation.auth.AuthResponse
 import com.petqua.test.config.OauthTestConfig
 import io.kotest.core.spec.style.BehaviorSpec
@@ -27,7 +27,8 @@ abstract class ApiTestConfig() : BehaviorSpec() {
     private lateinit var dataCleaner: DataCleaner
 
     @Autowired
-    protected lateinit var authTokenProvider: AuthTokenProvider
+    protected lateinit var authExtractor: AuthExtractor
+
 
     init {
         this.beforeTest {
@@ -39,8 +40,8 @@ abstract class ApiTestConfig() : BehaviorSpec() {
         }
     }
 
-    final fun getMemberIdFromAuthResponse(authResponse: AuthResponse): Long {
-        return authTokenProvider.getAccessTokenClaimsOrThrow(authResponse.accessToken).memberId
+    final fun getMemberIdByAccessToken(accessToken: String): Long {
+        return authExtractor.getAccessTokenClaimsOrThrow(accessToken).memberId
     }
 
     final fun signInAsMember(): AuthResponse {

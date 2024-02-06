@@ -16,7 +16,7 @@ fun requestSaveCartProduct(
     return Given {
         log().all()
             .body(request)
-            .header(HttpHeaders.AUTHORIZATION, accessToken)
+            .auth().preemptive().oauth2(accessToken)
             .contentType("application/json")
     } When {
         post("/carts")
@@ -50,7 +50,7 @@ fun requestUpdateCartProductOption(
     return Given {
         log().all()
             .body(request)
-            .header(HttpHeaders.AUTHORIZATION, accessToken)
+            .auth().preemptive().oauth2(accessToken)
             .contentType("application/json")
     } When {
         patch("/carts/{cartProductId}/options", cartProductId)
@@ -67,7 +67,7 @@ fun requestDeleteCartProduct(
 ): Response {
     return Given {
         log().all()
-            .header(HttpHeaders.AUTHORIZATION, accessToken)
+            .auth().preemptive().oauth2(accessToken)
             .contentType("application/json")
     } When {
         delete("/carts/{cartProductId}", deleteProductId)
@@ -83,7 +83,7 @@ fun requestReadAllCartProducts(
 ): Response {
     return Given {
         log().all()
-            .header(HttpHeaders.AUTHORIZATION, accessToken)
+            .auth().preemptive().oauth2(accessToken)
     } When {
         get("/carts")
     } Then {
