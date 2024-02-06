@@ -18,7 +18,8 @@ class CorsConfig : WebMvcConfigurer {
             .allowedOrigins(
                 "http://localhost:3000",
                 "https://petqua.co.kr",
-                "http://localhost:5173"
+                "http://localhost:5173",
+                "http://localhost:4173",
             )
             .allowedMethods(
                 OPTIONS.name(),
