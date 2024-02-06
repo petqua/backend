@@ -6,6 +6,7 @@ import com.petqua.domain.product.ProductSourceType
 import com.petqua.domain.product.Sorter
 import com.petqua.exception.product.ProductException
 import com.petqua.exception.product.ProductExceptionType.INVALID_SEARCH_WORD
+import io.swagger.v3.oas.annotations.media.Schema
 
 const val PADDING_FOR_PAGING = 1
 const val LIMIT_CEILING = 20
@@ -49,16 +50,70 @@ data class ProductPaging(
 }
 
 data class ProductResponse(
+    @Schema(
+        description = "상품 Id",
+        example = "1"
+    )
     val id: Long,
+
+    @Schema(
+        description = "상품 이름",
+        example = "알비노 풀레드 아시안 고정구피"
+    )
     val name: String,
+
+    @Schema(
+        description = "상품 카테고리",
+        example = "난태생, 송사리과"
+    )
     val category: String,
+
+    @Schema(
+        description = "상품 가격",
+        example = "30000"
+    )
     val price: Int,
+
+    @Schema(
+        description = "상품 판매점",
+        example = "S아쿠아"
+    )
     val storeName: String,
+
+    @Schema(
+        description = "가격 할인율",
+        example = "30"
+    )
     val discountRate: Int,
+
+    @Schema(
+        description = "할인 가격(판매 가격)",
+        example = "21000"
+    )
     val discountPrice: Int,
+
+    @Schema(
+        description = "찜 개수",
+        example = "23"
+    )
     val wishCount: Int,
+
+    @Schema(
+        description = "리뷰 개수",
+        example = "50"
+    )
     val reviewCount: Int,
+
+    @Schema(
+        description = "리뷰 평균 점수",
+        example = "5"
+    )
     val reviewAverageScore: Double,
+
+    @Schema(
+        description = "상품 썸네일 이미지",
+        example = "https://docs.petqua.co.kr/products/thumbnails/thumbnail1.jpeg"
+    )
     val thumbnailUrl: String,
 ) {
     constructor(product: Product, storeName: String) : this(

@@ -9,19 +9,79 @@ import com.petqua.domain.product.dto.PADDING_FOR_PAGING
 import com.petqua.domain.product.dto.ProductPaging
 import com.petqua.domain.product.dto.ProductReadCondition
 import com.petqua.domain.product.dto.ProductResponse
+import io.swagger.v3.oas.annotations.media.Schema
 
 data class ProductDetailResponse(
+    @Schema(
+        description = "상품 id",
+        example = "1"
+    )
     val id: Long,
+
+    @Schema(
+        description = "상품 이름",
+        example = "알비노 풀레드 아시안 고정구피"
+    )
     val name: String,
+
+    @Schema(
+        description = "상품 카테고리",
+        example = "난태생, 송사리과"
+    )
     val category: String,
+
+    @Schema(
+        description = "상품 가격",
+        example = "30000"
+    )
     val price: Int,
+
+    @Schema(
+        description = "상품 판매점",
+        example = "S아쿠아"
+    )
     val storeName: String,
+
+    @Schema(
+        description = "가격 할인율",
+        example = "30"
+    )
     val discountRate: Int,
+
+    @Schema(
+        description = "할인 가격(판매 가격)",
+        example = "21000"
+    )
     val discountPrice: Int,
+
+    @Schema(
+        description = "찜 개수",
+        example = "23"
+    )
     val wishCount: Int,
+
+    @Schema(
+        description = "리뷰 개수",
+        example = "50"
+    )
     val reviewCount: Int,
+
+    @Schema(
+        description = "리뷰 평균 점수",
+        example = "5"
+    )
     val reviewAverageScore: Double,
+
+    @Schema(
+        description = "상품 썸네일 이미지",
+        example = "https://docs.petqua.co.kr/products/thumbnails/thumbnail1.jpeg"
+    )
     val thumbnailUrl: String,
+
+    @Schema(
+        description = "상품 상세 설명",
+        example = "귀엽습니다"
+    )
     val description: String,
 ) {
     constructor(product: Product, storeName: String, reviewAverageScore: Double) : this(
@@ -57,7 +117,17 @@ data class ProductReadQuery(
 
 data class ProductsResponse(
     val products: List<ProductResponse>,
+
+    @Schema(
+        description = "다음 페이지 존재 여부",
+        example = "true"
+    )
     val hasNextPage: Boolean,
+
+    @Schema(
+        description = "조회 조건에 해당하는 전체 상품 개수",
+        example = "50"
+    )
     val totalProductsCount: Int,
 ) {
     companion object {
@@ -97,5 +167,9 @@ data class ProductKeywordQuery(
 }
 
 data class ProductKeywordResponse(
+    @Schema(
+        description = "추천 검색어",
+        example = "구피"
+    )
     val keyword: String,
 )

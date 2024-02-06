@@ -15,7 +15,13 @@ class CorsConfig : WebMvcConfigurer {
 
     override fun addCorsMappings(registry: CorsRegistry) {
         registry.addMapping("/**")
-            .allowedOrigins("http://localhost:3000", "https://petqua.co.kr", "http://localhost:5173")
+            .allowedOrigins(
+                "http://localhost:3000",
+                "https://petqua.co.kr",
+                "http://localhost:5173",
+                "http://localhost:4173",
+            )
+            .allowedOriginPatterns("https://frontend-git-*-api-blueapple99s-projects.vercel.app")
             .allowedMethods(
                 OPTIONS.name(),
                 GET.name(),
