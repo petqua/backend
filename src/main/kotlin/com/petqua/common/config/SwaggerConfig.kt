@@ -36,6 +36,7 @@ class SwaggerConfig {
             .type(HTTP)
             .scheme("bearer")
             .bearerFormat("JWT")
+            .description("https://api.petqua.co.kr/auth/Kakao 로그인 후 발급받은 토큰을 입력하세요")
     }
 
     private fun info(): Info {
