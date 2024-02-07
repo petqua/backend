@@ -2,7 +2,7 @@ package com.petqua.test.fixture
 
 import com.petqua.domain.cart.CartProduct
 import com.petqua.domain.cart.CartProductQuantity
-import com.petqua.domain.cart.DeliveryMethod
+import com.petqua.domain.delivery.DeliveryMethod
 
 fun cartProduct(
     id: Long = 0L,

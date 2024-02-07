@@ -1,5 +1,6 @@
 package com.petqua.domain.cart
 
+import com.petqua.domain.delivery.DeliveryMethod
 import com.petqua.exception.cart.CartProductException
 import io.kotest.assertions.assertSoftly
 import io.kotest.assertions.throwables.shouldThrow
