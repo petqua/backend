@@ -7,12 +7,20 @@ fun member(
     id: Long = 0L,
     oauthId: String = "oauthId",
     oauthServerNumber: Int = 1,
-    authority: Authority = Authority.MEMBER
+    authority: Authority = Authority.MEMBER,
+    nickname: String = "nickname",
+    profileImageUrl: String = "profile.jpg",
+    fishBowlCount: Int = 0,
+    years: Int = 1,
 ): Member {
     return Member(
         id,
         oauthId,
         oauthServerNumber,
-        authority
+        authority,
+        nickname,
+        profileImageUrl,
+        fishBowlCount,
+        years,
     )
 }
