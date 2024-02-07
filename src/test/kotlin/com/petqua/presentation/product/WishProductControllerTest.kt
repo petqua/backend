@@ -95,8 +95,8 @@ class WishProductControllerTest(
                     val wishProductsResponse = responses.`as`(WishProductsResponse::class.java)
 
                     responses.statusCode shouldBe OK.value()
-                    wishProductsResponse.totalWishProductsCount shouldBe 3
-                    wishProductsResponse.wishProducts.size shouldBe 3
+                    wishProductsResponse.totalProductsCount shouldBe 3
+                    wishProductsResponse.products.size shouldBe 3
                     wishProductsResponse.hasNextPage shouldBe false
                 }
             }
