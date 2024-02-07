@@ -49,7 +49,7 @@ data class ReadAllWishProductRequest(
 }
 
 data class WishProductsResponse(
-    val wishProducts: List<WishProductResponse>,
+    val products: List<WishProductResponse>,
 
     @Schema(
         description = "다음 페이지 존재 여부",
@@ -61,7 +61,7 @@ data class WishProductsResponse(
         description = "조회 조건에 해당하는 전체 상품 개수",
         example = "50"
     )
-    val totalWishProductsCount: Int,
+    val totalProductsCount: Int,
 ) {
     companion object {
         fun of(wishProducts: List<WishProductResponse>, limit: Int, totalWishProductsCount: Int): WishProductsResponse {

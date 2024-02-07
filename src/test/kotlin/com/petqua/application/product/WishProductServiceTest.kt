@@ -120,9 +120,9 @@ class WishProductServiceTest(
             val response = wishProductService.readAll(command)
 
             Then("찜 목록이 찜 등록 순서대로 반환된다") {
-                response.totalWishProductsCount shouldBe 3
+                response.totalProductsCount shouldBe 3
                 response.hasNextPage shouldBe false
-                response.wishProducts shouldBe listOf(
+                response.products shouldBe listOf(
                     WishProductResponse(wish3.id, product1, store.name),
                     WishProductResponse(wish2.id, product2, store.name),
                     WishProductResponse(wish1.id, product3, store.name)
@@ -149,9 +149,9 @@ class WishProductServiceTest(
             val response = wishProductService.readAll(command)
 
             Then("정해진 개수만큼 찜 목록이 찜 등록 순서대로 반환된다") {
-                response.totalWishProductsCount shouldBe 3
+                response.totalProductsCount shouldBe 3
                 response.hasNextPage shouldBe true
-                response.wishProducts shouldBe listOf(
+                response.products shouldBe listOf(
                     WishProductResponse(wish3.id, product1, store.name),
                     WishProductResponse(wish2.id, product2, store.name),
                 )
@@ -166,9 +166,9 @@ class WishProductServiceTest(
             val response = wishProductService.readAll(command)
 
             Then("마지막으로 조호한 찜 상품 이후부터 찜 목록이 찜 등록 순서대로 반환된다") {
-                response.totalWishProductsCount shouldBe 3
+                response.totalProductsCount shouldBe 3
                 response.hasNextPage shouldBe false
-                response.wishProducts shouldBe listOf(
+                response.products shouldBe listOf(
                     WishProductResponse(wish2.id, product2, store.name),
                     WishProductResponse(wish1.id, product3, store.name),
                 )
