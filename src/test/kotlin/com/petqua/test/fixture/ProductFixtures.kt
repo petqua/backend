@@ -20,7 +20,10 @@ fun product(
     reviewTotalScore: Int = 0,
     thumbnailUrl: String = "image.jpg",
     description: String = "description",
-    isDeleted: Boolean = false
+    isDeleted: Boolean = false,
+    canDeliverySafely: Boolean = true,
+    canDeliveryCommonly: Boolean = true,
+    canPickUp: Boolean = true,
 ): Product {
     return Product(
         id,
@@ -35,7 +38,10 @@ fun product(
         reviewTotalScore,
         thumbnailUrl,
         description,
-        isDeleted
+        isDeleted,
+        canDeliverySafely,
+        canDeliveryCommonly,
+        canPickUp,
     )
 }
 

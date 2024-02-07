@@ -56,7 +56,16 @@ class Product(
     val description: String,
 
     @Column(nullable = false)
-    var isDeleted: Boolean = false
+    var isDeleted: Boolean = false,
+
+    @Column(nullable = false)
+    val canDeliverSafely: Boolean,
+
+    @Column(nullable = false)
+    val canDeliverCommonly: Boolean,
+
+    @Column(nullable = false)
+    val canPickUp: Boolean,
 ) : BaseEntity(), SoftDeleteEntity {
 
     fun averageReviewScore(): Double {

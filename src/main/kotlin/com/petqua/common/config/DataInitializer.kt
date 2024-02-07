@@ -92,7 +92,10 @@ class DataInitializer(
             reviewCount = 10,
             reviewTotalScore = 50,
             thumbnailUrl = "https://docs.petqua.co.kr/products/thumbnails/thumbnail1.jpeg",
-            description = "니모를 찾아서 주연"
+            description = "니모를 찾아서 주연",
+            canDeliverSafely = true,
+            canDeliverCommonly = true,
+            canPickUp = true,
         )
         val product2 = Product(
             name = "참고등어",
@@ -105,7 +108,10 @@ class DataInitializer(
             reviewCount = 3,
             reviewTotalScore = 15,
             thumbnailUrl = "https://docs.petqua.co.kr/products/thumbnails/thumbnail2.jpeg",
-            description = "제주산"
+            description = "제주산",
+            canDeliverSafely = true,
+            canDeliverCommonly = true,
+            canPickUp = true,
         )
         val product3 = Product(
             name = "니모를 찾아서 세트",
@@ -118,7 +124,10 @@ class DataInitializer(
             reviewCount = 50,
             reviewTotalScore = 250,
             thumbnailUrl = "https://docs.petqua.co.kr/products/thumbnails/thumbnail3.jpeg",
-            description = "니모를 찾아서 주연 조연"
+            description = "니모를 찾아서 주연 조연",
+            canDeliverSafely = true,
+            canDeliverCommonly = true,
+            canPickUp = true,
         )
         productRepository.saveAll(listOf(product1, product2, product3))
         saveProducts(store1.id)
@@ -186,7 +195,10 @@ class DataInitializer(
                 reviewCount = 50,
                 reviewTotalScore = 250,
                 thumbnailUrl = "https://docs.petqua.co.kr/products/thumbnails/thumbnail3.jpeg",
-                description = "니모를 찾아서 주연 조연"
+                description = "니모를 찾아서 주연 조연",
+                canDeliverSafely = true,
+                canDeliverCommonly = true,
+                canPickUp = true,
             )
         }
         productRepository.saveAll(products)

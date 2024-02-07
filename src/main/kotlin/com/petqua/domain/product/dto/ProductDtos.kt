@@ -97,6 +97,24 @@ data class ProductResponse(
         example = "https://docs.petqua.co.kr/products/thumbnails/thumbnail1.jpeg"
     )
     val thumbnailUrl: String,
+
+    @Schema(
+        description = "안전 배송 가능 여부",
+        example = "true"
+    )
+    val canDeliverSafely: Boolean,
+
+    @Schema(
+        description = "일반 배송 가능 여부",
+        example = "true"
+    )
+    val canDeliverCommonly: Boolean,
+
+    @Schema(
+        description = "직접 수령 가능 여부",
+        example = "true"
+    )
+    val canPickUp: Boolean,
 ) {
     constructor(product: Product, storeName: String) : this(
         product.id,
@@ -110,5 +128,8 @@ data class ProductResponse(
         product.reviewCount,
         product.averageReviewScore(),
         product.thumbnailUrl,
+        product.canDeliverSafely,
+        product.canDeliverCommonly,
+        product.canPickUp,
     )
 }
