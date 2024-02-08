@@ -15,16 +15,18 @@ class ConnectionProxyHandler(
     override fun invoke(invocation: MethodInvocation): Any? {
         val result = invocation.proceed()
         if (result != null && isPreparedStatement(invocation)) {
-            queryInfo.increaseCount()
+            val proxyFactory = ProxyFactory(result)
+            proxyFactory.addAdvice(PreparedStatementProxyHandler(queryInfo))
+            return proxyFactory.proxy
         }
         return result
     }
 
     private fun isPreparedStatement(invocation: MethodInvocation): Boolean {
-        val targetObject = invocation.getThis() ?: return false
+        val targetObject = invocation.`this` ?: return false
         val targetClass: Class<*> = targetObject.javaClass
         val targetMethod = invocation.method
-        return targetClass.getName().contains(HIKARY_PROXY_CONNECTION) && targetMethod.name == PREPARED_STATEMENT
+        return targetClass.name.contains(HIKARY_PROXY_CONNECTION) && targetMethod.name == PREPARED_STATEMENT
     }
 
     fun getProxy(): Any {
