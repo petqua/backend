@@ -1,7 +1,6 @@
 package com.petqua.test
 
 import com.petqua.presentation.auth.AuthExtractor
-import com.petqua.presentation.auth.AuthResponse
 import com.petqua.test.config.OauthTestConfig
 import io.kotest.core.spec.style.BehaviorSpec
 import io.restassured.RestAssured
@@ -15,6 +14,11 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
+import org.springframework.http.HttpHeaders.AUTHORIZATION
+
+data class AuthResponse(
+    val accessToken: String,
+)
 
 @Import(OauthTestConfig::class)
 @SpringBootTest(webEnvironment = RANDOM_PORT)
@@ -46,7 +50,8 @@ abstract class ApiTestConfig() : BehaviorSpec() {
 
     final fun signInAsMember(): AuthResponse {
         val response = requestSignIn()
-        return response.`as`(AuthResponse::class.java)
+        val accessToken = response.header(AUTHORIZATION).removePrefix("Bearer ")
+        return AuthResponse(accessToken)
     }
 
     private fun requestSignIn(): Response {
