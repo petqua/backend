@@ -1,7 +1,7 @@
 package com.petqua.presentation.product.dto
 
 import com.petqua.application.product.dto.ProductReviewReadQuery
-import com.petqua.domain.product.dto.LIMIT_CEILING
+import com.petqua.domain.product.dto.REVIEW_LIMIT_CEILING
 import com.petqua.domain.product.review.ProductReviewSorter
 import com.petqua.domain.product.review.ProductReviewSorter.REVIEW_DATE_DESC
 
@@ -10,7 +10,7 @@ data class ReadAllProductReviewsRequest(
     val lastViewedId: Long,
     val photoOnly: Boolean = false,
     val score: Int? = null,
-    val limit: Int = LIMIT_CEILING,
+    val limit: Int = REVIEW_LIMIT_CEILING,
 ) {
     fun toCommand(productId: Long, memberId: Long?): ProductReviewReadQuery {
         return ProductReviewReadQuery(

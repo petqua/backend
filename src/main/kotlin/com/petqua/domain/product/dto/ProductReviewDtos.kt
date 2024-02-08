@@ -6,9 +6,9 @@ import com.petqua.domain.product.review.ProductReviewSorter
 import com.petqua.domain.product.review.ProductReviewSorter.REVIEW_DATE_DESC
 import java.time.LocalDateTime
 
-private const val REVIEW_PADDING_FOR_PAGING = 1
-private const val REVIEW_LIMIT_CEILING = 20
-private const val DEFAULT_LAST_VIEWED_ID = -1L
+const val REVIEW_PADDING_FOR_PAGING = 1
+const val REVIEW_LIMIT_CEILING = 20
+private const val REVIEW_DEFAULT_LAST_VIEWED_ID = -1L
 
 data class ProductReviewReadCondition(
     val productId: Long,
@@ -25,7 +25,7 @@ data class ProductReviewPaging(
 
     companion object {
         fun of(lastViewedId: Long?, limit: Int): ProductReviewPaging {
-            val adjustedLastViewedId = if (lastViewedId == DEFAULT_LAST_VIEWED_ID) null else lastViewedId
+            val adjustedLastViewedId = if (lastViewedId == REVIEW_DEFAULT_LAST_VIEWED_ID) null else lastViewedId
             val adjustedLimit = if (limit > REVIEW_LIMIT_CEILING) REVIEW_LIMIT_CEILING else limit
             return ProductReviewPaging(adjustedLastViewedId, adjustedLimit + REVIEW_PADDING_FOR_PAGING)
         }

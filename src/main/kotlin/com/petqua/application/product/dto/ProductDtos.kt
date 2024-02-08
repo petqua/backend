@@ -4,8 +4,8 @@ import com.petqua.domain.keyword.ProductKeyword
 import com.petqua.domain.product.Product
 import com.petqua.domain.product.ProductSourceType
 import com.petqua.domain.product.Sorter
-import com.petqua.domain.product.dto.LIMIT_CEILING
-import com.petqua.domain.product.dto.PADDING_FOR_PAGING
+import com.petqua.domain.product.dto.PRODUCT_LIMIT_CEILING
+import com.petqua.domain.product.dto.PRODUCT_PADDING_FOR_PAGING
 import com.petqua.domain.product.dto.ProductPaging
 import com.petqua.domain.product.dto.ProductReadCondition
 import com.petqua.domain.product.dto.ProductResponse
@@ -104,7 +104,7 @@ data class ProductReadQuery(
     val sourceType: ProductSourceType = ProductSourceType.NONE,
     val sorter: Sorter = Sorter.NONE,
     val lastViewedId: Long? = null,
-    val limit: Int = LIMIT_CEILING,
+    val limit: Int = PRODUCT_LIMIT_CEILING,
 ) {
     fun toReadConditions(): ProductReadCondition {
         return ProductReadCondition.toCondition(sourceType, sorter)
@@ -133,7 +133,7 @@ data class ProductsResponse(
     companion object {
         fun of(products: List<ProductResponse>, limit: Int, totalProductsCount: Int): ProductsResponse {
             return if (products.size > limit) {
-                ProductsResponse(products.dropLast(PADDING_FOR_PAGING), hasNextPage = true, totalProductsCount)
+                ProductsResponse(products.dropLast(PRODUCT_PADDING_FOR_PAGING), hasNextPage = true, totalProductsCount)
             } else {
                 ProductsResponse(products, hasNextPage = false, totalProductsCount)
             }
@@ -144,7 +144,7 @@ data class ProductsResponse(
 data class ProductSearchQuery(
     val word: String = "",
     val lastViewedId: Long? = null,
-    val limit: Int = LIMIT_CEILING,
+    val limit: Int = PRODUCT_LIMIT_CEILING,
 ) {
 
     fun toSearchCondition(): ProductReadCondition {
@@ -158,7 +158,7 @@ data class ProductSearchQuery(
 
 data class ProductKeywordQuery(
     val word: String = "",
-    val limit: Int = LIMIT_CEILING,
+    val limit: Int = PRODUCT_LIMIT_CEILING,
 ) {
 
     fun toProductKeyword(): ProductKeyword {

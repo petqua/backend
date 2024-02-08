@@ -3,11 +3,10 @@ package com.petqua.application.product.dto
 import com.petqua.domain.product.dto.ProductReviewPaging
 import com.petqua.domain.product.dto.ProductReviewReadCondition
 import com.petqua.domain.product.dto.ProductReviewWithMemberResponse
+import com.petqua.domain.product.dto.REVIEW_PADDING_FOR_PAGING
 import com.petqua.domain.product.review.ProductReviewSorter
 import com.petqua.domain.product.review.ProductReviewSorter.REVIEW_DATE_DESC
 import java.time.LocalDateTime
-
-private const val REVIEW_PADDING_FOR_PAGING = 1
 
 data class ProductReviewReadQuery(
     val productId: Long,
