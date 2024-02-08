@@ -37,7 +37,7 @@ data class ProductReviewWithMemberResponse(
     val productId: Long,
     val score: Int,
     val content: String,
-    val createdDate: LocalDateTime,
+    val createdAt: LocalDateTime,
     val hasPhotos: Boolean,
     val recommendCount: Int,
     val reviewerId: Long,
@@ -52,11 +52,11 @@ data class ProductReviewWithMemberResponse(
         productId = productReview.productId,
         score = productReview.score,
         content = productReview.content,
-        createdDate = productReview.createdAt,
+        createdAt = productReview.createdAt,
         hasPhotos = productReview.hasPhotos,
         recommendCount = productReview.recommendCount,
         reviewerId = reviewer.id,
-        reviewerName = reviewer.nickname ?: "기본 회원", // FIXME
+        reviewerName = reviewer.nickname, // FIXME
         reviewerProfileImageUrl = reviewer.profileImageUrl,
         reviewerFishBowlCount = reviewer.fishBowlCount,
         reviewerYears = reviewer.years,

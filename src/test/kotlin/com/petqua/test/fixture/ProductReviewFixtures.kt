@@ -1,6 +1,7 @@
 package com.petqua.test.fixture
 
 import com.petqua.domain.product.review.ProductReview
+import com.petqua.domain.product.review.ProductReviewImage
 
 fun productReview(
     id: Long = 0L,
@@ -19,5 +20,17 @@ fun productReview(
         score = score,
         recommendCount = recommendCount,
         hasPhotos = hasPhotos,
+    )
+}
+
+fun productReviewImage(
+    id: Long = 0L,
+    imageUrl: String = "imageUrl",
+    productReviewId: Long,
+): ProductReviewImage {
+    return ProductReviewImage(
+        id = id,
+        imageUrl = imageUrl,
+        productReviewId = productReviewId,
     )
 }

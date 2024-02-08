@@ -90,7 +90,7 @@ class ProductReviewCustomRepositoryImplTest(
             Then("조회된 상품 후기 목록을 반환한다") {
                 assertSoftly(productReviewResponse) {
                     size shouldBe 3
-                    shouldBeSortedWith(compareByDescending { it.createdDate })
+                    shouldBeSortedWith(compareByDescending { it.createdAt })
                 }
             }
         }
@@ -104,7 +104,7 @@ class ProductReviewCustomRepositoryImplTest(
             Then("해당 id 이후의 상품 후기 목록을 반환한다") {
                 assertSoftly(productReviewResponse) {
                     size shouldBe 2
-                    shouldBeSortedWith(compareByDescending { it.createdDate })
+                    shouldBeSortedWith(compareByDescending { it.createdAt })
                 }
             }
         }

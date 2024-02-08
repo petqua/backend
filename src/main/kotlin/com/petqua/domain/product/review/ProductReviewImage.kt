@@ -2,11 +2,13 @@ package com.petqua.domain.product.review
 
 import com.petqua.common.domain.BaseEntity
 import jakarta.persistence.Column
+import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 
-class ProductReviewImages(
+@Entity
+class ProductReviewImage(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0L,
 
