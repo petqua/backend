@@ -43,3 +43,8 @@ data class ProductReviewWithMemberResponse(
         reviewerYears = reviewer.years,
     )
 }
+
+data class ProductReviewScoreWithCount(
+    val score: Int,
+    val count: Long,
+)
