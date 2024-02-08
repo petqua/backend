@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpHeaders.SET_COOKIE
 import org.springframework.http.ResponseCookie
 import org.springframework.http.ResponseEntity
@@ -49,16 +50,17 @@ class AuthController(
 
         @Schema(description = "auth code")
         @RequestParam("code") code: String,
-    ): ResponseEntity<AuthResponse> {
+    ): ResponseEntity<Unit> {
         val authTokenInfo = authService.login(oauthServerType, code)
         val refreshTokenCookie = createRefreshTokenCookie(authTokenInfo)
-        val authResponse = AuthResponse(
-            accessToken = authTokenInfo.accessToken
-        )
+        val headers = HttpHeaders().apply {
+            setBearerAuth(authTokenInfo.accessToken)
+            set(SET_COOKIE, refreshTokenCookie.toString())
+        }
         return ResponseEntity
             .ok()
-            .header(SET_COOKIE, refreshTokenCookie.toString())
-            .body(authResponse)
+            .headers(headers)
+            .build()
     }
 
     @Operation(
@@ -85,16 +87,17 @@ class AuthController(
     @GetMapping("/token")
     fun extendLogin(
         @Parameter(hidden = true) @Auth authToken: AuthToken,
-    ): ResponseEntity<AuthResponse> {
+    ): ResponseEntity<Unit> {
         val authTokenInfo = authService.extendLogin(authToken.accessToken, authToken.refreshToken)
         val refreshTokenCookie = createRefreshTokenCookie(authTokenInfo)
-        val authResponse = AuthResponse(
-            accessToken = authTokenInfo.accessToken
-        )
+        val headers = HttpHeaders().apply {
+            setBearerAuth(authTokenInfo.accessToken)
+            set(SET_COOKIE, refreshTokenCookie.toString())
+        }
         return ResponseEntity
             .ok()
-            .header(SET_COOKIE, refreshTokenCookie.toString())
-            .body(authResponse)
+            .headers(headers)
+            .build()
     }
 
     private fun createRefreshTokenCookie(authTokenInfo: AuthTokenInfo): ResponseCookie {
