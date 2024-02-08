@@ -14,6 +14,8 @@ import io.restassured.module.kotlin.extensions.Given
 import io.restassured.module.kotlin.extensions.Then
 import io.restassured.module.kotlin.extensions.When
 import org.springframework.context.annotation.Import
+import org.springframework.http.HttpHeaders.AUTHORIZATION
+import org.springframework.http.HttpHeaders.SET_COOKIE
 import org.springframework.http.HttpStatus.OK
 import java.util.Date
 
@@ -40,10 +42,11 @@ class AuthControllerTest(
                 }
 
                 Then("인증토큰이 반환된다.") {
-                    val authResponse = response.`as`(AuthResponse::class.java)
+                    val headers = response.headers()
 
                     response.statusCode shouldBe OK.value()
-                    authResponse.accessToken.shouldNotBeNull()
+                    headers.get(AUTHORIZATION).shouldNotBeNull()
+                    headers.get(SET_COOKIE).shouldNotBeNull()
                 }
             }
         }
@@ -73,10 +76,11 @@ class AuthControllerTest(
                 }
 
                 Then("인증토큰이 반환된다.") {
-                    val authResponse = response.`as`(AuthResponse::class.java)
+                    val headers = response.headers()
 
                     response.statusCode shouldBe OK.value()
-                    authResponse.accessToken.shouldNotBeNull()
+                    headers.get(AUTHORIZATION).shouldNotBeNull()
+                    headers.get(SET_COOKIE).shouldNotBeNull()
                 }
             }
         }

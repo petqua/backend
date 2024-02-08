@@ -11,8 +11,9 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.http.HttpHeaders.SET_COOKIE
-import org.springframework.http.HttpStatus.FOUND
 import org.springframework.http.ResponseCookie
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -28,17 +29,17 @@ class AuthController(
     private val authService: AuthService
 ) {
 
-    @Operation(summary = "리다이렉트 요청 API", description = "Oauth 로그인 페이지로 리다이렉트합니다")
-    @ApiResponse(responseCode = "302", description = "리다이렉트 성공")
+    @Operation(summary = "리다이렉트 요청 API", description = "Oauth 로그인 페이지로 리다이렉트하는 URI를 조회합니다")
+    @ApiResponse(responseCode = "200", description = "리다이렉트 성공")
     @GetMapping("/{oauthServerType}")
     fun redirectToAuthCodeRequestUrl(
         @Schema(description = "Oauth 서버", example = "KAKAO")
         @PathVariable oauthServerType: OauthServerType,
-    ): ResponseEntity<Unit> {
+    ): ResponseEntity<RedirectUriResponse> {
         val redirectUri = authService.getAuthCodeRequestUrl(oauthServerType)
-        return ResponseEntity.status(FOUND)
-            .location(redirectUri)
-            .build()
+        return ResponseEntity
+            .ok()
+            .body(RedirectUriResponse(redirectUri.toString()))
     }
 
     @Operation(summary = "소셜 로그인 API", description = "소셜 로그인을 합니다")
@@ -50,16 +51,17 @@ class AuthController(
 
         @Schema(description = "auth code")
         @RequestParam("code") code: String,
-    ): ResponseEntity<AuthResponse> {
+    ): ResponseEntity<Unit> {
         val authTokenInfo = authService.login(oauthServerType, code)
         val refreshTokenCookie = createRefreshTokenCookie(authTokenInfo)
-        val authResponse = AuthResponse(
-            accessToken = authTokenInfo.accessToken
-        )
+        val headers = HttpHeaders().apply {
+            set(AUTHORIZATION, authTokenInfo.accessToken)
+            set(SET_COOKIE, refreshTokenCookie.toString())
+        }
         return ResponseEntity
             .ok()
-            .header(SET_COOKIE, refreshTokenCookie.toString())
-            .body(authResponse)
+            .headers(headers)
+            .build()
     }
 
     @Operation(
@@ -86,16 +88,17 @@ class AuthController(
     @GetMapping("/token")
     fun extendLogin(
         @Parameter(hidden = true) @Auth authToken: AuthToken,
-    ): ResponseEntity<AuthResponse> {
+    ): ResponseEntity<Unit> {
         val authTokenInfo = authService.extendLogin(authToken.accessToken, authToken.refreshToken)
         val refreshTokenCookie = createRefreshTokenCookie(authTokenInfo)
-        val authResponse = AuthResponse(
-            accessToken = authTokenInfo.accessToken
-        )
+        val headers = HttpHeaders().apply {
+            set(AUTHORIZATION, authTokenInfo.accessToken)
+            set(SET_COOKIE, refreshTokenCookie.toString())
+        }
         return ResponseEntity
             .ok()
-            .header(SET_COOKIE, refreshTokenCookie.toString())
-            .body(authResponse)
+            .headers(headers)
+            .build()
     }
 
     private fun createRefreshTokenCookie(authTokenInfo: AuthTokenInfo): ResponseCookie {
