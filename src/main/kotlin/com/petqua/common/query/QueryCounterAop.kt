@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import org.springframework.web.context.request.RequestContextHolder
 import org.springframework.web.context.request.ServletRequestAttributes
+import kotlin.concurrent.getOrSet
 
 
 @Aspect
@@ -20,7 +21,8 @@ class QueryCounterAop {
     @Around("execution( * javax.sql.DataSource.getConnection())")
     fun getProxyConnection(joinPoint: ProceedingJoinPoint): Any {
         val connection = joinPoint.proceed()
-        return ConnectionProxyHandler(connection, getQueryInfo()).getProxy()
+        val queryInfo = queryInfoStorage.getOrSet { QueryInfo() }
+        return ConnectionProxyHandler(connection, queryInfo).getProxy()
     }
 
     @After("within(@org.springframework.web.bind.annotation.RestController *)")
@@ -28,16 +30,9 @@ class QueryCounterAop {
         val attributes = RequestContextHolder.getRequestAttributes() as? ServletRequestAttributes
         val request = attributes?.request
         request?.let {
-            val queryInfo = getQueryInfo()
-            log.info("METHOD: ${request.method}, URI: ${request.requestURI}, $queryInfo")
+            val queryInfo = queryInfoStorage.getOrSet { QueryInfo() }
+            log.info("METHOD: ${request.method}, URI: ${request.requestURI}, QUERY_COUNT: ${queryInfo.count}, QUERY_TIME: ${queryInfo.time}")
         }
         queryInfoStorage.remove()
-    }
-
-    private fun getQueryInfo(): QueryInfo {
-        if (queryInfoStorage.get() == null) {
-            queryInfoStorage.set(QueryInfo())
-        }
-        return queryInfoStorage.get()
     }
 }
