@@ -12,7 +12,9 @@ enum class ProductExceptionType(
 ) : BaseExceptionType {
 
     NOT_FOUND_PRODUCT(NOT_FOUND, "P01", "존재하지 않는 상품입니다."),
+
     INVALID_SEARCH_WORD(BAD_REQUEST, "P10", "유효하지 않은 검색어입니다."),
+
     WISH_COUNT_UNDER_MINIMUM(BAD_REQUEST, "P20", "찜 개수는 0 이상이어야 합니다."),
     ;
 
