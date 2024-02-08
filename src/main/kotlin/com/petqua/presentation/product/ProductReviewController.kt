@@ -35,6 +35,8 @@ class ProductReviewController(
         return ResponseEntity.ok(responses)
     }
 
+    @Operation(summary = "상품 후기 통계 조회 API", description = "상품의 후기 통계를 조회합니다")
+    @ApiResponse(responseCode = "200", description = "상품 후기 통계 조회 성공")
     @GetMapping("/products/{productId}/review-statistics")
     fun readReviewCountStatistics(
         @PathVariable productId: Long

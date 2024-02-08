@@ -158,13 +158,37 @@ data class ProductReviewResponse(
 }
 
 data class ProductReviewScoreStatistics(
+    @Schema(
+        description = "별점 5의 개수",
+        example = "3"
+    )
     val scoreFiveCount: Int,
+
+    @Schema(
+        description = "별점 4의 개수",
+        example = "0"
+    )
     val scoreFourCount: Int,
+
+    @Schema(
+        description = "별점 3의 개수",
+        example = "0"
+    )
     val scoreThreeCount: Int,
+
+    @Schema(
+        description = "별점 2의 개수",
+        example = "2"
+    )
     val scoreTwoCount: Int,
+
+    @Schema(
+        description = "별점 1의 개수",
+        example = "0"
+    )
     val scoreOneCount: Int,
 ) {
-    
+
     companion object {
         fun from(countsByScores: Map<Int, Long>): ProductReviewScoreStatistics {
             return ProductReviewScoreStatistics(
