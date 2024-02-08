@@ -8,7 +8,7 @@ import com.linecorp.kotlinjdsl.render.jpql.JpqlRenderer
 import com.petqua.common.util.createQuery
 import com.petqua.domain.product.dto.ProductPaging
 import com.petqua.domain.store.Store
-import com.petqua.presentation.product.WishProductResponse
+import com.petqua.presentation.product.dto.WishProductResponse
 import jakarta.persistence.EntityManager
 import org.springframework.stereotype.Repository
 

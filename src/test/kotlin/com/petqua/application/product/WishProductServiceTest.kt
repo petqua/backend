@@ -13,7 +13,7 @@ import com.petqua.exception.member.MemberException
 import com.petqua.exception.member.MemberExceptionType
 import com.petqua.exception.product.ProductException
 import com.petqua.exception.product.ProductExceptionType
-import com.petqua.presentation.product.WishProductResponse
+import com.petqua.presentation.product.dto.WishProductResponse
 import com.petqua.test.DataCleaner
 import com.petqua.test.fixture.member
 import com.petqua.test.fixture.product
@@ -22,8 +22,8 @@ import com.petqua.test.fixture.wishProduct
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import org.springframework.boot.test.context.SpringBootTest
 import java.math.BigDecimal
+import org.springframework.boot.test.context.SpringBootTest
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 class WishProductServiceTest(

@@ -1,7 +1,7 @@
 package com.petqua.domain.product
 
 import com.petqua.domain.product.dto.ProductPaging
-import com.petqua.presentation.product.WishProductResponse
+import com.petqua.presentation.product.dto.WishProductResponse
 
 interface WishProductCustomRepository {
 

@@ -13,7 +13,7 @@ import com.petqua.exception.member.MemberException
 import com.petqua.exception.member.MemberExceptionType.NOT_FOUND_MEMBER
 import com.petqua.exception.product.ProductException
 import com.petqua.exception.product.ProductExceptionType.NOT_FOUND_PRODUCT
-import com.petqua.presentation.product.WishProductsResponse
+import com.petqua.presentation.product.dto.WishProductsResponse
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 

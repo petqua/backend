@@ -1,4 +1,4 @@
-package com.petqua.presentation.product
+package com.petqua.presentation.product.dto
 
 import com.petqua.application.product.dto.ReadAllWishProductCommand
 import com.petqua.application.product.dto.UpdateWishCommand
