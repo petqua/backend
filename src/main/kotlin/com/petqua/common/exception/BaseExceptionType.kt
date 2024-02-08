@@ -6,5 +6,7 @@ interface BaseExceptionType {
 
     fun httpStatus(): HttpStatus
 
+    fun code(): String
+
     fun errorMessage(): String
 }
