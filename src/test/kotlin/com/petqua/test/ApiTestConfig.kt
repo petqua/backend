@@ -50,8 +50,7 @@ abstract class ApiTestConfig() : BehaviorSpec() {
 
     final fun signInAsMember(): AuthResponse {
         val response = requestSignIn()
-        val accessToken = response.header(AUTHORIZATION).removePrefix("Bearer ")
-        return AuthResponse(accessToken)
+        return AuthResponse(response.header(AUTHORIZATION))
     }
 
     private fun requestSignIn(): Response {

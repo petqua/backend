@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.http.HttpHeaders.SET_COOKIE
 import org.springframework.http.ResponseCookie
 import org.springframework.http.ResponseEntity
@@ -54,7 +55,7 @@ class AuthController(
         val authTokenInfo = authService.login(oauthServerType, code)
         val refreshTokenCookie = createRefreshTokenCookie(authTokenInfo)
         val headers = HttpHeaders().apply {
-            setBearerAuth(authTokenInfo.accessToken)
+            set(AUTHORIZATION, authTokenInfo.accessToken)
             set(SET_COOKIE, refreshTokenCookie.toString())
         }
         return ResponseEntity
@@ -91,7 +92,7 @@ class AuthController(
         val authTokenInfo = authService.extendLogin(authToken.accessToken, authToken.refreshToken)
         val refreshTokenCookie = createRefreshTokenCookie(authTokenInfo)
         val headers = HttpHeaders().apply {
-            setBearerAuth(authTokenInfo.accessToken)
+            set(AUTHORIZATION, authTokenInfo.accessToken)
             set(SET_COOKIE, refreshTokenCookie.toString())
         }
         return ResponseEntity
