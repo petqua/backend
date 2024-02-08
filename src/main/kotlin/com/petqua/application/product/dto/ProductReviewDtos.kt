@@ -34,7 +34,7 @@ data class ProductReviewReadQuery(
 }
 
 data class ProductReviewsResponse(
-    val products: List<ProductReviewResponse>,
+    val productReviews: List<ProductReviewResponse>,
 
     @Schema(
         description = "다음 페이지 존재 여부",

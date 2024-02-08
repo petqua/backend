@@ -102,7 +102,7 @@ class ProductReviewControllerTest(
                 Then("조회된 상품 후기 목록을 반환한다") {
                     val responseBody = response.`as`(ProductReviewsResponse::class.java)
 
-                    assertSoftly(responseBody.products) {
+                    assertSoftly(responseBody.productReviews) {
                         size shouldBe 3
                         shouldBeSortedWith(compareByDescending { it.createdAt })
                     }
@@ -116,8 +116,8 @@ class ProductReviewControllerTest(
                     val responseBody = response.`as`(ProductReviewsResponse::class.java)
 
                     assertSoftly(responseBody) {
-                        products.size shouldBe 2
-                        products shouldBeSortedWith compareByDescending { it.createdAt }
+                        productReviews.size shouldBe 2
+                        productReviews shouldBeSortedWith compareByDescending { it.createdAt }
                         hasNextPage shouldBe false
                     }
                 }
@@ -129,7 +129,7 @@ class ProductReviewControllerTest(
                 Then("사진이 있는 상품 후기 목록을 반환한다") {
                     val responseBody = response.`as`(ProductReviewsResponse::class.java)
 
-                    assertSoftly(responseBody.products) {
+                    assertSoftly(responseBody.productReviews) {
                         size shouldBe 3
                         shouldBeSortedWith(compareByDescending { it.createdAt })
                         forAll { it.hasPhotos shouldBe true }
@@ -144,7 +144,7 @@ class ProductReviewControllerTest(
                 Then("해당 별점의 상품 후기 목록만 반환한다") {
                     val responseBody = response.`as`(ProductReviewsResponse::class.java)
 
-                    assertSoftly(responseBody.products) {
+                    assertSoftly(responseBody.productReviews) {
                         size shouldBe 1
                         forAll { it.score shouldBe 3 }
                     }

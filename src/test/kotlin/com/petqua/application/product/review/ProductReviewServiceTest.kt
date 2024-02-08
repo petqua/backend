@@ -114,7 +114,7 @@ class ProductReviewServiceTest(
             val response = productReviewService.readAll(query)
 
             Then("조건에 맞는 상품 후기 목록을 반환한다") {
-                assertSoftly(response.products) {
+                assertSoftly(response.productReviews) {
                     size shouldBe 3
                     shouldBeSortedWith(compareByDescending { it.createdAt })
                     response.hasNextPage shouldBe true
@@ -135,7 +135,7 @@ class ProductReviewServiceTest(
             val response = productReviewService.readAll(query)
 
             Then("조회된 상품 후기 목록을 반환한다") {
-                assertSoftly(response.products) {
+                assertSoftly(response.productReviews) {
                     size shouldBe 2
                     shouldBeSortedWith(compareByDescending { it.createdAt })
                     response.hasNextPage shouldBe false
@@ -156,7 +156,7 @@ class ProductReviewServiceTest(
             val response = productReviewService.readAll(query)
 
             Then("사진이 포함된 상품 후기 목록만 반환한다") {
-                assertSoftly(response.products) {
+                assertSoftly(response.productReviews) {
                     size shouldBe 3
                     shouldBeSortedWith(compareByDescending { it.createdAt })
                     response.hasNextPage shouldBe false
@@ -179,7 +179,7 @@ class ProductReviewServiceTest(
             val response = productReviewService.readAll(query)
 
             Then("해당 별점의 상품 후기 목록만 반환한다") {
-                assertSoftly(response.products) {
+                assertSoftly(response.productReviews) {
                     size shouldBe 1
                     shouldBeSortedWith(compareByDescending { it.recommendCount })
                     forAll { it.score shouldBe 3 }
