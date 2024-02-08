@@ -156,3 +156,24 @@ data class ProductReviewResponse(
         images = images,
     )
 }
+
+data class ProductReviewScoreStatistics(
+    val scoreFiveCount: Int,
+    val scoreFourCount: Int,
+    val scoreThreeCount: Int,
+    val scoreTwoCount: Int,
+    val scoreOneCount: Int,
+) {
+    
+    companion object {
+        fun from(countsByScores: Map<Int, Long>): ProductReviewScoreStatistics {
+            return ProductReviewScoreStatistics(
+                scoreFiveCount = countsByScores[5]?.toInt() ?: 0,
+                scoreFourCount = countsByScores[4]?.toInt() ?: 0,
+                scoreThreeCount = countsByScores[3]?.toInt() ?: 0,
+                scoreTwoCount = countsByScores[2]?.toInt() ?: 0,
+                scoreOneCount = countsByScores[1]?.toInt() ?: 0,
+            )
+        }
+    }
+}

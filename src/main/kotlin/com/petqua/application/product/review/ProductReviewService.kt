@@ -2,6 +2,7 @@ package com.petqua.application.product.review
 
 import com.petqua.application.product.dto.ProductReviewReadQuery
 import com.petqua.application.product.dto.ProductReviewResponse
+import com.petqua.application.product.dto.ProductReviewScoreStatistics
 import com.petqua.application.product.dto.ProductReviewsResponse
 import com.petqua.domain.product.dto.ProductReviewWithMemberResponse
 import com.petqua.domain.product.review.ProductReviewImageRepository
@@ -34,5 +35,12 @@ class ProductReviewService(
         val productReviewIds = reviewsByCondition.map { it.id }
         return productReviewImageRepository.findAllByProductReviewIdIn(productReviewIds).groupBy { it.productReviewId }
             .mapValues { it.value.map { image -> image.imageUrl } }
+    }
+
+    @Transactional(readOnly = true)
+    fun readReviewCountStatistics(productId: Long): ProductReviewScoreStatistics {
+        val countsByScores = productReviewRepository.findReviewScoresWithCount(productId)
+            .associate { it.score to it.count }
+        return ProductReviewScoreStatistics.from(countsByScores)
     }
 }
