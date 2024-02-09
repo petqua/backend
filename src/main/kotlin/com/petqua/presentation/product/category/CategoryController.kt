@@ -1,6 +1,7 @@
 package com.petqua.presentation.product.category
 
 import com.petqua.application.product.category.CategoryService
+import com.petqua.application.product.dto.ProductsResponse
 import com.petqua.domain.product.category.SpeciesResponse
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -14,7 +15,7 @@ class CategoryController(
 ) {
 
     @GetMapping
-    fun readSpecies(
+    fun readSpeciesBy(
         request: CategoryReadRequest,
     ): ResponseEntity<List<SpeciesResponse>> {
         val query = request.toQuery()
@@ -22,15 +23,12 @@ class CategoryController(
         return ResponseEntity.ok(response)
     }
 
-    // get(/categories/products?family=송사리과)
-    // 카테고리 검색
-
-    // get(/categories/products?family=송사리과&species=고정구피)
-    // 카테고리 검색 후 어종 선택 검색
-
-    // get(/categories/products?family=송사리과&species=고정구피&canDeliverSafely=true)
-    // 카테고리 검색 후 어종 선택 검색 및 운송 방법 설정
-
-    // get(/categories/products?family=송사리과&species=고정구피&canDeliverSafely=true&sorter=)
-    // 카테고리 검색 후 어종 선택 검색 및 운송 방법 설정, 정렬
+    @GetMapping("/products")
+    fun readProductsBy(
+        request: CategoryProductReadRequest,
+    ): ResponseEntity<ProductsResponse> {
+        val query = request.toQuery()
+        val response = categoryService.readProducts(query)
+        return ResponseEntity.ok(response)
+    }
 }

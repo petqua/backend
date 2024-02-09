@@ -1,6 +1,7 @@
 package com.petqua.application.product.category
 
 import com.petqua.domain.product.Sorter
+import com.petqua.domain.product.Sorter.NONE
 import com.petqua.domain.product.category.CategoryProductPaging
 import com.petqua.domain.product.category.CategoryProductReadCondition
 import com.petqua.domain.product.category.Family
@@ -16,11 +17,11 @@ data class CategoryReadQuery(
 
 data class CategoryProductReadQuery(
     val family: String,
-    val species: String?,
-    val canDeliverSafely: Boolean?,
-    val canDeliverCommonly: Boolean?,
-    val canPickUp: Boolean?,
-    val sorter: Sorter,
+    val species: String? = null,
+    val canDeliverSafely: Boolean? = null,
+    val canDeliverCommonly: Boolean? = null,
+    val canPickUp: Boolean? = null,
+    val sorter: Sorter = NONE,
     val lastViewedId: Long? = null,
     val limit: Int = LIMIT_CEILING,
 ) {
