@@ -1,11 +1,11 @@
 package com.petqua.presentation.product.category
 
+import com.petqua.application.product.category.CategoryProductReadQuery
 import com.petqua.application.product.category.CategoryReadQuery
-import com.petqua.application.product.dto.ProductReadQuery
-import com.petqua.domain.product.ProductSourceType
 import com.petqua.domain.product.Sorter
-import com.petqua.domain.product.dto.LIMIT_CEILING
 import io.swagger.v3.oas.annotations.media.Schema
+
+private const val LIMIT_CEILING = 20
 
 data class CategoryReadRequest(
     @Schema(
@@ -22,13 +22,36 @@ data class CategoryReadRequest(
     }
 }
 
-data class ProductReadRequest(
+data class CategoryProductReadRequest(
     @Schema(
-        description = "상품 조회 출처",
-        example = "HOME_RECOMMENDED",
-        allowableValues = ["HOME_RECOMMENDED", "HOME_NEW_ENROLLMENT"]
+        description = "카테고리 어과",
+        example = "송사리과"
     )
-    val sourceType: ProductSourceType = ProductSourceType.NONE,
+    val family: String,
+
+    @Schema(
+        description = "카테고리 어종",
+        example = "고정구피"
+    )
+    val species: String?,
+
+    @Schema(
+        description = "안전 운송 가능 여부",
+        example = "true"
+    )
+    val canDeliverSafely: Boolean?,
+
+    @Schema(
+        description = "일반 운송 가능 여부",
+        example = "true"
+    )
+    val canDeliverCommonly: Boolean?,
+
+    @Schema(
+        description = "직접 수령 가능 여부",
+        example = "true"
+    )
+    val canPickUp: Boolean?,
 
     @Schema(
         description = "정렬 기준",
@@ -50,9 +73,13 @@ data class ProductReadRequest(
     val limit: Int = LIMIT_CEILING,
 ) {
 
-    fun toQuery(): ProductReadQuery {
-        return ProductReadQuery(
-            sourceType = sourceType,
+    fun toQuery(): CategoryProductReadQuery {
+        return CategoryProductReadQuery(
+            family = family,
+            species = species,
+            canDeliverSafely = canDeliverSafely,
+            canDeliverCommonly = canDeliverCommonly,
+            canPickUp = canPickUp,
             sorter = sorter,
             lastViewedId = lastViewedId,
             limit = limit,

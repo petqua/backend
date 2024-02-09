@@ -1,5 +1,6 @@
 package com.petqua.common.domain
 
+import com.linecorp.kotlinjdsl.querymodel.jpql.predicate.Predicate
 import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.findByIdOrNull
 
@@ -27,4 +28,11 @@ inline fun <reified T, ID> CrudRepository<T, ID>.existActiveByIdOrThrow(
     findByIdOrNull(id)?.apply {
         if (this is SoftDeleteEntity) validateDeleted()
     } ?: throw e
+}
+
+fun conditionToPredicate(
+    condition: Boolean?,
+    predicateCreator: (Boolean) -> Predicate
+): Predicate? {
+    return condition?.let(predicateCreator)
 }
