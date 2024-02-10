@@ -32,7 +32,7 @@ class CategoryCustomRepositoryImpl(
                 join(Category::class).on(path(Product::categoryId).eq(path(Category::id)))
             ).whereAnd(
                 categoryFamilyEq(condition.family),
-                categorySpeciesEq(condition.species),
+                categorySpeciesEqOr(condition.species),
 
                 productDeliveryOptionBy(
                     canDeliverSafely = condition.canDeliverSafely,

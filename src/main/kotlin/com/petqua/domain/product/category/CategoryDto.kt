@@ -13,7 +13,7 @@ data class SpeciesResponse(
 
 data class CategoryProductReadCondition(
     val family: String,
-    val species: String? = null,
+    val species: List<String> = listOf(),
     val canDeliverSafely: Boolean? = null,
     val canDeliverCommonly: Boolean? = null,
     val canPickUp: Boolean? = null,
@@ -23,7 +23,7 @@ data class CategoryProductReadCondition(
     companion object {
         fun of(
             family: String,
-            species: String?,
+            species: List<String>,
             canDeliverSafely: Boolean?,
             canDeliverCommonly: Boolean?,
             canPickUp: Boolean?,

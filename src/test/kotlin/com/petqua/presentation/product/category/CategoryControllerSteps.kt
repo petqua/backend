@@ -28,7 +28,7 @@ fun requestReadSpecies(
 
 fun requestReadProducts(
     family: String? = null,
-    species: String? = null,
+    species: List<String> = listOf(),
     canDeliverSafely: Boolean? = null,
     canDeliverCommonly: Boolean? = null,
     canPickUp: Boolean? = null,
@@ -38,7 +38,7 @@ fun requestReadProducts(
 ): Response {
     val paramMap = mutableMapOf<String, Any?>().apply {
         put("family", family)
-        put("species", species)
+        put("species", species.takeIf { it.isNotEmpty() })
         put("canDeliverSafely", canDeliverSafely)
         put("canDeliverCommonly", canDeliverCommonly)
         put("canPickUp", canPickUp)

@@ -17,7 +17,7 @@ data class CategoryReadQuery(
 
 data class CategoryProductReadQuery(
     val family: String,
-    val species: String? = null,
+    val species: List<String> = listOf(),
     val canDeliverSafely: Boolean? = null,
     val canDeliverCommonly: Boolean? = null,
     val canPickUp: Boolean? = null,

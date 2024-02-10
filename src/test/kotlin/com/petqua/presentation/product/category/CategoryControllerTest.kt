@@ -119,7 +119,7 @@ class CategoryControllerTest(
             When("어과와 어종을 입력하면") {
                 val response = requestReadProducts(
                     family = "송사리과",
-                    species = "팬시구피"
+                    species = listOf("팬시구피")
                 )
 
                 Then("입력한 어과와 어종에 해당하는 상품들이 반환된다") {
@@ -134,6 +134,27 @@ class CategoryControllerTest(
                     }
                 }
             }
+
+            When("어과와 여러 어종을 입력하면") {
+                val response = requestReadProducts(
+                    family = "송사리과",
+                    species = listOf("팬시구피", "고정구피")
+                )
+
+                Then("입력한 어과와 어종에 해당하는 상품들이 반환된다") {
+                    val productsResponse = response.`as`(ProductsResponse::class.java)
+
+                    assertSoftly {
+                        response.statusCode shouldBe OK.value()
+                        productsResponse.products shouldContainExactly listOf(
+                            ProductResponse(product3, store.name),
+                            ProductResponse(product2, store.name),
+                            ProductResponse(product1, store.name),
+                        )
+                    }
+                }
+            }
+
 
             When("배송 조건을 입력하면") {
                 val response = requestReadProducts(
@@ -194,7 +215,7 @@ class CategoryControllerTest(
             When("정렬 조건을 입력하면") {
                 val response = requestReadProducts(
                     family = "송사리과",
-                    species = "팬시구피",
+                    species = listOf("팬시구피"),
                     sorter = SALE_PRICE_ASC,
                 )
 

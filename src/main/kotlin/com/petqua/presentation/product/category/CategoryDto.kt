@@ -33,7 +33,7 @@ data class CategoryProductReadRequest(
         description = "카테고리 어종",
         example = "고정구피"
     )
-    val species: String?,
+    val species: List<String> = listOf(),
 
     @Schema(
         description = "안전 운송 가능 여부",
