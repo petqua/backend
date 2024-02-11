@@ -31,7 +31,7 @@ class QueryCounterAop {
         val request = attributes?.request
         request?.let {
             val queryInfo = queryInfoStorage.getOrSet { QueryInfo() }
-            log.info("METHOD: ${request.method}, URI: ${request.requestURI}, QUERY_COUNT: ${queryInfo.count}, QUERY_TIME: ${queryInfo.time}")
+            log.info("METHOD: ${request.method}, URI: ${request.requestURI}, QUERY_COUNT: ${queryInfo.count}, QUERY_TIME: ${queryInfo.time}ms")
         }
         queryInfoStorage.remove()
     }
