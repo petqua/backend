@@ -2,12 +2,17 @@ package com.petqua.domain.product.category
 
 import com.petqua.domain.product.Sorter
 import com.petqua.domain.product.Sorter.NONE
+import io.swagger.v3.oas.annotations.media.Schema
 
 private const val PADDING_FOR_PAGING = 1
 private const val LIMIT_CEILING = 20
 private const val DEFAULT_LAST_VIEWED_ID = -1L
 
 data class SpeciesResponse(
+    @Schema(
+        description = "어종",
+        example = "고정구피"
+    )
     val species: String,
 )
 
