@@ -153,7 +153,7 @@ class ProductReviewCustomRepositoryImplTest(
                 paging = ProductReviewPaging(limit = 3),
             )
 
-            Then("사진 리뷰만 조회 된다") {
+            Then("점수 필터가 적용된 사진 리뷰가 조회된다") {
                 productReviewResponse.forAll {
                     it.hasPhotos shouldBe true
                     it.score shouldBe 3
