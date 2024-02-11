@@ -3,6 +3,7 @@ package com.petqua.domain.product.category
 import com.linecorp.kotlinjdsl.dsl.jpql.jpql
 import com.linecorp.kotlinjdsl.render.jpql.JpqlRenderContext
 import com.linecorp.kotlinjdsl.render.jpql.JpqlRenderer
+import com.petqua.common.util.createCountQuery
 import com.petqua.common.util.createQuery
 import com.petqua.domain.product.Product
 import com.petqua.domain.product.ProductDynamicJpqlGenerator
@@ -54,6 +55,34 @@ class CategoryCustomRepositoryImpl(
             jpqlRenderContext,
             jpqlRenderer,
             paging.limit
+        )
+    }
+
+    override fun countProductsByCondition(condition: CategoryProductReadCondition): Int {
+        val query = jpql(ProductDynamicJpqlGenerator) {
+            select(
+                count(Product::id),
+            ).from(
+                entity(Product::class),
+                join(Category::class).on(path(Product::categoryId).eq(path(Category::id)))
+            ).whereAnd(
+                categoryFamilyEq(condition.family),
+                categorySpeciesEqOr(condition.species),
+
+                productDeliveryOptionBy(
+                    canDeliverSafely = condition.canDeliverSafely,
+                    canDeliverCommonly = condition.canDeliverCommonly,
+                    canPickUp = condition.canPickUp,
+                ),
+
+                active(),
+            )
+        }
+
+        return entityManager.createCountQuery<Int>(
+            query,
+            jpqlRenderContext,
+            jpqlRenderer
         )
     }
 }

@@ -55,20 +55,20 @@ data class ProductSearchRequest(
     val word: String,
 
     @Schema(
-        description = "안전 운송 가능 여부",
+        description = "안전 운송 필터 여부",
         example = "true"
     )
     val canDeliverSafely: Boolean?,
 
     @Schema(
-        description = "일반 운송 가능 여부",
-        example = "true"
+        description = "일반 운송 필터 여부",
+        example = "false"
     )
     val canDeliverCommonly: Boolean?,
 
     @Schema(
-        description = "직접 수령 가능 여부",
-        example = "true"
+        description = "직접 수령 필터 여부",
+        example = "false"
     )
     val canPickUp: Boolean?,
 

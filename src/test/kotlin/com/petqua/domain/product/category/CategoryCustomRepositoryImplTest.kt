@@ -14,6 +14,7 @@ import com.petqua.test.fixture.store
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.shouldBe
 import org.springframework.boot.test.context.SpringBootTest
 import java.math.BigDecimal
 
@@ -235,6 +236,118 @@ class CategoryCustomRepositoryImplTest(
                     ProductResponse(product2, store.name),
                     ProductResponse(product1, store.name),
                 )
+            }
+        }
+    }
+
+    Given("카테고리 조건에 따라 조회하는 상품의 개수를 셀 때") {
+        val store = storeRepository.save(store(name = "펫쿠아"))
+        val category1 = categoryRepository.save(category(family = "송사리과", species = "고정구피"))
+        val category2 = categoryRepository.save(category(family = "송사리과", species = "팬시구피"))
+
+        productRepository.saveAll(
+            listOf(
+                product(
+                    name = "고정구피",
+                    storeId = store.id,
+                    categoryId = category1.id,
+                    canDeliverySafely = false,
+                    canDeliveryCommonly = false,
+                    canPickUp = true,
+                ),
+                product(
+                    name = "팬시구피",
+                    storeId = store.id,
+                    categoryId = category2.id,
+                    canDeliverySafely = false,
+                    canDeliveryCommonly = true,
+                    canPickUp = true,
+                ),
+                product(
+                    name = "팬시구피 세트",
+                    storeId = store.id,
+                    categoryId = category2.id,
+                    canDeliverySafely = true,
+                    canDeliveryCommonly = true,
+                    canPickUp = false,
+                )
+            )
+        )
+
+        When("어과를 입력하면") {
+            val totalProductsCount = categoryRepository.countProductsByCondition(
+                CategoryProductReadCondition(
+                    family = "송사리과",
+                )
+            )
+
+            Then("입력한 어과에 해당하는 상품의 개수가 반환된다") {
+                totalProductsCount shouldBe 3
+            }
+        }
+
+        When("어과와 어종을 입력하면") {
+            val totalProductsCount = categoryRepository.countProductsByCondition(
+                CategoryProductReadCondition(
+                    family = "송사리과",
+                    species = listOf("팬시구피")
+                ),
+            )
+
+            Then("입력한 어과와 어종에 해당하는 상품의 개수가 반환된다") {
+                totalProductsCount shouldBe 2
+            }
+        }
+
+        When("어과와 여러 어종을 입력하면") {
+            val totalProductsCount = categoryRepository.countProductsByCondition(
+                CategoryProductReadCondition(
+                    family = "송사리과",
+                    species = listOf("팬시구피", "고정구피")
+                ),
+            )
+
+            Then("입력한 어과와 어종에 해당하는 상품의 개수가 반환된다") {
+                totalProductsCount shouldBe 3
+            }
+        }
+
+        When("안전배송 조건을 입력하면") {
+            val totalProductsCount = categoryRepository.countProductsByCondition(
+                CategoryProductReadCondition(
+                    family = "송사리과",
+                    canDeliverSafely = true
+                )
+            )
+
+            Then("입력한 배송 조건에 해당하는 상품의 개수가 반환된다") {
+                totalProductsCount shouldBe 1
+            }
+        }
+
+        When("일반배송 조건을 입력하면") {
+            val totalProductsCount = categoryRepository.countProductsByCondition(
+                CategoryProductReadCondition(
+                    family = "송사리과",
+                    canDeliverCommonly = true
+                )
+            )
+
+            Then("입력한 배송 조건에 해당하는 상품의 개수가 반환된다") {
+                totalProductsCount shouldBe 2
+            }
+        }
+
+        When("직접수령 조건을 입력하면") {
+            val totalProductsCount = categoryRepository.countProductsByCondition(
+                CategoryProductReadCondition(
+                    family = "송사리과",
+                    canPickUp = true
+                )
+            )
+
+            Then("입력한 배송 조건에 해당하는 상품의 개수가 반환된다") {
+                totalProductsCount shouldBe 2
             }
         }
     }

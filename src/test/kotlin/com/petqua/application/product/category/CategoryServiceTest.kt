@@ -10,10 +10,10 @@ import com.petqua.test.DataCleaner
 import com.petqua.test.fixture.category
 import com.petqua.test.fixture.product
 import com.petqua.test.fixture.store
+import io.kotest.assertions.assertSoftly
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
-import org.assertj.core.api.SoftAssertions.assertSoftly
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE
 import java.math.BigDecimal
@@ -187,11 +187,29 @@ class CategoryServiceTest(
             )
 
             Then("해당 개수만큼 반환되며 다음 페이지가 존재하는지 여부를 반환한다") {
-                assertSoftly {
-                    productsResponse.products shouldContainExactly listOf(
+                assertSoftly(productsResponse) {
+                    it.products shouldContainExactly listOf(
                         ProductResponse(product3, store.name),
                     )
-                    productsResponse.hasNextPage shouldBe true
+                    it.hasNextPage shouldBe true
+                }
+            }
+        }
+
+        When("조건을 입력하면") {
+            val productsResponse = categoryService.readProducts(
+                CategoryProductReadQuery(
+                    family = "송사리과",
+                    limit = 1
+                )
+            )
+
+            Then("입력한 조건에 해당하는 전체 상품의 개수가 함께 반환된다") {
+                assertSoftly(productsResponse) {
+                    it.products shouldContainExactly listOf(
+                        ProductResponse(product3, store.name),
+                    )
+                    it.totalProductsCount shouldBe 3
                 }
             }
         }

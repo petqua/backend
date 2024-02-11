@@ -115,7 +115,6 @@ class ProductCustomRepositoryImpl(
                 count(Product::id),
             ).from(
                 entity(Product::class),
-                join(Store::class).on(path(Product::storeId).eq(path(Store::id))),
             ).whereAnd(
                 path(Product::name).like(pattern = "%${condition.word}%", escape = ESCAPE_LETTER),
 
@@ -179,7 +178,6 @@ class ProductCustomRepositoryImpl(
                 count(Product::id),
             ).from(
                 entity(Product::class),
-                join(Store::class).on(path(Product::storeId).eq(path(Store::id))),
                 join(ProductKeyword::class).on(path(ProductKeyword::productId).eq(path(Product::id))),
             ).whereAnd(
                 path(ProductKeyword::word).like(pattern = condition.word, escape = ESCAPE_LETTER),

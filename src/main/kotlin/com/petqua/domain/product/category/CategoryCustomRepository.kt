@@ -8,4 +8,6 @@ interface CategoryCustomRepository {
         condition: CategoryProductReadCondition,
         paging: CategoryProductPaging
     ): List<ProductResponse>
+
+    fun countProductsByCondition(condition: CategoryProductReadCondition): Int
 }

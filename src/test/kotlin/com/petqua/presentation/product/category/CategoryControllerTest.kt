@@ -1,6 +1,7 @@
 package com.petqua.presentation.product.category
 
 import com.petqua.application.product.dto.ProductsResponse
+import com.petqua.common.exception.ExceptionResponse
 import com.petqua.domain.product.ProductRepository
 import com.petqua.domain.product.Sorter.SALE_PRICE_ASC
 import com.petqua.domain.product.category.CategoryRepository
@@ -13,7 +14,9 @@ import com.petqua.test.fixture.product
 import com.petqua.test.fixture.store
 import io.kotest.assertions.assertSoftly
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import io.restassured.common.mapper.TypeRef
 import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.OK
@@ -45,6 +48,19 @@ class CategoryControllerTest(
                     speciesResponses shouldContainExactly listOf(
                         SpeciesResponse("고정구피")
                     )
+                }
+            }
+
+            When("존재하지 않는 어과를 입력하면") {
+                val response = requestReadSpecies(family = "NON_EXISTENT_FAMILY")
+
+                Then("어종이 반환되지 않는다") {
+                    val speciesResponses = response.`as`(object : TypeRef<List<SpeciesResponse>>() {})
+
+                    assertSoftly {
+                        response.statusCode shouldBe OK.value()
+                        speciesResponses shouldHaveSize 0
+                    }
                 }
             }
 
@@ -155,6 +171,21 @@ class CategoryControllerTest(
                 }
             }
 
+            When("존재하지 않는 어과나 어종을 입력하면") {
+                val response = requestReadProducts(
+                    family = "NON_EXISTENT_FAMILY",
+                    species = listOf("NON_EXISTENT_SPECIES")
+                )
+
+                Then("상품들이 반환되지 않는다") {
+                    val productsResponse = response.`as`(ProductsResponse::class.java)
+
+                    assertSoftly {
+                        response.statusCode shouldBe OK.value()
+                        productsResponse.products shouldHaveSize 0
+                    }
+                }
+            }
 
             When("배송 조건을 입력하면") {
                 val response = requestReadProducts(
@@ -183,12 +214,12 @@ class CategoryControllerTest(
                 Then("해당 개수만큼의 상품과 다음 페이지가 존재하는지 여부가 반환된다") {
                     val productsResponse = response.`as`(ProductsResponse::class.java)
 
-                    assertSoftly {
+                    assertSoftly(productsResponse) {
                         response.statusCode shouldBe OK.value()
-                        productsResponse.products shouldContainExactly listOf(
+                        it.products shouldContainExactly listOf(
                             ProductResponse(product3, store.name),
                         )
-                        productsResponse.hasNextPage shouldBe true
+                        it.hasNextPage shouldBe true
                     }
                 }
             }
@@ -232,11 +263,35 @@ class CategoryControllerTest(
                 }
             }
 
+            When("조건을 입력하면") {
+                val response = requestReadProducts(
+                    family = "송사리과",
+                    limit = 1
+                )
+
+                Then("입력한 조건에 해당하는 상품의 개수가 함께 반환된다") {
+                    val productsResponse = response.`as`(ProductsResponse::class.java)
+
+                    assertSoftly(productsResponse) {
+                        response.statusCode shouldBe OK.value()
+                        it.products shouldContainExactly listOf(
+                            ProductResponse(product3, store.name),
+                        )
+                        it.totalProductsCount shouldBe 3
+                    }
+                }
+            }
+
             When("어과를 입력하지 않으면") {
                 val response = requestReadProducts(family = null)
 
                 Then("예외가 반환된다") {
-                    response.statusCode shouldBe BAD_REQUEST.value()
+                    val exceptionResponse = response.`as`(ExceptionResponse::class.java)
+
+                    assertSoftly {
+                        response.statusCode shouldBe BAD_REQUEST.value()
+                        exceptionResponse.message shouldContain "Parameter specified as non-null is null"
+                    }
                 }
             }
         }

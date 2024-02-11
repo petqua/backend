@@ -9,7 +9,7 @@ private const val LIMIT_CEILING = 20
 
 data class CategoryReadRequest(
     @Schema(
-        description = "카테고리 과",
+        description = "카테고리 어과",
         example = "송사리과"
     )
     val family: String,

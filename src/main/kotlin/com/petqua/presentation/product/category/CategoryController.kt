@@ -1,8 +1,10 @@
-package com.petqua.presentation.product.category
+package com.petqua.presentat어ion.product.category
 
 import com.petqua.application.product.category.CategoryService
 import com.petqua.application.product.dto.ProductsResponse
 import com.petqua.domain.product.category.SpeciesResponse
+import com.petqua.presentation.product.category.CategoryProductReadRequest
+import com.petqua.presentation.product.category.CategoryReadRequest
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
