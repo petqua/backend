@@ -4,6 +4,7 @@ import jakarta.annotation.Nonnull
 import jakarta.annotation.Nullable
 import org.aopalliance.intercept.MethodInterceptor
 import org.aopalliance.intercept.MethodInvocation
+import kotlin.system.measureTimeMillis
 
 private const val EXECUTE = "execute"
 
@@ -15,12 +16,12 @@ class PreparedStatementProxyHandler(
     override operator fun invoke(@Nonnull invocation: MethodInvocation): Any? {
         val method = invocation.method
         if (method.name.contains(EXECUTE)) {
-            val startTime = System.currentTimeMillis()
-            val result = invocation.proceed()
-            val endTime = System.currentTimeMillis()
-            queryInfo.time += endTime - startTime
-            queryInfo.increaseCount()
-            return result
+            return measureTimeMillis {
+                invocation.proceed()
+            }.also {
+                queryInfo.time += it
+                queryInfo.increaseCount()
+            }
         }
         return invocation.proceed()
     }
