@@ -24,8 +24,7 @@ class ProductReviewService(
         )
         val imagesByReview = getImagesByReview(reviewsByCondition)
         val responses = reviewsByCondition.map {
-            imagesByReview[it.id]?.let { images -> ProductReviewResponse(it, images) }
-                ?: ProductReviewResponse(it, emptyList())
+            ProductReviewResponse(it, imagesByReview[it.id] ?: emptyList())
         }
         // TODO: 추천 여부 반영
         return ProductReviewsResponse.of(responses, query.limit)
