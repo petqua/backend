@@ -23,6 +23,8 @@ dependencies {
     // kotlin
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
+    implementation("ch.qos.logback:logback-access")
+
 
     // spring data jpa
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
