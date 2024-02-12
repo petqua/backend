@@ -1,0 +1,13 @@
+<included>
+    <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter"/>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>
+${DATE_SEC} [%thread] %clr(%5level) %cyan(%logger) - %msg
+%ex
+            </pattern>
+            <charset>utf8</charset>
+        </encoder>
+    </appender>
+</included>

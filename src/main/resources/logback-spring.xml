@@ -5,11 +5,13 @@
     <timestamp key="DATE" datePattern="yyyy-MM-dd"/>
     <timestamp key="DATE_SEC" datePattern="yyyy-MM-dd HH:mm:ss"/>
 
+    <include resource="console-appender.xml"/>
     <include resource="info-appender.xml"/>
     <include resource="warn-appender.xml"/>
     <include resource="error-appender.xml"/>
 
     <root level="info">
+        <appender-ref ref="CONSOLE"/>
         <appender-ref ref="FILE-INFO"/>
         <appender-ref ref="FILE-ERROR"/>
         <appender-ref ref="FILE-WARN"/>
