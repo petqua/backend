@@ -6,6 +6,13 @@
     <timestamp key="DATE_SEC" datePattern="yyyy-MM-dd HH:mm:ss"/>
 
     <appender name="FILE-ACCESS" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
+            <evaluator>
+                <expression>event.getStatusCode() >= 400</expression>
+            </evaluator>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+
         <file>../logs/access/${DATE}.log</file>
         <encoder>
             <pattern>
@@ -19,9 +26,9 @@ timestamp: ${DATE_SEC},
 
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <fileNamePattern>../logs/backup/access/%d{yyyy-MM-dd}.%i.log</fileNamePattern>
-            <maxFileSize>100MB</maxFileSize>
-            <maxHistory>10</maxHistory>
-            <totalSizeCap>100MB</totalSizeCap>
+            <maxFileSize>50MB</maxFileSize>
+            <maxHistory>7</maxHistory>
+            <totalSizeCap>1GB</totalSizeCap>
         </rollingPolicy>
     </appender>
 
