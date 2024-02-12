@@ -14,15 +14,16 @@ class PreparedStatementProxyHandler(
 
     @Nullable
     override operator fun invoke(@Nonnull invocation: MethodInvocation): Any? {
+        var result: Any?
+        val executionTime = measureTimeMillis {
+            result = invocation.proceed()
+        }
+
         val method = invocation.method
         if (method.name.contains(EXECUTE)) {
-            return measureTimeMillis {
-                invocation.proceed()
-            }.also {
-                queryInfo.time += it
-                queryInfo.increaseCount()
-            }
+            queryInfo.time.plus(executionTime)
+            queryInfo.increaseCount()
         }
-        return invocation.proceed()
+        return result;
     }
 }
