@@ -9,6 +9,7 @@
         <file>../logs/access/${DATE}.log</file>
         <encoder>
             <pattern>
+[requestId: %reqAttribute{requestId}]
 timestamp: ${DATE_SEC},
 %fullRequest
 %n
