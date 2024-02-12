@@ -52,8 +52,9 @@ fun requestUpdateCartProductOption(
             .body(request)
             .auth().preemptive().oauth2(accessToken)
             .contentType("application/json")
+            .pathParam("cartProductId", cartProductId)
     } When {
-        patch("/carts/{cartProductId}/options", cartProductId)
+        patch("/carts/{cartProductId}/options")
     } Then {
         log().all()
     } Extract {
@@ -69,8 +70,9 @@ fun requestDeleteCartProduct(
         log().all()
             .auth().preemptive().oauth2(accessToken)
             .contentType("application/json")
+            .pathParam("cartProductId", deleteProductId)
     } When {
-        delete("/carts/{cartProductId}", deleteProductId)
+        delete("/carts/{cartProductId}")
     } Then {
         log().all()
     } Extract {

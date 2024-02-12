@@ -24,8 +24,9 @@ fun requestReadAllReviewProducts(
             "score", score,
             "photoOnly", photoOnly
         )
+        pathParam("productId", productId)
     } When {
-        get("/products/{productId}/reviews", productId)
+        get("/products/{productId}/reviews")
     } Then {
         log().all()
     } Extract {
