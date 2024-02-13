@@ -1,11 +1,11 @@
 package com.petqua.domain.product
 
+import com.petqua.common.domain.dto.CursorBasedPagingRequest
 import com.petqua.domain.product.ProductSourceType.HOME_RECOMMENDED
 import com.petqua.domain.product.Sorter.ENROLLMENT_DATE_DESC
 import com.petqua.domain.product.Sorter.REVIEW_COUNT_DESC
 import com.petqua.domain.product.Sorter.SALE_PRICE_ASC
 import com.petqua.domain.product.Sorter.SALE_PRICE_DESC
-import com.petqua.domain.product.dto.ProductPaging
 import com.petqua.domain.product.dto.ProductReadCondition
 import com.petqua.domain.product.dto.ProductResponse
 import com.petqua.domain.recommendation.ProductRecommendationRepository
@@ -18,10 +18,10 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
-import org.springframework.boot.test.context.SpringBootTest
 import java.math.BigDecimal.ONE
 import java.math.BigDecimal.TEN
 import java.math.BigDecimal.ZERO
+import org.springframework.boot.test.context.SpringBootTest
 
 @SpringBootTest
 class ProductCustomRepositoryImplTest(
@@ -75,7 +75,7 @@ class ProductCustomRepositoryImplTest(
         When("개수 제한을 입력하면") {
             val products = productRepository.findAllByCondition(
                 condition = ProductReadCondition(),
-                paging = ProductPaging(limit = 2),
+                paging = CursorBasedPagingRequest(limit = 2),
             )
 
             Then("해당 개수만큼 반환한다") {
@@ -86,7 +86,7 @@ class ProductCustomRepositoryImplTest(
         When("높은 가격 순으로 조회하면") {
             val products = productRepository.findAllByCondition(
                 condition = ProductReadCondition(sorter = SALE_PRICE_DESC),
-                paging = ProductPaging(),
+                paging = CursorBasedPagingRequest(),
             )
 
             Then("높은 가격순, 최신 등록 순으로 반환된다") {
@@ -102,7 +102,7 @@ class ProductCustomRepositoryImplTest(
         When("낮은 가격순으로 조회하면") {
             val products = productRepository.findAllByCondition(
                 condition = ProductReadCondition(sorter = SALE_PRICE_ASC),
-                paging = ProductPaging(),
+                paging = CursorBasedPagingRequest(),
             )
 
             Then("낮은 가격순, 최신 등록 순으로 반환된다") {
@@ -118,7 +118,7 @@ class ProductCustomRepositoryImplTest(
         When("리뷰 많은 순으로 조회하면") {
             val products = productRepository.findAllByCondition(
                 condition = ProductReadCondition(sorter = REVIEW_COUNT_DESC),
-                paging = ProductPaging(),
+                paging = CursorBasedPagingRequest(),
             )
 
             Then("리뷰 많은 순, 최신 등록 순으로 반환된다") {
@@ -134,7 +134,7 @@ class ProductCustomRepositoryImplTest(
         When("최신 등록 순으로 조회하면") {
             val products = productRepository.findAllByCondition(
                 condition = ProductReadCondition(sorter = ENROLLMENT_DATE_DESC),
-                paging = ProductPaging(),
+                paging = CursorBasedPagingRequest(),
             )
 
             Then("최신 등록 순으로 반환된다") {
@@ -150,7 +150,7 @@ class ProductCustomRepositoryImplTest(
         When("추천 상품을 조회하면") {
             val products = productRepository.findAllByCondition(
                 condition = ProductReadCondition(sourceType = HOME_RECOMMENDED, sorter = ENROLLMENT_DATE_DESC),
-                paging = ProductPaging(),
+                paging = CursorBasedPagingRequest(),
             )
 
             Then("추천 상품이 최신 등록 순으로 반환된다") {
@@ -234,7 +234,7 @@ class ProductCustomRepositoryImplTest(
         When("상품 이름을 정확히 입력하면") {
             val products = productRepository.findBySearch(
                 condition = ProductReadCondition(word = "상품1"),
-                paging = ProductPaging()
+                paging = CursorBasedPagingRequest()
             )
 
             Then("해당 이름의 상품을 반환한다") {
@@ -247,7 +247,7 @@ class ProductCustomRepositoryImplTest(
         When("상품 이름을 입력하면") {
             val products = productRepository.findBySearch(
                 condition = ProductReadCondition(word = "상품"),
-                paging = ProductPaging()
+                paging = CursorBasedPagingRequest()
             )
 
             Then("관련된 이름의 상품들을 반환한다") {
@@ -263,7 +263,7 @@ class ProductCustomRepositoryImplTest(
         When("존재하지 않는 상품 이름을 입력하면") {
             val products = productRepository.findBySearch(
                 condition = ProductReadCondition(word = "NON EXISTENT PRODUCT"),
-                paging = ProductPaging()
+                paging = CursorBasedPagingRequest()
             )
 
             Then("상품을 반환하지 않는다") {

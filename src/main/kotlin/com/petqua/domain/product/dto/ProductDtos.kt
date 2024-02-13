@@ -8,10 +8,6 @@ import com.petqua.exception.product.ProductException
 import com.petqua.exception.product.ProductExceptionType.INVALID_SEARCH_WORD
 import io.swagger.v3.oas.annotations.media.Schema
 
-const val PRODUCT_PADDING_FOR_PAGING = 1
-const val PRODUCT_LIMIT_CEILING = 20
-private const val DEFAULT_LAST_VIEWED_ID = -1L
-
 data class ProductReadCondition(
     val sourceType: ProductSourceType = ProductSourceType.NONE,
     val sorter: Sorter = Sorter.NONE,
@@ -31,20 +27,6 @@ data class ProductReadCondition(
         fun toSearchCondition(word: String): ProductReadCondition {
             throwExceptionWhen(word.isBlank()) { ProductException(INVALID_SEARCH_WORD) }
             return ProductReadCondition(word = word)
-        }
-    }
-}
-
-data class ProductPaging(
-    val lastViewedId: Long? = null,
-    val limit: Int = PRODUCT_LIMIT_CEILING,
-) {
-
-    companion object {
-        fun of(lastViewedId: Long?, limit: Int): ProductPaging {
-            val adjustedLastViewedId = if (lastViewedId == DEFAULT_LAST_VIEWED_ID) null else lastViewedId
-            val adjustedLimit = if (limit > PRODUCT_LIMIT_CEILING) PRODUCT_LIMIT_CEILING else limit
-            return ProductPaging(adjustedLastViewedId, adjustedLimit + PRODUCT_PADDING_FOR_PAGING)
         }
     }
 }

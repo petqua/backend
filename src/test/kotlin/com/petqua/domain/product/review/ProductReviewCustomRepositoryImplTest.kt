@@ -1,8 +1,8 @@
 package com.petqua.domain.product.review
 
+import com.petqua.common.domain.dto.CursorBasedPagingRequest
 import com.petqua.domain.member.MemberRepository
 import com.petqua.domain.product.ProductRepository
-import com.petqua.domain.product.dto.ProductReviewPaging
 import com.petqua.domain.product.dto.ProductReviewReadCondition
 import com.petqua.domain.product.review.ProductReviewSorter.RECOMMEND_DESC
 import com.petqua.domain.store.StoreRepository
@@ -84,7 +84,7 @@ class ProductReviewCustomRepositoryImplTest(
         When("조건 없이 기본 값으로 전체 조회 하면") {
             val productReviewResponse = productReviewRepository.findAllByCondition(
                 condition = ProductReviewReadCondition(productId = product.id, photoOnly = false),
-                paging = ProductReviewPaging(limit = 3),
+                paging = CursorBasedPagingRequest(limit = 3),
             )
 
             Then("조회된 상품 후기 목록을 반환한다") {
@@ -98,7 +98,7 @@ class ProductReviewCustomRepositoryImplTest(
         When("마지막 id의 값을 입력 하면") {
             val productReviewResponse = productReviewRepository.findAllByCondition(
                 condition = ProductReviewReadCondition(productId = product.id, photoOnly = false),
-                paging = ProductReviewPaging(lastViewedId = 3L, limit = 3), // id가 5,4,3,2,1 인 리뷰중 [2, 1] 만 조회 된다.
+                paging = CursorBasedPagingRequest(lastViewedId = 3L, limit = 3), // id가 5,4,3,2,1 인 리뷰중 [2, 1] 만 조회 된다.
             )
 
             Then("해당 id 이후의 상품 후기 목록을 반환한다") {
@@ -116,7 +116,7 @@ class ProductReviewCustomRepositoryImplTest(
                     photoOnly = false,
                     sorter = RECOMMEND_DESC
                 ),
-                paging = ProductReviewPaging(limit = 3),
+                paging = CursorBasedPagingRequest(limit = 3),
             )
 
             Then("해당 기준으로 정렬된 상품 후기를 반환 한다") {
@@ -134,7 +134,7 @@ class ProductReviewCustomRepositoryImplTest(
                     photoOnly = true,
                     sorter = RECOMMEND_DESC
                 ),
-                paging = ProductReviewPaging(limit = 3),
+                paging = CursorBasedPagingRequest(limit = 3),
             )
 
             Then("사진 리뷰만 조회 된다") {
@@ -150,7 +150,7 @@ class ProductReviewCustomRepositoryImplTest(
                     sorter = RECOMMEND_DESC,
                     score = 3,
                 ),
-                paging = ProductReviewPaging(limit = 3),
+                paging = CursorBasedPagingRequest(limit = 3),
             )
 
             Then("점수 필터가 적용된 사진 리뷰가 조회된다") {

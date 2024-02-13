@@ -4,11 +4,11 @@ import com.linecorp.kotlinjdsl.dsl.jpql.Jpql
 import com.linecorp.kotlinjdsl.dsl.jpql.jpql
 import com.linecorp.kotlinjdsl.render.jpql.JpqlRenderContext
 import com.linecorp.kotlinjdsl.render.jpql.JpqlRenderer
+import com.petqua.common.domain.dto.CursorBasedPagingRequest
 import com.petqua.common.util.createCountQuery
 import com.petqua.common.util.createQuery
 import com.petqua.domain.keyword.ProductKeyword
 import com.petqua.domain.product.Sorter.ENROLLMENT_DATE_DESC
-import com.petqua.domain.product.dto.ProductPaging
 import com.petqua.domain.product.dto.ProductReadCondition
 import com.petqua.domain.product.dto.ProductResponse
 import com.petqua.domain.store.Store
@@ -24,7 +24,10 @@ class ProductCustomRepositoryImpl(
     private val jpqlRenderer: JpqlRenderer,
 ) : ProductCustomRepository {
 
-    override fun findAllByCondition(condition: ProductReadCondition, paging: ProductPaging): List<ProductResponse> {
+    override fun findAllByCondition(
+        condition: ProductReadCondition,
+        paging: CursorBasedPagingRequest
+    ): List<ProductResponse> {
         val query = jpql(ProductDynamicJpqlGenerator) {
             selectNew<ProductResponse>(
                 entity(Product::class),
@@ -72,7 +75,10 @@ class ProductCustomRepositoryImpl(
         )
     }
 
-    override fun findBySearch(condition: ProductReadCondition, paging: ProductPaging): List<ProductResponse> {
+    override fun findBySearch(
+        condition: ProductReadCondition,
+        paging: CursorBasedPagingRequest
+    ): List<ProductResponse> {
         val query = jpql(ProductDynamicJpqlGenerator) {
             selectNew<ProductResponse>(
                 entity(Product::class),
@@ -96,7 +102,10 @@ class ProductCustomRepositoryImpl(
         )
     }
 
-    override fun findByKeywordSearch(condition: ProductReadCondition, paging: ProductPaging): List<ProductResponse> {
+    override fun findByKeywordSearch(
+        condition: ProductReadCondition,
+        paging: CursorBasedPagingRequest
+    ): List<ProductResponse> {
         val query = jpql(ProductDynamicJpqlGenerator) {
             selectNew<ProductResponse>(
                 entity(Product::class),

@@ -1,9 +1,11 @@
 package com.petqua.application.product.dto
 
-import com.petqua.domain.product.dto.ProductReviewPaging
+import com.petqua.common.domain.dto.CursorBasedPagingRequest
+import com.petqua.common.domain.dto.DEFAULT_LAST_VIEWED_ID
+import com.petqua.common.domain.dto.PADDING_FOR_HAS_NEXT_PAGE
+import com.petqua.common.domain.dto.PAGING_LIMIT_CEILING
 import com.petqua.domain.product.dto.ProductReviewReadCondition
 import com.petqua.domain.product.dto.ProductReviewWithMemberResponse
-import com.petqua.domain.product.dto.REVIEW_PADDING_FOR_PAGING
 import com.petqua.domain.product.review.ProductReviewSorter
 import com.petqua.domain.product.review.ProductReviewSorter.REVIEW_DATE_DESC
 import io.swagger.v3.oas.annotations.media.Schema
@@ -15,8 +17,8 @@ data class ProductReviewReadQuery(
     val sorter: ProductReviewSorter = REVIEW_DATE_DESC,
     val score: Int? = null,
     val photoOnly: Boolean = false,
-    val lastViewedId: Long = -1,
-    val limit: Int = 20,
+    val lastViewedId: Long = DEFAULT_LAST_VIEWED_ID,
+    val limit: Int = PAGING_LIMIT_CEILING,
 ) {
 
     fun toCondition(): ProductReviewReadCondition {
@@ -28,8 +30,8 @@ data class ProductReviewReadQuery(
         )
     }
 
-    fun toPaging(): ProductReviewPaging {
-        return ProductReviewPaging.of(lastViewedId, limit)
+    fun toPaging(): CursorBasedPagingRequest {
+        return CursorBasedPagingRequest.of(lastViewedId, limit)
     }
 }
 
@@ -45,7 +47,7 @@ data class ProductReviewsResponse(
     companion object {
         fun of(products: List<ProductReviewResponse>, limit: Int): ProductReviewsResponse {
             return if (products.size > limit) {
-                ProductReviewsResponse(products.dropLast(REVIEW_PADDING_FOR_PAGING), hasNextPage = true)
+                ProductReviewsResponse(products.dropLast(PADDING_FOR_HAS_NEXT_PAGE), hasNextPage = true)
             } else {
                 ProductReviewsResponse(products, hasNextPage = false)
             }

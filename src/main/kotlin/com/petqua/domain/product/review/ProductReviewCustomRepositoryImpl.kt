@@ -3,9 +3,9 @@ package com.petqua.domain.product.review
 import com.linecorp.kotlinjdsl.dsl.jpql.jpql
 import com.linecorp.kotlinjdsl.render.jpql.JpqlRenderContext
 import com.linecorp.kotlinjdsl.render.jpql.JpqlRenderer
+import com.petqua.common.domain.dto.CursorBasedPagingRequest
 import com.petqua.common.util.createQuery
 import com.petqua.domain.member.Member
-import com.petqua.domain.product.dto.ProductReviewPaging
 import com.petqua.domain.product.dto.ProductReviewReadCondition
 import com.petqua.domain.product.dto.ProductReviewWithMemberResponse
 import jakarta.persistence.EntityManager
@@ -20,7 +20,7 @@ class ProductReviewCustomRepositoryImpl(
 
     override fun findAllByCondition(
         condition: ProductReviewReadCondition,
-        paging: ProductReviewPaging
+        paging: CursorBasedPagingRequest
     ): List<ProductReviewWithMemberResponse> {
 
         val query = jpql(ProductReviewDynamicJpqlGenerator) {
