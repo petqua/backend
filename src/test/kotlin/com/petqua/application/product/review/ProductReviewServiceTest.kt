@@ -107,8 +107,6 @@ class ProductReviewServiceTest(
                 memberId = member.id,
                 sorter = REVIEW_DATE_DESC,
                 score = null,
-                photoOnly = false,
-                lastViewedId = -1,
                 limit = 3,
             )
             val response = productReviewService.readAll(query)
@@ -126,9 +124,6 @@ class ProductReviewServiceTest(
             val query = ProductReviewReadQuery(
                 productId = product.id,
                 memberId = member.id,
-                sorter = REVIEW_DATE_DESC,
-                score = null,
-                photoOnly = false,
                 lastViewedId = savedProductReviews[2].id,  // 5개의 상품 후기 중 3번째 후기의 id
                 limit = 4,
             )
@@ -147,10 +142,7 @@ class ProductReviewServiceTest(
             val query = ProductReviewReadQuery(
                 productId = product.id,
                 memberId = member.id,
-                sorter = REVIEW_DATE_DESC,
-                score = null,
                 photoOnly = true,
-                lastViewedId = -1,
                 limit = 3,
             )
             val response = productReviewService.readAll(query)
@@ -166,19 +158,17 @@ class ProductReviewServiceTest(
             }
         }
 
-        When("별점을 입력 하면") {
+        When("별점과 정렬 조건을 입력 하면") {
             val query = ProductReviewReadQuery(
                 productId = product.id,
                 memberId = member.id,
                 sorter = RECOMMEND_DESC,
                 score = 3,
-                photoOnly = false,
-                lastViewedId = -1,
                 limit = 3,
             )
             val response = productReviewService.readAll(query)
 
-            Then("해당 별점의 상품 후기 목록만 반환한다") {
+            Then("해당 별점의 상품 후기들이 정렬 조건으로 정렬 되어 반환한다") {
                 assertSoftly(response.productReviews) {
                     size shouldBe 1
                     shouldBeSortedWith(compareByDescending { it.recommendCount })

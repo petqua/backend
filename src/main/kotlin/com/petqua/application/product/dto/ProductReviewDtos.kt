@@ -13,10 +13,10 @@ data class ProductReviewReadQuery(
     val productId: Long,
     val memberId: Long?,
     val sorter: ProductReviewSorter = REVIEW_DATE_DESC,
-    val score: Int?,
+    val score: Int? = null,
     val photoOnly: Boolean = false,
-    val lastViewedId: Long,
-    val limit: Int,
+    val lastViewedId: Long = -1,
+    val limit: Int = 20,
 ) {
 
     fun toCondition(): ProductReviewReadCondition {
