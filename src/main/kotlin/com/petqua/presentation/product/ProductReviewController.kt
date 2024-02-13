@@ -1,6 +1,6 @@
 package com.petqua.presentation.product
 
-import com.petqua.application.product.dto.ProductReviewScoreStatistics
+import com.petqua.application.product.dto.ProductReviewStatisticsResponse
 import com.petqua.application.product.dto.ProductReviewsResponse
 import com.petqua.application.product.review.ProductReviewService
 import com.petqua.presentation.product.dto.ReadAllProductReviewsRequest
@@ -40,7 +40,7 @@ class ProductReviewController(
     @GetMapping("/products/{productId}/review-statistics")
     fun readReviewCountStatistics(
         @PathVariable productId: Long
-    ): ResponseEntity<ProductReviewScoreStatistics> {
+    ): ResponseEntity<ProductReviewStatisticsResponse> {
         val response = productReviewService.readReviewCountStatistics(productId)
         return ResponseEntity.ok(response)
     }

@@ -1,6 +1,6 @@
 package com.petqua.presentation.product
 
-import com.petqua.application.product.dto.ProductReviewScoreStatistics
+import com.petqua.application.product.dto.ProductReviewStatisticsResponse
 import com.petqua.application.product.dto.ProductReviewsResponse
 import com.petqua.domain.member.MemberRepository
 import com.petqua.domain.product.ProductRepository
@@ -150,7 +150,7 @@ class ProductReviewControllerTest(
             }
         }
 
-        Given("상품 후기의 점수별 개수를 조회 할 때") {
+        Given("상품 후기의 통계를 조회 할 때") {
             val store = storeRepository.save(store(name = "펫쿠아"))
             val member = memberRepository.save(member(nickname = "쿠아"))
             val product = productRepository.save(
@@ -203,11 +203,11 @@ class ProductReviewControllerTest(
                 )
             )
 
-            When("상품 후기의 점수별 개수를 조회 하면") {
+            When("상품 후기의 통계를 조회 하면") {
                 val response = requestReadProductReviewCount(productId = product.id)
 
-                Then("해당 상품의 후기 점수별 개수를 반환한다") {
-                    val responseBody = response.`as`(ProductReviewScoreStatistics::class.java)
+                Then("해당 상품의 후기 점수별 개수와 만족도, 평균 별점, 총 별점 수를 반환한다") {
+                    val responseBody = response.`as`(ProductReviewStatisticsResponse::class.java)
 
                     assertSoftly(responseBody) {
                         scoreFiveCount shouldBe 3
@@ -215,6 +215,9 @@ class ProductReviewControllerTest(
                         scoreThreeCount shouldBe 0
                         scoreTwoCount shouldBe 2
                         scoreOneCount shouldBe 0
+                        totalReviewCount shouldBe 5
+                        productSatisfaction shouldBe 60
+                        averageScore shouldBe 3.8
                     }
                 }
             }

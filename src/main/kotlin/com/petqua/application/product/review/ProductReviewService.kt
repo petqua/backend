@@ -2,11 +2,12 @@ package com.petqua.application.product.review
 
 import com.petqua.application.product.dto.ProductReviewReadQuery
 import com.petqua.application.product.dto.ProductReviewResponse
-import com.petqua.application.product.dto.ProductReviewScoreStatistics
+import com.petqua.application.product.dto.ProductReviewStatisticsResponse
 import com.petqua.application.product.dto.ProductReviewsResponse
 import com.petqua.domain.product.dto.ProductReviewWithMemberResponse
 import com.petqua.domain.product.review.ProductReviewImageRepository
 import com.petqua.domain.product.review.ProductReviewRepository
+import com.petqua.domain.product.review.ProductReviewStatistics
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -38,9 +39,9 @@ class ProductReviewService(
     }
 
     @Transactional(readOnly = true)
-    fun readReviewCountStatistics(productId: Long): ProductReviewScoreStatistics {
-        val countsByScores = productReviewRepository.findReviewScoresWithCount(productId)
-            .associate { it.score to it.count }
-        return ProductReviewScoreStatistics.from(countsByScores)
+    fun readReviewCountStatistics(productId: Long): ProductReviewStatisticsResponse {
+        val reviewScoreWithCounts = productReviewRepository.findReviewScoresWithCount(productId)
+        val productReviewStatistics = ProductReviewStatistics.from(reviewScoreWithCounts)
+        return ProductReviewStatisticsResponse.from(productReviewStatistics)
     }
 }

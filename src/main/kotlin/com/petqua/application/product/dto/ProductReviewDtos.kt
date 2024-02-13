@@ -8,6 +8,7 @@ import com.petqua.domain.product.dto.ProductReviewReadCondition
 import com.petqua.domain.product.dto.ProductReviewWithMemberResponse
 import com.petqua.domain.product.review.ProductReviewSorter
 import com.petqua.domain.product.review.ProductReviewSorter.REVIEW_DATE_DESC
+import com.petqua.domain.product.review.ProductReviewStatistics
 import io.swagger.v3.oas.annotations.media.Schema
 import java.time.LocalDateTime
 
@@ -157,7 +158,7 @@ data class ProductReviewResponse(
     )
 }
 
-data class ProductReviewScoreStatistics(
+data class ProductReviewStatisticsResponse(
     @Schema(
         description = "별점 5의 개수",
         example = "3"
@@ -187,16 +188,37 @@ data class ProductReviewScoreStatistics(
         example = "0"
     )
     val scoreOneCount: Int,
+
+    @Schema(
+        description = "만족도",
+        example = "98"
+    )
+    val productSatisfaction: Int,
+
+    @Schema(
+        description = "후기 총 개수",
+        example = "15"
+    )
+    val totalReviewCount: Int,
+
+    @Schema(
+        description = "평균 별점",
+        example = "4.3"
+    )
+    val averageScore: Double,
 ) {
 
     companion object {
-        fun from(countsByScores: Map<Int, Long>): ProductReviewScoreStatistics {
-            return ProductReviewScoreStatistics(
-                scoreFiveCount = countsByScores[5]?.toInt() ?: 0,
-                scoreFourCount = countsByScores[4]?.toInt() ?: 0,
-                scoreThreeCount = countsByScores[3]?.toInt() ?: 0,
-                scoreTwoCount = countsByScores[2]?.toInt() ?: 0,
-                scoreOneCount = countsByScores[1]?.toInt() ?: 0,
+        fun from(countsByScores: ProductReviewStatistics): ProductReviewStatisticsResponse {
+            return ProductReviewStatisticsResponse(
+                scoreFiveCount = countsByScores.scoreFiveCount,
+                scoreFourCount = countsByScores.scoreFourCount,
+                scoreThreeCount = countsByScores.scoreThreeCount,
+                scoreTwoCount = countsByScores.scoreTwoCount,
+                scoreOneCount = countsByScores.scoreOneCount,
+                productSatisfaction = countsByScores.productSatisfaction,
+                totalReviewCount = countsByScores.totalReviewCount,
+                averageScore = countsByScores.averageScore,
             )
         }
     }
