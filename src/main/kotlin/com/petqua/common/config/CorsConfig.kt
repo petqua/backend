@@ -1,6 +1,7 @@
 package com.petqua.common.config
 
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.http.HttpMethod.DELETE
 import org.springframework.http.HttpMethod.GET
 import org.springframework.http.HttpMethod.OPTIONS
@@ -31,6 +32,6 @@ class CorsConfig : WebMvcConfigurer {
                 DELETE.name(),
             )
             .allowCredentials(true)
-            .exposedHeaders("*")
+            .exposedHeaders(AUTHORIZATION, "*")
     }
 }
