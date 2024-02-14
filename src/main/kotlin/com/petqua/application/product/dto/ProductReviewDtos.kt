@@ -191,19 +191,19 @@ data class ProductReviewStatisticsResponse(
 
     @Schema(
         description = "만족도",
-        example = "98"
+        example = "60"
     )
     val productSatisfaction: Int,
 
     @Schema(
         description = "후기 총 개수",
-        example = "15"
+        example = "5"
     )
     val totalReviewCount: Int,
 
     @Schema(
         description = "평균 별점",
-        example = "4.3"
+        example = "3.8"
     )
     val averageScore: Double,
 ) {
