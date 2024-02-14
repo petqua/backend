@@ -1,7 +1,6 @@
 package com.petqua.domain.product
 
 import com.petqua.domain.member.MemberRepository
-import com.petqua.domain.store.StoreRepository
 import com.petqua.test.DataCleaner
 import com.petqua.test.fixture.member
 import com.petqua.test.fixture.product
@@ -14,7 +13,6 @@ import org.springframework.boot.test.context.SpringBootTest
 @SpringBootTest
 class WishProductRepositoryTest(
     private val productRepository: ProductRepository,
-    private val storeRepository: StoreRepository,
     private val wishProductRepository: WishProductRepository,
     private val memberRepository: MemberRepository,
     private val dataCleaner: DataCleaner,

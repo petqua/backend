@@ -39,7 +39,7 @@ fun requestReadAllProducts(
     lastViewedId: Long = DEFAULT_LAST_VIEWED_ID,
     limit: Int = PAGING_LIMIT_CEILING,
     accessToken: String? = null,
-    ): Response {
+): Response {
     return Given {
         log().all()
         authorize(accessToken)

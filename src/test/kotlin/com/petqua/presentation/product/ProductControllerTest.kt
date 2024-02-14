@@ -392,8 +392,6 @@ class ProductControllerTest(
         }
 
         Given("상품 검색창에서 추천 검색어 기능을 이용할 때") {
-            val accessToken = signInAsMember().accessToken
-
             val product1 = productRepository.save(
                 product(
                     name = "블루네온 구피",
@@ -451,9 +449,7 @@ class ProductControllerTest(
             )
 
             When("검색어를 입력하면") {
-                val response = requestReadProductKeyword(
-                    word = "구피"
-                )
+                val response = requestReadProductKeyword(word = "구피")
 
                 Then("상품 키워드 목록이 문자 길이 오름차순으로 반환된다") {
                     val productKeywordResponses = response.`as`(object : TypeRef<List<ProductKeywordResponse>>() {})
@@ -469,9 +465,7 @@ class ProductControllerTest(
             }
 
             When("검색어를 입력하지 않으면") {
-                val response = requestReadProductKeyword(
-                    word = null,
-                )
+                val response = requestReadProductKeyword(word = null)
 
                 Then("예외가 발생한다") {
                     val exceptionResponse = response.`as`(ExceptionResponse::class.java)
@@ -482,9 +476,7 @@ class ProductControllerTest(
             }
 
             When("검색어를 빈 문자로 입력하면") {
-                val response = requestReadProductKeyword(
-                    word = " ",
-                )
+                val response = requestReadProductKeyword(word = " ")
 
                 Then("예외가 발생한다") {
                     val exceptionResponse = response.`as`(ExceptionResponse::class.java)
