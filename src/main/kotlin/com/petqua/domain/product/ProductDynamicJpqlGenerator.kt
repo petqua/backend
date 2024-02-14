@@ -61,8 +61,12 @@ class ProductDynamicJpqlGenerator : Jpql() {
         return family?.let { path(Category::family)(Family::name).eq(it) }
     }
 
-    fun Jpql.categorySpeciesEqOr(species: List<String>): Predicate? {
+    fun Jpql.categorySpeciesEqOr1(species: List<String>): Predicate? {
         return if (species.isNotEmpty()) or(species.map { path(Category::species)(Species::name).eq(it) }) else null
+    }
+
+    fun Jpql.categorySpeciesIn(species: List<String>): Predicate? {
+        return if (species.isNotEmpty()) path(Category::species)(Species::name).`in`(species) else null
     }
 
     private fun or(predicates: List<Predicatable>): Predicate {

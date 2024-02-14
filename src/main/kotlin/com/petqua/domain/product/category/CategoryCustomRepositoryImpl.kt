@@ -34,7 +34,7 @@ class CategoryCustomRepositoryImpl(
                 join(Category::class).on(path(Product::categoryId).eq(path(Category::id)))
             ).whereAnd(
                 categoryFamilyEq(condition.family),
-                categorySpeciesEqOr(condition.species),
+                categorySpeciesIn(condition.species),
                 productDeliveryOptionBy(condition.deliveryMethod),
                 productIdLt(paging.lastViewedId),
                 active(),
@@ -61,7 +61,7 @@ class CategoryCustomRepositoryImpl(
                 join(Category::class).on(path(Product::categoryId).eq(path(Category::id)))
             ).whereAnd(
                 categoryFamilyEq(condition.family),
-                categorySpeciesEqOr(condition.species),
+                categorySpeciesIn(condition.species),
                 productDeliveryOptionBy(condition.deliveryMethod),
                 active(),
             )
