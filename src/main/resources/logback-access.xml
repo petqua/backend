@@ -1,36 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration scan="true">
-    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <springProfile name="prod">
+        <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
 
-    <timestamp key="DATE" datePattern="yyyy-MM-dd"/>
-    <timestamp key="DATE_SEC" datePattern="yyyy-MM-dd HH:mm:ss"/>
+        <timestamp key="DATE" datePattern="yyyy-MM-dd"/>
+        <timestamp key="DATE_SEC" datePattern="yyyy-MM-dd HH:mm:ss"/>
 
-    <appender name="FILE-ACCESS" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
-            <evaluator>
-                <expression>event.getStatusCode() >= 400</expression>
-            </evaluator>
-            <onMismatch>DENY</onMismatch>
-        </filter>
+        <appender name="FILE-ACCESS" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
+                <evaluator>
+                    <expression>event.getStatusCode() >= 400</expression>
+                </evaluator>
+                <onMismatch>DENY</onMismatch>
+            </filter>
 
-        <file>../logs/access/${DATE}.log</file>
-        <encoder>
-            <pattern>
+            <file>../logs/access/${DATE}.log</file>
+            <encoder>
+                <pattern>
 [requestId: %reqAttribute{requestId}]
 timestamp: ${DATE_SEC},
 %fullRequest
 %n
-            </pattern>
-            <charset>utf8</charset>
-        </encoder>
+                </pattern>
+                <charset>utf8</charset>
+            </encoder>
 
-        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>../logs/backup/access/%d{yyyy-MM-dd}.%i.log</fileNamePattern>
-            <maxFileSize>50MB</maxFileSize>
-            <maxHistory>7</maxHistory>
-            <totalSizeCap>1GB</totalSizeCap>
-        </rollingPolicy>
-    </appender>
+            <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                <fileNamePattern>../logs/backup/access/%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+                <maxFileSize>50MB</maxFileSize>
+                <maxHistory>7</maxHistory>
+                <totalSizeCap>1GB</totalSizeCap>
+            </rollingPolicy>
+        </appender>
 
-    <appender-ref ref="FILE-ACCESS" />
+        <appender-ref ref="FILE-ACCESS" />
+    </springProfile>
 </configuration>
