@@ -5,15 +5,17 @@ import com.linecorp.kotlinjdsl.render.jpql.JpqlRenderContext
 import com.linecorp.kotlinjdsl.render.jpql.JpqlRenderer
 import jakarta.persistence.EntityManager
 
-inline fun <reified T> EntityManager.createSingleQuery(
+inline fun <reified T> EntityManager.createSingleQueryOrThrow(
     query: SelectQuery<*>,
     context: JpqlRenderContext,
     renderer: JpqlRenderer,
-): T? {
+    exceptionSupplier: () -> RuntimeException = { IllegalArgumentException("Query did not return any result") },
+): T {
     val rendered = renderer.render(query, context)
-    return this.createQuery(rendered.query, T::class.java)
+    val results = this.createQuery(rendered.query, T::class.java)
         .apply { rendered.params.forEach { (name, value) -> setParameter(name, value) } }
-        .singleResult
+        .resultList
+    return if (results.isNotEmpty()) results.single() else throw exceptionSupplier()
 }
 
 inline fun <reified T> EntityManager.createQuery(

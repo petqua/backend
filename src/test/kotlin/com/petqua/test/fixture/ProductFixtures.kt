@@ -3,6 +3,12 @@ package com.petqua.test.fixture
 import com.petqua.domain.keyword.ProductKeyword
 import com.petqua.domain.product.Product
 import com.petqua.domain.product.WishCount
+import com.petqua.domain.product.detail.DifficultyLevel
+import com.petqua.domain.product.detail.OptimalTankSizeLiter
+import com.petqua.domain.product.detail.OptimalTemperature
+import com.petqua.domain.product.detail.ProductImage
+import com.petqua.domain.product.detail.ProductInfo
+import com.petqua.domain.product.detail.Temperament
 import java.math.BigDecimal
 
 private const val DEFAULT_SCALE = 2
@@ -54,5 +60,37 @@ fun productKeyword(
         id = id,
         productId = productId,
         word = word
+    )
+}
+
+fun productInfo(
+    id: Long = 0L,
+    productId: Long,
+    categoryId: Long,
+    optimalTemperature: OptimalTemperature,
+    difficultyLevel: DifficultyLevel,
+    optimalTankSizeLiter: OptimalTankSizeLiter,
+    temperament: Temperament,
+): ProductInfo {
+    return ProductInfo(
+        id = id,
+        productId = productId,
+        categoryId = categoryId,
+        optimalTemperature = optimalTemperature,
+        difficultyLevel = difficultyLevel,
+        optimalTankSizeLiter = optimalTankSizeLiter,
+        temperament = temperament,
+    )
+}
+
+fun productImage(
+    id: Long = 0,
+    productId: Long,
+    imageUrl: String,
+): ProductImage {
+    return ProductImage(
+        id = id,
+        productId = productId,
+        imageUrl = imageUrl,
     )
 }

@@ -13,6 +13,12 @@ import com.petqua.domain.product.ProductSourceType.HOME_RECOMMENDED
 import com.petqua.domain.product.Sorter.REVIEW_COUNT_DESC
 import com.petqua.domain.product.Sorter.SALE_PRICE_ASC
 import com.petqua.domain.product.Sorter.SALE_PRICE_DESC
+import com.petqua.domain.product.detail.DifficultyLevel
+import com.petqua.domain.product.detail.OptimalTankSizeLiter
+import com.petqua.domain.product.detail.OptimalTemperature
+import com.petqua.domain.product.detail.ProductImageRepository
+import com.petqua.domain.product.detail.ProductInfoRepository
+import com.petqua.domain.product.detail.Temperament
 import com.petqua.domain.product.dto.ProductResponse
 import com.petqua.domain.recommendation.ProductRecommendationRepository
 import com.petqua.domain.store.StoreRepository
@@ -20,9 +26,12 @@ import com.petqua.exception.product.ProductExceptionType.INVALID_SEARCH_WORD
 import com.petqua.exception.product.ProductExceptionType.NOT_FOUND_PRODUCT
 import com.petqua.test.ApiTestConfig
 import com.petqua.test.fixture.product
+import com.petqua.test.fixture.productImage
+import com.petqua.test.fixture.productInfo
 import com.petqua.test.fixture.productKeyword
 import com.petqua.test.fixture.productRecommendation
 import com.petqua.test.fixture.store
+import io.kotest.assertions.assertSoftly
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
@@ -40,28 +49,79 @@ class ProductControllerTest(
     private val storeRepository: StoreRepository,
     private val recommendationRepository: ProductRecommendationRepository,
     private val productKeywordRepository: ProductKeywordRepository,
+    private val productInfoRepository: ProductInfoRepository,
+    private val productImageRepository: ProductImageRepository,
 ) : ApiTestConfig() {
 
     init {
         val store = storeRepository.save(store())
 
-        Given("개별 상품을 조회할 때") {
-            val productId = productRepository.save(product(storeId = store.id)).id
+        Given("개별 상품을 상세 조회할 때") {
+            val accessToken = signInAsMember().accessToken
+
+            val product = productRepository.save(
+                product(
+                    name = "고정구피",
+                    storeId = store.id,
+                    discountPrice = ZERO,
+                    reviewCount = 0,
+                    reviewTotalScore = 0
+                )
+            )
+            val productInfo = productInfoRepository.save(
+                productInfo(
+                    productId = product.id,
+                    categoryId = 0,
+                    optimalTemperature = OptimalTemperature(26, 28),
+                    difficultyLevel = DifficultyLevel.EASY,
+                    optimalTankSizeLiter = OptimalTankSizeLiter(10, 50),
+                    temperament = Temperament.PEACEFUL,
+                )
+            )
+            val productImage = productImageRepository.save(
+                productImage(
+                    productId = product.id,
+                    imageUrl = "image.jpeg"
+                )
+            )
+
 
             When("상품 ID를 입력하면") {
                 val response = requestReadProductById(
-                    productId,
+                    productId = product.id,
                 )
 
-                Then("해당 ID의 상품이 반환된다") {
+                Then("해당 ID의 상품의 상세 정보가 반환된다") {
                     val productDetailResponse = response.`as`(ProductDetailResponse::class.java)
 
-                    response.statusCode shouldBe HttpStatus.OK.value()
-                    productDetailResponse shouldBe ProductDetailResponse(
-                        product = product(id = productId, storeId = store.id),
-                        storeName = store.name,
-                        reviewAverageScore = 0.0
-                    )
+                    assertSoftly {
+                        response.statusCode shouldBe HttpStatus.OK.value()
+                        productDetailResponse shouldBe ProductDetailResponse(
+                            id = product.id,
+                            name = product.name,
+                            family = "family",
+                            species = "species",
+                            price = product.price.intValueExact(),
+                            storeName = store.name,
+                            discountRate = product.discountRate,
+                            discountPrice = product.discountPrice.intValueExact(),
+                            wishCount = product.wishCount.value,
+                            reviewCount = product.reviewCount,
+                            reviewAverageScore = product.averageReviewScore(),
+                            thumbnailUrl = product.thumbnailUrl,
+                            imageUrls = listOf(productImage.imageUrl),
+                            canDeliverSafely = product.canDeliverSafely,
+                            canDeliverCommonly = product.canDeliverCommonly,
+                            canPickUp = product.canPickUp,
+                            description = product.description,
+                            optimalTemperatureMin = productInfo.optimalTemperature.optimalTemperatureMin,
+                            optimalTemperatureMax = productInfo.optimalTemperature.optimalTemperatureMax,
+                            difficultyLevel = productInfo.difficultyLevel.description,
+                            optimalTankSizeMin = productInfo.optimalTankSizeLiter.optimalTankSizeLiterMin,
+                            optimalTankSizeMax = productInfo.optimalTankSizeLiter.optimalTankSizeLiterMax,
+                            temperament = productInfo.temperament.description,
+                        )
+                    }
                 }
             }
 
@@ -73,13 +133,17 @@ class ProductControllerTest(
                 Then("예외가 발생한다") {
                     val exceptionResponse = response.`as`(ExceptionResponse::class.java)
 
-                    response.statusCode shouldBe NOT_FOUND.value()
-                    exceptionResponse.message shouldBe NOT_FOUND_PRODUCT.errorMessage()
+                    assertSoftly {
+                        response.statusCode shouldBe NOT_FOUND.value()
+                        exceptionResponse.message shouldBe NOT_FOUND_PRODUCT.errorMessage()
+                    }
                 }
             }
         }
 
         Given("조건에 따라 상품을 조회할 때") {
+            val accessToken = signInAsMember().accessToken
+
             val product1 = productRepository.save(
                 product(
                     name = "상품1",
@@ -256,6 +320,8 @@ class ProductControllerTest(
         }
 
         Given("상품 검색창에서 추천 검색어 기능을 이용할 때") {
+            val accessToken = signInAsMember().accessToken
+
             val product1 = productRepository.save(
                 product(
                     name = "블루네온 구피",
@@ -358,6 +424,8 @@ class ProductControllerTest(
         }
 
         Given("검색으로 상품을 조회할 때") {
+            val accessToken = signInAsMember().accessToken
+
             val product1 = productRepository.save(
                 product(
                     name = "블루네온 구피",

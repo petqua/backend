@@ -6,15 +6,11 @@ import com.petqua.application.product.dto.ProductKeywordResponse
 import com.petqua.application.product.dto.ProductReadQuery
 import com.petqua.application.product.dto.ProductSearchQuery
 import com.petqua.application.product.dto.ProductsResponse
-import com.petqua.common.domain.findActiveByIdOrThrow
-import com.petqua.common.domain.findByIdOrThrow
 import com.petqua.domain.keyword.ProductKeywordRepository
 import com.petqua.domain.product.ProductRepository
-import com.petqua.domain.store.StoreRepository
+import com.petqua.domain.product.detail.ProductImageRepository
 import com.petqua.exception.product.ProductException
 import com.petqua.exception.product.ProductExceptionType.NOT_FOUND_PRODUCT
-import com.petqua.exception.store.StoreException
-import com.petqua.exception.store.StoreExceptionType.NOT_FOUND_STORE
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -22,15 +18,18 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 class ProductService(
     private val productRepository: ProductRepository,
-    private val storeRepository: StoreRepository,
+    private val productImageRepository: ProductImageRepository,
     private val productKeywordRepository: ProductKeywordRepository,
 ) {
 
     @Transactional(readOnly = true)
     fun readById(productId: Long): ProductDetailResponse {
-        val product = productRepository.findActiveByIdOrThrow(productId, ProductException(NOT_FOUND_PRODUCT))
-        val store = storeRepository.findByIdOrThrow(product.storeId, StoreException(NOT_FOUND_STORE))
-        return ProductDetailResponse(product, store.name, product.averageReviewScore())
+        val productWithInfo = productRepository.findProductWithInfoByIdOrThrow(productId) {
+            ProductException(NOT_FOUND_PRODUCT)
+        }
+        val images = productImageRepository.findProductImagesByProductId(productId)
+        val imageUrls = images.map { it.imageUrl }
+        return ProductDetailResponse(productWithInfo, imageUrls)
     }
 
     @Transactional(readOnly = true)

@@ -6,11 +6,14 @@ import com.linecorp.kotlinjdsl.render.jpql.JpqlRenderer
 import com.petqua.common.domain.dto.CursorBasedPaging
 import com.petqua.common.util.createCountQuery
 import com.petqua.common.util.createQuery
+import com.petqua.common.util.createSingleQueryOrThrow
 import com.petqua.domain.keyword.ProductKeyword
 import com.petqua.domain.product.Sorter.ENROLLMENT_DATE_DESC
+import com.petqua.domain.product.detail.ProductInfo
 import com.petqua.domain.product.dto.ProductReadCondition
 import com.petqua.domain.product.dto.ProductResponse
 import com.petqua.domain.product.dto.ProductSearchCondition
+import com.petqua.domain.product.dto.ProductWithInfoResponse
 import com.petqua.domain.store.Store
 import jakarta.persistence.EntityManager
 import org.springframework.stereotype.Repository
@@ -23,6 +26,34 @@ class ProductCustomRepositoryImpl(
     private val jpqlRenderContext: JpqlRenderContext,
     private val jpqlRenderer: JpqlRenderer,
 ) : ProductCustomRepository {
+    override fun findProductWithInfoByIdOrThrow(
+        id: Long,
+        exceptionSupplier: () -> RuntimeException
+    ): ProductWithInfoResponse {
+        val query = jpql(ProductDynamicJpqlGenerator) {
+            selectNew<ProductWithInfoResponse>(
+                entity(Product::class),
+                path(Store::name),
+                entity(ProductInfo::class)
+                // entity(Category::class),
+            ).from(
+                entity(Product::class),
+                join(Store::class).on(path(Product::storeId).eq(path(Store::id))),
+                join(ProductInfo::class).on(path(Product::id).eq(path(ProductInfo::productId))),
+                // category join
+            ).whereAnd(
+                path(Product::id).eq(id),
+                active(),
+            )
+        }
+
+        return entityManager.createSingleQueryOrThrow<ProductWithInfoResponse>(
+            query,
+            jpqlRenderContext,
+            jpqlRenderer,
+            exceptionSupplier
+        )
+    }
 
     override fun findAllByCondition(
         condition: ProductReadCondition,

@@ -6,12 +6,12 @@ import com.petqua.common.domain.dto.PADDING_FOR_HAS_NEXT_PAGE
 import com.petqua.common.domain.dto.PAGING_LIMIT_CEILING
 import com.petqua.domain.delivery.DeliveryMethod
 import com.petqua.domain.keyword.ProductKeyword
-import com.petqua.domain.product.Product
 import com.petqua.domain.product.ProductSourceType
 import com.petqua.domain.product.Sorter
 import com.petqua.domain.product.dto.ProductReadCondition
 import com.petqua.domain.product.dto.ProductResponse
 import com.petqua.domain.product.dto.ProductSearchCondition
+import com.petqua.domain.product.dto.ProductWithInfoResponse
 import io.swagger.v3.oas.annotations.media.Schema
 
 data class ProductDetailResponse(
@@ -28,10 +28,16 @@ data class ProductDetailResponse(
     val name: String,
 
     @Schema(
-        description = "상품 카테고리 Id",
-        example = "1"
+        description = "상품 카테고리 어과",
+        example = "난태생, 송사리과"
     )
-    val categoryId: Long,
+    val family: String,
+
+    @Schema(
+        description = "상품 카테고리 어종",
+        example = "고정구피"
+    )
+    val species: String,
 
     @Schema(
         description = "상품 가격",
@@ -82,6 +88,12 @@ data class ProductDetailResponse(
     val thumbnailUrl: String,
 
     @Schema(
+        description = "상품 이미지 목록",
+        example = "[image1.jpeg, image2.jpeg]"
+    )
+    val imageUrls: List<String>,
+
+    @Schema(
         description = "상품 상세 설명",
         example = "귀엽습니다"
     )
@@ -104,23 +116,72 @@ data class ProductDetailResponse(
         example = "true"
     )
     val canPickUp: Boolean,
+
+    @Schema(
+        description = "사육 온도 최소",
+        example = "10"
+    )
+    val optimalTemperatureMin: Int,
+
+    @Schema(
+        description = "사육 온도 최대",
+        example = "20"
+    )
+    val optimalTemperatureMax: Int,
+
+    @Schema(
+        description = "사육난이도",
+        example = "하"
+    )
+    val difficultyLevel: String,
+
+    @Schema(
+        description = "적정 수조 크기 최소",
+        example = "10"
+    )
+    val optimalTankSizeMin: Int,
+
+    @Schema(
+        description = "적정 수조 크기 최소",
+        example = "15"
+    )
+    val optimalTankSizeMax: Int,
+
+    @Schema(
+        description = "성격",
+        example = "사나움"
+    )
+    val temperament: String,
 ) {
-    constructor(product: Product, storeName: String, reviewAverageScore: Double) : this(
-        product.id,
-        product.name,
-        product.categoryId,
-        product.price.intValueExact(),
-        storeName,
-        product.discountRate,
-        product.discountPrice.intValueExact(),
-        product.wishCount.value,
-        product.reviewCount,
-        reviewAverageScore,
-        product.thumbnailUrl,
-        product.description,
-        product.canDeliverSafely,
-        product.canDeliverCommonly,
-        product.canPickUp,
+    constructor(
+        productWithInfoResponse: ProductWithInfoResponse,
+        imageUrls: List<String>,
+        // TODO
+        // category: Category
+    ) : this(
+        id = productWithInfoResponse.id,
+        name = productWithInfoResponse.name,
+        family = "family",
+        species = "species",
+        price = productWithInfoResponse.price,
+        storeName = productWithInfoResponse.storeName,
+        discountRate = productWithInfoResponse.discountRate,
+        discountPrice = productWithInfoResponse.discountPrice,
+        wishCount = productWithInfoResponse.wishCount,
+        reviewCount = productWithInfoResponse.reviewCount,
+        reviewAverageScore = productWithInfoResponse.reviewAverageScore,
+        thumbnailUrl = productWithInfoResponse.thumbnailUrl,
+        description = productWithInfoResponse.description,
+        imageUrls = imageUrls,
+        canDeliverSafely = productWithInfoResponse.canDeliverSafely,
+        canDeliverCommonly = productWithInfoResponse.canDeliverCommonly,
+        canPickUp = productWithInfoResponse.canPickUp,
+        optimalTemperatureMin = productWithInfoResponse.optimalTemperatureMin,
+        optimalTemperatureMax = productWithInfoResponse.optimalTemperatureMax,
+        difficultyLevel = productWithInfoResponse.difficultyLevel,
+        optimalTankSizeMin = productWithInfoResponse.optimalTankSizeLiterMin,
+        optimalTankSizeMax = productWithInfoResponse.optimalTankSizeLiterMax,
+        temperament = productWithInfoResponse.temperament,
     )
 }
 

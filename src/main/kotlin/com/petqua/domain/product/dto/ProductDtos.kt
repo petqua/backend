@@ -5,6 +5,7 @@ import com.petqua.domain.delivery.DeliveryMethod
 import com.petqua.domain.product.Product
 import com.petqua.domain.product.ProductSourceType
 import com.petqua.domain.product.Sorter
+import com.petqua.domain.product.detail.ProductInfo
 import com.petqua.exception.product.ProductException
 import com.petqua.exception.product.ProductExceptionType
 import io.swagger.v3.oas.annotations.media.Schema
@@ -53,6 +54,61 @@ data class ProductSearchCondition(
             )
         }
     }
+}
+
+data class ProductWithInfoResponse(
+    val id: Long,
+    val name: String,
+    val family: String,
+    val species: String,
+    val price: Int,
+    val storeName: String,
+    val discountRate: Int,
+    val discountPrice: Int,
+    val wishCount: Int,
+    val reviewCount: Int,
+    val reviewAverageScore: Double,
+    val thumbnailUrl: String,
+    val description: String,
+    val canDeliverSafely: Boolean,
+    val canDeliverCommonly: Boolean,
+    val canPickUp: Boolean,
+    val optimalTemperatureMin: Int,
+    val optimalTemperatureMax: Int,
+    val difficultyLevel: String,
+    val optimalTankSizeLiterMin: Int,
+    val optimalTankSizeLiterMax: Int,
+    val temperament: String,
+) {
+    constructor(
+        product: Product,
+        storeName: String,
+        productInfo: ProductInfo,
+//        category: Category,
+    ) : this(
+        id = product.id,
+        name = product.name,
+        family = "family",
+        species = "species",
+        price = product.price.intValueExact(),
+        storeName = storeName,
+        discountRate = product.discountRate,
+        discountPrice = product.discountPrice.intValueExact(),
+        wishCount = product.wishCount.value,
+        reviewCount = product.reviewCount,
+        reviewAverageScore = product.averageReviewScore(),
+        thumbnailUrl = product.thumbnailUrl,
+        description = product.description,
+        canDeliverSafely = product.canDeliverSafely,
+        canDeliverCommonly = product.canDeliverCommonly,
+        canPickUp = product.canPickUp,
+        optimalTemperatureMin = productInfo.optimalTemperature.optimalTemperatureMin,
+        optimalTemperatureMax = productInfo.optimalTemperature.optimalTemperatureMax,
+        difficultyLevel = productInfo.difficultyLevel.description,
+        optimalTankSizeLiterMin = productInfo.optimalTankSizeLiter.optimalTankSizeLiterMin,
+        optimalTankSizeLiterMax = productInfo.optimalTankSizeLiter.optimalTankSizeLiterMax,
+        temperament = productInfo.temperament.description,
+    )
 }
 
 data class ProductResponse(
