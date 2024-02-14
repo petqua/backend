@@ -2,6 +2,7 @@ package com.petqua.presentation.product.category
 
 import com.petqua.application.product.dto.ProductsResponse
 import com.petqua.common.exception.ExceptionResponse
+import com.petqua.domain.delivery.DeliveryMethod.SAFETY
 import com.petqua.domain.product.ProductRepository
 import com.petqua.domain.product.Sorter.SALE_PRICE_ASC
 import com.petqua.domain.product.category.CategoryRepository
@@ -190,7 +191,7 @@ class CategoryControllerTest(
             When("배송 조건을 입력하면") {
                 val response = requestReadProducts(
                     family = "송사리과",
-                    canDeliverSafely = true
+                    deliveryMethod = SAFETY
                 )
 
                 Then("입력한 배송 조건에 해당하는 상품들이 반환된다") {

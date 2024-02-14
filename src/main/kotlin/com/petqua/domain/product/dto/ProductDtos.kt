@@ -1,6 +1,7 @@
 package com.petqua.domain.product.dto
 
 import com.petqua.common.util.throwExceptionWhen
+import com.petqua.domain.delivery.DeliveryMethod
 import com.petqua.domain.product.Product
 import com.petqua.domain.product.ProductSourceType
 import com.petqua.domain.product.Sorter
@@ -35,25 +36,19 @@ data class ProductReadCondition(
 
 data class ProductSearchCondition(
     val word: String,
-    val canDeliverSafely: Boolean? = null,
-    val canDeliverCommonly: Boolean? = null,
-    val canPickUp: Boolean? = null,
+    val deliveryMethod: DeliveryMethod = DeliveryMethod.NONE,
     val sorter: Sorter = Sorter.NONE,
 ) {
     companion object {
         fun toCondition(
             word: String,
-            canDeliverSafely: Boolean?,
-            canDeliverCommonly: Boolean?,
-            canPickUp: Boolean?,
+            deliveryMethod: DeliveryMethod,
             sorter: Sorter
         ): ProductSearchCondition {
             throwExceptionWhen(word.isBlank()) { ProductException(ProductExceptionType.INVALID_SEARCH_WORD) }
             return ProductSearchCondition(
                 word = word,
-                canDeliverSafely = canDeliverSafely,
-                canDeliverCommonly = canDeliverCommonly,
-                canPickUp = canPickUp,
+                deliveryMethod = deliveryMethod,
                 sorter = sorter
             )
         }

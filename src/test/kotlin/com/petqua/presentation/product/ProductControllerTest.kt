@@ -4,6 +4,8 @@ import com.petqua.application.product.dto.ProductDetailResponse
 import com.petqua.application.product.dto.ProductKeywordResponse
 import com.petqua.application.product.dto.ProductsResponse
 import com.petqua.common.exception.ExceptionResponse
+import com.petqua.domain.delivery.DeliveryMethod.COMMON
+import com.petqua.domain.delivery.DeliveryMethod.SAFETY
 import com.petqua.domain.keyword.ProductKeywordRepository
 import com.petqua.domain.product.ProductRepository
 import com.petqua.domain.product.ProductSourceType.HOME_NEW_ENROLLMENT
@@ -461,7 +463,7 @@ class ProductControllerTest(
 
                 val response = requestReadProductBySearch(
                     word = keyword,
-                    canDeliverCommonly = true,
+                    deliveryMethod = COMMON
                 )
 
                 Then("입력한 조건에 해당하는 상품들이 최신 등록 순으로 반환된다") {
@@ -521,7 +523,7 @@ class ProductControllerTest(
 
                 val response = requestReadProductBySearch(
                     word = nonKeyword,
-                    canDeliverSafely = true,
+                    deliveryMethod = SAFETY
                 )
 
                 Then("상품 이름과 연관된 상품들 중 조건에 해당하는 상품들이 최신 등록 순으로 반환된다") {

@@ -1,5 +1,6 @@
 package com.petqua.application.product.category
 
+import com.petqua.domain.delivery.DeliveryMethod
 import com.petqua.domain.product.Sorter
 import com.petqua.domain.product.Sorter.NONE
 import com.petqua.domain.product.category.CategoryProductPaging
@@ -18,9 +19,7 @@ data class CategoryReadQuery(
 data class CategoryProductReadQuery(
     val family: String,
     val species: List<String> = listOf(),
-    val canDeliverSafely: Boolean? = null,
-    val canDeliverCommonly: Boolean? = null,
-    val canPickUp: Boolean? = null,
+    val deliveryMethod: DeliveryMethod = DeliveryMethod.NONE,
     val sorter: Sorter = NONE,
     val lastViewedId: Long? = null,
     val limit: Int = LIMIT_CEILING,
@@ -29,9 +28,7 @@ data class CategoryProductReadQuery(
         return CategoryProductReadCondition.of(
             family = family,
             species = species,
-            canDeliverSafely = canDeliverSafely,
-            canDeliverCommonly = canDeliverCommonly,
-            canPickUp = canPickUp,
+            deliveryMethod = deliveryMethod,
             sorter = sorter,
         )
     }

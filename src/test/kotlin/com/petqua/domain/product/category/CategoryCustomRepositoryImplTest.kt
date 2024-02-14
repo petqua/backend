@@ -1,5 +1,8 @@
 package com.petqua.domain.product.category
 
+import com.petqua.domain.delivery.DeliveryMethod.COMMON
+import com.petqua.domain.delivery.DeliveryMethod.PICK_UP
+import com.petqua.domain.delivery.DeliveryMethod.SAFETY
 import com.petqua.domain.product.ProductRepository
 import com.petqua.domain.product.Sorter.ENROLLMENT_DATE_DESC
 import com.petqua.domain.product.Sorter.REVIEW_COUNT_DESC
@@ -122,7 +125,7 @@ class CategoryCustomRepositoryImplTest(
             val products = categoryRepository.findProductsByCondition(
                 condition = CategoryProductReadCondition(
                     family = "송사리과",
-                    canDeliverSafely = true
+                    deliveryMethod = SAFETY
                 ),
                 paging = CategoryProductPaging()
             )
@@ -138,7 +141,7 @@ class CategoryCustomRepositoryImplTest(
             val products = categoryRepository.findProductsByCondition(
                 condition = CategoryProductReadCondition(
                     family = "송사리과",
-                    canDeliverCommonly = true
+                    deliveryMethod = COMMON
                 ),
                 paging = CategoryProductPaging()
             )
@@ -155,7 +158,7 @@ class CategoryCustomRepositoryImplTest(
             val products = categoryRepository.findProductsByCondition(
                 condition = CategoryProductReadCondition(
                     family = "송사리과",
-                    canPickUp = true
+                    deliveryMethod = PICK_UP
                 ),
                 paging = CategoryProductPaging()
             )
@@ -316,7 +319,7 @@ class CategoryCustomRepositoryImplTest(
             val totalProductsCount = categoryRepository.countProductsByCondition(
                 CategoryProductReadCondition(
                     family = "송사리과",
-                    canDeliverSafely = true
+                    deliveryMethod = SAFETY
                 )
             )
 
@@ -329,7 +332,7 @@ class CategoryCustomRepositoryImplTest(
             val totalProductsCount = categoryRepository.countProductsByCondition(
                 CategoryProductReadCondition(
                     family = "송사리과",
-                    canDeliverCommonly = true
+                    deliveryMethod = COMMON
                 )
             )
 
@@ -342,7 +345,7 @@ class CategoryCustomRepositoryImplTest(
             val totalProductsCount = categoryRepository.countProductsByCondition(
                 CategoryProductReadCondition(
                     family = "송사리과",
-                    canPickUp = true
+                    deliveryMethod = PICK_UP
                 )
             )
 

@@ -1,5 +1,6 @@
 package com.petqua.presentation.product.category
 
+import com.petqua.domain.delivery.DeliveryMethod
 import com.petqua.domain.product.Sorter
 import io.restassured.module.kotlin.extensions.Extract
 import io.restassured.module.kotlin.extensions.Given
@@ -29,9 +30,7 @@ fun requestReadSpecies(
 fun requestReadProducts(
     family: String? = null,
     species: List<String> = listOf(),
-    canDeliverSafely: Boolean? = null,
-    canDeliverCommonly: Boolean? = null,
-    canPickUp: Boolean? = null,
+    deliveryMethod: DeliveryMethod = DeliveryMethod.NONE,
     sorter: Sorter? = null,
     lastViewedId: Long? = null,
     limit: Int? = null,
@@ -39,9 +38,7 @@ fun requestReadProducts(
     val paramMap = mutableMapOf<String, Any?>().apply {
         put("family", family)
         put("species", species.takeIf { it.isNotEmpty() })
-        put("canDeliverSafely", canDeliverSafely)
-        put("canDeliverCommonly", canDeliverCommonly)
-        put("canPickUp", canPickUp)
+        put("deliveryMethod", deliveryMethod.name)
         put("sorter", sorter)
         put("lastViewedId", lastViewedId)
         put("limit", limit)

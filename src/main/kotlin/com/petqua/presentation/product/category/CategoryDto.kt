@@ -2,6 +2,7 @@ package com.petqua.presentation.product.category
 
 import com.petqua.application.product.category.CategoryProductReadQuery
 import com.petqua.application.product.category.CategoryReadQuery
+import com.petqua.domain.delivery.DeliveryMethod
 import com.petqua.domain.product.Sorter
 import io.swagger.v3.oas.annotations.media.Schema
 
@@ -36,22 +37,11 @@ data class CategoryProductReadRequest(
     val species: List<String> = listOf(),
 
     @Schema(
-        description = "안전 운송 가능 여부",
-        example = "true"
+        description = "운송 방법",
+        defaultValue = "SAFETY",
+        allowableValues = ["SAFETY", "COMMON", "PICK_UP"]
     )
-    val canDeliverSafely: Boolean?,
-
-    @Schema(
-        description = "일반 운송 가능 여부",
-        example = "true"
-    )
-    val canDeliverCommonly: Boolean?,
-
-    @Schema(
-        description = "직접 수령 가능 여부",
-        example = "true"
-    )
-    val canPickUp: Boolean?,
+    val deliveryMethod: DeliveryMethod = DeliveryMethod.NONE,
 
     @Schema(
         description = "정렬 기준",
@@ -77,9 +67,7 @@ data class CategoryProductReadRequest(
         return CategoryProductReadQuery(
             family = family,
             species = species,
-            canDeliverSafely = canDeliverSafely,
-            canDeliverCommonly = canDeliverCommonly,
-            canPickUp = canPickUp,
+            deliveryMethod = deliveryMethod,
             sorter = sorter,
             lastViewedId = lastViewedId,
             limit = limit,

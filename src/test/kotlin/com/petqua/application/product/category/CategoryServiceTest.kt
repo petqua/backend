@@ -1,5 +1,6 @@
 package com.petqua.application.product.category
 
+import com.petqua.domain.delivery.DeliveryMethod.SAFETY
 import com.petqua.domain.product.ProductRepository
 import com.petqua.domain.product.Sorter
 import com.petqua.domain.product.category.CategoryRepository
@@ -150,7 +151,7 @@ class CategoryServiceTest(
             val productsResponse = categoryService.readProducts(
                 CategoryProductReadQuery(
                     family = "송사리과",
-                    canDeliverSafely = true,
+                    deliveryMethod = SAFETY,
                 )
             )
 

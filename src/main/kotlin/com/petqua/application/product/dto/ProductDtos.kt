@@ -4,6 +4,7 @@ import com.petqua.common.domain.dto.CursorBasedPaging
 import com.petqua.common.domain.dto.DEFAULT_LAST_VIEWED_ID
 import com.petqua.common.domain.dto.PADDING_FOR_HAS_NEXT_PAGE
 import com.petqua.common.domain.dto.PAGING_LIMIT_CEILING
+import com.petqua.domain.delivery.DeliveryMethod
 import com.petqua.domain.keyword.ProductKeyword
 import com.petqua.domain.product.Product
 import com.petqua.domain.product.ProductSourceType
@@ -166,9 +167,7 @@ data class ProductsResponse(
 
 data class ProductSearchQuery(
     val word: String,
-    val canDeliverSafely: Boolean? = null,
-    val canDeliverCommonly: Boolean? = null,
-    val canPickUp: Boolean? = null,
+    val deliveryMethod: DeliveryMethod = DeliveryMethod.NONE,
     val sorter: Sorter = Sorter.NONE,
     val lastViewedId: Long = DEFAULT_LAST_VIEWED_ID,
     val limit: Int = PAGING_LIMIT_CEILING,
@@ -177,9 +176,7 @@ data class ProductSearchQuery(
     fun toCondition(): ProductSearchCondition {
         return ProductSearchCondition.toCondition(
             word = word,
-            canDeliverSafely = canDeliverSafely,
-            canDeliverCommonly = canDeliverCommonly,
-            canPickUp = canPickUp,
+            deliveryMethod = deliveryMethod,
             sorter = sorter,
         )
     }

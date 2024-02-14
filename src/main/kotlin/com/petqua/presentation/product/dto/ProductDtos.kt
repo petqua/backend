@@ -5,6 +5,7 @@ import com.petqua.application.product.dto.ProductReadQuery
 import com.petqua.application.product.dto.ProductSearchQuery
 import com.petqua.common.domain.dto.DEFAULT_LAST_VIEWED_ID
 import com.petqua.common.domain.dto.PAGING_LIMIT_CEILING
+import com.petqua.domain.delivery.DeliveryMethod
 import com.petqua.domain.product.ProductSourceType
 import com.petqua.domain.product.Sorter
 import io.swagger.v3.oas.annotations.media.Schema
@@ -55,22 +56,11 @@ data class ProductSearchRequest(
     val word: String,
 
     @Schema(
-        description = "안전 운송 필터 여부",
-        example = "true"
+        description = "운송 방법",
+        defaultValue = "SAFETY",
+        allowableValues = ["SAFETY", "COMMON", "PICK_UP"]
     )
-    val canDeliverSafely: Boolean?,
-
-    @Schema(
-        description = "일반 운송 필터 여부",
-        example = "false"
-    )
-    val canDeliverCommonly: Boolean?,
-
-    @Schema(
-        description = "직접 수령 필터 여부",
-        example = "false"
-    )
-    val canPickUp: Boolean?,
+    val deliveryMethod: DeliveryMethod = DeliveryMethod.NONE,
 
     @Schema(
         description = "정렬 기준",
@@ -95,9 +85,7 @@ data class ProductSearchRequest(
     fun toQuery(): ProductSearchQuery {
         return ProductSearchQuery(
             word = word,
-            canDeliverSafely = canDeliverSafely,
-            canDeliverCommonly = canDeliverCommonly,
-            canPickUp = canPickUp,
+            deliveryMethod = deliveryMethod,
             sorter = sorter,
             lastViewedId = lastViewedId,
             limit = limit,

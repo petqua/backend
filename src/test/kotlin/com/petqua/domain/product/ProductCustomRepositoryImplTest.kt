@@ -1,6 +1,9 @@
 package com.petqua.domain.product
 
 import com.petqua.common.domain.dto.CursorBasedPaging
+import com.petqua.domain.delivery.DeliveryMethod.COMMON
+import com.petqua.domain.delivery.DeliveryMethod.PICK_UP
+import com.petqua.domain.delivery.DeliveryMethod.SAFETY
 import com.petqua.domain.product.ProductSourceType.HOME_RECOMMENDED
 import com.petqua.domain.product.Sorter.ENROLLMENT_DATE_DESC
 import com.petqua.domain.product.Sorter.REVIEW_COUNT_DESC
@@ -286,7 +289,7 @@ class ProductCustomRepositoryImplTest(
 
         When("상품 이름과 안전배송 조건을 입력하면") {
             val products = productRepository.findBySearch(
-                condition = ProductSearchCondition(word = "상품", canDeliverSafely = true),
+                condition = ProductSearchCondition(word = "상품", deliveryMethod = SAFETY),
                 paging = CursorBasedPaging()
             )
 
@@ -300,7 +303,7 @@ class ProductCustomRepositoryImplTest(
 
         When("상품 이름과 일반배송 조건을 입력하면") {
             val products = productRepository.findBySearch(
-                condition = ProductSearchCondition(word = "상품", canDeliverCommonly = true),
+                condition = ProductSearchCondition(word = "상품", deliveryMethod = COMMON),
                 paging = CursorBasedPaging()
             )
 
@@ -314,7 +317,7 @@ class ProductCustomRepositoryImplTest(
 
         When("상품 이름과 직접수령 조건을 입력하면") {
             val products = productRepository.findBySearch(
-                condition = ProductSearchCondition(word = "상품", canPickUp = true),
+                condition = ProductSearchCondition(word = "상품", deliveryMethod = PICK_UP),
                 paging = CursorBasedPaging()
             )
 

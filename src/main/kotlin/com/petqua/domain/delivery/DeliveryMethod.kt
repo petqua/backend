@@ -8,6 +8,7 @@ enum class DeliveryMethod(
     val description: String,
 ) {
 
+    NONE("선택 안함"),
     COMMON("일반 운송"),
     SAFETY("안전 운송"),
     PICK_UP("직접 방문"),

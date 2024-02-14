@@ -86,13 +86,7 @@ class ProductCustomRepositoryImpl(
                 join(Store::class).on(path(Product::storeId).eq(path(Store::id))),
             ).whereAnd(
                 path(Product::name).like(pattern = "%${condition.word}%", escape = ESCAPE_LETTER),
-
-                productDeliveryOptionBy(
-                    canDeliverSafely = condition.canDeliverSafely,
-                    canDeliverCommonly = condition.canDeliverCommonly,
-                    canPickUp = condition.canPickUp,
-                ),
-
+                productDeliveryOptionBy(condition.deliveryMethod),
                 productIdLt(paging.lastViewedId),
                 active(),
             ).orderBy(
@@ -117,13 +111,7 @@ class ProductCustomRepositoryImpl(
                 entity(Product::class),
             ).whereAnd(
                 path(Product::name).like(pattern = "%${condition.word}%", escape = ESCAPE_LETTER),
-
-                productDeliveryOptionBy(
-                    canDeliverSafely = condition.canDeliverSafely,
-                    canDeliverCommonly = condition.canDeliverCommonly,
-                    canPickUp = condition.canPickUp,
-                ),
-
+                productDeliveryOptionBy(condition.deliveryMethod),
                 active(),
             )
         }
@@ -149,13 +137,7 @@ class ProductCustomRepositoryImpl(
                 join(Store::class).on(path(Product::storeId).eq(path(Store::id))),
             ).whereAnd(
                 path(ProductKeyword::word).eq(condition.word),
-
-                productDeliveryOptionBy(
-                    canDeliverSafely = condition.canDeliverSafely,
-                    canDeliverCommonly = condition.canDeliverCommonly,
-                    canPickUp = condition.canPickUp,
-                ),
-
+                productDeliveryOptionBy(condition.deliveryMethod),
                 productIdLt(paging.lastViewedId),
                 active(),
             ).orderBy(
@@ -181,13 +163,7 @@ class ProductCustomRepositoryImpl(
                 join(ProductKeyword::class).on(path(ProductKeyword::productId).eq(path(Product::id))),
             ).whereAnd(
                 path(ProductKeyword::word).like(pattern = condition.word, escape = ESCAPE_LETTER),
-
-                productDeliveryOptionBy(
-                    canDeliverSafely = condition.canDeliverSafely,
-                    canDeliverCommonly = condition.canDeliverCommonly,
-                    canPickUp = condition.canPickUp,
-                ),
-
+                productDeliveryOptionBy(condition.deliveryMethod),
                 active(),
             )
         }

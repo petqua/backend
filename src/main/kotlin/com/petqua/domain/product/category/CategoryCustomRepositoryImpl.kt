@@ -35,13 +35,7 @@ class CategoryCustomRepositoryImpl(
             ).whereAnd(
                 categoryFamilyEq(condition.family),
                 categorySpeciesEqOr(condition.species),
-
-                productDeliveryOptionBy(
-                    canDeliverSafely = condition.canDeliverSafely,
-                    canDeliverCommonly = condition.canDeliverCommonly,
-                    canPickUp = condition.canPickUp,
-                ),
-
+                productDeliveryOptionBy(condition.deliveryMethod),
                 productIdLt(paging.lastViewedId),
                 active(),
             ).orderBy(
@@ -68,13 +62,7 @@ class CategoryCustomRepositoryImpl(
             ).whereAnd(
                 categoryFamilyEq(condition.family),
                 categorySpeciesEqOr(condition.species),
-
-                productDeliveryOptionBy(
-                    canDeliverSafely = condition.canDeliverSafely,
-                    canDeliverCommonly = condition.canDeliverCommonly,
-                    canPickUp = condition.canPickUp,
-                ),
-
+                productDeliveryOptionBy(condition.deliveryMethod),
                 active(),
             )
         }

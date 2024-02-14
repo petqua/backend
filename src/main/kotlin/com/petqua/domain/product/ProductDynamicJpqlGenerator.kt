@@ -6,6 +6,7 @@ import com.linecorp.kotlinjdsl.dsl.jpql.join.JoinAsStep
 import com.linecorp.kotlinjdsl.dsl.jpql.sort.SortNullsStep
 import com.linecorp.kotlinjdsl.querymodel.jpql.predicate.Predicatable
 import com.linecorp.kotlinjdsl.querymodel.jpql.predicate.Predicate
+import com.petqua.domain.delivery.DeliveryMethod
 import com.petqua.domain.product.category.Category
 import com.petqua.domain.product.category.Family
 import com.petqua.domain.product.category.Species
@@ -41,26 +42,17 @@ class ProductDynamicJpqlGenerator : Jpql() {
         }
     }
 
-    fun Jpql.productNameLike(word: String): Predicate? {
-        return if (word.isBlank()) null else path(Product::name).like(pattern = "%$word%", escape = ESCAPE_LETTER)
-    }
-
     fun Jpql.predicateByIds(ids: List<Long>): Predicate? {
         return if (ids.isEmpty()) null else path(Product::id).`in`(ids)
     }
 
-    fun Jpql.productDeliveryOptionBy(
-        canDeliverSafely: Boolean?,
-        canDeliverCommonly: Boolean?,
-        canPickUp: Boolean?
-    ): Predicate? {
-        val predicateCreators = listOf(
-            { canDeliverSafely?.let { path(Product::canDeliverSafely).eq(it) } },
-            { canDeliverCommonly?.let { path(Product::canDeliverCommonly).eq(it) } },
-            { canPickUp?.let { path(Product::canPickUp).eq(it) } }
-        )
-
-        return predicateCreators.firstNotNullOfOrNull { it() }
+    fun Jpql.productDeliveryOptionBy(deliveryMethod: DeliveryMethod): Predicate? {
+        return when (deliveryMethod) {
+            DeliveryMethod.SAFETY -> path(Product::canDeliverSafely).eq(true)
+            DeliveryMethod.COMMON -> path(Product::canDeliverCommonly).eq(true)
+            DeliveryMethod.PICK_UP -> path(Product::canPickUp).eq(true)
+            else -> null
+        }
     }
 
     fun Jpql.active(): Predicate {
