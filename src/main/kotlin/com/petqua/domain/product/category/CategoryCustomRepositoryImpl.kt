@@ -3,6 +3,7 @@ package com.petqua.domain.product.category
 import com.linecorp.kotlinjdsl.dsl.jpql.jpql
 import com.linecorp.kotlinjdsl.render.jpql.JpqlRenderContext
 import com.linecorp.kotlinjdsl.render.jpql.JpqlRenderer
+import com.petqua.common.domain.dto.CursorBasedPaging
 import com.petqua.common.util.createCountQuery
 import com.petqua.common.util.createQuery
 import com.petqua.domain.product.Product
@@ -22,7 +23,7 @@ class CategoryCustomRepositoryImpl(
 
     override fun findProductsByCategoryCondition(
         condition: CategoryProductReadCondition,
-        paging: CategoryProductPaging
+        paging: CursorBasedPaging
     ): List<ProductResponse> {
         val query = jpql(ProductDynamicJpqlGenerator) {
             selectNew<ProductResponse>(

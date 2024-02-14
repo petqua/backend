@@ -13,7 +13,6 @@ import io.restassured.response.Response
 
 fun requestReadProductById(
     productId: Long,
-    accessToken: String
 ): Response {
     return Given {
         log().all()
@@ -32,7 +31,6 @@ fun requestReadAllProducts(
     sorter: String = Sorter.NONE.name,
     lastViewedId: Long = DEFAULT_LAST_VIEWED_ID,
     limit: Int = PAGING_LIMIT_CEILING,
-    accessToken: String
 ): Response {
     return Given {
         log().all()
@@ -54,7 +52,6 @@ fun requestReadAllProducts(
 fun requestReadProductKeyword(
     word: String? = null,
     limit: Int = PAGING_LIMIT_CEILING,
-    accessToken: String
 ): Response {
     return Given {
         val paramMap = mutableMapOf<String, Any?>().apply {
@@ -79,7 +76,6 @@ fun requestReadProductBySearch(
     sorter: String = Sorter.NONE.name,
     lastViewedId: Long = DEFAULT_LAST_VIEWED_ID,
     limit: Int = PAGING_LIMIT_CEILING,
-    accessToken: String
 ): Response {
     val paramMap = mutableMapOf<String, Any?>().apply {
         put("word", word)

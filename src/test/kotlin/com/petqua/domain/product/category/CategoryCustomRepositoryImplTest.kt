@@ -1,5 +1,6 @@
 package com.petqua.domain.product.category
 
+import com.petqua.common.domain.dto.CursorBasedPaging
 import com.petqua.domain.delivery.DeliveryMethod.COMMON
 import com.petqua.domain.delivery.DeliveryMethod.PICK_UP
 import com.petqua.domain.delivery.DeliveryMethod.SAFETY
@@ -74,7 +75,7 @@ class CategoryCustomRepositoryImplTest(
         When("어과를 입력하면") {
             val products = categoryRepository.findProductsByCategoryCondition(
                 condition = CategoryProductReadCondition(family = "송사리과"),
-                paging = CategoryProductPaging()
+                paging = CursorBasedPaging()
             )
 
             Then("입력한 어과에 해당하는 상품들이 반환된다") {
@@ -92,7 +93,7 @@ class CategoryCustomRepositoryImplTest(
                     family = "송사리과",
                     species = listOf("팬시구피")
                 ),
-                paging = CategoryProductPaging()
+                paging = CursorBasedPaging()
             )
 
             Then("입력한 어과와 어종에 해당하는 상품들이 반환된다") {
@@ -109,7 +110,7 @@ class CategoryCustomRepositoryImplTest(
                     family = "송사리과",
                     species = listOf("팬시구피", "고정구피")
                 ),
-                paging = CategoryProductPaging()
+                paging = CursorBasedPaging()
             )
 
             Then("입력한 어과와 어종에 해당하는 상품들이 반환된다") {
@@ -127,7 +128,7 @@ class CategoryCustomRepositoryImplTest(
                     family = "송사리과",
                     deliveryMethod = SAFETY
                 ),
-                paging = CategoryProductPaging()
+                paging = CursorBasedPaging()
             )
 
             Then("입력한 배송 조건에 해당하는 상품들이 반환된다") {
@@ -143,7 +144,7 @@ class CategoryCustomRepositoryImplTest(
                     family = "송사리과",
                     deliveryMethod = COMMON
                 ),
-                paging = CategoryProductPaging()
+                paging = CursorBasedPaging()
             )
 
             Then("입력한 배송 조건에 해당하는 상품들이 반환된다") {
@@ -160,7 +161,7 @@ class CategoryCustomRepositoryImplTest(
                     family = "송사리과",
                     deliveryMethod = PICK_UP
                 ),
-                paging = CategoryProductPaging()
+                paging = CursorBasedPaging()
             )
 
             Then("입력한 배송 조건에 해당하는 상품들이 반환된다") {
@@ -174,7 +175,7 @@ class CategoryCustomRepositoryImplTest(
         When("개수 제한을 입력하면") {
             val products = categoryRepository.findProductsByCategoryCondition(
                 condition = CategoryProductReadCondition(family = "송사리과"),
-                paging = CategoryProductPaging(limit = 1)
+                paging = CursorBasedPaging(limit = 1)
             )
 
             Then("해당 개수만큼 반환한다") {
@@ -185,7 +186,7 @@ class CategoryCustomRepositoryImplTest(
         When("높은 가격 순으로 조회하면") {
             val products = categoryRepository.findProductsByCategoryCondition(
                 condition = CategoryProductReadCondition(family = "송사리과", sorter = SALE_PRICE_DESC),
-                paging = CategoryProductPaging()
+                paging = CursorBasedPaging()
             )
 
             Then("높은 가격순, 최신 등록 순으로 반환된다") {
@@ -200,7 +201,7 @@ class CategoryCustomRepositoryImplTest(
         When("낮은 가격 순으로 조회하면") {
             val products = categoryRepository.findProductsByCategoryCondition(
                 condition = CategoryProductReadCondition(family = "송사리과", sorter = SALE_PRICE_ASC),
-                paging = CategoryProductPaging()
+                paging = CursorBasedPaging()
             )
 
             Then("낮은 가격순, 최신 등록 순으로 반환된다") {
@@ -215,7 +216,7 @@ class CategoryCustomRepositoryImplTest(
         When("리뷰 많은 순으로 조회하면") {
             val products = categoryRepository.findProductsByCategoryCondition(
                 condition = CategoryProductReadCondition(family = "송사리과", sorter = REVIEW_COUNT_DESC),
-                paging = CategoryProductPaging()
+                paging = CursorBasedPaging()
             )
 
             Then("리뷰 많은 순, 최신 등록 순으로 반환된다") {
@@ -230,7 +231,7 @@ class CategoryCustomRepositoryImplTest(
         When("최신 등록 순으로 조회하면") {
             val products = categoryRepository.findProductsByCategoryCondition(
                 condition = CategoryProductReadCondition(family = "송사리과", sorter = ENROLLMENT_DATE_DESC),
-                paging = CategoryProductPaging()
+                paging = CursorBasedPaging()
             )
 
             Then("최신 등록 순으로 반환된다") {

@@ -2,11 +2,11 @@ package com.petqua.presentation.product.category
 
 import com.petqua.application.product.category.CategoryProductReadQuery
 import com.petqua.application.product.category.CategoryReadQuery
+import com.petqua.common.domain.dto.DEFAULT_LAST_VIEWED_ID
+import com.petqua.common.domain.dto.PAGING_LIMIT_CEILING
 import com.petqua.domain.delivery.DeliveryMethod
 import com.petqua.domain.product.Sorter
 import io.swagger.v3.oas.annotations.media.Schema
-
-private const val LIMIT_CEILING = 20
 
 data class CategoryReadRequest(
     @Schema(
@@ -54,13 +54,13 @@ data class CategoryProductReadRequest(
         description = "마지막으로 조회한 상품의 Id",
         example = "1"
     )
-    val lastViewedId: Long? = null,
+    val lastViewedId: Long = DEFAULT_LAST_VIEWED_ID,
 
     @Schema(
         description = "조회할 상품 개수",
         defaultValue = "20"
     )
-    val limit: Int = LIMIT_CEILING,
+    val limit: Int = PAGING_LIMIT_CEILING,
 ) {
 
     fun toQuery(): CategoryProductReadQuery {
