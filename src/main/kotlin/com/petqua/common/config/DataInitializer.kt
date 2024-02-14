@@ -14,6 +14,8 @@ import com.petqua.domain.product.review.ProductReview
 import com.petqua.domain.product.review.ProductReviewImage
 import com.petqua.domain.product.review.ProductReviewImageRepository
 import com.petqua.domain.product.review.ProductReviewRepository
+import com.petqua.domain.product.category.Category
+import com.petqua.domain.product.category.CategoryRepository
 import com.petqua.domain.recommendation.ProductRecommendation
 import com.petqua.domain.recommendation.ProductRecommendationRepository
 import com.petqua.domain.store.Store
@@ -34,6 +36,7 @@ class DataInitializer(
     private val recommendationRepository: ProductRecommendationRepository,
     private val storeRepository: StoreRepository,
     private val memberRepository: MemberRepository,
+    private val categoryRepository: CategoryRepository,
     private val productReviewRepository: ProductReviewRepository,
     private val productReviewImageRepository: ProductReviewImageRepository,
 ) {
@@ -80,10 +83,14 @@ class DataInitializer(
         val store2 = Store(name = "제주 미영이네 식당")
         storeRepository.saveAll(listOf(store1, store2))
 
+        // category
+        val category = Category.of(family = "송사리과", species = "고정구피")
+        categoryRepository.save(category)
+
         // product
         val product1 = Product(
             name = "니모",
-            category = "기타과",
+            categoryId = category.id,
             price = BigDecimal.valueOf(30000L).setScale(2),
             storeId = store1.id,
             discountRate = 10,
@@ -99,7 +106,7 @@ class DataInitializer(
         )
         val product2 = Product(
             name = "참고등어",
-            category = "대형어",
+            categoryId = category.id,
             price = BigDecimal.valueOf(20000L).setScale(2),
             storeId = store1.id,
             discountRate = 10,
@@ -115,7 +122,7 @@ class DataInitializer(
         )
         val product3 = Product(
             name = "니모를 찾아서 세트",
-            category = "기타과",
+            categoryId = category.id,
             price = BigDecimal.valueOf(80000L).setScale(2),
             storeId = store1.id,
             discountRate = 50,
@@ -130,7 +137,7 @@ class DataInitializer(
             canPickUp = true,
         )
         productRepository.saveAll(listOf(product1, product2, product3))
-        saveProducts(store1.id)
+        saveProducts(store1.id, category.id)
 
         // productRecommendation
         val productRecommendation1 = ProductRecommendation(productId = product3.id)
@@ -182,11 +189,11 @@ class DataInitializer(
         }
     }
 
-    private fun saveProducts(storeId: Long) {
+    private fun saveProducts(storeId: Long, categoryId: Long) {
         val products = (1..100).map {
             Product(
                 name = "니모를 찾아서 세트$it",
-                category = "기타과",
+                categoryId = categoryId,
                 price = BigDecimal.valueOf(80000L).setScale(2),
                 storeId = storeId,
                 discountRate = 50,
