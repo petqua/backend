@@ -332,9 +332,6 @@ class ProductCustomRepositoryImplTest(
         }
     }
 
-    // 상품 키워드 검색
-    // count 메서드
-
     afterContainer {
         dataCleaner.clean()
     }
