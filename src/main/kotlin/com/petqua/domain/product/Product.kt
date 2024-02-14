@@ -2,6 +2,7 @@ package com.petqua.domain.product
 
 import com.petqua.common.domain.BaseEntity
 import com.petqua.common.domain.SoftDeleteEntity
+import com.petqua.domain.product.review.ProductReviewStatistics
 import com.petqua.exception.product.ProductException
 import com.petqua.exception.product.ProductExceptionType.NOT_FOUND_PRODUCT
 import jakarta.persistence.AttributeOverride
@@ -11,7 +12,6 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import java.math.BigDecimal
-import java.math.RoundingMode
 
 private const val SCALE = 1
 private const val ZERO = 0
@@ -60,10 +60,7 @@ class Product(
 ) : BaseEntity(), SoftDeleteEntity {
 
     fun averageReviewScore(): Double {
-        return if (reviewCount == ZERO) ZERO.toDouble()
-        else BigDecimal.valueOf(reviewTotalScore / reviewCount.toDouble())
-            .setScale(SCALE, RoundingMode.HALF_UP)
-            .toDouble()
+        return ProductReviewStatistics.averageReviewScore(reviewTotalScore, reviewCount.toDouble())
     }
 
     fun increaseWishCount() {

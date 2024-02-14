@@ -7,7 +7,7 @@ import java.math.RoundingMode
 private const val ZERO = 0
 
 class ProductReviewStatistics private constructor(
-    val reviewCountsByScore: Map<Int, Int>,
+    private val reviewCountsByScore: Map<Int, Int>,
 ) {
 
     companion object {
@@ -15,19 +15,24 @@ class ProductReviewStatistics private constructor(
             val reviewCountsByScore = reviewScoreWithCounts.associate { it.score to it.count.toInt() }
             return ProductReviewStatistics(reviewCountsByScore)
         }
+
+        fun averageReviewScore(reviewTotalScore: Int, totalReviewCount: Double): Double {
+            return if (totalReviewCount == 0.0) 0.0
+            else BigDecimal.valueOf(reviewTotalScore / totalReviewCount)
+                .setScale(1, RoundingMode.HALF_UP)
+                .toDouble()
+        }
     }
 
     val totalReviewCount: Int
         get() = reviewCountsByScore.values.sum()
 
+
     val averageScore: Double
-        get() = if (totalReviewCount == ZERO) ZERO.toDouble()
-        else {
-            val reviewTotalScore = reviewCountsByScore.entries.sumOf { it.key * it.value }
-            BigDecimal.valueOf(reviewTotalScore / totalReviewCount.toDouble())
-                .setScale(1, RoundingMode.HALF_UP)
-                .toDouble()
-        }
+        get() = averageReviewScore(
+            reviewCountsByScore.entries.sumOf { it.key * it.value },
+            totalReviewCount.toDouble()
+        )
 
     val productSatisfaction: Int
         get() = if (totalReviewCount == ZERO) ZERO
