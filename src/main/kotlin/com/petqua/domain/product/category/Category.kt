@@ -20,17 +20,4 @@ class Category(
     @Embedded
     @AttributeOverride(name = "name", column = Column(name = "species", nullable = false))
     val species: Species,
-) {
-
-    companion object {
-        fun of(
-            family: String,
-            species: String,
-        ): Category {
-            return Category(
-                family = Family(family),
-                species = Species(species)
-            )
-        }
-    }
-}
+)
