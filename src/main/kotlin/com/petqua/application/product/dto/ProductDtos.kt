@@ -152,10 +152,17 @@ data class ProductDetailResponse(
         example = "사나움"
     )
     val temperament: String,
+
+    @Schema(
+        description = "찜 여부",
+        example = "true"
+    )
+    val isWished: Boolean,
 ) {
     constructor(
         productWithInfoResponse: ProductWithInfoResponse,
         imageUrls: List<String>,
+        isWished: Boolean,
         // TODO
         // category: Category
     ) : this(
@@ -182,6 +189,7 @@ data class ProductDetailResponse(
         optimalTankSizeMin = productWithInfoResponse.optimalTankSizeLiterMin,
         optimalTankSizeMax = productWithInfoResponse.optimalTankSizeLiterMax,
         temperament = productWithInfoResponse.temperament,
+        isWished = isWished,
     )
 }
 

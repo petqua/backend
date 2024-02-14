@@ -13,6 +13,7 @@ import com.petqua.domain.product.ProductSourceType.HOME_RECOMMENDED
 import com.petqua.domain.product.Sorter.REVIEW_COUNT_DESC
 import com.petqua.domain.product.Sorter.SALE_PRICE_ASC
 import com.petqua.domain.product.Sorter.SALE_PRICE_DESC
+import com.petqua.domain.product.WishProductRepository
 import com.petqua.domain.product.detail.DifficultyLevel
 import com.petqua.domain.product.detail.OptimalTankSizeLiter
 import com.petqua.domain.product.detail.OptimalTemperature
@@ -31,6 +32,7 @@ import com.petqua.test.fixture.productInfo
 import com.petqua.test.fixture.productKeyword
 import com.petqua.test.fixture.productRecommendation
 import com.petqua.test.fixture.store
+import com.petqua.test.fixture.wishProduct
 import io.kotest.assertions.assertSoftly
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
@@ -51,6 +53,7 @@ class ProductControllerTest(
     private val productKeywordRepository: ProductKeywordRepository,
     private val productInfoRepository: ProductInfoRepository,
     private val productImageRepository: ProductImageRepository,
+    private val wishProductRepository: WishProductRepository,
 ) : ApiTestConfig() {
 
     init {
@@ -58,6 +61,7 @@ class ProductControllerTest(
 
         Given("개별 상품을 상세 조회할 때") {
             val accessToken = signInAsMember().accessToken
+            val memberId = getMemberIdByAccessToken(accessToken)
 
             val product = productRepository.save(
                 product(
@@ -84,14 +88,20 @@ class ProductControllerTest(
                     imageUrl = "image.jpeg"
                 )
             )
+            wishProductRepository.save(
+                wishProduct(
+                    productId = product.id,
+                    memberId = memberId
+                )
+            )
 
-
-            When("상품 ID를 입력하면") {
+            When("회원이 상품 ID를 입력하면") {
                 val response = requestReadProductById(
                     productId = product.id,
+                    accessToken = accessToken
                 )
 
-                Then("해당 ID의 상품의 상세 정보가 반환된다") {
+                Then("해당 ID 상품의 회원의 찜 여부를 포함한 상세 정보가 반환된다") {
                     val productDetailResponse = response.`as`(ProductDetailResponse::class.java)
 
                     assertSoftly {
@@ -120,6 +130,7 @@ class ProductControllerTest(
                             optimalTankSizeMin = productInfo.optimalTankSizeLiter.optimalTankSizeLiterMin,
                             optimalTankSizeMax = productInfo.optimalTankSizeLiter.optimalTankSizeLiterMax,
                             temperament = productInfo.temperament.description,
+                            isWished = true
                         )
                     }
                 }
@@ -136,6 +147,47 @@ class ProductControllerTest(
                     assertSoftly {
                         response.statusCode shouldBe NOT_FOUND.value()
                         exceptionResponse.message shouldBe NOT_FOUND_PRODUCT.errorMessage()
+                    }
+                }
+            }
+
+            When("비회원이 상품 ID를 입력하면") {
+                val response = requestReadProductById(
+                    productId = product.id,
+                    accessToken = null
+                )
+
+                Then("해당 ID의 상품의 상세 정보가 반환된다") {
+                    val productDetailResponse = response.`as`(ProductDetailResponse::class.java)
+
+                    assertSoftly {
+                        response.statusCode shouldBe HttpStatus.OK.value()
+                        productDetailResponse shouldBe ProductDetailResponse(
+                            id = product.id,
+                            name = product.name,
+                            family = "family",
+                            species = "species",
+                            price = product.price.intValueExact(),
+                            storeName = store.name,
+                            discountRate = product.discountRate,
+                            discountPrice = product.discountPrice.intValueExact(),
+                            wishCount = product.wishCount.value,
+                            reviewCount = product.reviewCount,
+                            reviewAverageScore = product.averageReviewScore(),
+                            thumbnailUrl = product.thumbnailUrl,
+                            imageUrls = listOf(productImage.imageUrl),
+                            description = product.description,
+                            canDeliverSafely = product.canDeliverSafely,
+                            canDeliverCommonly = product.canDeliverCommonly,
+                            canPickUp = product.canPickUp,
+                            optimalTemperatureMin = productInfo.optimalTemperature.optimalTemperatureMin,
+                            optimalTemperatureMax = productInfo.optimalTemperature.optimalTemperatureMax,
+                            difficultyLevel = productInfo.difficultyLevel.description,
+                            optimalTankSizeMin = productInfo.optimalTankSizeLiter.optimalTankSizeLiterMin,
+                            optimalTankSizeMax = productInfo.optimalTankSizeLiter.optimalTankSizeLiterMax,
+                            temperament = productInfo.temperament.description,
+                            isWished = false,
+                        )
                     }
                 }
             }

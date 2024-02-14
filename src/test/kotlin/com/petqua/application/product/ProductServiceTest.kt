@@ -6,10 +6,13 @@ import com.petqua.application.product.dto.ProductKeywordResponse
 import com.petqua.application.product.dto.ProductReadQuery
 import com.petqua.application.product.dto.ProductSearchQuery
 import com.petqua.application.product.dto.ProductsResponse
+import com.petqua.domain.auth.LoginMemberOrGuest
 import com.petqua.domain.keyword.ProductKeywordRepository
+import com.petqua.domain.member.MemberRepository
 import com.petqua.domain.product.ProductRepository
 import com.petqua.domain.product.ProductSourceType.NONE
 import com.petqua.domain.product.Sorter.ENROLLMENT_DATE_DESC
+import com.petqua.domain.product.WishProductRepository
 import com.petqua.domain.product.detail.DifficultyLevel
 import com.petqua.domain.product.detail.OptimalTankSizeLiter
 import com.petqua.domain.product.detail.OptimalTemperature
@@ -21,11 +24,13 @@ import com.petqua.domain.store.StoreRepository
 import com.petqua.exception.product.ProductException
 import com.petqua.exception.product.ProductExceptionType.NOT_FOUND_PRODUCT
 import com.petqua.test.DataCleaner
+import com.petqua.test.fixture.member
 import com.petqua.test.fixture.product
 import com.petqua.test.fixture.productImage
 import com.petqua.test.fixture.productInfo
 import com.petqua.test.fixture.productKeyword
 import com.petqua.test.fixture.store
+import com.petqua.test.fixture.wishProduct
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -42,13 +47,17 @@ class ProductServiceTest(
     private val productKeywordRepository: ProductKeywordRepository,
     private val productInfoRepository: ProductInfoRepository,
     private val productImageRepository: ProductImageRepository,
+    private val memberRepository: MemberRepository,
+    private val wishProductRepository: WishProductRepository,
     private val dataCleaner: DataCleaner,
 ) : BehaviorSpec({
 
     val store = storeRepository.save(store(name = "store"))
 
     Given("상품 ID로 상품 상세정보를 조회할 때") {
-        val product = productRepository.save(
+        val member = memberRepository.save(member())
+
+        val wishedProduct = productRepository.save(
             product(
                 name = "고정구피",
                 storeId = store.id,
@@ -59,7 +68,7 @@ class ProductServiceTest(
         )
         val productInfo = productInfoRepository.save(
             productInfo(
-                productId = product.id,
+                productId = wishedProduct.id,
                 categoryId = 0,
                 optimalTemperature = OptimalTemperature(26, 28),
                 difficultyLevel = DifficultyLevel.EASY,
@@ -69,50 +78,100 @@ class ProductServiceTest(
         )
         val productImage = productImageRepository.save(
             productImage(
-                productId = product.id,
+                productId = wishedProduct.id,
                 imageUrl = "image.jpeg"
             )
         )
+        wishProductRepository.save(
+            wishProduct(
+                productId = wishedProduct.id,
+                memberId = member.id
+            )
+        )
 
-        When("상품 ID를 입력하면") {
-            val productDetailResponse = productService.readById(product.id)
+        When("회원 정보와 상품 ID를 입력하면") {
+            val productDetailResponse = productService.readById(
+                loginMemberOrGuest = LoginMemberOrGuest(member.id, member.authority),
+                productId = wishedProduct.id
+            )
 
             Then("상품 상세정보를 반환한다") {
                 productDetailResponse shouldBe ProductDetailResponse(
-                    id = product.id,
-                    name = product.name,
+                    id = wishedProduct.id,
+                    name = wishedProduct.name,
                     family = "family",
                     species = "species",
-                    price = product.price.intValueExact(),
+                    price = wishedProduct.price.intValueExact(),
                     storeName = store.name,
-                    discountRate = product.discountRate,
-                    discountPrice = product.discountPrice.intValueExact(),
-                    wishCount = product.wishCount.value,
-                    reviewCount = product.reviewCount,
-                    reviewAverageScore = product.averageReviewScore(),
-                    thumbnailUrl = product.thumbnailUrl,
+                    discountRate = wishedProduct.discountRate,
+                    discountPrice = wishedProduct.discountPrice.intValueExact(),
+                    wishCount = wishedProduct.wishCount.value,
+                    reviewCount = wishedProduct.reviewCount,
+                    reviewAverageScore = wishedProduct.averageReviewScore(),
+                    thumbnailUrl = wishedProduct.thumbnailUrl,
                     imageUrls = listOf(productImage.imageUrl),
-                    canDeliverSafely = product.canDeliverSafely,
-                    canDeliverCommonly = product.canDeliverCommonly,
-                    canPickUp = product.canPickUp,
-                    description = product.description,
+                    canDeliverSafely = wishedProduct.canDeliverSafely,
+                    canDeliverCommonly = wishedProduct.canDeliverCommonly,
+                    canPickUp = wishedProduct.canPickUp,
+                    description = wishedProduct.description,
                     optimalTemperatureMin = productInfo.optimalTemperature.optimalTemperatureMin,
                     optimalTemperatureMax = productInfo.optimalTemperature.optimalTemperatureMax,
                     difficultyLevel = productInfo.difficultyLevel.description,
                     optimalTankSizeMin = productInfo.optimalTankSizeLiter.optimalTankSizeLiterMin,
                     optimalTankSizeMax = productInfo.optimalTankSizeLiter.optimalTankSizeLiterMax,
                     temperament = productInfo.temperament.description,
+                    isWished = true,
                 )
             }
         }
 
-        When("존재하지 않는 상품 ID를 입력하면") {
+        When("회원 정보와 존재하지 않는 상품 ID를 입력하면") {
+            val loginMember = LoginMemberOrGuest(member.id, member.authority)
             val invalidId = MIN_VALUE
 
             Then("예외를 던진다") {
                 shouldThrow<ProductException> {
-                    productService.readById(invalidId)
+                    productService.readById(
+                        loginMemberOrGuest = loginMember,
+                        productId = invalidId
+                    )
                 }.exceptionType() shouldBe NOT_FOUND_PRODUCT
+            }
+        }
+
+        When("비회원 정보와 상품 ID를 입력하면") {
+            val productDetailResponse = productService.readById(
+                loginMemberOrGuest = LoginMemberOrGuest.getGuest(),
+                productId = wishedProduct.id
+            )
+
+            Then("상품 상세정보를 반환한다") {
+                productDetailResponse shouldBe ProductDetailResponse(
+                    id = wishedProduct.id,
+                    name = wishedProduct.name,
+                    family = "family",
+                    species = "species",
+                    price = wishedProduct.price.intValueExact(),
+                    storeName = store.name,
+                    discountRate = wishedProduct.discountRate,
+                    discountPrice = wishedProduct.discountPrice.intValueExact(),
+                    wishCount = wishedProduct.wishCount.value,
+                    reviewCount = wishedProduct.reviewCount,
+                    reviewAverageScore = wishedProduct.averageReviewScore(),
+                    thumbnailUrl = wishedProduct.thumbnailUrl,
+                    imageUrls = listOf(productImage.imageUrl),
+                    canDeliverSafely = wishedProduct.canDeliverSafely,
+                    canDeliverCommonly = wishedProduct.canDeliverCommonly,
+                    canPickUp = wishedProduct.canPickUp,
+                    description = wishedProduct.description,
+                    optimalTemperatureMin = productInfo.optimalTemperature.optimalTemperatureMin,
+                    optimalTemperatureMax = productInfo.optimalTemperature.optimalTemperatureMax,
+                    difficultyLevel = productInfo.difficultyLevel.description,
+                    optimalTankSizeMin = productInfo.optimalTankSizeLiter.optimalTankSizeLiterMin,
+                    optimalTankSizeMax = productInfo.optimalTankSizeLiter.optimalTankSizeLiterMax,
+                    temperament = productInfo.temperament.description,
+                    isWished = false,
+                )
             }
         }
     }

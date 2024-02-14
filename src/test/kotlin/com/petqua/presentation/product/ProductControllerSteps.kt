@@ -10,12 +10,15 @@ import io.restassured.module.kotlin.extensions.Given
 import io.restassured.module.kotlin.extensions.Then
 import io.restassured.module.kotlin.extensions.When
 import io.restassured.response.Response
+import io.restassured.specification.RequestSpecification
 
 fun requestReadProductById(
     productId: Long,
+    accessToken: String? = null
 ): Response {
     return Given {
         log().all()
+        authorize(accessToken)
         pathParam("productId", productId)
     } When {
         get("/products/{productId}")
@@ -24,6 +27,10 @@ fun requestReadProductById(
     } Extract {
         response()
     }
+}
+
+private fun RequestSpecification.authorize(accessToken: String?): RequestSpecification? {
+    return accessToken?.let { auth().preemptive().oauth2(it) }
 }
 
 fun requestReadAllProducts(

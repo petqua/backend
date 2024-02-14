@@ -6,8 +6,10 @@ import com.petqua.application.product.dto.ProductKeywordResponse
 import com.petqua.application.product.dto.ProductReadQuery
 import com.petqua.application.product.dto.ProductSearchQuery
 import com.petqua.application.product.dto.ProductsResponse
+import com.petqua.domain.auth.LoginMemberOrGuest
 import com.petqua.domain.keyword.ProductKeywordRepository
 import com.petqua.domain.product.ProductRepository
+import com.petqua.domain.product.WishProductRepository
 import com.petqua.domain.product.detail.ProductImageRepository
 import com.petqua.exception.product.ProductException
 import com.petqua.exception.product.ProductExceptionType.NOT_FOUND_PRODUCT
@@ -20,16 +22,21 @@ class ProductService(
     private val productRepository: ProductRepository,
     private val productImageRepository: ProductImageRepository,
     private val productKeywordRepository: ProductKeywordRepository,
+    private val wishProductRepository: WishProductRepository,
 ) {
 
     @Transactional(readOnly = true)
-    fun readById(productId: Long): ProductDetailResponse {
+    fun readById(loginMemberOrGuest: LoginMemberOrGuest, productId: Long): ProductDetailResponse {
         val productWithInfo = productRepository.findProductWithInfoByIdOrThrow(productId) {
             ProductException(NOT_FOUND_PRODUCT)
         }
-        val images = productImageRepository.findProductImagesByProductId(productId)
-        val imageUrls = images.map { it.imageUrl }
-        return ProductDetailResponse(productWithInfo, imageUrls)
+        val imageUrls = productImageRepository.findProductImagesByProductId(productId).map { it.imageUrl }
+        val isWished = loginMemberOrGuest.isMember() && wishProductRepository.existsByProductIdAndMemberId(
+            productId = productId,
+            memberId = loginMemberOrGuest.memberId
+        )
+
+        return ProductDetailResponse(productWithInfo, imageUrls, isWished)
     }
 
     @Transactional(readOnly = true)

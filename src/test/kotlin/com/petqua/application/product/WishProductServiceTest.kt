@@ -24,6 +24,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import java.math.BigDecimal
 import org.springframework.boot.test.context.SpringBootTest
+import kotlin.Long.Companion.MIN_VALUE
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 class WishProductServiceTest(
@@ -79,7 +80,7 @@ class WishProductServiceTest(
 
         When("멤버가 존재하지 않으면") {
             val command = UpdateWishCommand(
-                memberId = Long.MIN_VALUE,
+                memberId = MIN_VALUE,
                 productId = product.id
             )
 
@@ -93,7 +94,7 @@ class WishProductServiceTest(
         When("상품이 존재하지 않으면") {
             val command = UpdateWishCommand(
                 memberId = member.id,
-                productId = Long.MIN_VALUE
+                productId = MIN_VALUE
             )
 
             Then("예외가 발생한다") {
@@ -177,13 +178,53 @@ class WishProductServiceTest(
 
         When("멤버가 존재하지 않으면") {
             val command = ReadAllWishProductCommand(
-                memberId = Long.MIN_VALUE
+                memberId = MIN_VALUE
             )
 
             Then("예외가 발생한다") {
                 shouldThrow<MemberException> {
                     wishProductService.readAll(command)
                 }.exceptionType() shouldBe MemberExceptionType.NOT_FOUND_MEMBER
+            }
+        }
+    }
+
+    Given("상품 id와 회원 id로 찜 상품이 존재하는지 여부를 확인할 때") {
+        val member = memberRepository.save(member())
+        val product = productRepository.save(product())
+
+        wishProductRepository.save(wishProduct(productId = product.id))
+
+        When("회원 id와 회원이 찜한 상품의 id을 입력하면") {
+            val actual = wishProductRepository.existsByProductIdAndMemberId(
+                productId = product.id,
+                memberId = member.id
+            )
+
+            Then("true를 반환한다") {
+                actual shouldBe true
+            }
+        }
+
+        When("회원 id와 회원이 찜하지 않은 상품의 id을 입력하면") {
+            val actual = wishProductRepository.existsByProductIdAndMemberId(
+                productId = MIN_VALUE,
+                memberId = member.id
+            )
+
+            Then("false를 반환한다") {
+                actual shouldBe false
+            }
+        }
+
+        When("회원이 아닌 id를 입력하면") {
+            val actual = wishProductRepository.existsByProductIdAndMemberId(
+                productId = MIN_VALUE,
+                memberId = MIN_VALUE
+            )
+
+            Then("false를 반환한다") {
+                actual shouldBe false
             }
         }
     }
