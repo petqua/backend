@@ -4,10 +4,10 @@ import com.petqua.domain.product.dto.ProductResponse
 
 interface CategoryCustomRepository {
 
-    fun findProductsByCondition(
+    fun findProductsByCategoryCondition(
         condition: CategoryProductReadCondition,
         paging: CategoryProductPaging
     ): List<ProductResponse>
 
-    fun countProductsByCondition(condition: CategoryProductReadCondition): Int
+    fun countProductsByCategoryCondition(condition: CategoryProductReadCondition): Int
 }

@@ -20,8 +20,8 @@ class CategoryService(
 
     @Transactional(readOnly = true)
     fun readProducts(query: CategoryProductReadQuery): ProductsResponse {
-        val products = categoryRepository.findProductsByCondition(query.toCondition(), query.toPaging())
-        val totalProductsCount = categoryRepository.countProductsByCondition(query.toCondition())
+        val products = categoryRepository.findProductsByCategoryCondition(query.toCondition(), query.toPaging())
+        val totalProductsCount = categoryRepository.countProductsByCategoryCondition(query.toCondition())
         return ProductsResponse.of(products, query.limit, totalProductsCount)
     }
 }

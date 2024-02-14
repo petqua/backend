@@ -72,7 +72,7 @@ class CategoryCustomRepositoryImplTest(
         )
 
         When("어과를 입력하면") {
-            val products = categoryRepository.findProductsByCondition(
+            val products = categoryRepository.findProductsByCategoryCondition(
                 condition = CategoryProductReadCondition(family = "송사리과"),
                 paging = CategoryProductPaging()
             )
@@ -87,7 +87,7 @@ class CategoryCustomRepositoryImplTest(
         }
 
         When("어과와 어종을 입력하면") {
-            val products = categoryRepository.findProductsByCondition(
+            val products = categoryRepository.findProductsByCategoryCondition(
                 condition = CategoryProductReadCondition(
                     family = "송사리과",
                     species = listOf("팬시구피")
@@ -104,7 +104,7 @@ class CategoryCustomRepositoryImplTest(
         }
 
         When("어과와 여러 어종을 입력하면") {
-            val products = categoryRepository.findProductsByCondition(
+            val products = categoryRepository.findProductsByCategoryCondition(
                 condition = CategoryProductReadCondition(
                     family = "송사리과",
                     species = listOf("팬시구피", "고정구피")
@@ -122,7 +122,7 @@ class CategoryCustomRepositoryImplTest(
         }
 
         When("안전배송 조건을 입력하면") {
-            val products = categoryRepository.findProductsByCondition(
+            val products = categoryRepository.findProductsByCategoryCondition(
                 condition = CategoryProductReadCondition(
                     family = "송사리과",
                     deliveryMethod = SAFETY
@@ -138,7 +138,7 @@ class CategoryCustomRepositoryImplTest(
         }
 
         When("일반배송 조건을 입력하면") {
-            val products = categoryRepository.findProductsByCondition(
+            val products = categoryRepository.findProductsByCategoryCondition(
                 condition = CategoryProductReadCondition(
                     family = "송사리과",
                     deliveryMethod = COMMON
@@ -155,7 +155,7 @@ class CategoryCustomRepositoryImplTest(
         }
 
         When("직접수령 조건을 입력하면") {
-            val products = categoryRepository.findProductsByCondition(
+            val products = categoryRepository.findProductsByCategoryCondition(
                 condition = CategoryProductReadCondition(
                     family = "송사리과",
                     deliveryMethod = PICK_UP
@@ -172,7 +172,7 @@ class CategoryCustomRepositoryImplTest(
         }
 
         When("개수 제한을 입력하면") {
-            val products = categoryRepository.findProductsByCondition(
+            val products = categoryRepository.findProductsByCategoryCondition(
                 condition = CategoryProductReadCondition(family = "송사리과"),
                 paging = CategoryProductPaging(limit = 1)
             )
@@ -183,7 +183,7 @@ class CategoryCustomRepositoryImplTest(
         }
 
         When("높은 가격 순으로 조회하면") {
-            val products = categoryRepository.findProductsByCondition(
+            val products = categoryRepository.findProductsByCategoryCondition(
                 condition = CategoryProductReadCondition(family = "송사리과", sorter = SALE_PRICE_DESC),
                 paging = CategoryProductPaging()
             )
@@ -198,7 +198,7 @@ class CategoryCustomRepositoryImplTest(
         }
 
         When("낮은 가격 순으로 조회하면") {
-            val products = categoryRepository.findProductsByCondition(
+            val products = categoryRepository.findProductsByCategoryCondition(
                 condition = CategoryProductReadCondition(family = "송사리과", sorter = SALE_PRICE_ASC),
                 paging = CategoryProductPaging()
             )
@@ -213,7 +213,7 @@ class CategoryCustomRepositoryImplTest(
         }
 
         When("리뷰 많은 순으로 조회하면") {
-            val products = categoryRepository.findProductsByCondition(
+            val products = categoryRepository.findProductsByCategoryCondition(
                 condition = CategoryProductReadCondition(family = "송사리과", sorter = REVIEW_COUNT_DESC),
                 paging = CategoryProductPaging()
             )
@@ -228,7 +228,7 @@ class CategoryCustomRepositoryImplTest(
         }
 
         When("최신 등록 순으로 조회하면") {
-            val products = categoryRepository.findProductsByCondition(
+            val products = categoryRepository.findProductsByCategoryCondition(
                 condition = CategoryProductReadCondition(family = "송사리과", sorter = ENROLLMENT_DATE_DESC),
                 paging = CategoryProductPaging()
             )
@@ -278,7 +278,7 @@ class CategoryCustomRepositoryImplTest(
         )
 
         When("어과를 입력하면") {
-            val totalProductsCount = categoryRepository.countProductsByCondition(
+            val totalProductsCount = categoryRepository.countProductsByCategoryCondition(
                 CategoryProductReadCondition(
                     family = "송사리과",
                 )
@@ -290,7 +290,7 @@ class CategoryCustomRepositoryImplTest(
         }
 
         When("어과와 어종을 입력하면") {
-            val totalProductsCount = categoryRepository.countProductsByCondition(
+            val totalProductsCount = categoryRepository.countProductsByCategoryCondition(
                 CategoryProductReadCondition(
                     family = "송사리과",
                     species = listOf("팬시구피")
@@ -303,7 +303,7 @@ class CategoryCustomRepositoryImplTest(
         }
 
         When("어과와 여러 어종을 입력하면") {
-            val totalProductsCount = categoryRepository.countProductsByCondition(
+            val totalProductsCount = categoryRepository.countProductsByCategoryCondition(
                 CategoryProductReadCondition(
                     family = "송사리과",
                     species = listOf("팬시구피", "고정구피")
@@ -316,7 +316,7 @@ class CategoryCustomRepositoryImplTest(
         }
 
         When("안전배송 조건을 입력하면") {
-            val totalProductsCount = categoryRepository.countProductsByCondition(
+            val totalProductsCount = categoryRepository.countProductsByCategoryCondition(
                 CategoryProductReadCondition(
                     family = "송사리과",
                     deliveryMethod = SAFETY
@@ -329,7 +329,7 @@ class CategoryCustomRepositoryImplTest(
         }
 
         When("일반배송 조건을 입력하면") {
-            val totalProductsCount = categoryRepository.countProductsByCondition(
+            val totalProductsCount = categoryRepository.countProductsByCategoryCondition(
                 CategoryProductReadCondition(
                     family = "송사리과",
                     deliveryMethod = COMMON
@@ -342,7 +342,7 @@ class CategoryCustomRepositoryImplTest(
         }
 
         When("직접수령 조건을 입력하면") {
-            val totalProductsCount = categoryRepository.countProductsByCondition(
+            val totalProductsCount = categoryRepository.countProductsByCategoryCondition(
                 CategoryProductReadCondition(
                     family = "송사리과",
                     deliveryMethod = PICK_UP

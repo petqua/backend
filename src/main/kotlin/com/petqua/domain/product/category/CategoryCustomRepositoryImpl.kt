@@ -20,7 +20,7 @@ class CategoryCustomRepositoryImpl(
     private val jpqlRenderer: JpqlRenderer,
 ) : CategoryCustomRepository {
 
-    override fun findProductsByCondition(
+    override fun findProductsByCategoryCondition(
         condition: CategoryProductReadCondition,
         paging: CategoryProductPaging
     ): List<ProductResponse> {
@@ -52,7 +52,7 @@ class CategoryCustomRepositoryImpl(
         )
     }
 
-    override fun countProductsByCondition(condition: CategoryProductReadCondition): Int {
+    override fun countProductsByCategoryCondition(condition: CategoryProductReadCondition): Int {
         val query = jpql(ProductDynamicJpqlGenerator) {
             select(
                 count(Product::id),

@@ -12,8 +12,6 @@ import com.petqua.domain.product.category.Family
 import com.petqua.domain.product.category.Species
 import com.petqua.domain.recommendation.ProductRecommendation
 
-private const val ESCAPE_LETTER = '\\'
-
 class ProductDynamicJpqlGenerator : Jpql() {
     companion object Constructor : JpqlDsl.Constructor<ProductDynamicJpqlGenerator> {
         override fun newInstance(): ProductDynamicJpqlGenerator = ProductDynamicJpqlGenerator()
