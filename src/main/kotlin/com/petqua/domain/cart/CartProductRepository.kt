@@ -1,5 +1,6 @@
 package com.petqua.domain.cart
 
+import com.petqua.domain.delivery.DeliveryMethod
 import org.springframework.data.jpa.repository.JpaRepository
 
 interface CartProductRepository : JpaRepository<CartProduct, Long>, CartProductCustomRepository {

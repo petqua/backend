@@ -10,7 +10,7 @@ private const val DEFAULT_SCALE = 2
 fun product(
     id: Long = 0L,
     name: String = "name",
-    category: String = "category",
+    categoryId: Long = 0,
     price: BigDecimal = BigDecimal.ONE,
     storeId: Long = 0L,
     discountRate: Int = 0,
@@ -20,12 +20,15 @@ fun product(
     reviewTotalScore: Int = 0,
     thumbnailUrl: String = "image.jpg",
     description: String = "description",
-    isDeleted: Boolean = false
+    isDeleted: Boolean = false,
+    canDeliverySafely: Boolean = true,
+    canDeliveryCommonly: Boolean = true,
+    canPickUp: Boolean = true,
 ): Product {
     return Product(
         id,
         name,
-        category,
+        categoryId,
         price.setScale(DEFAULT_SCALE),
         storeId,
         discountRate,
@@ -35,7 +38,10 @@ fun product(
         reviewTotalScore,
         thumbnailUrl,
         description,
-        isDeleted
+        isDeleted,
+        canDeliverySafely,
+        canDeliveryCommonly,
+        canPickUp,
     )
 }
 

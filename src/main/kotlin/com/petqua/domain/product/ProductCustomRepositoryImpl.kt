@@ -1,6 +1,5 @@
 package com.petqua.domain.product
 
-import com.linecorp.kotlinjdsl.dsl.jpql.Jpql
 import com.linecorp.kotlinjdsl.dsl.jpql.jpql
 import com.linecorp.kotlinjdsl.render.jpql.JpqlRenderContext
 import com.linecorp.kotlinjdsl.render.jpql.JpqlRenderer
@@ -11,6 +10,7 @@ import com.petqua.domain.keyword.ProductKeyword
 import com.petqua.domain.product.Sorter.ENROLLMENT_DATE_DESC
 import com.petqua.domain.product.dto.ProductReadCondition
 import com.petqua.domain.product.dto.ProductResponse
+import com.petqua.domain.product.dto.ProductSearchCondition
 import com.petqua.domain.store.Store
 import jakarta.persistence.EntityManager
 import org.springframework.stereotype.Repository
@@ -53,8 +53,7 @@ class ProductCustomRepositoryImpl(
         )
     }
 
-    // cache 추가하면 어떨까요?
-    override fun countByCondition(condition: ProductReadCondition): Int {
+    override fun countByReadCondition(condition: ProductReadCondition): Int {
         val query = jpql(ProductDynamicJpqlGenerator) {
             select(
                 count(Product::id),
@@ -63,7 +62,6 @@ class ProductCustomRepositoryImpl(
                 joinBySourceType(condition.sourceType),
                 join(Store::class).on(path(Product::storeId).eq(path(Store::id))),
             ).whereAnd(
-                productNameLike(condition.word),
                 active(),
             )
         }
@@ -76,7 +74,7 @@ class ProductCustomRepositoryImpl(
     }
 
     override fun findBySearch(
-        condition: ProductReadCondition,
+        condition: ProductSearchCondition,
         paging: CursorBasedPaging
     ): List<ProductResponse> {
         val query = jpql(ProductDynamicJpqlGenerator) {
@@ -87,9 +85,12 @@ class ProductCustomRepositoryImpl(
                 entity(Product::class),
                 join(Store::class).on(path(Product::storeId).eq(path(Store::id))),
             ).whereAnd(
+                path(Product::name).like(pattern = "%${condition.word}%", escape = ESCAPE_LETTER),
+                productDeliveryOptionBy(condition.deliveryMethod),
                 productIdLt(paging.lastViewedId),
-                path(Product::name).like(pattern = "%${condition.word}%", escape = ESCAPE_LETTER)
+                active(),
             ).orderBy(
+                sortBy(condition.sorter),
                 sortBy(ENROLLMENT_DATE_DESC),
             )
         }
@@ -102,44 +103,68 @@ class ProductCustomRepositoryImpl(
         )
     }
 
-    override fun findByKeywordSearch(
-        condition: ProductReadCondition,
-        paging: CursorBasedPaging
-    ): List<ProductResponse> {
-        val query = jpql(ProductDynamicJpqlGenerator) {
-            selectNew<ProductResponse>(
-                entity(Product::class),
-                path(Store::name)
-            ).from(
-                entity(Product::class),
-                join(ProductKeyword::class).on(path(ProductKeyword::productId).eq(path(Product::id))),
-                join(Store::class).on(path(Product::storeId).eq(path(Store::id))),
-            ).whereAnd(
-                productIdLt(paging.lastViewedId),
-                path(ProductKeyword::word).eq(condition.word)
-            ).orderBy(
-                sortBy(ENROLLMENT_DATE_DESC),
-            )
-        }
-
-        return entityManager.createQuery(
-            query,
-            jpqlRenderContext,
-            jpqlRenderer,
-            paging.limit
-        )
-    }
-
-    override fun countByKeywordCondition(condition: ProductReadCondition): Int {
+    override fun countBySearchCondition(condition: ProductSearchCondition): Int {
         val query = jpql(ProductDynamicJpqlGenerator) {
             select(
                 count(Product::id),
             ).from(
                 entity(Product::class),
+            ).whereAnd(
+                path(Product::name).like(pattern = "%${condition.word}%", escape = ESCAPE_LETTER),
+                productDeliveryOptionBy(condition.deliveryMethod),
+                active(),
+            )
+        }
+
+        return entityManager.createCountQuery<Int>(
+            query,
+            jpqlRenderContext,
+            jpqlRenderer
+        )
+    }
+
+    override fun findByKeywordSearch(
+        condition: ProductSearchCondition,
+        paging: CursorBasedPaging
+    ): List<ProductResponse> {
+        val query = jpql(ProductDynamicJpqlGenerator) {
+            selectNew<ProductResponse>(
+                entity(Product::class),
+                path(Store::name)
+            ).from(
+                entity(Product::class),
+                join(ProductKeyword::class).on(path(ProductKeyword::productId).eq(path(Product::id))),
                 join(Store::class).on(path(Product::storeId).eq(path(Store::id))),
+            ).whereAnd(
+                path(ProductKeyword::word).eq(condition.word),
+                productDeliveryOptionBy(condition.deliveryMethod),
+                productIdLt(paging.lastViewedId),
+                active(),
+            ).orderBy(
+                sortBy(condition.sorter),
+                sortBy(ENROLLMENT_DATE_DESC),
+            )
+        }
+
+        return entityManager.createQuery(
+            query,
+            jpqlRenderContext,
+            jpqlRenderer,
+            paging.limit
+        )
+    }
+
+    override fun countByKeywordSearchCondition(condition: ProductSearchCondition): Int {
+        val query = jpql(ProductDynamicJpqlGenerator) {
+            select(
+                count(Product::id),
+            ).from(
+                entity(Product::class),
                 join(ProductKeyword::class).on(path(ProductKeyword::productId).eq(path(Product::id))),
             ).whereAnd(
-                path(ProductKeyword::word).like(pattern = condition.word, escape = ESCAPE_LETTER)
+                path(ProductKeyword::word).like(pattern = condition.word, escape = ESCAPE_LETTER),
+                productDeliveryOptionBy(condition.deliveryMethod),
+                active(),
             )
         }
 
@@ -169,6 +194,4 @@ class ProductCustomRepositoryImpl(
             jpqlRenderer
         )
     }
-
-    private fun Jpql.active() = path(Product::isDeleted).eq(false)
 }

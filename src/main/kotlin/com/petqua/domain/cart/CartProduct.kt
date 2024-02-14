@@ -1,10 +1,11 @@
 package com.petqua.domain.cart
 
 import com.petqua.common.domain.BaseEntity
-import jakarta.persistence.AttributeOverride
 import com.petqua.common.util.throwExceptionWhen
+import com.petqua.domain.delivery.DeliveryMethod
 import com.petqua.exception.cart.CartProductException
 import com.petqua.exception.cart.CartProductExceptionType.FORBIDDEN_CART_PRODUCT
+import jakarta.persistence.AttributeOverride
 import jakarta.persistence.Column
 import jakarta.persistence.Embedded
 import jakarta.persistence.Entity

@@ -6,8 +6,8 @@ import com.petqua.application.cart.dto.UpdateCartProductOptionCommand
 import com.petqua.common.domain.findByIdOrThrow
 import com.petqua.domain.cart.CartProductQuantity
 import com.petqua.domain.cart.CartProductRepository
-import com.petqua.domain.cart.DeliveryMethod.COMMON
-import com.petqua.domain.cart.DeliveryMethod.SAFETY
+import com.petqua.domain.delivery.DeliveryMethod.COMMON
+import com.petqua.domain.delivery.DeliveryMethod.SAFETY
 import com.petqua.domain.member.MemberRepository
 import com.petqua.domain.product.ProductRepository
 import com.petqua.domain.store.StoreRepository

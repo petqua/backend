@@ -36,7 +36,7 @@ class ProductService(
     @Transactional(readOnly = true)
     fun readAll(query: ProductReadQuery): ProductsResponse {
         val products = productRepository.findAllByCondition(query.toReadConditions(), query.toPaging())
-        val totalProductsCount = productRepository.countByCondition(query.toReadConditions())
+        val totalProductsCount = productRepository.countByReadCondition(query.toReadConditions())
 
         return ProductsResponse.of(products, query.limit, totalProductsCount)
     }
@@ -44,12 +44,12 @@ class ProductService(
     @Transactional(readOnly = true)
     fun readBySearch(query: ProductSearchQuery): ProductsResponse {
         return if (productKeywordRepository.existsByWord(query.word)) {
-            val products = productRepository.findByKeywordSearch(query.toSearchCondition(), query.toPaging())
-            val totalProductsCount = productRepository.countByKeywordCondition(query.toSearchCondition())
+            val products = productRepository.findByKeywordSearch(query.toCondition(), query.toPaging())
+            val totalProductsCount = productRepository.countByKeywordSearchCondition(query.toCondition())
             ProductsResponse.of(products, query.limit, totalProductsCount)
         } else {
-            val products = productRepository.findBySearch(query.toSearchCondition(), query.toPaging())
-            val totalProductsCount = productRepository.countByCondition(query.toSearchCondition())
+            val products = productRepository.findBySearch(query.toCondition(), query.toPaging())
+            val totalProductsCount = productRepository.countBySearchCondition(query.toCondition())
             ProductsResponse.of(products, query.limit, totalProductsCount)
         }
     }

@@ -8,7 +8,7 @@ import com.petqua.common.domain.existActiveByIdOrThrow
 import com.petqua.common.domain.existByIdOrThrow
 import com.petqua.common.domain.findByIdOrThrow
 import com.petqua.domain.cart.CartProductRepository
-import com.petqua.domain.cart.DeliveryMethod
+import com.petqua.domain.delivery.DeliveryMethod
 import com.petqua.domain.member.MemberRepository
 import com.petqua.domain.product.ProductRepository
 import com.petqua.exception.cart.CartProductException

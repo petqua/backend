@@ -1,32 +1,56 @@
 package com.petqua.domain.product.dto
 
 import com.petqua.common.util.throwExceptionWhen
+import com.petqua.domain.delivery.DeliveryMethod
 import com.petqua.domain.product.Product
 import com.petqua.domain.product.ProductSourceType
 import com.petqua.domain.product.Sorter
 import com.petqua.exception.product.ProductException
-import com.petqua.exception.product.ProductExceptionType.INVALID_SEARCH_WORD
+import com.petqua.exception.product.ProductExceptionType
 import io.swagger.v3.oas.annotations.media.Schema
 
 data class ProductReadCondition(
+    val canDeliverSafely: Boolean? = null,
+    val canDeliverCommonly: Boolean? = null,
+    val canPickUp: Boolean? = null,
     val sourceType: ProductSourceType = ProductSourceType.NONE,
     val sorter: Sorter = Sorter.NONE,
-    val word: String = "",
-    val keyword: String = "",
 ) {
 
     companion object {
-        fun toCondition(sourceType: ProductSourceType, sorter: Sorter): ProductReadCondition {
+        fun toCondition(
+            sourceType: ProductSourceType,
+            sorter: Sorter
+        ): ProductReadCondition {
             return if (sourceType == ProductSourceType.HOME_NEW_ENROLLMENT) ProductReadCondition(
-                sourceType,
-                Sorter.ENROLLMENT_DATE_DESC
+                sourceType = sourceType,
+                sorter = Sorter.ENROLLMENT_DATE_DESC
             )
-            else ProductReadCondition(sourceType, sorter)
+            else ProductReadCondition(
+                sourceType = sourceType,
+                sorter = sorter
+            )
         }
+    }
+}
 
-        fun toSearchCondition(word: String): ProductReadCondition {
-            throwExceptionWhen(word.isBlank()) { ProductException(INVALID_SEARCH_WORD) }
-            return ProductReadCondition(word = word)
+data class ProductSearchCondition(
+    val word: String,
+    val deliveryMethod: DeliveryMethod = DeliveryMethod.NONE,
+    val sorter: Sorter = Sorter.NONE,
+) {
+    companion object {
+        fun toCondition(
+            word: String,
+            deliveryMethod: DeliveryMethod,
+            sorter: Sorter
+        ): ProductSearchCondition {
+            throwExceptionWhen(word.isBlank()) { ProductException(ProductExceptionType.INVALID_SEARCH_WORD) }
+            return ProductSearchCondition(
+                word = word,
+                deliveryMethod = deliveryMethod,
+                sorter = sorter
+            )
         }
     }
 }
@@ -45,10 +69,10 @@ data class ProductResponse(
     val name: String,
 
     @Schema(
-        description = "상품 카테고리",
-        example = "난태생, 송사리과"
+        description = "상품 카테고리 id",
+        example = "1"
     )
-    val category: String,
+    val categoryId: Long,
 
     @Schema(
         description = "상품 가격",
@@ -97,11 +121,29 @@ data class ProductResponse(
         example = "https://docs.petqua.co.kr/products/thumbnails/thumbnail1.jpeg"
     )
     val thumbnailUrl: String,
+
+    @Schema(
+        description = "안전 배송 가능 여부",
+        example = "true"
+    )
+    val canDeliverSafely: Boolean,
+
+    @Schema(
+        description = "일반 배송 가능 여부",
+        example = "true"
+    )
+    val canDeliverCommonly: Boolean,
+
+    @Schema(
+        description = "직접 수령 가능 여부",
+        example = "true"
+    )
+    val canPickUp: Boolean,
 ) {
     constructor(product: Product, storeName: String) : this(
         product.id,
         product.name,
-        product.category,
+        product.categoryId,
         product.price.intValueExact(),
         storeName,
         product.discountRate,
@@ -110,5 +152,8 @@ data class ProductResponse(
         product.reviewCount,
         product.averageReviewScore(),
         product.thumbnailUrl,
+        product.canDeliverSafely,
+        product.canDeliverCommonly,
+        product.canPickUp,
     )
 }

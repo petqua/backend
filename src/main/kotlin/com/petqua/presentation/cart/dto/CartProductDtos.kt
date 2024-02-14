@@ -3,7 +3,7 @@ package com.petqua.presentation.cart.dto
 import com.petqua.application.cart.dto.SaveCartProductCommand
 import com.petqua.application.cart.dto.UpdateCartProductOptionCommand
 import com.petqua.domain.cart.CartProductQuantity
-import com.petqua.domain.cart.DeliveryMethod
+import com.petqua.domain.delivery.DeliveryMethod
 import io.swagger.v3.oas.annotations.media.Schema
 
 data class SaveCartProductRequest(

@@ -2,7 +2,7 @@ package com.petqua.application.cart.dto
 
 import com.petqua.domain.cart.CartProduct
 import com.petqua.domain.cart.CartProductQuantity
-import com.petqua.domain.cart.DeliveryMethod
+import com.petqua.domain.delivery.DeliveryMethod
 import com.petqua.domain.product.Product
 import io.swagger.v3.oas.annotations.media.Schema
 

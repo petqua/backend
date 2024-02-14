@@ -4,12 +4,14 @@ import com.petqua.common.domain.dto.CursorBasedPaging
 import com.petqua.common.domain.dto.DEFAULT_LAST_VIEWED_ID
 import com.petqua.common.domain.dto.PADDING_FOR_HAS_NEXT_PAGE
 import com.petqua.common.domain.dto.PAGING_LIMIT_CEILING
+import com.petqua.domain.delivery.DeliveryMethod
 import com.petqua.domain.keyword.ProductKeyword
 import com.petqua.domain.product.Product
 import com.petqua.domain.product.ProductSourceType
 import com.petqua.domain.product.Sorter
 import com.petqua.domain.product.dto.ProductReadCondition
 import com.petqua.domain.product.dto.ProductResponse
+import com.petqua.domain.product.dto.ProductSearchCondition
 import io.swagger.v3.oas.annotations.media.Schema
 
 data class ProductDetailResponse(
@@ -26,10 +28,10 @@ data class ProductDetailResponse(
     val name: String,
 
     @Schema(
-        description = "상품 카테고리",
-        example = "난태생, 송사리과"
+        description = "상품 카테고리 Id",
+        example = "1"
     )
-    val category: String,
+    val categoryId: Long,
 
     @Schema(
         description = "상품 가격",
@@ -84,11 +86,29 @@ data class ProductDetailResponse(
         example = "귀엽습니다"
     )
     val description: String,
+
+    @Schema(
+        description = "안전 배송 가능 여부",
+        example = "true"
+    )
+    val canDeliverSafely: Boolean,
+
+    @Schema(
+        description = "일반 배송 가능 여부",
+        example = "true"
+    )
+    val canDeliverCommonly: Boolean,
+
+    @Schema(
+        description = "직접 수령 가능 여부",
+        example = "true"
+    )
+    val canPickUp: Boolean,
 ) {
     constructor(product: Product, storeName: String, reviewAverageScore: Double) : this(
         product.id,
         product.name,
-        product.category,
+        product.categoryId,
         product.price.intValueExact(),
         storeName,
         product.discountRate,
@@ -98,6 +118,9 @@ data class ProductDetailResponse(
         reviewAverageScore,
         product.thumbnailUrl,
         product.description,
+        product.canDeliverSafely,
+        product.canDeliverCommonly,
+        product.canPickUp,
     )
 }
 
@@ -143,13 +166,19 @@ data class ProductsResponse(
 }
 
 data class ProductSearchQuery(
-    val word: String = "",
+    val word: String,
+    val deliveryMethod: DeliveryMethod = DeliveryMethod.NONE,
+    val sorter: Sorter = Sorter.NONE,
     val lastViewedId: Long = DEFAULT_LAST_VIEWED_ID,
     val limit: Int = PAGING_LIMIT_CEILING,
 ) {
 
-    fun toSearchCondition(): ProductReadCondition {
-        return ProductReadCondition.toSearchCondition(word)
+    fun toCondition(): ProductSearchCondition {
+        return ProductSearchCondition.toCondition(
+            word = word,
+            deliveryMethod = deliveryMethod,
+            sorter = sorter,
+        )
     }
 
     fun toPaging(): CursorBasedPaging {

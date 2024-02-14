@@ -96,10 +96,10 @@ data class WishProductResponse(
     val name: String,
 
     @Schema(
-        description = "상품 카테고리",
-        example = "난태생, 송사리과"
+        description = "상품 카테고리 id",
+        example = "1"
     )
-    val category: String,
+    val categoryId: Long,
 
     @Schema(
         description = "상품 가격",
@@ -159,7 +159,7 @@ data class WishProductResponse(
         wishProductId,
         product.id,
         product.name,
-        product.category,
+        product.categoryId,
         product.price.intValueExact(),
         storeName,
         product.discountRate,
