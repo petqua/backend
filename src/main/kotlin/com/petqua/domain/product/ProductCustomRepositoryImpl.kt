@@ -4,7 +4,7 @@ import com.linecorp.kotlinjdsl.dsl.jpql.Jpql
 import com.linecorp.kotlinjdsl.dsl.jpql.jpql
 import com.linecorp.kotlinjdsl.render.jpql.JpqlRenderContext
 import com.linecorp.kotlinjdsl.render.jpql.JpqlRenderer
-import com.petqua.common.domain.dto.CursorBasedPagingRequest
+import com.petqua.common.domain.dto.CursorBasedPaging
 import com.petqua.common.util.createCountQuery
 import com.petqua.common.util.createQuery
 import com.petqua.domain.keyword.ProductKeyword
@@ -26,7 +26,7 @@ class ProductCustomRepositoryImpl(
 
     override fun findAllByCondition(
         condition: ProductReadCondition,
-        paging: CursorBasedPagingRequest
+        paging: CursorBasedPaging
     ): List<ProductResponse> {
         val query = jpql(ProductDynamicJpqlGenerator) {
             selectNew<ProductResponse>(
@@ -77,7 +77,7 @@ class ProductCustomRepositoryImpl(
 
     override fun findBySearch(
         condition: ProductReadCondition,
-        paging: CursorBasedPagingRequest
+        paging: CursorBasedPaging
     ): List<ProductResponse> {
         val query = jpql(ProductDynamicJpqlGenerator) {
             selectNew<ProductResponse>(
@@ -104,7 +104,7 @@ class ProductCustomRepositoryImpl(
 
     override fun findByKeywordSearch(
         condition: ProductReadCondition,
-        paging: CursorBasedPagingRequest
+        paging: CursorBasedPaging
     ): List<ProductResponse> {
         val query = jpql(ProductDynamicJpqlGenerator) {
             selectNew<ProductResponse>(

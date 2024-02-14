@@ -1,6 +1,6 @@
 package com.petqua.application.product.dto
 
-import com.petqua.common.domain.dto.CursorBasedPagingRequest
+import com.petqua.common.domain.dto.CursorBasedPaging
 import com.petqua.common.domain.dto.DEFAULT_LAST_VIEWED_ID
 import com.petqua.common.domain.dto.PADDING_FOR_HAS_NEXT_PAGE
 import com.petqua.common.domain.dto.PAGING_LIMIT_CEILING
@@ -30,8 +30,8 @@ data class ProductReviewReadQuery(
         )
     }
 
-    fun toPaging(): CursorBasedPagingRequest {
-        return CursorBasedPagingRequest.of(lastViewedId, limit)
+    fun toPaging(): CursorBasedPaging {
+        return CursorBasedPaging.of(lastViewedId, limit)
     }
 }
 

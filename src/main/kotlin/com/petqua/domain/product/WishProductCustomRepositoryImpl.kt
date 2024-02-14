@@ -5,7 +5,7 @@ import com.linecorp.kotlinjdsl.dsl.jpql.jpql
 import com.linecorp.kotlinjdsl.querymodel.jpql.predicate.Predicate
 import com.linecorp.kotlinjdsl.render.jpql.JpqlRenderContext
 import com.linecorp.kotlinjdsl.render.jpql.JpqlRenderer
-import com.petqua.common.domain.dto.CursorBasedPagingRequest
+import com.petqua.common.domain.dto.CursorBasedPaging
 import com.petqua.common.util.createQuery
 import com.petqua.domain.store.Store
 import com.petqua.presentation.product.dto.WishProductResponse
@@ -20,7 +20,7 @@ class WishProductCustomRepositoryImpl(
 ) : WishProductCustomRepository {
     override fun readAllWishProductResponse(
         memberId: Long,
-        paging: CursorBasedPagingRequest
+        paging: CursorBasedPaging
     ): List<WishProductResponse> {
         val query = jpql {
             selectNew<WishProductResponse>(
