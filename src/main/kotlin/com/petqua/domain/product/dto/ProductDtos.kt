@@ -9,6 +9,9 @@ import com.petqua.exception.product.ProductExceptionType.INVALID_SEARCH_WORD
 import io.swagger.v3.oas.annotations.media.Schema
 
 data class ProductReadCondition(
+    val canDeliverSafely: Boolean? = null,
+    val canDeliverCommonly: Boolean? = null,
+    val canPickUp: Boolean? = null,
     val sourceType: ProductSourceType = ProductSourceType.NONE,
     val sorter: Sorter = Sorter.NONE,
     val word: String = "",
@@ -16,17 +19,35 @@ data class ProductReadCondition(
 ) {
 
     companion object {
-        fun toCondition(sourceType: ProductSourceType, sorter: Sorter): ProductReadCondition {
+        fun toCondition(
+            sourceType: ProductSourceType,
+            sorter: Sorter
+        ): ProductReadCondition {
             return if (sourceType == ProductSourceType.HOME_NEW_ENROLLMENT) ProductReadCondition(
-                sourceType,
-                Sorter.ENROLLMENT_DATE_DESC
+                sourceType = sourceType,
+                sorter = Sorter.ENROLLMENT_DATE_DESC
             )
-            else ProductReadCondition(sourceType, sorter)
+            else ProductReadCondition(
+                sourceType = sourceType,
+                sorter = sorter
+            )
         }
 
-        fun toSearchCondition(word: String): ProductReadCondition {
+        fun toSearchCondition(
+            word: String,
+            canDeliverSafely: Boolean?,
+            canDeliverCommonly: Boolean?,
+            canPickUp: Boolean?,
+            sorter: Sorter,
+        ): ProductReadCondition {
             throwExceptionWhen(word.isBlank()) { ProductException(INVALID_SEARCH_WORD) }
-            return ProductReadCondition(word = word)
+            return ProductReadCondition(
+                word = word,
+                canDeliverSafely = canDeliverSafely,
+                canDeliverCommonly = canDeliverCommonly,
+                canPickUp = canPickUp,
+                sorter = sorter,
+            )
         }
     }
 }

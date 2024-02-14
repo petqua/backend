@@ -1,6 +1,5 @@
 package com.petqua.domain.product
 
-import com.linecorp.kotlinjdsl.dsl.jpql.Jpql
 import com.linecorp.kotlinjdsl.dsl.jpql.jpql
 import com.linecorp.kotlinjdsl.render.jpql.JpqlRenderContext
 import com.linecorp.kotlinjdsl.render.jpql.JpqlRenderer
@@ -53,7 +52,6 @@ class ProductCustomRepositoryImpl(
         )
     }
 
-    // cache 추가하면 어떨까요?
     override fun countByCondition(condition: ProductReadCondition): Int {
         val query = jpql(ProductDynamicJpqlGenerator) {
             select(
@@ -87,9 +85,18 @@ class ProductCustomRepositoryImpl(
                 entity(Product::class),
                 join(Store::class).on(path(Product::storeId).eq(path(Store::id))),
             ).whereAnd(
+                path(Product::name).like(pattern = "%${condition.word}%", escape = ESCAPE_LETTER),
+
+                productDeliveryOptionBy(
+                    canDeliverSafely = condition.canDeliverSafely,
+                    canDeliverCommonly = condition.canDeliverCommonly,
+                    canPickUp = condition.canPickUp,
+                ),
+
                 productIdLt(paging.lastViewedId),
-                path(Product::name).like(pattern = "%${condition.word}%", escape = ESCAPE_LETTER)
+                active(),
             ).orderBy(
+                sortBy(condition.sorter),
                 sortBy(ENROLLMENT_DATE_DESC),
             )
         }
@@ -115,9 +122,18 @@ class ProductCustomRepositoryImpl(
                 join(ProductKeyword::class).on(path(ProductKeyword::productId).eq(path(Product::id))),
                 join(Store::class).on(path(Product::storeId).eq(path(Store::id))),
             ).whereAnd(
+                path(ProductKeyword::word).eq(condition.word),
+
+                productDeliveryOptionBy(
+                    canDeliverSafely = condition.canDeliverSafely,
+                    canDeliverCommonly = condition.canDeliverCommonly,
+                    canPickUp = condition.canPickUp,
+                ),
+
                 productIdLt(paging.lastViewedId),
-                path(ProductKeyword::word).eq(condition.word)
+                active(),
             ).orderBy(
+                sortBy(condition.sorter),
                 sortBy(ENROLLMENT_DATE_DESC),
             )
         }
@@ -169,6 +185,4 @@ class ProductCustomRepositoryImpl(
             jpqlRenderer
         )
     }
-
-    private fun Jpql.active() = path(Product::isDeleted).eq(false)
 }

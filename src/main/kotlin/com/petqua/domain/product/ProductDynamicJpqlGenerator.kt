@@ -4,7 +4,11 @@ import com.linecorp.kotlinjdsl.dsl.jpql.Jpql
 import com.linecorp.kotlinjdsl.dsl.jpql.JpqlDsl
 import com.linecorp.kotlinjdsl.dsl.jpql.join.JoinAsStep
 import com.linecorp.kotlinjdsl.dsl.jpql.sort.SortNullsStep
+import com.linecorp.kotlinjdsl.querymodel.jpql.predicate.Predicatable
 import com.linecorp.kotlinjdsl.querymodel.jpql.predicate.Predicate
+import com.petqua.domain.product.category.Category
+import com.petqua.domain.product.category.Family
+import com.petqua.domain.product.category.Species
 import com.petqua.domain.recommendation.ProductRecommendation
 
 private const val ESCAPE_LETTER = '\\'
@@ -44,4 +48,35 @@ class ProductDynamicJpqlGenerator : Jpql() {
     fun Jpql.predicateByIds(ids: List<Long>): Predicate? {
         return if (ids.isEmpty()) null else path(Product::id).`in`(ids)
     }
+
+    fun Jpql.productDeliveryOptionBy(
+        canDeliverSafely: Boolean?,
+        canDeliverCommonly: Boolean?,
+        canPickUp: Boolean?
+    ): Predicate? {
+        val predicateCreators = listOf(
+            { canDeliverSafely?.let { path(Product::canDeliverSafely).eq(it) } },
+            { canDeliverCommonly?.let { path(Product::canDeliverCommonly).eq(it) } },
+            { canPickUp?.let { path(Product::canPickUp).eq(it) } }
+        )
+
+        return predicateCreators.firstNotNullOfOrNull { it() }
+    }
+
+    fun Jpql.active(): Predicate {
+        return path(Product::isDeleted).eq(false)
+    }
+
+    fun Jpql.categoryFamilyEq(family: String?): Predicate? {
+        return family?.let { path(Category::family)(Family::name).eq(it) }
+    }
+
+    fun Jpql.categorySpeciesEqOr(species: List<String>): Predicate? {
+        return if (species.isNotEmpty()) or(species.map { path(Category::species)(Species::name).eq(it) }) else null
+    }
+
+    private fun or(predicates: List<Predicatable>): Predicate {
+        return or(*predicates.toTypedArray())
+    }
 }
+

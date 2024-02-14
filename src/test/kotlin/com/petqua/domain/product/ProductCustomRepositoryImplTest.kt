@@ -200,7 +200,10 @@ class ProductCustomRepositoryImplTest(
                 storeId = store.id,
                 discountPrice = ZERO,
                 reviewCount = 0,
-                reviewTotalScore = 0
+                reviewTotalScore = 0,
+                canDeliverySafely = false,
+                canDeliveryCommonly = false,
+                canPickUp = true,
             )
         )
         val product2 = productRepository.save(
@@ -209,7 +212,10 @@ class ProductCustomRepositoryImplTest(
                 storeId = store.id,
                 discountPrice = ONE,
                 reviewCount = 1,
-                reviewTotalScore = 1
+                reviewTotalScore = 1,
+                canDeliverySafely = false,
+                canDeliveryCommonly = true,
+                canPickUp = true,
             )
         )
         val product3 = productRepository.save(
@@ -218,7 +224,10 @@ class ProductCustomRepositoryImplTest(
                 storeId = store.id,
                 discountPrice = ONE,
                 reviewCount = 1,
-                reviewTotalScore = 5
+                reviewTotalScore = 5,
+                canDeliverySafely = true,
+                canDeliveryCommonly = false,
+                canPickUp = true,
             )
         )
         val product4 = productRepository.save(
@@ -227,7 +236,10 @@ class ProductCustomRepositoryImplTest(
                 storeId = store.id,
                 discountPrice = TEN,
                 reviewCount = 2,
-                reviewTotalScore = 10
+                reviewTotalScore = 10,
+                canDeliverySafely = true,
+                canDeliveryCommonly = true,
+                canPickUp = true,
             )
         )
 
@@ -270,7 +282,54 @@ class ProductCustomRepositoryImplTest(
                 products shouldHaveSize 0
             }
         }
+
+        When("상품 이름과 안전배송 조건을 입력하면") {
+            val products = productRepository.findBySearch(
+                condition = ProductReadCondition(word = "상품", canDeliverSafely = true),
+                paging = ProductPaging()
+            )
+
+            Then("입력한 조건에 맞는 상품들을 반환한다") {
+                products shouldContainExactly listOf(
+                    ProductResponse(product4, store.name),
+                    ProductResponse(product3, store.name),
+                )
+            }
+        }
+
+        When("상품 이름과 일반배송 조건을 입력하면") {
+            val products = productRepository.findBySearch(
+                condition = ProductReadCondition(word = "상품", canDeliverCommonly = true),
+                paging = ProductPaging()
+            )
+
+            Then("입력한 조건에 맞는 상품들을 반환한다") {
+                products shouldContainExactly listOf(
+                    ProductResponse(product4, store.name),
+                    ProductResponse(product2, store.name),
+                )
+            }
+        }
+
+        When("상품 이름과 직접수령 조건을 입력하면") {
+            val products = productRepository.findBySearch(
+                condition = ProductReadCondition(word = "상품", canPickUp = true),
+                paging = ProductPaging()
+            )
+
+            Then("입력한 조건에 맞는 상품들을 반환한다") {
+                products shouldContainExactly listOf(
+                    ProductResponse(product4, store.name),
+                    ProductResponse(product3, store.name),
+                    ProductResponse(product2, store.name),
+                    ProductResponse(product1, store.name),
+                )
+            }
+        }
     }
+
+    // 상품 키워드 검색
+    // count 메서드
 
     afterContainer {
         dataCleaner.clean()

@@ -5,6 +5,7 @@ import com.linecorp.kotlinjdsl.render.jpql.JpqlRenderContext
 import com.linecorp.kotlinjdsl.render.jpql.JpqlRenderer
 import com.petqua.common.util.createQuery
 import com.petqua.domain.product.Product
+import com.petqua.domain.product.ProductDynamicJpqlGenerator
 import com.petqua.domain.product.Sorter.ENROLLMENT_DATE_DESC
 import com.petqua.domain.product.dto.ProductResponse
 import com.petqua.domain.store.Store
@@ -22,7 +23,7 @@ class CategoryCustomRepositoryImpl(
         condition: CategoryProductReadCondition,
         paging: CategoryProductPaging
     ): List<ProductResponse> {
-        val query = jpql(CategoryDynamicJpqlGenerator) {
+        val query = jpql(ProductDynamicJpqlGenerator) {
             selectNew<ProductResponse>(
                 entity(Product::class),
                 path(Store::name)

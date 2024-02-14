@@ -165,12 +165,22 @@ data class ProductsResponse(
 
 data class ProductSearchQuery(
     val word: String = "",
+    val canDeliverSafely: Boolean? = null,
+    val canDeliverCommonly: Boolean? = null,
+    val canPickUp: Boolean? = null,
+    val sorter: Sorter = Sorter.NONE,
     val lastViewedId: Long = DEFAULT_LAST_VIEWED_ID,
     val limit: Int = PAGING_LIMIT_CEILING,
 ) {
 
     fun toSearchCondition(): ProductReadCondition {
-        return ProductReadCondition.toSearchCondition(word)
+        return ProductReadCondition.toSearchCondition(
+            word = word,
+            canDeliverSafely = canDeliverSafely,
+            canDeliverCommonly = canDeliverCommonly,
+            canPickUp = canPickUp,
+            sorter = sorter,
+        )
     }
 
     fun toPaging(): CursorBasedPaging {

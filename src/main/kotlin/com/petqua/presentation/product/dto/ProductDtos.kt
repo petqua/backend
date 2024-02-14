@@ -55,6 +55,31 @@ data class ProductSearchRequest(
     val word: String = "",
 
     @Schema(
+        description = "안전 운송 가능 여부",
+        example = "true"
+    )
+    val canDeliverSafely: Boolean?,
+
+    @Schema(
+        description = "일반 운송 가능 여부",
+        example = "true"
+    )
+    val canDeliverCommonly: Boolean?,
+
+    @Schema(
+        description = "직접 수령 가능 여부",
+        example = "true"
+    )
+    val canPickUp: Boolean?,
+
+    @Schema(
+        description = "정렬 기준",
+        defaultValue = "ENROLLMENT_DATE_DESC",
+        allowableValues = ["SALE_PRICE_ASC", "SALE_PRICE_DESC", "REVIEW_COUNT_DESC", "ENROLLMENT_DATE_DESC"]
+    )
+    val sorter: Sorter = Sorter.NONE,
+
+    @Schema(
         description = "마지막으로 조회한 상품의 Id",
         example = "1"
     )
@@ -70,6 +95,10 @@ data class ProductSearchRequest(
     fun toQuery(): ProductSearchQuery {
         return ProductSearchQuery(
             word = word,
+            canDeliverSafely = canDeliverSafely,
+            canDeliverCommonly = canDeliverCommonly,
+            canPickUp = canPickUp,
+            sorter = sorter,
             lastViewedId = lastViewedId,
             limit = limit,
         )

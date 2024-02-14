@@ -71,18 +71,28 @@ fun requestReadProductKeyword(
 }
 
 fun requestReadProductBySearch(
-    word: String = "",
+    word: String? = null,
+    canDeliverSafely: Boolean? = null,
+    canDeliverCommonly: Boolean? = null,
+    canPickUp: Boolean? = null,
+    sorter: String = Sorter.NONE.name,
     lastViewedId: Long = DEFAULT_LAST_VIEWED_ID,
     limit: Int = PAGING_LIMIT_CEILING,
     accessToken: String
 ): Response {
+    val paramMap = mutableMapOf<String, Any?>().apply {
+        put("word", word)
+        put("canDeliverSafely", canDeliverSafely)
+        put("canDeliverCommonly", canDeliverCommonly)
+        put("canPickUp", canPickUp)
+        put("sorter", sorter)
+        put("lastViewedId", lastViewedId)
+        put("limit", limit)
+    }.filterValues { it != null }
+
     return Given {
         log().all()
-        params(
-            "word", word,
-            "lastViewedId", lastViewedId,
-            "limit", limit
-        )
+        params(paramMap)
     } When {
         get("/products/search")
     } Then {
