@@ -50,6 +50,8 @@ class ProductReviewController(
         return ResponseEntity.ok(response)
     }
 
+    @Operation(summary = "상품 후기 추천 토글 API", description = "상품 후기의 추천 여부를 토글합니다")
+    @ApiResponse(responseCode = "204", description = "상품 후기 추천 토글 성공")
     @PostMapping("/product-reviews/recommendation")
     fun updateRecommendation(
         @Auth loginMember: LoginMember,
