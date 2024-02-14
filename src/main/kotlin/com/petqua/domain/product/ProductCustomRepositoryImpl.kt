@@ -26,6 +26,7 @@ class ProductCustomRepositoryImpl(
     private val jpqlRenderContext: JpqlRenderContext,
     private val jpqlRenderer: JpqlRenderer,
 ) : ProductCustomRepository {
+
     override fun findProductWithInfoByIdOrThrow(
         id: Long,
         exceptionSupplier: () -> RuntimeException

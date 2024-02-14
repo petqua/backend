@@ -14,6 +14,7 @@ import org.springframework.web.method.support.ModelAndViewContainer
 class OptionalLoginArgumentResolver(
     private val authExtractor: AuthExtractor,
 ) : HandlerMethodArgumentResolver {
+    
     override fun supportsParameter(parameter: MethodParameter): Boolean {
         return parameter.hasParameterAnnotation(Auth::class.java)
                 && parameter.parameterType == LoginMemberOrGuest::class.java
