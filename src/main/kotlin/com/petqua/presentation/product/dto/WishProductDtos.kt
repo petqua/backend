@@ -1,13 +1,12 @@
-package com.petqua.presentation.product
+package com.petqua.presentation.product.dto
 
 import com.petqua.application.product.dto.ReadAllWishProductCommand
 import com.petqua.application.product.dto.UpdateWishCommand
+import com.petqua.common.domain.dto.DEFAULT_LAST_VIEWED_ID
+import com.petqua.common.domain.dto.PADDING_FOR_HAS_NEXT_PAGE
+import com.petqua.common.domain.dto.PAGING_LIMIT_CEILING
 import com.petqua.domain.product.Product
 import io.swagger.v3.oas.annotations.media.Schema
-
-private const val PADDING_FOR_PAGING = 1
-private const val LIMIT_CEILING = 20
-private const val DEFAULT_LAST_VIEWED_ID = -1L
 
 data class UpdateWishRequest(
     @Schema(
@@ -29,20 +28,19 @@ data class ReadAllWishProductRequest(
         description = "마지막으로 조회한 찜의 Id",
         example = "1"
     )
-    val lastViewedId: Long? = null,
+    val lastViewedId: Long = DEFAULT_LAST_VIEWED_ID,
 
     @Schema(
         description = "조회할 찜 개수",
         defaultValue = "20"
     )
-    val limit: Int = LIMIT_CEILING,
+    val limit: Int = PAGING_LIMIT_CEILING,
 ) {
 
     fun toCommand(memberId: Long): ReadAllWishProductCommand {
-        val adjustedLastViewedId = if (lastViewedId == DEFAULT_LAST_VIEWED_ID) null else lastViewedId
         return ReadAllWishProductCommand(
             memberId = memberId,
-            lastViewedId = adjustedLastViewedId,
+            lastViewedId = lastViewedId,
             limit = limit
         )
     }
@@ -67,7 +65,7 @@ data class WishProductsResponse(
         fun of(wishProducts: List<WishProductResponse>, limit: Int, totalWishProductsCount: Int): WishProductsResponse {
             return if (wishProducts.size > limit) {
                 WishProductsResponse(
-                    wishProducts.dropLast(PADDING_FOR_PAGING),
+                    wishProducts.dropLast(PADDING_FOR_HAS_NEXT_PAGE),
                     hasNextPage = true,
                     totalWishProductsCount
                 )

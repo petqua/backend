@@ -6,6 +6,8 @@ import com.petqua.domain.product.WishProduct
 import com.petqua.domain.product.WishProductRepository
 import com.petqua.domain.store.Store
 import com.petqua.domain.store.StoreRepository
+import com.petqua.presentation.product.dto.UpdateWishRequest
+import com.petqua.presentation.product.dto.WishProductsResponse
 import com.petqua.test.ApiTestConfig
 import com.petqua.test.fixture.product
 import com.petqua.test.fixture.store
@@ -14,10 +16,10 @@ import io.restassured.module.kotlin.extensions.Extract
 import io.restassured.module.kotlin.extensions.Given
 import io.restassured.module.kotlin.extensions.Then
 import io.restassured.module.kotlin.extensions.When
+import java.math.BigDecimal
 import org.springframework.http.HttpStatus.NO_CONTENT
 import org.springframework.http.HttpStatus.OK
 import org.springframework.http.MediaType
-import java.math.BigDecimal
 
 class WishProductControllerTest(
     wishProductRepository: WishProductRepository,

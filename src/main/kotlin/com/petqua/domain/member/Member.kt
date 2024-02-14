@@ -21,5 +21,16 @@ class Member(
     val oauthServerNumber: Int,
 
     @Enumerated(STRING)
-    val authority: Authority
+    val authority: Authority,
+
+    @Column(nullable = false)
+    val nickname: String = "쿠아", // FIXME: 회원 닉네임 정책 추가
+
+    val profileImageUrl: String? = null,
+
+    @Column(nullable = false)
+    val fishBowlCount: Int = 0,
+
+    @Column(nullable = false)
+    val years: Int = 1,
 )

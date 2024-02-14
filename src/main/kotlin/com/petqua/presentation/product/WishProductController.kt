@@ -4,6 +4,9 @@ import com.petqua.application.product.WishProductService
 import com.petqua.common.config.ACCESS_TOKEN_SECURITY_SCHEME_KEY
 import com.petqua.domain.auth.Auth
 import com.petqua.domain.auth.LoginMember
+import com.petqua.presentation.product.dto.ReadAllWishProductRequest
+import com.petqua.presentation.product.dto.UpdateWishRequest
+import com.petqua.presentation.product.dto.WishProductsResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.security.SecurityRequirement

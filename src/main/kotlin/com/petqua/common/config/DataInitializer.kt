@@ -10,16 +10,20 @@ import com.petqua.domain.member.MemberRepository
 import com.petqua.domain.product.Product
 import com.petqua.domain.product.ProductRepository
 import com.petqua.domain.product.WishCount
+import com.petqua.domain.product.review.ProductReview
+import com.petqua.domain.product.review.ProductReviewImage
+import com.petqua.domain.product.review.ProductReviewImageRepository
+import com.petqua.domain.product.review.ProductReviewRepository
 import com.petqua.domain.recommendation.ProductRecommendation
 import com.petqua.domain.recommendation.ProductRecommendationRepository
 import com.petqua.domain.store.Store
 import com.petqua.domain.store.StoreRepository
+import java.math.BigDecimal
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.annotation.Profile
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
-import java.math.BigDecimal
 
 @Component
 @Profile("local", "prod")
@@ -30,6 +34,8 @@ class DataInitializer(
     private val recommendationRepository: ProductRecommendationRepository,
     private val storeRepository: StoreRepository,
     private val memberRepository: MemberRepository,
+    private val productReviewRepository: ProductReviewRepository,
+    private val productReviewImageRepository: ProductReviewImageRepository,
 ) {
 
     @EventListener(ApplicationReadyEvent::class)
@@ -122,12 +128,49 @@ class DataInitializer(
         recommendationRepository.saveAll(listOf(productRecommendation1))
 
         // member
-        val member = Member(
-            oauthId = "oauthId",
-            oauthServerNumber = 1,
-            authority = MEMBER,
+        val member = memberRepository.save(
+            Member(
+                oauthId = "oauthId",
+                oauthServerNumber = 1,
+                authority = MEMBER,
+            )
         )
-        memberRepository.save(member)
+
+// productReview
+        val reviews = productReviewRepository.saveAll(
+            listOf(
+                ProductReview(
+                    productId = product1.id,
+                    memberId = member.id,
+                    content = "좋아요",
+                    score = 5,
+                    hasPhotos = true
+                ),
+                ProductReview(
+                    productId = product1.id,
+                    memberId = member.id,
+                    content = "조금 좋아요",
+                    score = 4,
+                    hasPhotos = false
+                ),
+                ProductReview(
+                    productId = product1.id,
+                    memberId = member.id,
+                    content = "약간 좋아요",
+                    score = 3,
+                    hasPhotos = false
+                ),
+            )
+        )
+        reviews.find { it.hasPhotos }?.let {
+            productReviewImageRepository.saveAll(
+                listOf(
+                    ProductReviewImage(imageUrl = "https://docs.petqua.co.kr/reviews/1.jpeg", productReviewId = it.id),
+                    ProductReviewImage(imageUrl = "https://docs.petqua.co.kr/reviews/2.jpeg", productReviewId = it.id),
+                    ProductReviewImage(imageUrl = "https://docs.petqua.co.kr/reviews/3.jpeg", productReviewId = it.id),
+                )
+            )
+        }
     }
 
     private fun saveProducts(storeId: Long) {

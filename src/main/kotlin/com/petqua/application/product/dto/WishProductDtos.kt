@@ -1,8 +1,9 @@
 package com.petqua.application.product.dto
 
+import com.petqua.common.domain.dto.CursorBasedPaging
+import com.petqua.common.domain.dto.DEFAULT_LAST_VIEWED_ID
+import com.petqua.common.domain.dto.PAGING_LIMIT_CEILING
 import com.petqua.domain.product.WishProduct
-import com.petqua.domain.product.dto.LIMIT_CEILING
-import com.petqua.domain.product.dto.ProductPaging
 
 data class UpdateWishCommand(
     val memberId: Long,
@@ -18,10 +19,10 @@ data class UpdateWishCommand(
 
 data class ReadAllWishProductCommand(
     val memberId: Long,
-    val lastViewedId: Long? = null,
-    val limit: Int = LIMIT_CEILING,
+    val lastViewedId: Long = DEFAULT_LAST_VIEWED_ID,
+    val limit: Int = PAGING_LIMIT_CEILING,
 ) {
-    fun toPaging(): ProductPaging {
-        return ProductPaging.of(lastViewedId, limit)
+    fun toPaging(): CursorBasedPaging {
+        return CursorBasedPaging.of(lastViewedId, limit)
     }
 }

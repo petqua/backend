@@ -1,12 +1,13 @@
 package com.petqua.application.product.dto
 
+import com.petqua.common.domain.dto.CursorBasedPaging
+import com.petqua.common.domain.dto.DEFAULT_LAST_VIEWED_ID
+import com.petqua.common.domain.dto.PADDING_FOR_HAS_NEXT_PAGE
+import com.petqua.common.domain.dto.PAGING_LIMIT_CEILING
 import com.petqua.domain.keyword.ProductKeyword
 import com.petqua.domain.product.Product
 import com.petqua.domain.product.ProductSourceType
 import com.petqua.domain.product.Sorter
-import com.petqua.domain.product.dto.LIMIT_CEILING
-import com.petqua.domain.product.dto.PADDING_FOR_PAGING
-import com.petqua.domain.product.dto.ProductPaging
 import com.petqua.domain.product.dto.ProductReadCondition
 import com.petqua.domain.product.dto.ProductResponse
 import io.swagger.v3.oas.annotations.media.Schema
@@ -103,15 +104,15 @@ data class ProductDetailResponse(
 data class ProductReadQuery(
     val sourceType: ProductSourceType = ProductSourceType.NONE,
     val sorter: Sorter = Sorter.NONE,
-    val lastViewedId: Long? = null,
-    val limit: Int = LIMIT_CEILING,
+    val lastViewedId: Long = DEFAULT_LAST_VIEWED_ID,
+    val limit: Int = PAGING_LIMIT_CEILING,
 ) {
     fun toReadConditions(): ProductReadCondition {
         return ProductReadCondition.toCondition(sourceType, sorter)
     }
 
-    fun toPaging(): ProductPaging {
-        return ProductPaging.of(lastViewedId, limit)
+    fun toPaging(): CursorBasedPaging {
+        return CursorBasedPaging.of(lastViewedId, limit)
     }
 }
 
@@ -133,7 +134,7 @@ data class ProductsResponse(
     companion object {
         fun of(products: List<ProductResponse>, limit: Int, totalProductsCount: Int): ProductsResponse {
             return if (products.size > limit) {
-                ProductsResponse(products.dropLast(PADDING_FOR_PAGING), hasNextPage = true, totalProductsCount)
+                ProductsResponse(products.dropLast(PADDING_FOR_HAS_NEXT_PAGE), hasNextPage = true, totalProductsCount)
             } else {
                 ProductsResponse(products, hasNextPage = false, totalProductsCount)
             }
@@ -143,22 +144,22 @@ data class ProductsResponse(
 
 data class ProductSearchQuery(
     val word: String = "",
-    val lastViewedId: Long? = null,
-    val limit: Int = LIMIT_CEILING,
+    val lastViewedId: Long = DEFAULT_LAST_VIEWED_ID,
+    val limit: Int = PAGING_LIMIT_CEILING,
 ) {
 
     fun toSearchCondition(): ProductReadCondition {
         return ProductReadCondition.toSearchCondition(word)
     }
 
-    fun toPaging(): ProductPaging {
-        return ProductPaging.of(lastViewedId, limit)
+    fun toPaging(): CursorBasedPaging {
+        return CursorBasedPaging.of(lastViewedId, limit)
     }
 }
 
 data class ProductKeywordQuery(
     val word: String = "",
-    val limit: Int = LIMIT_CEILING,
+    val limit: Int = PAGING_LIMIT_CEILING,
 ) {
 
     fun toProductKeyword(): ProductKeyword {
