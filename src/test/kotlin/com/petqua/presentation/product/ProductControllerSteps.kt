@@ -38,9 +38,11 @@ fun requestReadAllProducts(
     sorter: String = Sorter.NONE.name,
     lastViewedId: Long = DEFAULT_LAST_VIEWED_ID,
     limit: Int = PAGING_LIMIT_CEILING,
-): Response {
+    accessToken: String? = null,
+    ): Response {
     return Given {
         log().all()
+        authorize(accessToken)
         params(
             "sourceType", sourceType,
             "sorter", sorter,
@@ -83,6 +85,7 @@ fun requestReadProductBySearch(
     sorter: String = Sorter.NONE.name,
     lastViewedId: Long = DEFAULT_LAST_VIEWED_ID,
     limit: Int = PAGING_LIMIT_CEILING,
+    accessToken: String? = null
 ): Response {
     val paramMap = mutableMapOf<String, Any?>().apply {
         put("word", word)
@@ -94,6 +97,7 @@ fun requestReadProductBySearch(
 
     return Given {
         log().all()
+        authorize(accessToken)
         params(paramMap)
     } When {
         get("/products/search")

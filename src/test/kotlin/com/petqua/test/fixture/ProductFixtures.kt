@@ -1,5 +1,6 @@
 package com.petqua.test.fixture
 
+import com.petqua.application.product.dto.ProductDetailResponse
 import com.petqua.domain.keyword.ProductKeyword
 import com.petqua.domain.product.Product
 import com.petqua.domain.product.WishCount
@@ -9,6 +10,7 @@ import com.petqua.domain.product.detail.OptimalTemperature
 import com.petqua.domain.product.detail.ProductImage
 import com.petqua.domain.product.detail.ProductInfo
 import com.petqua.domain.product.detail.Temperament
+import com.petqua.domain.product.dto.ProductResponse
 import java.math.BigDecimal
 
 private const val DEFAULT_SCALE = 2
@@ -92,5 +94,64 @@ fun productImage(
         id = id,
         productId = productId,
         imageUrl = imageUrl,
+    )
+}
+
+fun productDetailResponse(
+    product: Product,
+    storeName: String,
+    imageUrls: List<String>,
+    productInfo: ProductInfo,
+    isWished: Boolean,
+): ProductDetailResponse {
+    return ProductDetailResponse(
+        id = product.id,
+        name = product.name,
+        family = "family",
+        species = "species",
+        price = product.price.intValueExact(),
+        storeName = storeName,
+        discountRate = product.discountRate,
+        discountPrice = product.discountPrice.intValueExact(),
+        wishCount = product.wishCount.value,
+        reviewCount = product.reviewCount,
+        reviewAverageScore = product.averageReviewScore(),
+        thumbnailUrl = product.thumbnailUrl,
+        imageUrls = imageUrls,
+        description = product.description,
+        canDeliverSafely = product.canDeliverSafely,
+        canDeliverCommonly = product.canDeliverCommonly,
+        canPickUp = product.canPickUp,
+        optimalTemperatureMin = productInfo.optimalTemperature.optimalTemperatureMin,
+        optimalTemperatureMax = productInfo.optimalTemperature.optimalTemperatureMax,
+        difficultyLevel = productInfo.difficultyLevel.description,
+        optimalTankSizeMin = productInfo.optimalTankSizeLiter.optimalTankSizeLiterMin,
+        optimalTankSizeMax = productInfo.optimalTankSizeLiter.optimalTankSizeLiterMax,
+        temperament = productInfo.temperament.description,
+        isWished = isWished,
+    )
+}
+
+fun productResponse(
+    product: Product,
+    storeName: String,
+    isWished: Boolean,
+): ProductResponse {
+    return ProductResponse(
+        id = product.id,
+        name = product.name,
+        categoryId = product.categoryId,
+        price = product.price.intValueExact(),
+        storeName = storeName,
+        discountRate = product.discountRate,
+        discountPrice = product.discountPrice.intValueExact(),
+        wishCount = product.wishCount.value,
+        reviewCount = product.reviewCount,
+        reviewAverageScore = product.averageReviewScore(),
+        thumbnailUrl = product.thumbnailUrl,
+        canDeliverSafely = product.canDeliverSafely,
+        canDeliverCommonly = product.canDeliverCommonly,
+        canPickUp = product.canPickUp,
+        isWished = isWished,
     )
 }

@@ -11,6 +11,7 @@ import com.petqua.domain.keyword.ProductKeywordRepository
 import com.petqua.domain.product.ProductRepository
 import com.petqua.domain.product.WishProductRepository
 import com.petqua.domain.product.detail.ProductImageRepository
+import com.petqua.domain.product.dto.ProductResponse
 import com.petqua.exception.product.ProductException
 import com.petqua.exception.product.ProductExceptionType.NOT_FOUND_PRODUCT
 import org.springframework.stereotype.Service
@@ -42,21 +43,37 @@ class ProductService(
     @Transactional(readOnly = true)
     fun readAll(query: ProductReadQuery): ProductsResponse {
         val products = productRepository.findAllByCondition(query.toReadConditions(), query.toPaging())
+        val markedProducts = markWishedProductOf(query.loginMemberOrGuest, products)
         val totalProductsCount = productRepository.countByReadCondition(query.toReadConditions())
+        return ProductsResponse.of(markedProducts, query.limit, totalProductsCount)
+    }
 
-        return ProductsResponse.of(products, query.limit, totalProductsCount)
+    private fun markWishedProductOf(
+        loginMemberOrGuest: LoginMemberOrGuest,
+        products: List<ProductResponse>
+    ): List<ProductResponse> {
+        if (loginMemberOrGuest.isMember()) {
+            val wishedProductsIds = wishProductRepository.findWishedProductIdByMemberIdAndProductIdIn(
+                memberId = loginMemberOrGuest.memberId,
+                productIds = products.map { it.id }
+            )
+            return products.map { it.copy(isWished = wishedProductsIds.contains(it.id)) }
+        }
+        return products
     }
 
     @Transactional(readOnly = true)
     fun readBySearch(query: ProductSearchQuery): ProductsResponse {
         return if (productKeywordRepository.existsByWord(query.word)) {
             val products = productRepository.findByKeywordSearch(query.toCondition(), query.toPaging())
+            val markedProducts = markWishedProductOf(query.loginMemberOrGuest, products)
             val totalProductsCount = productRepository.countByKeywordSearchCondition(query.toCondition())
-            ProductsResponse.of(products, query.limit, totalProductsCount)
+            ProductsResponse.of(markedProducts, query.limit, totalProductsCount)
         } else {
             val products = productRepository.findBySearch(query.toCondition(), query.toPaging())
+            val markedProducts = markWishedProductOf(query.loginMemberOrGuest, products)
             val totalProductsCount = productRepository.countBySearchCondition(query.toCondition())
-            ProductsResponse.of(products, query.limit, totalProductsCount)
+            ProductsResponse.of(markedProducts, query.limit, totalProductsCount)
         }
     }
 

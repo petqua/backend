@@ -6,6 +6,7 @@ import com.petqua.application.product.dto.ProductSearchQuery
 import com.petqua.common.domain.dto.DEFAULT_LAST_VIEWED_ID
 import com.petqua.common.domain.dto.PAGING_LIMIT_CEILING
 import com.petqua.domain.delivery.DeliveryMethod
+import com.petqua.domain.auth.LoginMemberOrGuest
 import com.petqua.domain.product.ProductSourceType
 import com.petqua.domain.product.Sorter
 import io.swagger.v3.oas.annotations.media.Schema
@@ -38,12 +39,13 @@ data class ProductReadRequest(
     val limit: Int = PAGING_LIMIT_CEILING,
 ) {
 
-    fun toQuery(): ProductReadQuery {
+    fun toQuery(loginMemberOrGuest: LoginMemberOrGuest): ProductReadQuery {
         return ProductReadQuery(
             sourceType = sourceType,
             sorter = sorter,
             lastViewedId = lastViewedId,
             limit = limit,
+            loginMemberOrGuest = loginMemberOrGuest,
         )
     }
 }
@@ -82,13 +84,14 @@ data class ProductSearchRequest(
     val limit: Int = PAGING_LIMIT_CEILING,
 ) {
 
-    fun toQuery(): ProductSearchQuery {
+    fun toQuery(loginMemberOrGuest: LoginMemberOrGuest): ProductSearchQuery {
         return ProductSearchQuery(
             word = word,
             deliveryMethod = deliveryMethod,
             sorter = sorter,
             lastViewedId = lastViewedId,
             limit = limit,
+            loginMemberOrGuest = loginMemberOrGuest,
         )
     }
 }

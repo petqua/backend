@@ -26,4 +26,17 @@ class WishProduct(
     fun validateOwner(accessMemberId: Long) {
         throwExceptionWhen(accessMemberId != this.memberId) { WishProductException(FORBIDDEN_WISH_PRODUCT) }
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as WishProduct
+
+        return id == other.id
+    }
+
+    override fun hashCode(): Int {
+        return id.hashCode()
+    }
 }

@@ -195,6 +195,12 @@ data class ProductResponse(
         example = "true"
     )
     val canPickUp: Boolean,
+
+    @Schema(
+        description = "찜 여부",
+        example = "true"
+    )
+    val isWished: Boolean = false,
 ) {
     constructor(product: Product, storeName: String) : this(
         product.id,

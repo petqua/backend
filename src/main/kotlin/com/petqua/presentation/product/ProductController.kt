@@ -40,9 +40,10 @@ class ProductController(
     @ApiResponse(responseCode = "200", description = "상품 조건 조회 성공")
     @GetMapping
     fun readAll(
+        @Auth loginMemberOrGuest: LoginMemberOrGuest,
         request: ProductReadRequest
     ): ResponseEntity<ProductsResponse> {
-        val response = productService.readAll(request.toQuery())
+        val response = productService.readAll(request.toQuery(loginMemberOrGuest))
         return ResponseEntity.ok(response)
     }
 
@@ -50,9 +51,10 @@ class ProductController(
     @ApiResponse(responseCode = "200", description = "상품 검색 조회 성공")
     @GetMapping("/search")
     fun readBySearch(
+        @Auth loginMemberOrGuest: LoginMemberOrGuest,
         request: ProductSearchRequest
     ): ResponseEntity<ProductsResponse> {
-        val response = productService.readBySearch(request.toQuery())
+        val response = productService.readBySearch(request.toQuery(loginMemberOrGuest))
         return ResponseEntity.ok(response)
     }
 

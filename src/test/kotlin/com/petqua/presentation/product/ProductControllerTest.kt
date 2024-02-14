@@ -27,10 +27,12 @@ import com.petqua.exception.product.ProductExceptionType.INVALID_SEARCH_WORD
 import com.petqua.exception.product.ProductExceptionType.NOT_FOUND_PRODUCT
 import com.petqua.test.ApiTestConfig
 import com.petqua.test.fixture.product
+import com.petqua.test.fixture.productDetailResponse
 import com.petqua.test.fixture.productImage
 import com.petqua.test.fixture.productInfo
 import com.petqua.test.fixture.productKeyword
 import com.petqua.test.fixture.productRecommendation
+import com.petqua.test.fixture.productResponse
 import com.petqua.test.fixture.store
 import com.petqua.test.fixture.wishProduct
 import io.kotest.assertions.assertSoftly
@@ -101,35 +103,16 @@ class ProductControllerTest(
                     accessToken = accessToken
                 )
 
-                Then("해당 ID 상품의 회원의 찜 여부를 포함한 상세 정보가 반환된다") {
+                Then("회원의 찜 여부를 포함한 해당 ID 상품의 상세 정보가 반환된다") {
                     val productDetailResponse = response.`as`(ProductDetailResponse::class.java)
 
                     assertSoftly {
                         response.statusCode shouldBe HttpStatus.OK.value()
-                        productDetailResponse shouldBe ProductDetailResponse(
-                            id = product.id,
-                            name = product.name,
-                            family = "family",
-                            species = "species",
-                            price = product.price.intValueExact(),
+                        productDetailResponse shouldBe productDetailResponse(
+                            product = product,
                             storeName = store.name,
-                            discountRate = product.discountRate,
-                            discountPrice = product.discountPrice.intValueExact(),
-                            wishCount = product.wishCount.value,
-                            reviewCount = product.reviewCount,
-                            reviewAverageScore = product.averageReviewScore(),
-                            thumbnailUrl = product.thumbnailUrl,
                             imageUrls = listOf(productImage.imageUrl),
-                            canDeliverSafely = product.canDeliverSafely,
-                            canDeliverCommonly = product.canDeliverCommonly,
-                            canPickUp = product.canPickUp,
-                            description = product.description,
-                            optimalTemperatureMin = productInfo.optimalTemperature.optimalTemperatureMin,
-                            optimalTemperatureMax = productInfo.optimalTemperature.optimalTemperatureMax,
-                            difficultyLevel = productInfo.difficultyLevel.description,
-                            optimalTankSizeMin = productInfo.optimalTankSizeLiter.optimalTankSizeLiterMin,
-                            optimalTankSizeMax = productInfo.optimalTankSizeLiter.optimalTankSizeLiterMax,
-                            temperament = productInfo.temperament.description,
+                            productInfo = productInfo,
                             isWished = true
                         )
                     }
@@ -139,6 +122,7 @@ class ProductControllerTest(
             When("존재하지 않는 상품 ID를 입력하면") {
                 val response = requestReadProductById(
                     MIN_VALUE,
+                    accessToken
                 )
 
                 Then("예외가 발생한다") {
@@ -157,36 +141,17 @@ class ProductControllerTest(
                     accessToken = null
                 )
 
-                Then("해당 ID의 상품의 상세 정보가 반환된다") {
+                Then("찜 여부는 false로 해당 ID의 상품의 상세 정보가 반환된다") {
                     val productDetailResponse = response.`as`(ProductDetailResponse::class.java)
 
                     assertSoftly {
                         response.statusCode shouldBe HttpStatus.OK.value()
-                        productDetailResponse shouldBe ProductDetailResponse(
-                            id = product.id,
-                            name = product.name,
-                            family = "family",
-                            species = "species",
-                            price = product.price.intValueExact(),
+                        productDetailResponse shouldBe productDetailResponse(
+                            product = product,
                             storeName = store.name,
-                            discountRate = product.discountRate,
-                            discountPrice = product.discountPrice.intValueExact(),
-                            wishCount = product.wishCount.value,
-                            reviewCount = product.reviewCount,
-                            reviewAverageScore = product.averageReviewScore(),
-                            thumbnailUrl = product.thumbnailUrl,
                             imageUrls = listOf(productImage.imageUrl),
-                            description = product.description,
-                            canDeliverSafely = product.canDeliverSafely,
-                            canDeliverCommonly = product.canDeliverCommonly,
-                            canPickUp = product.canPickUp,
-                            optimalTemperatureMin = productInfo.optimalTemperature.optimalTemperatureMin,
-                            optimalTemperatureMax = productInfo.optimalTemperature.optimalTemperatureMax,
-                            difficultyLevel = productInfo.difficultyLevel.description,
-                            optimalTankSizeMin = productInfo.optimalTankSizeLiter.optimalTankSizeLiterMin,
-                            optimalTankSizeMax = productInfo.optimalTankSizeLiter.optimalTankSizeLiterMax,
-                            temperament = productInfo.temperament.description,
-                            isWished = false,
+                            productInfo = productInfo,
+                            isWished = false
                         )
                     }
                 }
@@ -195,6 +160,7 @@ class ProductControllerTest(
 
         Given("조건에 따라 상품을 조회할 때") {
             val accessToken = signInAsMember().accessToken
+            val memberId = getMemberIdByAccessToken(accessToken)
 
             val product1 = productRepository.save(
                 product(
@@ -239,6 +205,7 @@ class ProductControllerTest(
             When("마지막으로 조회한 Id를 입력하면") {
                 val response = requestReadAllProducts(
                     lastViewedId = product4.id,
+                    accessToken = accessToken
                 )
 
                 Then("해당 ID의 다음 상품들이 최신 등록 순으로 반환된다") {
@@ -260,6 +227,7 @@ class ProductControllerTest(
             When("개수 제한을 입력하면") {
                 val response = requestReadAllProducts(
                     limit = 1,
+                    accessToken = accessToken
                 )
 
                 Then("해당 개수와 함께 다음 페이지가 존재하는지 여부가 반환된다") {
@@ -277,6 +245,7 @@ class ProductControllerTest(
             When("추천 조건으로 조회하면") {
                 val response = requestReadAllProducts(
                     sourceType = HOME_RECOMMENDED.name,
+                    accessToken = accessToken
                 )
 
                 Then("추천 상품들이, 최신 등록 순으로 반환된다") {
@@ -298,6 +267,7 @@ class ProductControllerTest(
                 val response = requestReadAllProducts(
                     sourceType = HOME_RECOMMENDED.name,
                     sorter = SALE_PRICE_ASC.name,
+                    accessToken = accessToken
                 )
 
                 Then("추천 상품들이, 가격 낮은 순으로 반환된다") {
@@ -318,6 +288,7 @@ class ProductControllerTest(
             When("신규 입고 조건으로 조회하면") {
                 val response = requestReadAllProducts(
                     sourceType = HOME_NEW_ENROLLMENT.name,
+                    accessToken = accessToken
                 )
 
                 Then("신규 입고 상품들이 반환된다") {
@@ -341,6 +312,7 @@ class ProductControllerTest(
                 val response = requestReadAllProducts(
                     sourceType = HOME_NEW_ENROLLMENT.name,
                     sorter = SALE_PRICE_DESC.name,
+                    accessToken = accessToken
                 )
 
                 Then("상품들이 최신 등록 순으로 반환된다") {
@@ -363,10 +335,58 @@ class ProductControllerTest(
             When("조건을 잘못 기입해서 조회하면") {
                 val response = requestReadAllProducts(
                     sourceType = "WRONG_TYPE",
+                    accessToken = accessToken
                 )
 
                 Then("예외가 발생한다") {
                     response.statusCode shouldBe BAD_REQUEST.value()
+                }
+            }
+
+            When("회원이 조회하면") {
+                wishProductRepository.save(wishProduct(memberId = memberId, productId = product4.id))
+
+                val response = requestReadAllProducts(
+                    sourceType = HOME_NEW_ENROLLMENT.name,
+                    accessToken = accessToken
+                )
+
+                Then("찜 여부와 함께 상품들이 반환된다") {
+                    val productsResponse = response.`as`(ProductsResponse::class.java)
+
+                    response.statusCode shouldBe HttpStatus.OK.value()
+                    productsResponse shouldBe ProductsResponse(
+                        products = listOf(
+                            productResponse(product4, store.name, isWished = true),
+                            productResponse(product3, store.name, isWished = false),
+                            productResponse(product2, store.name, isWished = false),
+                            productResponse(product1, store.name, isWished = false)
+                        ),
+                        hasNextPage = false,
+                        totalProductsCount = 4
+                    )
+                }
+            }
+
+            When("비회원이 조회하면") {
+                val response = requestReadAllProducts(
+                    sourceType = HOME_NEW_ENROLLMENT.name,
+                )
+
+                Then("찜 여부는 항상 false로 상품들이 반환된다") {
+                    val productsResponse = response.`as`(ProductsResponse::class.java)
+
+                    response.statusCode shouldBe HttpStatus.OK.value()
+                    productsResponse shouldBe ProductsResponse(
+                        products = listOf(
+                            productResponse(product4, store.name, isWished = false),
+                            productResponse(product3, store.name, isWished = false),
+                            productResponse(product2, store.name, isWished = false),
+                            productResponse(product1, store.name, isWished = false)
+                        ),
+                        hasNextPage = false,
+                        totalProductsCount = 4
+                    )
                 }
             }
         }
@@ -432,7 +452,7 @@ class ProductControllerTest(
 
             When("검색어를 입력하면") {
                 val response = requestReadProductKeyword(
-                    word = "구피",
+                    word = "구피"
                 )
 
                 Then("상품 키워드 목록이 문자 길이 오름차순으로 반환된다") {
@@ -477,6 +497,7 @@ class ProductControllerTest(
 
         Given("검색으로 상품을 조회할 때") {
             val accessToken = signInAsMember().accessToken
+            val memberId = getMemberIdByAccessToken(accessToken)
 
             val product1 = productRepository.save(
                 product(
@@ -561,6 +582,7 @@ class ProductControllerTest(
 
                 val response = requestReadProductBySearch(
                     word = keyword,
+                    accessToken = accessToken
                 )
 
                 Then("상품 키워드와 연관된 상품들이 최신 등록 순으로 반환된다") {
@@ -620,6 +642,7 @@ class ProductControllerTest(
 
                 val response = requestReadProductBySearch(
                     word = nonKeyword,
+                    accessToken = accessToken
                 )
 
                 Then("상품 이름과 연관된 상품들이 최신 등록 순으로 반환된다") {
@@ -679,6 +702,7 @@ class ProductControllerTest(
             When("검색어를 입력하지 않으면") {
                 val response = requestReadProductBySearch(
                     word = null,
+                    accessToken = accessToken
                 )
 
                 Then("예외가 발생한다") {
@@ -693,6 +717,7 @@ class ProductControllerTest(
             When("검색어를 빈 문자로 입력하면") {
                 val response = requestReadProductBySearch(
                     word = " ",
+                    accessToken = accessToken
                 )
 
                 Then("예외가 발생한다") {
@@ -700,6 +725,53 @@ class ProductControllerTest(
 
                     response.statusCode shouldBe BAD_REQUEST.value()
                     exceptionResponse.message shouldBe INVALID_SEARCH_WORD.errorMessage()
+                }
+            }
+
+            When("회원이 검색한 상품 중 찜했던 상품이 있다면") {
+                wishProductRepository.save(wishProduct(memberId = memberId, productId = product4.id))
+
+                val keyword = "열대어"
+
+                val response = requestReadProductBySearch(
+                    word = keyword,
+                    accessToken = accessToken
+                )
+
+                Then("찜 여부와 함께 검색 결과가 반환된다") {
+                    val productsResponse = response.`as`(ProductsResponse::class.java)
+
+                    response.statusCode shouldBe HttpStatus.OK.value()
+                    productsResponse shouldBe ProductsResponse(
+                        products = listOf(
+                            productResponse(product4, store.name, isWished = true),
+                            productResponse(product1, store.name, isWished = false)
+                        ),
+                        hasNextPage = false,
+                        totalProductsCount = 2
+                    )
+                }
+            }
+
+            When("비회원이 검색하면") {
+                val keyword = "열대어"
+
+                val response = requestReadProductBySearch(
+                    word = keyword
+                )
+
+                Then("찜 여부는 항상 false로 검색 결과가 반환된다") {
+                    val productsResponse = response.`as`(ProductsResponse::class.java)
+
+                    response.statusCode shouldBe HttpStatus.OK.value()
+                    productsResponse shouldBe ProductsResponse(
+                        products = listOf(
+                            productResponse(product4, store.name, isWished = false),
+                            productResponse(product1, store.name, isWished = false)
+                        ),
+                        hasNextPage = false,
+                        totalProductsCount = 2
+                    )
                 }
             }
         }
