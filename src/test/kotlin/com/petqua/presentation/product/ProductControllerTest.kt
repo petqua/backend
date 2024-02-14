@@ -23,6 +23,7 @@ import com.petqua.test.fixture.productRecommendation
 import com.petqua.test.fixture.store
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import io.restassured.common.mapper.TypeRef
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.BAD_REQUEST
@@ -329,14 +330,14 @@ class ProductControllerTest(
 
             When("검색어를 입력하지 않으면") {
                 val response = requestReadProductKeyword(
-                    word = "",
+                    word = null,
                 )
 
                 Then("예외가 발생한다") {
                     val exceptionResponse = response.`as`(ExceptionResponse::class.java)
 
                     response.statusCode shouldBe BAD_REQUEST.value()
-                    exceptionResponse.message shouldBe INVALID_SEARCH_WORD.errorMessage()
+                    exceptionResponse.message shouldContain "Parameter specified as non-null is null"
                 }
             }
 
@@ -555,14 +556,14 @@ class ProductControllerTest(
 
             When("검색어를 입력하지 않으면") {
                 val response = requestReadProductBySearch(
-                    word = "",
+                    word = null,
                 )
 
                 Then("예외가 발생한다") {
                     val exceptionResponse = response.`as`(ExceptionResponse::class.java)
 
                     response.statusCode shouldBe BAD_REQUEST.value()
-                    exceptionResponse.message shouldBe INVALID_SEARCH_WORD.errorMessage()
+                    exceptionResponse.message shouldContain "Parameter specified as non-null is null"
 
                 }
             }
@@ -577,7 +578,6 @@ class ProductControllerTest(
 
                     response.statusCode shouldBe BAD_REQUEST.value()
                     exceptionResponse.message shouldBe INVALID_SEARCH_WORD.errorMessage()
-
                 }
             }
         }

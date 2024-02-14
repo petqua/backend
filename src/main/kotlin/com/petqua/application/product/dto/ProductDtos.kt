@@ -10,6 +10,7 @@ import com.petqua.domain.product.ProductSourceType
 import com.petqua.domain.product.Sorter
 import com.petqua.domain.product.dto.ProductReadCondition
 import com.petqua.domain.product.dto.ProductResponse
+import com.petqua.domain.product.dto.ProductSearchCondition
 import io.swagger.v3.oas.annotations.media.Schema
 
 data class ProductDetailResponse(
@@ -164,7 +165,7 @@ data class ProductsResponse(
 }
 
 data class ProductSearchQuery(
-    val word: String = "",
+    val word: String,
     val canDeliverSafely: Boolean? = null,
     val canDeliverCommonly: Boolean? = null,
     val canPickUp: Boolean? = null,
@@ -173,8 +174,8 @@ data class ProductSearchQuery(
     val limit: Int = PAGING_LIMIT_CEILING,
 ) {
 
-    fun toSearchCondition(): ProductReadCondition {
-        return ProductReadCondition.toSearchCondition(
+    fun toCondition(): ProductSearchCondition {
+        return ProductSearchCondition.toCondition(
             word = word,
             canDeliverSafely = canDeliverSafely,
             canDeliverCommonly = canDeliverCommonly,

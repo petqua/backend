@@ -5,7 +5,7 @@ import com.petqua.domain.product.Product
 import com.petqua.domain.product.ProductSourceType
 import com.petqua.domain.product.Sorter
 import com.petqua.exception.product.ProductException
-import com.petqua.exception.product.ProductExceptionType.INVALID_SEARCH_WORD
+import com.petqua.exception.product.ProductExceptionType
 import io.swagger.v3.oas.annotations.media.Schema
 
 data class ProductReadCondition(
@@ -14,8 +14,6 @@ data class ProductReadCondition(
     val canPickUp: Boolean? = null,
     val sourceType: ProductSourceType = ProductSourceType.NONE,
     val sorter: Sorter = Sorter.NONE,
-    val word: String = "",
-    val keyword: String = "",
 ) {
 
     companion object {
@@ -32,21 +30,31 @@ data class ProductReadCondition(
                 sorter = sorter
             )
         }
+    }
+}
 
-        fun toSearchCondition(
+data class ProductSearchCondition(
+    val word: String,
+    val canDeliverSafely: Boolean? = null,
+    val canDeliverCommonly: Boolean? = null,
+    val canPickUp: Boolean? = null,
+    val sorter: Sorter = Sorter.NONE,
+) {
+    companion object {
+        fun toCondition(
             word: String,
             canDeliverSafely: Boolean?,
             canDeliverCommonly: Boolean?,
             canPickUp: Boolean?,
-            sorter: Sorter,
-        ): ProductReadCondition {
-            throwExceptionWhen(word.isBlank()) { ProductException(INVALID_SEARCH_WORD) }
-            return ProductReadCondition(
+            sorter: Sorter
+        ): ProductSearchCondition {
+            throwExceptionWhen(word.isBlank()) { ProductException(ProductExceptionType.INVALID_SEARCH_WORD) }
+            return ProductSearchCondition(
                 word = word,
                 canDeliverSafely = canDeliverSafely,
                 canDeliverCommonly = canDeliverCommonly,
                 canPickUp = canPickUp,
-                sorter = sorter,
+                sorter = sorter
             )
         }
     }

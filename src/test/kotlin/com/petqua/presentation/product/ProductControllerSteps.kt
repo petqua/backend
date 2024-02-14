@@ -51,16 +51,18 @@ fun requestReadAllProducts(
 }
 
 fun requestReadProductKeyword(
-    word: String = "",
+    word: String? = null,
     limit: Int = PAGING_LIMIT_CEILING,
     accessToken: String
 ): Response {
     return Given {
+        val paramMap = mutableMapOf<String, Any?>().apply {
+            put("word", word)
+            put("limit", limit)
+        }.filterValues { it != null }
+
         log().all()
-        params(
-            "word", word,
-            "limit", limit
-        )
+        params(paramMap)
     } When {
         get("/products/keywords")
     } Then {

@@ -3,18 +3,21 @@ package com.petqua.domain.product
 import com.petqua.common.domain.dto.CursorBasedPaging
 import com.petqua.domain.product.dto.ProductReadCondition
 import com.petqua.domain.product.dto.ProductResponse
+import com.petqua.domain.product.dto.ProductSearchCondition
 
 interface ProductCustomRepository {
 
     fun findAllByCondition(condition: ProductReadCondition, paging: CursorBasedPaging): List<ProductResponse>
 
-    fun countByCondition(condition: ProductReadCondition): Int
+    fun countByReadCondition(condition: ProductReadCondition): Int
 
-    fun findBySearch(condition: ProductReadCondition, paging: CursorBasedPaging): List<ProductResponse>
+    fun findBySearch(condition: ProductSearchCondition, paging: CursorBasedPaging): List<ProductResponse>
+
+    fun countBySearchCondition(condition: ProductSearchCondition): Int
 
     fun findAllProductResponseByIdIn(ids: List<Long>): List<ProductResponse>
 
-    fun findByKeywordSearch(condition: ProductReadCondition, paging: CursorBasedPaging): List<ProductResponse>
+    fun findByKeywordSearch(condition: ProductSearchCondition, paging: CursorBasedPaging): List<ProductResponse>
 
-    fun countByKeywordCondition(condition: ProductReadCondition): Int
+    fun countByKeywordSearchCondition(condition: ProductSearchCondition): Int
 }

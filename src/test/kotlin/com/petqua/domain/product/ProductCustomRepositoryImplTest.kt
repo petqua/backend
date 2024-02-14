@@ -8,6 +8,7 @@ import com.petqua.domain.product.Sorter.SALE_PRICE_ASC
 import com.petqua.domain.product.Sorter.SALE_PRICE_DESC
 import com.petqua.domain.product.dto.ProductReadCondition
 import com.petqua.domain.product.dto.ProductResponse
+import com.petqua.domain.product.dto.ProductSearchCondition
 import com.petqua.domain.recommendation.ProductRecommendationRepository
 import com.petqua.domain.store.StoreRepository
 import com.petqua.test.DataCleaner
@@ -169,7 +170,7 @@ class ProductCustomRepositoryImplTest(
         recommendationRepository.save(productRecommendation(productId = product2.id))
 
         When("추천 상품을 조회하면") {
-            val count = productRepository.countByCondition(ProductReadCondition(sourceType = HOME_RECOMMENDED))
+            val count = productRepository.countByReadCondition(ProductReadCondition(sourceType = HOME_RECOMMENDED))
 
             Then("추천 상품의 개수를 반환한다") {
                 count shouldBe 2
@@ -245,7 +246,7 @@ class ProductCustomRepositoryImplTest(
 
         When("상품 이름을 정확히 입력하면") {
             val products = productRepository.findBySearch(
-                condition = ProductReadCondition(word = "상품1"),
+                condition = ProductSearchCondition(word = "상품1"),
                 paging = CursorBasedPaging()
             )
 
@@ -258,7 +259,7 @@ class ProductCustomRepositoryImplTest(
 
         When("상품 이름을 입력하면") {
             val products = productRepository.findBySearch(
-                condition = ProductReadCondition(word = "상품"),
+                condition = ProductSearchCondition(word = "상품"),
                 paging = CursorBasedPaging()
             )
 
@@ -274,7 +275,7 @@ class ProductCustomRepositoryImplTest(
 
         When("존재하지 않는 상품 이름을 입력하면") {
             val products = productRepository.findBySearch(
-                condition = ProductReadCondition(word = "NON EXISTENT PRODUCT"),
+                condition = ProductSearchCondition(word = "NON EXISTENT PRODUCT"),
                 paging = CursorBasedPaging()
             )
 
@@ -285,8 +286,8 @@ class ProductCustomRepositoryImplTest(
 
         When("상품 이름과 안전배송 조건을 입력하면") {
             val products = productRepository.findBySearch(
-                condition = ProductReadCondition(word = "상품", canDeliverSafely = true),
-                paging = ProductPaging()
+                condition = ProductSearchCondition(word = "상품", canDeliverSafely = true),
+                paging = CursorBasedPaging()
             )
 
             Then("입력한 조건에 맞는 상품들을 반환한다") {
@@ -299,8 +300,8 @@ class ProductCustomRepositoryImplTest(
 
         When("상품 이름과 일반배송 조건을 입력하면") {
             val products = productRepository.findBySearch(
-                condition = ProductReadCondition(word = "상품", canDeliverCommonly = true),
-                paging = ProductPaging()
+                condition = ProductSearchCondition(word = "상품", canDeliverCommonly = true),
+                paging = CursorBasedPaging()
             )
 
             Then("입력한 조건에 맞는 상품들을 반환한다") {
@@ -313,8 +314,8 @@ class ProductCustomRepositoryImplTest(
 
         When("상품 이름과 직접수령 조건을 입력하면") {
             val products = productRepository.findBySearch(
-                condition = ProductReadCondition(word = "상품", canPickUp = true),
-                paging = ProductPaging()
+                condition = ProductSearchCondition(word = "상품", canPickUp = true),
+                paging = CursorBasedPaging()
             )
 
             Then("입력한 조건에 맞는 상품들을 반환한다") {

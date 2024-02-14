@@ -52,7 +52,7 @@ data class ProductSearchRequest(
         description = "검색어",
         example = "구피"
     )
-    val word: String = "",
+    val word: String,
 
     @Schema(
         description = "안전 운송 가능 여부",
@@ -110,7 +110,7 @@ data class ProductKeywordRequest(
         description = "마지막으로 조회한 상품의 Id",
         example = "1"
     )
-    val word: String = "",
+    val word: String,
 
     @Schema(
         description = "조회할 상품 개수",
