@@ -2,11 +2,13 @@ package com.petqua.presentation.product
 
 import com.petqua.application.product.dto.ProductReviewStatisticsResponse
 import com.petqua.application.product.dto.ProductReviewsResponse
+import com.petqua.common.domain.findByIdOrThrow
 import com.petqua.domain.member.MemberRepository
 import com.petqua.domain.product.ProductRepository
 import com.petqua.domain.product.review.ProductReviewImageRepository
 import com.petqua.domain.product.review.ProductReviewRepository
 import com.petqua.domain.store.StoreRepository
+import com.petqua.presentation.product.dto.UpdateReviewRecommendationRequest
 import com.petqua.test.ApiTestConfig
 import com.petqua.test.fixture.member
 import com.petqua.test.fixture.product
@@ -19,6 +21,7 @@ import io.kotest.matchers.collections.shouldBeSortedWith
 import io.kotest.matchers.ints.shouldBeGreaterThanOrEqual
 import io.kotest.matchers.shouldBe
 import java.math.BigDecimal
+import org.springframework.http.HttpStatus.NO_CONTENT
 
 class ProductReviewControllerTest(
     private val memberRepository: MemberRepository,
@@ -27,6 +30,7 @@ class ProductReviewControllerTest(
     private val productReviewRepository: ProductReviewRepository,
     private val productReviewImageRepository: ProductReviewImageRepository,
 ) : ApiTestConfig() {
+
     init {
         Given("조건에 따라 상품 후기를 조회 하면") {
             val store = storeRepository.save(store(name = "펫쿠아"))
@@ -218,6 +222,62 @@ class ProductReviewControllerTest(
                         totalReviewCount shouldBe 5
                         productSatisfaction shouldBe 60
                         averageScore shouldBe 3.8
+                    }
+                }
+            }
+        }
+
+        Given("상품 후기를 추천 할 때") {
+            val store = storeRepository.save(store(name = "펫쿠아"))
+            val memberAccessToken = signInAsMember().accessToken
+            val product = productRepository.save(
+                product(
+                    name = "상품1",
+                    storeId = store.id,
+                    discountPrice = BigDecimal.ZERO,
+                    reviewCount = 0,
+                    reviewTotalScore = 0
+                )
+            )
+
+            val productReview = productReviewRepository.save(
+                productReview(
+                    productId = product.id,
+                    reviewerId = getMemberIdByAccessToken(memberAccessToken),
+                    score = 5,
+                    recommendCount = 0,
+                    hasPhotos = false
+                )
+            )
+
+            When("상품 후기를 추천 하면") {
+                val requestBody = UpdateReviewRecommendationRequest(productReview.id)
+                val response = requestUpdateReviewRecommendation(
+                    requestBody,
+                    memberAccessToken
+                )
+
+                Then("해당 상품 후기의 추천 수가 증가한다") {
+                    assertSoftly {
+                        response.statusCode shouldBe NO_CONTENT.value()
+                        productReviewRepository.findByIdOrThrow(productReview.id).recommendCount shouldBe 1
+                    }
+                }
+            }
+
+            When("이미 추천한 상품 후기를 다시 추천 하면") {
+                val requestBody = UpdateReviewRecommendationRequest(productReview.id)
+                requestUpdateReviewRecommendation(requestBody, memberAccessToken)
+
+                val response = requestUpdateReviewRecommendation(
+                    request = requestBody,
+                    accessToken = memberAccessToken,
+                )
+
+                Then("추천 수가 감소 한다") {
+                    assertSoftly {
+                        response.statusCode shouldBe NO_CONTENT.value()
+                        productReviewRepository.findByIdOrThrow(productReview.id).recommendCount shouldBe 0
                     }
                 }
             }
