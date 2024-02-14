@@ -25,9 +25,17 @@ class ProductReview(
     val score: Int,
 
     @Column(nullable = false)
-    val recommendCount: Int = 0,
+    var recommendCount: Int = 0,
 
     @Column(nullable = false)
     val hasPhotos: Boolean = false,
 ) : BaseEntity() {
+
+    fun increaseRecommendCount() {
+        recommendCount += 1
+    }
+
+    fun decreaseRecommendCount() {
+        recommendCount -= 1
+    }
 }

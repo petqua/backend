@@ -13,6 +13,7 @@ import com.petqua.domain.product.dto.ProductReadCondition
 import com.petqua.domain.product.dto.ProductResponse
 import com.petqua.domain.product.dto.ProductSearchCondition
 import com.petqua.domain.product.dto.ProductWithInfoResponse
+import com.petqua.domain.product.review.ProductReviewRecommendation
 import io.swagger.v3.oas.annotations.media.Schema
 
 data class ProductDetailResponse(
@@ -273,3 +274,17 @@ data class ProductKeywordResponse(
     )
     val keyword: String,
 )
+
+
+data class UpdateReviewRecommendationCommand(
+    val memberId: Long,
+    val productReviewId: Long,
+) {
+
+    fun toReviewRecommendation(): ProductReviewRecommendation {
+        return ProductReviewRecommendation(
+            memberId = memberId,
+            productReviewId = productReviewId
+        )
+    }
+}
