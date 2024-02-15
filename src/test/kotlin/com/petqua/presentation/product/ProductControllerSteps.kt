@@ -5,12 +5,12 @@ import com.petqua.common.domain.dto.PAGING_LIMIT_CEILING
 import com.petqua.domain.delivery.DeliveryMethod
 import com.petqua.domain.product.ProductSourceType.NONE
 import com.petqua.domain.product.Sorter
+import com.petqua.test.authorize
 import io.restassured.module.kotlin.extensions.Extract
 import io.restassured.module.kotlin.extensions.Given
 import io.restassured.module.kotlin.extensions.Then
 import io.restassured.module.kotlin.extensions.When
 import io.restassured.response.Response
-import io.restassured.specification.RequestSpecification
 
 fun requestReadProductById(
     productId: Long,
@@ -27,10 +27,6 @@ fun requestReadProductById(
     } Extract {
         response()
     }
-}
-
-private fun RequestSpecification.authorize(accessToken: String?): RequestSpecification? {
-    return accessToken?.let { auth().preemptive().oauth2(it) }
 }
 
 fun requestReadAllProducts(

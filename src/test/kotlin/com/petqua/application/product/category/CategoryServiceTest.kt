@@ -1,16 +1,24 @@
 package com.petqua.application.product.category
 
+import com.petqua.domain.auth.Authority.MEMBER
+import com.petqua.domain.auth.LoginMemberOrGuest
+import com.petqua.domain.auth.token.AccessTokenClaims
 import com.petqua.domain.delivery.DeliveryMethod.SAFETY
+import com.petqua.domain.member.MemberRepository
 import com.petqua.domain.product.ProductRepository
 import com.petqua.domain.product.Sorter
+import com.petqua.domain.product.WishProductRepository
 import com.petqua.domain.product.category.CategoryRepository
 import com.petqua.domain.product.category.SpeciesResponse
 import com.petqua.domain.product.dto.ProductResponse
 import com.petqua.domain.store.StoreRepository
 import com.petqua.test.DataCleaner
 import com.petqua.test.fixture.category
+import com.petqua.test.fixture.member
 import com.petqua.test.fixture.product
+import com.petqua.test.fixture.productResponse
 import com.petqua.test.fixture.store
+import com.petqua.test.fixture.wishProduct
 import io.kotest.assertions.assertSoftly
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContainExactly
@@ -25,6 +33,8 @@ class CategoryServiceTest(
     private val categoryRepository: CategoryRepository,
     private val productRepository: ProductRepository,
     private val storeRepository: StoreRepository,
+    private val memberRepository: MemberRepository,
+    private val wishProductRepository: WishProductRepository,
     private val dataCleaner: DataCleaner,
 ) : BehaviorSpec({
 
@@ -57,6 +67,7 @@ class CategoryServiceTest(
     }
 
     Given("카테고리 조건에 따라 상품을 조회할 때") {
+        val member = memberRepository.save(member())
         val store = storeRepository.save(store(name = "펫쿠아"))
         val category1 = categoryRepository.save(category(family = "송사리과", species = "고정구피"))
         val category2 = categoryRepository.save(category(family = "송사리과", species = "팬시구피"))
@@ -97,11 +108,18 @@ class CategoryServiceTest(
                 canPickUp = false,
             )
         )
+        wishProductRepository.save(
+            wishProduct(
+                productId = product1.id,
+                memberId = member.id
+            )
+        )
 
         When("어과를 입력하면") {
             val productsResponse = categoryService.readProducts(
                 CategoryProductReadQuery(
                     family = "송사리과",
+                    loginMemberOrGuest = LoginMemberOrGuest.getGuest()
                 )
             )
 
@@ -118,7 +136,8 @@ class CategoryServiceTest(
             val productsResponse = categoryService.readProducts(
                 CategoryProductReadQuery(
                     family = "송사리과",
-                    species = listOf("팬시구피")
+                    species = listOf("팬시구피"),
+                    loginMemberOrGuest = LoginMemberOrGuest.getGuest()
                 )
             )
 
@@ -134,7 +153,8 @@ class CategoryServiceTest(
             val productsResponse = categoryService.readProducts(
                 CategoryProductReadQuery(
                     family = "송사리과",
-                    species = listOf("팬시구피", "고정구피")
+                    species = listOf("팬시구피", "고정구피"),
+                    loginMemberOrGuest = LoginMemberOrGuest.getGuest()
                 )
             )
 
@@ -152,6 +172,7 @@ class CategoryServiceTest(
                 CategoryProductReadQuery(
                     family = "송사리과",
                     deliveryMethod = SAFETY,
+                    loginMemberOrGuest = LoginMemberOrGuest.getGuest()
                 )
             )
 
@@ -166,7 +187,8 @@ class CategoryServiceTest(
             val productsResponse = categoryService.readProducts(
                 CategoryProductReadQuery(
                     family = "송사리과",
-                    sorter = Sorter.SALE_PRICE_DESC
+                    sorter = Sorter.SALE_PRICE_DESC,
+                    loginMemberOrGuest = LoginMemberOrGuest.getGuest()
                 )
             )
 
@@ -184,6 +206,7 @@ class CategoryServiceTest(
                 CategoryProductReadQuery(
                     family = "송사리과",
                     limit = 1,
+                    loginMemberOrGuest = LoginMemberOrGuest.getGuest()
                 )
             )
 
@@ -201,7 +224,8 @@ class CategoryServiceTest(
             val productsResponse = categoryService.readProducts(
                 CategoryProductReadQuery(
                     family = "송사리과",
-                    limit = 1
+                    limit = 1,
+                    loginMemberOrGuest = LoginMemberOrGuest.getGuest()
                 )
             )
 
@@ -212,6 +236,23 @@ class CategoryServiceTest(
                     )
                     it.totalProductsCount shouldBe 3
                 }
+            }
+        }
+
+        When("회원이 조건을 입력해 조회하면") {
+            val productsResponse = categoryService.readProducts(
+                CategoryProductReadQuery(
+                    family = "송사리과",
+                    loginMemberOrGuest = LoginMemberOrGuest.getMemberFrom(AccessTokenClaims(member.id, MEMBER))
+                )
+            )
+
+            Then("입력한 어과에 해당하는 상품들이 반환된다") {
+                productsResponse.products shouldContainExactly listOf(
+                    productResponse(product3, store.name, isWished = false),
+                    productResponse(product2, store.name, isWished = false),
+                    productResponse(product1, store.name, isWished = true),
+                )
             }
         }
     }

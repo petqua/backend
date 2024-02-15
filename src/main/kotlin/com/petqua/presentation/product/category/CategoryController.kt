@@ -3,6 +3,8 @@ package com.petqua.presentation.product.category
 import com.petqua.application.product.category.CategoryService
 import com.petqua.application.product.dto.ProductsResponse
 import com.petqua.common.config.ACCESS_TOKEN_SECURITY_SCHEME_KEY
+import com.petqua.domain.auth.Auth
+import com.petqua.domain.auth.LoginMemberOrGuest
 import com.petqua.domain.product.category.SpeciesResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -36,9 +38,10 @@ class CategoryController(
     @SecurityRequirement(name = ACCESS_TOKEN_SECURITY_SCHEME_KEY)
     @GetMapping("/products")
     fun readProductsBy(
+        @Auth loginMemberOrGuest: LoginMemberOrGuest,
         request: CategoryProductReadRequest,
     ): ResponseEntity<ProductsResponse> {
-        val query = request.toQuery()
+        val query = request.toQuery(loginMemberOrGuest)
         val response = categoryService.readProducts(query)
         return ResponseEntity.ok(response)
     }

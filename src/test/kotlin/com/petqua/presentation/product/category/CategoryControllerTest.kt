@@ -5,6 +5,7 @@ import com.petqua.common.exception.ExceptionResponse
 import com.petqua.domain.delivery.DeliveryMethod.SAFETY
 import com.petqua.domain.product.ProductRepository
 import com.petqua.domain.product.Sorter.SALE_PRICE_ASC
+import com.petqua.domain.product.WishProductRepository
 import com.petqua.domain.product.category.CategoryRepository
 import com.petqua.domain.product.category.SpeciesResponse
 import com.petqua.domain.product.dto.ProductResponse
@@ -12,7 +13,9 @@ import com.petqua.domain.store.StoreRepository
 import com.petqua.test.ApiTestConfig
 import com.petqua.test.fixture.category
 import com.petqua.test.fixture.product
+import com.petqua.test.fixture.productResponse
 import com.petqua.test.fixture.store
+import com.petqua.test.fixture.wishProduct
 import io.kotest.assertions.assertSoftly
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
@@ -27,6 +30,7 @@ class CategoryControllerTest(
     private val categoryRepository: CategoryRepository,
     private val productRepository: ProductRepository,
     private val storeRepository: StoreRepository,
+    private val wishProductRepository: WishProductRepository,
 ) : ApiTestConfig() {
 
     init {
@@ -75,6 +79,9 @@ class CategoryControllerTest(
         }
 
         Given("어과 카테고리를 통해 상품을 조회할 때") {
+            val accessToken = signInAsMember().accessToken
+            val memberId = getMemberIdByAccessToken(accessToken)
+
             val store = storeRepository.save(store(name = "펫쿠아"))
             val category1 = categoryRepository.save(category(family = "송사리과", species = "고정구피"))
             val category2 = categoryRepository.save(category(family = "송사리과", species = "팬시구피"))
@@ -292,6 +299,30 @@ class CategoryControllerTest(
                     assertSoftly {
                         response.statusCode shouldBe BAD_REQUEST.value()
                         exceptionResponse.message shouldContain "Parameter specified as non-null is null"
+                    }
+                }
+            }
+
+            When("회원이 조건을 입력해 조회하면") {
+                wishProductRepository.save(
+                    wishProduct(
+                        productId = product1.id,
+                        memberId = memberId
+                    )
+                )
+
+                val response = requestReadProducts(family = "송사리과", accessToken = accessToken)
+
+                Then("회원의 찜 여부 정보를 포함한 상품들이 반환된다") {
+                    val productsResponse = response.`as`(ProductsResponse::class.java)
+
+                    assertSoftly {
+                        response.statusCode shouldBe OK.value()
+                        productsResponse.products shouldContainExactly listOf(
+                            productResponse(product3, store.name, isWished = false),
+                            productResponse(product2, store.name, isWished = false),
+                            productResponse(product1, store.name, isWished = true),
+                        )
                     }
                 }
             }
