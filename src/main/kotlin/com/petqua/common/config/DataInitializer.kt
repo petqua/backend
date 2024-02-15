@@ -10,6 +10,8 @@ import com.petqua.domain.member.MemberRepository
 import com.petqua.domain.product.Product
 import com.petqua.domain.product.ProductRepository
 import com.petqua.domain.product.WishCount
+import com.petqua.domain.product.WishProduct
+import com.petqua.domain.product.WishProductRepository
 import com.petqua.domain.product.category.Category
 import com.petqua.domain.product.category.CategoryRepository
 import com.petqua.domain.product.category.Family
@@ -62,11 +64,21 @@ class DataInitializer(
     private val productInfoRepository: ProductInfoRepository,
     private val productImageRepository: ProductImageRepository,
     private val productOptionRepository: ProductOptionRepository,
+    private val wishProductRepository: WishProductRepository,
 ) {
 
     @EventListener(ApplicationReadyEvent::class)
     @Transactional
     fun setUpData() {
+        // member
+        val member = memberRepository.save(
+            Member(
+                oauthId = "oauthId",
+                oauthServerNumber = 1,
+                authority = MEMBER,
+            )
+        )
+
         // announcement
         val announcement1 = Announcement(
             title = "[공지] 펫쿠아 프론트엔드 개발자 구인 중!",
@@ -161,7 +173,7 @@ class DataInitializer(
             canPickUp = true,
         )
         productRepository.saveAll(listOf(product1, product2, product3))
-        saveProducts(store1.id, category1.id)
+        saveProducts(store1.id, category1.id, member.id)
 
         // productRecommendation
         val productRecommendation1 = ProductRecommendation(productId = product3.id)
@@ -264,15 +276,6 @@ class DataInitializer(
             )
         )
 
-        // member
-        val member = memberRepository.save(
-            Member(
-                oauthId = "oauthId",
-                oauthServerNumber = 1,
-                authority = MEMBER,
-            )
-        )
-
         // productReview
         val reviews = productReviewRepository.saveAll(
             listOf(
@@ -310,7 +313,7 @@ class DataInitializer(
         }
     }
 
-    private fun saveProducts(storeId: Long, categoryId: Long) {
+    private fun saveProducts(storeId: Long, categoryId: Long, memberId: Long) {
         val products = (1..100).map {
             Product(
                 name = "니모를 찾아서 세트$it",
@@ -330,5 +333,15 @@ class DataInitializer(
             )
         }
         productRepository.saveAll(products)
+
+        val wishProducts = products.filter {
+            (it.id % 2).toInt() == 0
+        }.map {
+            WishProduct(
+                productId = it.id,
+                memberId = memberId
+            )
+        }
+        wishProductRepository.saveAll(wishProducts)
     }
 }

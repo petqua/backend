@@ -12,7 +12,7 @@ class LoginMemberOrGuest(
 ) {
 
     fun isMember(): Boolean {
-        return this != GUEST_INSTANCE;
+        return this != GUEST_INSTANCE
     }
 
     companion object {
