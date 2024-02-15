@@ -4,6 +4,7 @@ import com.petqua.application.product.dto.ProductDetailResponse
 import com.petqua.domain.keyword.ProductKeyword
 import com.petqua.domain.product.Product
 import com.petqua.domain.product.WishCount
+import com.petqua.domain.product.category.Category
 import com.petqua.domain.product.detail.DifficultyLevel
 import com.petqua.domain.product.detail.OptimalTankSizeLiter
 import com.petqua.domain.product.detail.OptimalTemperature
@@ -102,13 +103,14 @@ fun productDetailResponse(
     storeName: String,
     imageUrls: List<String>,
     productInfo: ProductInfo,
+    category: Category,
     isWished: Boolean,
 ): ProductDetailResponse {
     return ProductDetailResponse(
         id = product.id,
         name = product.name,
-        family = "family",
-        species = "species",
+        family = category.family.name,
+        species = category.species.name,
         price = product.price.intValueExact(),
         storeName = storeName,
         discountRate = product.discountRate,

@@ -14,6 +14,7 @@ import com.petqua.domain.product.Sorter.REVIEW_COUNT_DESC
 import com.petqua.domain.product.Sorter.SALE_PRICE_ASC
 import com.petqua.domain.product.Sorter.SALE_PRICE_DESC
 import com.petqua.domain.product.WishProductRepository
+import com.petqua.domain.product.category.CategoryRepository
 import com.petqua.domain.product.detail.DifficultyLevel
 import com.petqua.domain.product.detail.OptimalTankSizeLiter
 import com.petqua.domain.product.detail.OptimalTemperature
@@ -26,6 +27,7 @@ import com.petqua.domain.store.StoreRepository
 import com.petqua.exception.product.ProductExceptionType.INVALID_SEARCH_WORD
 import com.petqua.exception.product.ProductExceptionType.NOT_FOUND_PRODUCT
 import com.petqua.test.ApiTestConfig
+import com.petqua.test.fixture.category
 import com.petqua.test.fixture.product
 import com.petqua.test.fixture.productDetailResponse
 import com.petqua.test.fixture.productImage
@@ -56,6 +58,7 @@ class ProductControllerTest(
     private val productInfoRepository: ProductInfoRepository,
     private val productImageRepository: ProductImageRepository,
     private val wishProductRepository: WishProductRepository,
+    private val categoryRepository: CategoryRepository,
 ) : ApiTestConfig() {
 
     init {
@@ -65,9 +68,16 @@ class ProductControllerTest(
             val accessToken = signInAsMember().accessToken
             val memberId = getMemberIdByAccessToken(accessToken)
 
+            val category = categoryRepository.save(
+                category(
+                    family = "난태생과",
+                    species = "고정구피"
+                )
+            )
             val product = productRepository.save(
                 product(
                     name = "고정구피",
+                    categoryId = category.id,
                     storeId = store.id,
                     discountPrice = ZERO,
                     reviewCount = 0,
@@ -113,6 +123,7 @@ class ProductControllerTest(
                             storeName = store.name,
                             imageUrls = listOf(productImage.imageUrl),
                             productInfo = productInfo,
+                            category = category,
                             isWished = true
                         )
                     }
@@ -151,6 +162,7 @@ class ProductControllerTest(
                             storeName = store.name,
                             imageUrls = listOf(productImage.imageUrl),
                             productInfo = productInfo,
+                            category = category,
                             isWished = false
                         )
                     }

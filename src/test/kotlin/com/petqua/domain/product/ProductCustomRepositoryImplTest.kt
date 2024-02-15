@@ -9,6 +9,7 @@ import com.petqua.domain.product.Sorter.ENROLLMENT_DATE_DESC
 import com.petqua.domain.product.Sorter.REVIEW_COUNT_DESC
 import com.petqua.domain.product.Sorter.SALE_PRICE_ASC
 import com.petqua.domain.product.Sorter.SALE_PRICE_DESC
+import com.petqua.domain.product.category.CategoryRepository
 import com.petqua.domain.product.detail.DifficultyLevel.EASY
 import com.petqua.domain.product.detail.OptimalTankSizeLiter
 import com.petqua.domain.product.detail.OptimalTemperature
@@ -23,6 +24,7 @@ import com.petqua.domain.store.StoreRepository
 import com.petqua.exception.product.ProductException
 import com.petqua.exception.product.ProductExceptionType.NOT_FOUND_PRODUCT
 import com.petqua.test.DataCleaner
+import com.petqua.test.fixture.category
 import com.petqua.test.fixture.product
 import com.petqua.test.fixture.productInfo
 import com.petqua.test.fixture.productRecommendation
@@ -44,16 +46,24 @@ class ProductCustomRepositoryImplTest(
     private val storeRepository: StoreRepository,
     private val recommendationRepository: ProductRecommendationRepository,
     private val productInfoRepository: ProductInfoRepository,
+    private val categoryRepository: CategoryRepository,
     private val dataCleaner: DataCleaner,
 ) : BehaviorSpec({
 
     val store = storeRepository.save(store(name = "펫쿠아"))
 
     Given("Id로 상품과 상세정보를 함께 조회할 때") {
+        val category = categoryRepository.save(
+            category(
+                family = "난태생과",
+                species = "고정구피"
+            )
+        )
         val product = productRepository.save(
             product(
                 name = "고정구피",
                 storeId = store.id,
+                categoryId = category.id,
                 discountPrice = ZERO,
                 reviewCount = 0,
                 reviewTotalScore = 0
@@ -79,7 +89,8 @@ class ProductCustomRepositoryImplTest(
                 productWithInfoResponse shouldBe ProductWithInfoResponse(
                     product = product,
                     storeName = store.name,
-                    productInfo = productInfo
+                    productInfo = productInfo,
+                    category = category
                 )
             }
         }

@@ -5,6 +5,7 @@ import com.petqua.domain.delivery.DeliveryMethod
 import com.petqua.domain.product.Product
 import com.petqua.domain.product.ProductSourceType
 import com.petqua.domain.product.Sorter
+import com.petqua.domain.product.category.Category
 import com.petqua.domain.product.detail.ProductInfo
 import com.petqua.exception.product.ProductException
 import com.petqua.exception.product.ProductExceptionType
@@ -84,12 +85,12 @@ data class ProductWithInfoResponse(
         product: Product,
         storeName: String,
         productInfo: ProductInfo,
-//        category: Category,
+        category: Category,
     ) : this(
         id = product.id,
         name = product.name,
-        family = "family",
-        species = "species",
+        family = category.family.name,
+        species = category.species.name,
         price = product.price.intValueExact(),
         storeName = storeName,
         discountRate = product.discountRate,

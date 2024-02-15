@@ -14,6 +14,7 @@ import com.petqua.domain.product.ProductRepository
 import com.petqua.domain.product.ProductSourceType.NONE
 import com.petqua.domain.product.Sorter.ENROLLMENT_DATE_DESC
 import com.petqua.domain.product.WishProductRepository
+import com.petqua.domain.product.category.CategoryRepository
 import com.petqua.domain.product.detail.DifficultyLevel
 import com.petqua.domain.product.detail.OptimalTankSizeLiter
 import com.petqua.domain.product.detail.OptimalTemperature
@@ -24,6 +25,7 @@ import com.petqua.domain.store.StoreRepository
 import com.petqua.exception.product.ProductException
 import com.petqua.exception.product.ProductExceptionType.NOT_FOUND_PRODUCT
 import com.petqua.test.DataCleaner
+import com.petqua.test.fixture.category
 import com.petqua.test.fixture.member
 import com.petqua.test.fixture.product
 import com.petqua.test.fixture.productDetailResponse
@@ -51,6 +53,7 @@ class ProductServiceTest(
     private val productImageRepository: ProductImageRepository,
     private val memberRepository: MemberRepository,
     private val wishProductRepository: WishProductRepository,
+    private val categoryRepository: CategoryRepository,
     private val dataCleaner: DataCleaner,
 ) : BehaviorSpec({
 
@@ -59,10 +62,17 @@ class ProductServiceTest(
     Given("상품 ID로 상품 상세정보를 조회할 때") {
         val member = memberRepository.save(member())
 
+        val category = categoryRepository.save(
+            category(
+                family = "난태생과",
+                species = "고정구피"
+            )
+        )
         val product = productRepository.save(
             product(
                 name = "고정구피",
                 storeId = store.id,
+                categoryId = category.id,
                 discountPrice = BigDecimal.ZERO,
                 reviewCount = 0,
                 reviewTotalScore = 0
@@ -103,6 +113,7 @@ class ProductServiceTest(
                     storeName = store.name,
                     imageUrls = listOf(productImage.imageUrl),
                     productInfo = productInfo,
+                    category = category,
                     isWished = true
                 )
             }
@@ -134,6 +145,7 @@ class ProductServiceTest(
                     storeName = store.name,
                     imageUrls = listOf(productImage.imageUrl),
                     productInfo = productInfo,
+                    category = category,
                     isWished = false
                 )
             }

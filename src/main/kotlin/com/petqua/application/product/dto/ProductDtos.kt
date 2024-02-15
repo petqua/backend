@@ -4,8 +4,8 @@ import com.petqua.common.domain.dto.CursorBasedPaging
 import com.petqua.common.domain.dto.DEFAULT_LAST_VIEWED_ID
 import com.petqua.common.domain.dto.PADDING_FOR_HAS_NEXT_PAGE
 import com.petqua.common.domain.dto.PAGING_LIMIT_CEILING
-import com.petqua.domain.delivery.DeliveryMethod
 import com.petqua.domain.auth.LoginMemberOrGuest
+import com.petqua.domain.delivery.DeliveryMethod
 import com.petqua.domain.keyword.ProductKeyword
 import com.petqua.domain.product.ProductSourceType
 import com.petqua.domain.product.Sorter
@@ -164,13 +164,11 @@ data class ProductDetailResponse(
         productWithInfoResponse: ProductWithInfoResponse,
         imageUrls: List<String>,
         isWished: Boolean,
-        // TODO
-        // category: Category
     ) : this(
         id = productWithInfoResponse.id,
         name = productWithInfoResponse.name,
-        family = "family",
-        species = "species",
+        family = productWithInfoResponse.family,
+        species = productWithInfoResponse.species,
         price = productWithInfoResponse.price,
         storeName = productWithInfoResponse.storeName,
         discountRate = productWithInfoResponse.discountRate,
@@ -200,7 +198,7 @@ data class ProductReadQuery(
     val lastViewedId: Long = DEFAULT_LAST_VIEWED_ID,
     val limit: Int = PAGING_LIMIT_CEILING,
     val loginMemberOrGuest: LoginMemberOrGuest,
-    ) {
+) {
     fun toReadConditions(): ProductReadCondition {
         return ProductReadCondition.toCondition(sourceType, sorter)
     }
@@ -243,7 +241,7 @@ data class ProductSearchQuery(
     val lastViewedId: Long = DEFAULT_LAST_VIEWED_ID,
     val limit: Int = PAGING_LIMIT_CEILING,
     val loginMemberOrGuest: LoginMemberOrGuest,
-    ) {
+) {
 
     fun toCondition(): ProductSearchCondition {
         return ProductSearchCondition.toCondition(
