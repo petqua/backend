@@ -49,6 +49,10 @@ dependencies {
     // swagger
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0")
 
+    // logging
+    implementation("ch.qos.logback:logback-access")
+    implementation("org.codehaus.janino:janino:3.1.6")
+
     runtimeOnly("com.mysql:mysql-connector-j")
     runtimeOnly("com.h2database:h2")
 

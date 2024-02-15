@@ -16,7 +16,7 @@ class ExceptionControllerAdvice {
     @ExceptionHandler(BaseException::class)
     fun handleBaseException(request: HttpServletRequest, e: BaseException): ResponseEntity<ExceptionResponse> {
         val type = e.exceptionType()
-        log.warn("잘못된 요청이 들어왔습니다. URI: ${request.requestURI},  내용:  ${type.errorMessage()}")
+        log.warn("잘못된 요청이 들어왔습니다. URI: ${request.requestURI}, 코드: ${type.code()}, 내용:  ${type.errorMessage()}")
         return ResponseEntity.status(type.httpStatus()).body(
             ExceptionResponse(
                 code = type.code(),
