@@ -24,6 +24,10 @@ class AuthExtractor(
     private val jwtProvider: JwtProvider,
 ) {
 
+    fun hasAuthorizationHeader(request: HttpServletRequest): Boolean {
+        return !request.getHeader(AUTHORIZATION).isNullOrBlank()
+    }
+
     fun extractAccessToken(request: HttpServletRequest): String {
         val header = request.getHeaderOrThrow(AUTHORIZATION) { AuthException(INVALID_AUTH_HEADER) }
         return parse(header)

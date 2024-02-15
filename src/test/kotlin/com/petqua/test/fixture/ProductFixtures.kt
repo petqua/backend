@@ -1,8 +1,19 @@
 package com.petqua.test.fixture
 
+import com.petqua.application.product.dto.ProductDetailResponse
 import com.petqua.domain.keyword.ProductKeyword
 import com.petqua.domain.product.Product
 import com.petqua.domain.product.WishCount
+import com.petqua.domain.product.category.Category
+import com.petqua.domain.product.detail.DifficultyLevel
+import com.petqua.domain.product.detail.OptimalTankSize
+import com.petqua.domain.product.detail.OptimalTemperature
+import com.petqua.domain.product.detail.ProductImage
+import com.petqua.domain.product.detail.ProductInfo
+import com.petqua.domain.product.detail.Temperament
+import com.petqua.domain.product.dto.ProductResponse
+import com.petqua.domain.product.option.ProductOption
+import com.petqua.domain.product.option.Sex
 import java.math.BigDecimal
 
 private const val DEFAULT_SCALE = 2
@@ -54,5 +65,112 @@ fun productKeyword(
         id = id,
         productId = productId,
         word = word
+    )
+}
+
+fun productInfo(
+    id: Long = 0L,
+    productId: Long,
+    categoryId: Long,
+    optimalTemperature: OptimalTemperature,
+    difficultyLevel: DifficultyLevel,
+    optimalTankSize: OptimalTankSize,
+    temperament: Temperament,
+): ProductInfo {
+    return ProductInfo(
+        id = id,
+        productId = productId,
+        categoryId = categoryId,
+        optimalTemperature = optimalTemperature,
+        difficultyLevel = difficultyLevel,
+        optimalTankSize = optimalTankSize,
+        temperament = temperament,
+    )
+}
+
+fun productImage(
+    id: Long = 0,
+    productId: Long,
+    imageUrl: String,
+): ProductImage {
+    return ProductImage(
+        id = id,
+        productId = productId,
+        imageUrl = imageUrl,
+    )
+}
+
+fun productOption(
+    id: Long = 0,
+    productId: Long,
+    sex: Sex,
+    additionalPrice: BigDecimal = BigDecimal.ZERO,
+): ProductOption {
+    return ProductOption(
+        id = id,
+        productId = productId,
+        sex = sex,
+        additionalPrice = additionalPrice,
+    )
+}
+
+fun productDetailResponse(
+    product: Product,
+    storeName: String,
+    imageUrls: List<String>,
+    productInfo: ProductInfo,
+    category: Category,
+    hasDistinctSex: Boolean,
+    isWished: Boolean,
+): ProductDetailResponse {
+    return ProductDetailResponse(
+        id = product.id,
+        name = product.name,
+        family = category.family.name,
+        species = category.species.name,
+        price = product.price.intValueExact(),
+        storeName = storeName,
+        discountRate = product.discountRate,
+        discountPrice = product.discountPrice.intValueExact(),
+        wishCount = product.wishCount.value,
+        reviewCount = product.reviewCount,
+        reviewAverageScore = product.averageReviewScore(),
+        thumbnailUrl = product.thumbnailUrl,
+        imageUrls = imageUrls,
+        description = product.description,
+        canDeliverSafely = product.canDeliverSafely,
+        canDeliverCommonly = product.canDeliverCommonly,
+        canPickUp = product.canPickUp,
+        optimalTemperatureMin = productInfo.optimalTemperature.optimalTemperatureMin,
+        optimalTemperatureMax = productInfo.optimalTemperature.optimalTemperatureMax,
+        difficultyLevel = productInfo.difficultyLevel.description,
+        optimalTankSize = productInfo.optimalTankSize.description,
+        temperament = productInfo.temperament.description,
+        hasDistinctSex = hasDistinctSex,
+        isWished = isWished,
+    )
+}
+
+fun productResponse(
+    product: Product,
+    storeName: String,
+    isWished: Boolean,
+): ProductResponse {
+    return ProductResponse(
+        id = product.id,
+        name = product.name,
+        categoryId = product.categoryId,
+        price = product.price.intValueExact(),
+        storeName = storeName,
+        discountRate = product.discountRate,
+        discountPrice = product.discountPrice.intValueExact(),
+        wishCount = product.wishCount.value,
+        reviewCount = product.reviewCount,
+        reviewAverageScore = product.averageReviewScore(),
+        thumbnailUrl = product.thumbnailUrl,
+        canDeliverSafely = product.canDeliverSafely,
+        canDeliverCommonly = product.canDeliverCommonly,
+        canPickUp = product.canPickUp,
+        isWished = isWished,
     )
 }

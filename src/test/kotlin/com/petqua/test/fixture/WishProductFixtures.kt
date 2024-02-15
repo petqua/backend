@@ -4,8 +4,8 @@ import com.petqua.domain.product.WishProduct
 
 fun wishProduct(
     id: Long = 0L,
-    productId: Long = 1L,
-    memberId: Long = 1L,
+    productId: Long = 0L,
+    memberId: Long = 0L,
 ): WishProduct {
     return WishProduct(
         id = id,

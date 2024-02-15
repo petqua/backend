@@ -5,6 +5,9 @@ import com.petqua.domain.delivery.DeliveryMethod
 import com.petqua.domain.product.Product
 import com.petqua.domain.product.ProductSourceType
 import com.petqua.domain.product.Sorter
+import com.petqua.domain.product.category.Category
+import com.petqua.domain.product.detail.ProductInfo
+import com.petqua.domain.product.option.ProductOption
 import com.petqua.exception.product.ProductException
 import com.petqua.exception.product.ProductExceptionType
 import io.swagger.v3.oas.annotations.media.Schema
@@ -53,6 +56,62 @@ data class ProductSearchCondition(
             )
         }
     }
+}
+
+data class ProductWithInfoResponse(
+    val id: Long,
+    val name: String,
+    val family: String,
+    val species: String,
+    val price: Int,
+    val storeName: String,
+    val discountRate: Int,
+    val discountPrice: Int,
+    val wishCount: Int,
+    val reviewCount: Int,
+    val reviewAverageScore: Double,
+    val thumbnailUrl: String,
+    val description: String,
+    val canDeliverSafely: Boolean,
+    val canDeliverCommonly: Boolean,
+    val canPickUp: Boolean,
+    val optimalTemperatureMin: Int,
+    val optimalTemperatureMax: Int,
+    val difficultyLevel: String,
+    val optimalTankSize: String,
+    val temperament: String,
+    val hasDistinctSex: Boolean,
+) {
+    constructor(
+        product: Product,
+        storeName: String,
+        productInfo: ProductInfo,
+        category: Category,
+        productOption: ProductOption,
+    ) : this(
+        id = product.id,
+        name = product.name,
+        family = category.family.name,
+        species = category.species.name,
+        price = product.price.intValueExact(),
+        storeName = storeName,
+        discountRate = product.discountRate,
+        discountPrice = product.discountPrice.intValueExact(),
+        wishCount = product.wishCount.value,
+        reviewCount = product.reviewCount,
+        reviewAverageScore = product.averageReviewScore(),
+        thumbnailUrl = product.thumbnailUrl,
+        description = product.description,
+        canDeliverSafely = product.canDeliverSafely,
+        canDeliverCommonly = product.canDeliverCommonly,
+        canPickUp = product.canPickUp,
+        optimalTemperatureMin = productInfo.optimalTemperature.optimalTemperatureMin,
+        optimalTemperatureMax = productInfo.optimalTemperature.optimalTemperatureMax,
+        difficultyLevel = productInfo.difficultyLevel.description,
+        optimalTankSize = productInfo.optimalTankSize.description,
+        temperament = productInfo.temperament.description,
+        hasDistinctSex = productOption.hasDistinctSex(),
+    )
 }
 
 data class ProductResponse(
@@ -139,6 +198,12 @@ data class ProductResponse(
         example = "true"
     )
     val canPickUp: Boolean,
+
+    @Schema(
+        description = "찜 여부",
+        example = "true"
+    )
+    val isWished: Boolean = false,
 ) {
     constructor(product: Product, storeName: String) : this(
         product.id,

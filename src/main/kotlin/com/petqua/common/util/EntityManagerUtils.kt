@@ -4,16 +4,24 @@ import com.linecorp.kotlinjdsl.querymodel.jpql.select.SelectQuery
 import com.linecorp.kotlinjdsl.render.jpql.JpqlRenderContext
 import com.linecorp.kotlinjdsl.render.jpql.JpqlRenderer
 import jakarta.persistence.EntityManager
+import jakarta.persistence.NoResultException
+import jakarta.persistence.NonUniqueResultException
 
-inline fun <reified T> EntityManager.createSingleQuery(
+inline fun <reified T> EntityManager.createSingleQueryOrThrow(
     query: SelectQuery<*>,
     context: JpqlRenderContext,
     renderer: JpqlRenderer,
-): T? {
+    exceptionSupplier: () -> RuntimeException = { NoResultException("Query did not return any result") },
+): T {
     val rendered = renderer.render(query, context)
-    return this.createQuery(rendered.query, T::class.java)
+    val results = this.createQuery(rendered.query, T::class.java)
         .apply { rendered.params.forEach { (name, value) -> setParameter(name, value) } }
-        .singleResult
+        .resultList
+    return when {
+        results.isEmpty() -> throw exceptionSupplier()
+        results.size > 1 -> throw NonUniqueResultException("Query returned multiple results")
+        else -> results[0]
+    }
 }
 
 inline fun <reified T> EntityManager.createQuery(

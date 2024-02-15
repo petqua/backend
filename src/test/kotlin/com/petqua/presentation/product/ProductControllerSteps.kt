@@ -10,12 +10,15 @@ import io.restassured.module.kotlin.extensions.Given
 import io.restassured.module.kotlin.extensions.Then
 import io.restassured.module.kotlin.extensions.When
 import io.restassured.response.Response
+import io.restassured.specification.RequestSpecification
 
 fun requestReadProductById(
     productId: Long,
+    accessToken: String? = null
 ): Response {
     return Given {
         log().all()
+        authorize(accessToken)
         pathParam("productId", productId)
     } When {
         get("/products/{productId}")
@@ -26,14 +29,20 @@ fun requestReadProductById(
     }
 }
 
+private fun RequestSpecification.authorize(accessToken: String?): RequestSpecification? {
+    return accessToken?.let { auth().preemptive().oauth2(it) }
+}
+
 fun requestReadAllProducts(
     sourceType: String = NONE.name,
     sorter: String = Sorter.NONE.name,
     lastViewedId: Long = DEFAULT_LAST_VIEWED_ID,
     limit: Int = PAGING_LIMIT_CEILING,
+    accessToken: String? = null,
 ): Response {
     return Given {
         log().all()
+        authorize(accessToken)
         params(
             "sourceType", sourceType,
             "sorter", sorter,
@@ -76,6 +85,7 @@ fun requestReadProductBySearch(
     sorter: String = Sorter.NONE.name,
     lastViewedId: Long = DEFAULT_LAST_VIEWED_ID,
     limit: Int = PAGING_LIMIT_CEILING,
+    accessToken: String? = null
 ): Response {
     val paramMap = mutableMapOf<String, Any?>().apply {
         put("word", word)
@@ -87,6 +97,7 @@ fun requestReadProductBySearch(
 
     return Given {
         log().all()
+        authorize(accessToken)
         params(paramMap)
     } When {
         get("/products/search")

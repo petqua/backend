@@ -9,33 +9,114 @@ import com.petqua.domain.product.Sorter.ENROLLMENT_DATE_DESC
 import com.petqua.domain.product.Sorter.REVIEW_COUNT_DESC
 import com.petqua.domain.product.Sorter.SALE_PRICE_ASC
 import com.petqua.domain.product.Sorter.SALE_PRICE_DESC
+import com.petqua.domain.product.category.CategoryRepository
+import com.petqua.domain.product.detail.DifficultyLevel.EASY
+import com.petqua.domain.product.detail.OptimalTankSize
+import com.petqua.domain.product.detail.OptimalTemperature
+import com.petqua.domain.product.detail.ProductInfoRepository
+import com.petqua.domain.product.detail.Temperament.PEACEFUL
 import com.petqua.domain.product.dto.ProductReadCondition
 import com.petqua.domain.product.dto.ProductResponse
 import com.petqua.domain.product.dto.ProductSearchCondition
+import com.petqua.domain.product.dto.ProductWithInfoResponse
+import com.petqua.domain.product.option.ProductOptionRepository
+import com.petqua.domain.product.option.Sex
 import com.petqua.domain.recommendation.ProductRecommendationRepository
 import com.petqua.domain.store.StoreRepository
+import com.petqua.exception.product.ProductException
+import com.petqua.exception.product.ProductExceptionType.NOT_FOUND_PRODUCT
 import com.petqua.test.DataCleaner
+import com.petqua.test.fixture.category
 import com.petqua.test.fixture.product
+import com.petqua.test.fixture.productInfo
+import com.petqua.test.fixture.productOption
 import com.petqua.test.fixture.productRecommendation
 import com.petqua.test.fixture.store
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import org.springframework.boot.test.context.SpringBootTest
 import java.math.BigDecimal.ONE
 import java.math.BigDecimal.TEN
 import java.math.BigDecimal.ZERO
-import org.springframework.boot.test.context.SpringBootTest
+import kotlin.Long.Companion.MIN_VALUE
 
 @SpringBootTest
 class ProductCustomRepositoryImplTest(
     private val productRepository: ProductRepository,
     private val storeRepository: StoreRepository,
     private val recommendationRepository: ProductRecommendationRepository,
+    private val productInfoRepository: ProductInfoRepository,
+    private val categoryRepository: CategoryRepository,
+    private val productOptionRepository: ProductOptionRepository,
     private val dataCleaner: DataCleaner,
 ) : BehaviorSpec({
 
     val store = storeRepository.save(store(name = "펫쿠아"))
+
+    Given("Id로 상품과 상세정보를 함께 조회할 때") {
+        val category = categoryRepository.save(
+            category(
+                family = "난태생과",
+                species = "고정구피"
+            )
+        )
+        val product = productRepository.save(
+            product(
+                name = "고정구피",
+                storeId = store.id,
+                categoryId = category.id,
+                discountPrice = ZERO,
+                reviewCount = 0,
+                reviewTotalScore = 0
+            )
+        )
+        val productInfo = productInfoRepository.save(
+            productInfo(
+                productId = product.id,
+                categoryId = 0,
+                optimalTemperature = OptimalTemperature(26, 28),
+                difficultyLevel = EASY,
+                optimalTankSize = OptimalTankSize.TANK1,
+                temperament = PEACEFUL,
+            )
+        )
+        val productOption = productOptionRepository.save(
+            productOption(
+                productId = product.id,
+                sex = Sex.MALE,
+            )
+        )
+
+        When("Id를 입력하면") {
+            val productWithInfoResponse = productRepository.findProductWithInfoByIdOrThrow(product.id) {
+                ProductException(NOT_FOUND_PRODUCT)
+            }
+
+            Then("입력한 Id의 상품과 상세정보가 반환된다") {
+                productWithInfoResponse shouldBe ProductWithInfoResponse(
+                    product = product,
+                    storeName = store.name,
+                    productInfo = productInfo,
+                    category = category,
+                    productOption = productOption,
+                )
+            }
+        }
+
+        When("존재하지 않는 상품의 Id와 예외를 입력하면") {
+            val invalidId = MIN_VALUE
+
+            Then("입력한 예외를 던진다") {
+                shouldThrow<ProductException> {
+                    productRepository.findProductWithInfoByIdOrThrow(invalidId) { ProductException(NOT_FOUND_PRODUCT) }
+                }.exceptionType() shouldBe NOT_FOUND_PRODUCT
+            }
+        }
+    }
+
 
     Given("조건에 따라 상품을 조회할 때") {
         val product1 = productRepository.save(

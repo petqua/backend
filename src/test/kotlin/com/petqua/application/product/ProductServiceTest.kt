@@ -1,25 +1,50 @@
 package com.petqua.application.product
 
-import com.petqua.application.product.dto.ProductDetailResponse
 import com.petqua.application.product.dto.ProductKeywordQuery
 import com.petqua.application.product.dto.ProductKeywordResponse
 import com.petqua.application.product.dto.ProductReadQuery
 import com.petqua.application.product.dto.ProductSearchQuery
 import com.petqua.application.product.dto.ProductsResponse
+import com.petqua.domain.auth.Authority.MEMBER
+import com.petqua.domain.auth.LoginMemberOrGuest
+import com.petqua.domain.auth.token.AccessTokenClaims
 import com.petqua.domain.keyword.ProductKeywordRepository
+import com.petqua.domain.member.MemberRepository
 import com.petqua.domain.product.ProductRepository
 import com.petqua.domain.product.ProductSourceType.NONE
 import com.petqua.domain.product.Sorter.ENROLLMENT_DATE_DESC
-import com.petqua.domain.product.dto.ProductResponse
+import com.petqua.domain.product.WishProductRepository
+import com.petqua.domain.product.category.CategoryRepository
+import com.petqua.domain.product.detail.DifficultyLevel
+import com.petqua.domain.product.detail.OptimalTankSize
+import com.petqua.domain.product.detail.OptimalTemperature
+import com.petqua.domain.product.detail.ProductImageRepository
+import com.petqua.domain.product.detail.ProductInfoRepository
+import com.petqua.domain.product.detail.Temperament
+import com.petqua.domain.product.option.ProductOptionRepository
+import com.petqua.domain.product.option.Sex.FEMALE
 import com.petqua.domain.store.StoreRepository
+import com.petqua.exception.product.ProductException
+import com.petqua.exception.product.ProductExceptionType.NOT_FOUND_PRODUCT
 import com.petqua.test.DataCleaner
+import com.petqua.test.fixture.category
+import com.petqua.test.fixture.member
 import com.petqua.test.fixture.product
+import com.petqua.test.fixture.productDetailResponse
+import com.petqua.test.fixture.productImage
+import com.petqua.test.fixture.productInfo
 import com.petqua.test.fixture.productKeyword
+import com.petqua.test.fixture.productOption
+import com.petqua.test.fixture.productResponse
 import com.petqua.test.fixture.store
+import com.petqua.test.fixture.wishProduct
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment
+import java.math.BigDecimal
+import kotlin.Long.Companion.MIN_VALUE
 
 @SpringBootTest(webEnvironment = WebEnvironment.NONE)
 class ProductServiceTest(
@@ -27,45 +52,184 @@ class ProductServiceTest(
     private val productRepository: ProductRepository,
     private val storeRepository: StoreRepository,
     private val productKeywordRepository: ProductKeywordRepository,
+    private val productInfoRepository: ProductInfoRepository,
+    private val productImageRepository: ProductImageRepository,
+    private val memberRepository: MemberRepository,
+    private val wishProductRepository: WishProductRepository,
+    private val categoryRepository: CategoryRepository,
+    private val productOptionRepository: ProductOptionRepository,
     private val dataCleaner: DataCleaner,
 ) : BehaviorSpec({
 
     val store = storeRepository.save(store(name = "store"))
 
-    Given("상품 ID로") {
-        val productId = productRepository.save(product(storeId = store.id)).id
+    Given("상품 ID로 상품 상세정보를 조회할 때") {
+        val member = memberRepository.save(member())
 
-        When("상품을") {
-            val productDetailResponse = productService.readById(productId)
+        val category = categoryRepository.save(
+            category(
+                family = "난태생과",
+                species = "고정구피"
+            )
+        )
+        val product = productRepository.save(
+            product(
+                name = "고정구피",
+                storeId = store.id,
+                categoryId = category.id,
+                discountPrice = BigDecimal.ZERO,
+                reviewCount = 0,
+                reviewTotalScore = 0
+            )
+        )
+        val productInfo = productInfoRepository.save(
+            productInfo(
+                productId = product.id,
+                categoryId = 0,
+                optimalTemperature = OptimalTemperature(26, 28),
+                difficultyLevel = DifficultyLevel.EASY,
+                optimalTankSize = OptimalTankSize.TANK1,
+                temperament = Temperament.PEACEFUL,
+            )
+        )
+        val productImage = productImageRepository.save(
+            productImage(
+                productId = product.id,
+                imageUrl = "image.jpeg"
+            )
+        )
+        val productOption = productOptionRepository.save(
+            productOption(
+                productId = product.id,
+                sex = FEMALE,
+            )
+        )
+        wishProductRepository.save(
+            wishProduct(
+                productId = product.id,
+                memberId = member.id
+            )
+        )
 
-            Then("조회할 수 있다") {
-                productDetailResponse shouldBe ProductDetailResponse(
-                    product = product(id = productId, storeId = store.id),
-                    storeName = "store",
-                    0.0
+        When("회원 정보와 상품 ID를 입력하면") {
+            val productDetailResponse = productService.readById(
+                loginMemberOrGuest = LoginMemberOrGuest(member.id, member.authority),
+                productId = product.id
+            )
+
+            Then("회원의 찜 여부와 함께 상품 상세정보를 반환한다") {
+                productDetailResponse shouldBe productDetailResponse(
+                    product = product,
+                    storeName = store.name,
+                    imageUrls = listOf(productImage.imageUrl),
+                    productInfo = productInfo,
+                    category = category,
+                    hasDistinctSex = productOption.hasDistinctSex(),
+                    isWished = true
+                )
+            }
+        }
+
+        When("회원 정보와 존재하지 않는 상품 ID를 입력하면") {
+            val loginMember = LoginMemberOrGuest(member.id, member.authority)
+            val invalidId = MIN_VALUE
+
+            Then("예외를 던진다") {
+                shouldThrow<ProductException> {
+                    productService.readById(
+                        loginMemberOrGuest = loginMember,
+                        productId = invalidId
+                    )
+                }.exceptionType() shouldBe NOT_FOUND_PRODUCT
+            }
+        }
+
+        When("비회원 정보와 상품 ID를 입력하면") {
+            val productDetailResponse = productService.readById(
+                loginMemberOrGuest = LoginMemberOrGuest.getGuest(),
+                productId = product.id
+            )
+
+            Then("찜 여부는 false 로 상품 상세정보를 반환한다") {
+                productDetailResponse shouldBe productDetailResponse(
+                    product = product,
+                    storeName = store.name,
+                    imageUrls = listOf(productImage.imageUrl),
+                    productInfo = productInfo,
+                    category = category,
+                    hasDistinctSex = productOption.hasDistinctSex(),
+                    isWished = false
                 )
             }
         }
     }
 
-    Given("조건에 따라") {
+    Given("조건에 따라 상품을 조회할 때") {
+        val member = memberRepository.save(member())
+
         val product1 = productRepository.save(product(storeId = store.id))
         val product2 = productRepository.save(product(storeId = store.id))
 
-        val query = ProductReadQuery(
-            sourceType = NONE,
-            sorter = ENROLLMENT_DATE_DESC,
-            limit = 2
+        wishProductRepository.save(
+            wishProduct(
+                productId = product1.id,
+                memberId = member.id
+            )
         )
 
-        When("상품을") {
-            val productsResponse = productService.readAll(query)
+        When("회원이 상품을 조회하면") {
+            val productsResponse = productService.readAll(
+                ProductReadQuery(
+                    sourceType = NONE,
+                    sorter = ENROLLMENT_DATE_DESC,
+                    limit = 2,
+                    loginMemberOrGuest = LoginMemberOrGuest.getMemberFrom(AccessTokenClaims(member.id, MEMBER))
+                )
+            )
 
-            Then("조회할 수 있다") {
+            Then("상품의 찜 여부와 함께 상품 정보가 반환된다") {
                 productsResponse shouldBe ProductsResponse(
                     products = listOf(
-                        ProductResponse(product2, store.name),
-                        ProductResponse(product1, store.name),
+                        productResponse(
+                            product = product2,
+                            storeName = store.name,
+                            isWished = false,
+                        ),
+                        productResponse(
+                            product = product1,
+                            storeName = store.name,
+                            isWished = true,
+                        )
+                    ),
+                    hasNextPage = false,
+                    totalProductsCount = 2
+                )
+            }
+        }
+
+        When("비회원이 상품을 조회하면") {
+            val productsResponse = productService.readAll(
+                ProductReadQuery(
+                    sourceType = NONE,
+                    sorter = ENROLLMENT_DATE_DESC,
+                    limit = 2,
+                    loginMemberOrGuest = LoginMemberOrGuest.getGuest()
+                )
+            )
+
+            Then("상품의 찜 여부는 false로 상품 정보가 반환된다") {
+                productsResponse shouldBe ProductsResponse(
+                    products = listOf(
+                        productResponse(
+                            product = product2,
+                            storeName = store.name,
+                            isWished = false,
+                        ),
+                        productResponse(
+                            product = product1,
+                            storeName = store.name,
+                            isWished = false,
+                        )
                     ),
                     hasNextPage = false,
                     totalProductsCount = 2
@@ -109,16 +273,23 @@ class ProductServiceTest(
         productKeywordRepository.save(productKeyword(word = "구피", productId = product2.id))
         productKeywordRepository.save(productKeyword(word = "레드턱시도 구피", productId = product2.id))
 
-        When("검색어가 상품 키워드에 속하면") {
-            val query = ProductSearchQuery(word = "구피")
+        val member = memberRepository.save(member())
+
+        wishProductRepository.save(wishProduct(productId = product1.id, memberId = member.id))
+
+        When("비회원이 입력한 검색어가 상품 키워드에 속하면") {
+            val query = ProductSearchQuery(
+                word = "구피",
+                loginMemberOrGuest = LoginMemberOrGuest.getGuest(),
+            )
 
             val productsResponse = productService.readBySearch(query)
 
             Then("상품 키워드와 연관된 상품을 조회할 수 있다") {
                 productsResponse shouldBe ProductsResponse(
                     products = listOf(
-                        ProductResponse(product2, store.name),
-                        ProductResponse(product1, store.name),
+                        productResponse(product2, store.name, isWished = false),
+                        productResponse(product1, store.name, isWished = false),
                     ),
                     hasNextPage = false,
                     totalProductsCount = 2
@@ -126,15 +297,57 @@ class ProductServiceTest(
             }
         }
 
-        When("검색어가 상품 키워드에 속하지 않으면") {
-            val query = ProductSearchQuery(word = "고등")
+        When("비회원이 입력한 검색어가 상품 키워드에 속하지 않으면") {
+            val query = ProductSearchQuery(
+                word = "고등",
+                loginMemberOrGuest = LoginMemberOrGuest.getGuest(),
+            )
 
             val productsResponse = productService.readBySearch(query)
 
             Then("상품 이름과 연관된 상품을 조회할 수 있다") {
                 productsResponse shouldBe ProductsResponse(
                     products = listOf(
-                        ProductResponse(product3, store.name),
+                        productResponse(product3, store.name, isWished = false),
+                    ),
+                    hasNextPage = false,
+                    totalProductsCount = 1
+                )
+            }
+        }
+
+        When("회원이 입력한 검색어가 상품 키워드에 속하면") {
+            val query = ProductSearchQuery(
+                word = "구피",
+                loginMemberOrGuest = LoginMemberOrGuest.getMemberFrom(AccessTokenClaims(member.id, MEMBER)),
+            )
+
+            val productsResponse = productService.readBySearch(query)
+
+            Then("상품 키워드와 연관된 상품을 조회할 수 있다") {
+                productsResponse shouldBe ProductsResponse(
+                    products = listOf(
+                        productResponse(product2, store.name, isWished = false),
+                        productResponse(product1, store.name, isWished = true),
+                    ),
+                    hasNextPage = false,
+                    totalProductsCount = 2
+                )
+            }
+        }
+
+        When("회원이 입력한 검색어가 상품 키워드에 속하지 않으면") {
+            val query = ProductSearchQuery(
+                word = "고등",
+                loginMemberOrGuest = LoginMemberOrGuest.getMemberFrom(AccessTokenClaims(member.id, MEMBER)),
+            )
+
+            val productsResponse = productService.readBySearch(query)
+
+            Then("상품 이름과 연관된 상품을 조회할 수 있다") {
+                productsResponse shouldBe ProductsResponse(
+                    products = listOf(
+                        productResponse(product3, store.name, isWished = false),
                     ),
                     hasNextPage = false,
                     totalProductsCount = 1

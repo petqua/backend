@@ -4,6 +4,8 @@ import com.petqua.application.product.ProductService
 import com.petqua.application.product.dto.ProductDetailResponse
 import com.petqua.application.product.dto.ProductKeywordResponse
 import com.petqua.application.product.dto.ProductsResponse
+import com.petqua.domain.auth.Auth
+import com.petqua.domain.auth.LoginMemberOrGuest
 import com.petqua.presentation.product.dto.ProductKeywordRequest
 import com.petqua.presentation.product.dto.ProductReadRequest
 import com.petqua.presentation.product.dto.ProductSearchRequest
@@ -27,9 +29,10 @@ class ProductController(
     @ApiResponse(responseCode = "200", description = "상품 상세 조회 성공")
     @GetMapping("/{productId}")
     fun readById(
+        @Auth loginMemberOrGuest: LoginMemberOrGuest,
         @PathVariable productId: Long
     ): ResponseEntity<ProductDetailResponse> {
-        val response = productService.readById(productId)
+        val response = productService.readById(loginMemberOrGuest, productId)
         return ResponseEntity.ok(response)
     }
 
@@ -37,9 +40,10 @@ class ProductController(
     @ApiResponse(responseCode = "200", description = "상품 조건 조회 성공")
     @GetMapping
     fun readAll(
+        @Auth loginMemberOrGuest: LoginMemberOrGuest,
         request: ProductReadRequest
     ): ResponseEntity<ProductsResponse> {
-        val response = productService.readAll(request.toQuery())
+        val response = productService.readAll(request.toQuery(loginMemberOrGuest))
         return ResponseEntity.ok(response)
     }
 
@@ -47,9 +51,10 @@ class ProductController(
     @ApiResponse(responseCode = "200", description = "상품 검색 조회 성공")
     @GetMapping("/search")
     fun readBySearch(
+        @Auth loginMemberOrGuest: LoginMemberOrGuest,
         request: ProductSearchRequest
     ): ResponseEntity<ProductsResponse> {
-        val response = productService.readBySearch(request.toQuery())
+        val response = productService.readBySearch(request.toQuery(loginMemberOrGuest))
         return ResponseEntity.ok(response)
     }
 

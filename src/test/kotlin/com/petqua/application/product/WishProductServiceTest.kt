@@ -22,10 +22,12 @@ import com.petqua.test.fixture.wishProduct
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import java.math.BigDecimal
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE
+import java.math.BigDecimal
+import kotlin.Long.Companion.MIN_VALUE
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
+@SpringBootTest(webEnvironment = NONE)
 class WishProductServiceTest(
     private val wishProductService: WishProductService,
     private val wishProductRepository: WishProductRepository,
@@ -60,7 +62,7 @@ class WishProductServiceTest(
         }
 
         When("해당 상품이 이미 찜 상태라면") {
-            val wishProduct = wishProductRepository.save(wishProduct())
+            wishProductRepository.save(wishProduct(productId = product.id, memberId = member.id))
             wishProductService.update(command)
 
             Then("찜 상품이 삭제되고, 상품의 찜 개수가 감소한다") {
@@ -70,7 +72,6 @@ class WishProductServiceTest(
                 updatedProduct.wishCount shouldBe product.wishCount.decrease()
             }
         }
-
     }
 
     Given("찜 상품 수정시") {
@@ -79,7 +80,7 @@ class WishProductServiceTest(
 
         When("멤버가 존재하지 않으면") {
             val command = UpdateWishCommand(
-                memberId = Long.MIN_VALUE,
+                memberId = MIN_VALUE,
                 productId = product.id
             )
 
@@ -93,7 +94,7 @@ class WishProductServiceTest(
         When("상품이 존재하지 않으면") {
             val command = UpdateWishCommand(
                 memberId = member.id,
-                productId = Long.MIN_VALUE
+                productId = MIN_VALUE
             )
 
             Then("예외가 발생한다") {
@@ -109,9 +110,9 @@ class WishProductServiceTest(
         val store = storeRepository.save(store())
         val (product1, product2, product3) = saveProducts(productRepository, store)
 
-        val wish1 = wishProductRepository.save(wishProduct(productId = product3.id))
-        val wish2 = wishProductRepository.save(wishProduct(productId = product2.id))
-        val wish3 = wishProductRepository.save(wishProduct(productId = product1.id))
+        val wish1 = wishProductRepository.save(wishProduct(productId = product3.id, memberId = member.id))
+        val wish2 = wishProductRepository.save(wishProduct(productId = product2.id, memberId = member.id))
+        val wish3 = wishProductRepository.save(wishProduct(productId = product1.id, memberId = member.id))
 
         When("요청하면") {
             val command = ReadAllWishProductCommand(
@@ -127,7 +128,6 @@ class WishProductServiceTest(
                     WishProductResponse(wish2.id, product2, store.name),
                     WishProductResponse(wish1.id, product3, store.name)
                 )
-
             }
         }
     }
@@ -137,9 +137,9 @@ class WishProductServiceTest(
         val store = storeRepository.save(store())
         val (product1, product2, product3) = saveProducts(productRepository, store)
 
-        val wish1 = wishProductRepository.save(wishProduct(productId = product3.id))
-        val wish2 = wishProductRepository.save(wishProduct(productId = product2.id))
-        val wish3 = wishProductRepository.save(wishProduct(productId = product1.id))
+        val wish1 = wishProductRepository.save(wishProduct(productId = product3.id, memberId = member.id))
+        val wish2 = wishProductRepository.save(wishProduct(productId = product2.id, memberId = member.id))
+        val wish3 = wishProductRepository.save(wishProduct(productId = product1.id, memberId = member.id))
 
         When("조회 개수 제한이 있는 상태에서 찜 목록 조회를 요청하면") {
             val command = ReadAllWishProductCommand(
@@ -177,7 +177,7 @@ class WishProductServiceTest(
 
         When("멤버가 존재하지 않으면") {
             val command = ReadAllWishProductCommand(
-                memberId = Long.MIN_VALUE
+                memberId = MIN_VALUE
             )
 
             Then("예외가 발생한다") {
