@@ -1,5 +1,6 @@
 package com.petqua.domain.product.detail
 
+import com.petqua.common.domain.BaseEntity
 import jakarta.persistence.Column
 import jakarta.persistence.Embedded
 import jakarta.persistence.Entity
@@ -34,5 +35,5 @@ class ProductInfo(
     @Column(nullable = false)
     @Enumerated(STRING)
     val temperament: Temperament,
-) {
+) : BaseEntity() {
 }

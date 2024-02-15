@@ -149,6 +149,12 @@ data class ProductDetailResponse(
     val temperament: String,
 
     @Schema(
+        description = "암/수 성별을 갖는지 여부",
+        example = "true"
+    )
+    val hasDistinctSex: Boolean,
+
+    @Schema(
         description = "찜 여부",
         example = "true"
     )
@@ -181,6 +187,7 @@ data class ProductDetailResponse(
         difficultyLevel = productWithInfoResponse.difficultyLevel,
         optimalTankSize = productWithInfoResponse.optimalTankSize,
         temperament = productWithInfoResponse.temperament,
+        hasDistinctSex = productWithInfoResponse.hasDistinctSex,
         isWished = isWished,
     )
 }

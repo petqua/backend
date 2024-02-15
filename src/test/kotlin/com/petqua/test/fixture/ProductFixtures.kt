@@ -12,6 +12,8 @@ import com.petqua.domain.product.detail.ProductImage
 import com.petqua.domain.product.detail.ProductInfo
 import com.petqua.domain.product.detail.Temperament
 import com.petqua.domain.product.dto.ProductResponse
+import com.petqua.domain.product.option.ProductOption
+import com.petqua.domain.product.option.Sex
 import java.math.BigDecimal
 
 private const val DEFAULT_SCALE = 2
@@ -98,12 +100,27 @@ fun productImage(
     )
 }
 
+fun productOption(
+    id: Long = 0,
+    productId: Long,
+    sex: Sex,
+    additionalPrice: BigDecimal = BigDecimal.ZERO,
+): ProductOption {
+    return ProductOption(
+        id = id,
+        productId = productId,
+        sex = sex,
+        additionalPrice = additionalPrice,
+    )
+}
+
 fun productDetailResponse(
     product: Product,
     storeName: String,
     imageUrls: List<String>,
     productInfo: ProductInfo,
     category: Category,
+    hasDistinctSex: Boolean,
     isWished: Boolean,
 ): ProductDetailResponse {
     return ProductDetailResponse(
@@ -129,6 +146,7 @@ fun productDetailResponse(
         difficultyLevel = productInfo.difficultyLevel.description,
         optimalTankSize = productInfo.optimalTankSize.description,
         temperament = productInfo.temperament.description,
+        hasDistinctSex = hasDistinctSex,
         isWished = isWished,
     )
 }

@@ -22,6 +22,8 @@ import com.petqua.domain.product.detail.ProductImageRepository
 import com.petqua.domain.product.detail.ProductInfoRepository
 import com.petqua.domain.product.detail.Temperament
 import com.petqua.domain.product.dto.ProductResponse
+import com.petqua.domain.product.option.ProductOptionRepository
+import com.petqua.domain.product.option.Sex.HERMAPHRODITE
 import com.petqua.domain.recommendation.ProductRecommendationRepository
 import com.petqua.domain.store.StoreRepository
 import com.petqua.exception.product.ProductExceptionType.INVALID_SEARCH_WORD
@@ -33,6 +35,7 @@ import com.petqua.test.fixture.productDetailResponse
 import com.petqua.test.fixture.productImage
 import com.petqua.test.fixture.productInfo
 import com.petqua.test.fixture.productKeyword
+import com.petqua.test.fixture.productOption
 import com.petqua.test.fixture.productRecommendation
 import com.petqua.test.fixture.productResponse
 import com.petqua.test.fixture.store
@@ -59,6 +62,7 @@ class ProductControllerTest(
     private val productImageRepository: ProductImageRepository,
     private val wishProductRepository: WishProductRepository,
     private val categoryRepository: CategoryRepository,
+    private val productOptionRepository: ProductOptionRepository,
 ) : ApiTestConfig() {
 
     init {
@@ -100,6 +104,12 @@ class ProductControllerTest(
                     imageUrl = "image.jpeg"
                 )
             )
+            val productOption = productOptionRepository.save(
+                productOption(
+                    productId = product.id,
+                    sex = HERMAPHRODITE
+                )
+            )
             wishProductRepository.save(
                 wishProduct(
                     productId = product.id,
@@ -124,6 +134,7 @@ class ProductControllerTest(
                             imageUrls = listOf(productImage.imageUrl),
                             productInfo = productInfo,
                             category = category,
+                            hasDistinctSex = productOption.hasDistinctSex(),
                             isWished = true
                         )
                     }
@@ -163,6 +174,7 @@ class ProductControllerTest(
                             imageUrls = listOf(productImage.imageUrl),
                             productInfo = productInfo,
                             category = category,
+                            hasDistinctSex = productOption.hasDistinctSex(),
                             isWished = false
                         )
                     }

@@ -21,6 +21,8 @@ import com.petqua.domain.product.detail.OptimalTemperature
 import com.petqua.domain.product.detail.ProductImageRepository
 import com.petqua.domain.product.detail.ProductInfoRepository
 import com.petqua.domain.product.detail.Temperament
+import com.petqua.domain.product.option.ProductOptionRepository
+import com.petqua.domain.product.option.Sex.FEMALE
 import com.petqua.domain.store.StoreRepository
 import com.petqua.exception.product.ProductException
 import com.petqua.exception.product.ProductExceptionType.NOT_FOUND_PRODUCT
@@ -32,6 +34,7 @@ import com.petqua.test.fixture.productDetailResponse
 import com.petqua.test.fixture.productImage
 import com.petqua.test.fixture.productInfo
 import com.petqua.test.fixture.productKeyword
+import com.petqua.test.fixture.productOption
 import com.petqua.test.fixture.productResponse
 import com.petqua.test.fixture.store
 import com.petqua.test.fixture.wishProduct
@@ -54,6 +57,7 @@ class ProductServiceTest(
     private val memberRepository: MemberRepository,
     private val wishProductRepository: WishProductRepository,
     private val categoryRepository: CategoryRepository,
+    private val productOptionRepository: ProductOptionRepository,
     private val dataCleaner: DataCleaner,
 ) : BehaviorSpec({
 
@@ -94,6 +98,12 @@ class ProductServiceTest(
                 imageUrl = "image.jpeg"
             )
         )
+        val productOption = productOptionRepository.save(
+            productOption(
+                productId = product.id,
+                sex = FEMALE,
+            )
+        )
         wishProductRepository.save(
             wishProduct(
                 productId = product.id,
@@ -114,6 +124,7 @@ class ProductServiceTest(
                     imageUrls = listOf(productImage.imageUrl),
                     productInfo = productInfo,
                     category = category,
+                    hasDistinctSex = productOption.hasDistinctSex(),
                     isWished = true
                 )
             }
@@ -146,6 +157,7 @@ class ProductServiceTest(
                     imageUrls = listOf(productImage.imageUrl),
                     productInfo = productInfo,
                     category = category,
+                    hasDistinctSex = productOption.hasDistinctSex(),
                     isWished = false
                 )
             }

@@ -19,6 +19,8 @@ import com.petqua.domain.product.dto.ProductReadCondition
 import com.petqua.domain.product.dto.ProductResponse
 import com.petqua.domain.product.dto.ProductSearchCondition
 import com.petqua.domain.product.dto.ProductWithInfoResponse
+import com.petqua.domain.product.option.ProductOptionRepository
+import com.petqua.domain.product.option.Sex
 import com.petqua.domain.recommendation.ProductRecommendationRepository
 import com.petqua.domain.store.StoreRepository
 import com.petqua.exception.product.ProductException
@@ -27,6 +29,7 @@ import com.petqua.test.DataCleaner
 import com.petqua.test.fixture.category
 import com.petqua.test.fixture.product
 import com.petqua.test.fixture.productInfo
+import com.petqua.test.fixture.productOption
 import com.petqua.test.fixture.productRecommendation
 import com.petqua.test.fixture.store
 import io.kotest.assertions.throwables.shouldThrow
@@ -47,6 +50,7 @@ class ProductCustomRepositoryImplTest(
     private val recommendationRepository: ProductRecommendationRepository,
     private val productInfoRepository: ProductInfoRepository,
     private val categoryRepository: CategoryRepository,
+    private val productOptionRepository: ProductOptionRepository,
     private val dataCleaner: DataCleaner,
 ) : BehaviorSpec({
 
@@ -79,6 +83,12 @@ class ProductCustomRepositoryImplTest(
                 temperament = PEACEFUL,
             )
         )
+        val productOption = productOptionRepository.save(
+            productOption(
+                productId = product.id,
+                sex = Sex.MALE,
+            )
+        )
 
         When("Id를 입력하면") {
             val productWithInfoResponse = productRepository.findProductWithInfoByIdOrThrow(product.id) {
@@ -90,7 +100,8 @@ class ProductCustomRepositoryImplTest(
                     product = product,
                     storeName = store.name,
                     productInfo = productInfo,
-                    category = category
+                    category = category,
+                    productOption = productOption,
                 )
             }
         }
