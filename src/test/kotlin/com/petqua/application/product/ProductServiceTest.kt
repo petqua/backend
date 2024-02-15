@@ -16,7 +16,7 @@ import com.petqua.domain.product.Sorter.ENROLLMENT_DATE_DESC
 import com.petqua.domain.product.WishProductRepository
 import com.petqua.domain.product.category.CategoryRepository
 import com.petqua.domain.product.detail.DifficultyLevel
-import com.petqua.domain.product.detail.OptimalTankSizeLiter
+import com.petqua.domain.product.detail.OptimalTankSize
 import com.petqua.domain.product.detail.OptimalTemperature
 import com.petqua.domain.product.detail.ProductImageRepository
 import com.petqua.domain.product.detail.ProductInfoRepository
@@ -84,7 +84,7 @@ class ProductServiceTest(
                 categoryId = 0,
                 optimalTemperature = OptimalTemperature(26, 28),
                 difficultyLevel = DifficultyLevel.EASY,
-                optimalTankSizeLiter = OptimalTankSizeLiter(10, 50),
+                optimalTankSize = OptimalTankSize.TANK1,
                 temperament = Temperament.PEACEFUL,
             )
         )

@@ -11,7 +11,7 @@ import com.petqua.domain.product.Sorter.SALE_PRICE_ASC
 import com.petqua.domain.product.Sorter.SALE_PRICE_DESC
 import com.petqua.domain.product.category.CategoryRepository
 import com.petqua.domain.product.detail.DifficultyLevel.EASY
-import com.petqua.domain.product.detail.OptimalTankSizeLiter
+import com.petqua.domain.product.detail.OptimalTankSize
 import com.petqua.domain.product.detail.OptimalTemperature
 import com.petqua.domain.product.detail.ProductInfoRepository
 import com.petqua.domain.product.detail.Temperament.PEACEFUL
@@ -75,7 +75,7 @@ class ProductCustomRepositoryImplTest(
                 categoryId = 0,
                 optimalTemperature = OptimalTemperature(26, 28),
                 difficultyLevel = EASY,
-                optimalTankSizeLiter = OptimalTankSizeLiter(10, 50),
+                optimalTankSize = OptimalTankSize.TANK1,
                 temperament = PEACEFUL,
             )
         )

@@ -77,8 +77,7 @@ data class ProductWithInfoResponse(
     val optimalTemperatureMin: Int,
     val optimalTemperatureMax: Int,
     val difficultyLevel: String,
-    val optimalTankSizeLiterMin: Int,
-    val optimalTankSizeLiterMax: Int,
+    val optimalTankSize: String,
     val temperament: String,
 ) {
     constructor(
@@ -106,8 +105,7 @@ data class ProductWithInfoResponse(
         optimalTemperatureMin = productInfo.optimalTemperature.optimalTemperatureMin,
         optimalTemperatureMax = productInfo.optimalTemperature.optimalTemperatureMax,
         difficultyLevel = productInfo.difficultyLevel.description,
-        optimalTankSizeLiterMin = productInfo.optimalTankSizeLiter.optimalTankSizeLiterMin,
-        optimalTankSizeLiterMax = productInfo.optimalTankSizeLiter.optimalTankSizeLiterMax,
+        optimalTankSize = productInfo.optimalTankSize.description,
         temperament = productInfo.temperament.description,
     )
 }

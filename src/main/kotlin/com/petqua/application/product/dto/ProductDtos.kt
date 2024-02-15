@@ -137,16 +137,10 @@ data class ProductDetailResponse(
     val difficultyLevel: String,
 
     @Schema(
-        description = "적정 수조 크기 최소",
-        example = "10"
+        description = "적정 수조 크기",
+        example = "1자어항"
     )
-    val optimalTankSizeMin: Int,
-
-    @Schema(
-        description = "적정 수조 크기 최소",
-        example = "15"
-    )
-    val optimalTankSizeMax: Int,
+    val optimalTankSize: String,
 
     @Schema(
         description = "성격",
@@ -185,8 +179,7 @@ data class ProductDetailResponse(
         optimalTemperatureMin = productWithInfoResponse.optimalTemperatureMin,
         optimalTemperatureMax = productWithInfoResponse.optimalTemperatureMax,
         difficultyLevel = productWithInfoResponse.difficultyLevel,
-        optimalTankSizeMin = productWithInfoResponse.optimalTankSizeLiterMin,
-        optimalTankSizeMax = productWithInfoResponse.optimalTankSizeLiterMax,
+        optimalTankSize = productWithInfoResponse.optimalTankSize,
         temperament = productWithInfoResponse.temperament,
         isWished = isWished,
     )

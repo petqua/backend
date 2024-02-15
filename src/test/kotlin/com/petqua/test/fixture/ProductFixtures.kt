@@ -6,7 +6,7 @@ import com.petqua.domain.product.Product
 import com.petqua.domain.product.WishCount
 import com.petqua.domain.product.category.Category
 import com.petqua.domain.product.detail.DifficultyLevel
-import com.petqua.domain.product.detail.OptimalTankSizeLiter
+import com.petqua.domain.product.detail.OptimalTankSize
 import com.petqua.domain.product.detail.OptimalTemperature
 import com.petqua.domain.product.detail.ProductImage
 import com.petqua.domain.product.detail.ProductInfo
@@ -72,7 +72,7 @@ fun productInfo(
     categoryId: Long,
     optimalTemperature: OptimalTemperature,
     difficultyLevel: DifficultyLevel,
-    optimalTankSizeLiter: OptimalTankSizeLiter,
+    optimalTankSize: OptimalTankSize,
     temperament: Temperament,
 ): ProductInfo {
     return ProductInfo(
@@ -81,7 +81,7 @@ fun productInfo(
         categoryId = categoryId,
         optimalTemperature = optimalTemperature,
         difficultyLevel = difficultyLevel,
-        optimalTankSizeLiter = optimalTankSizeLiter,
+        optimalTankSize = optimalTankSize,
         temperament = temperament,
     )
 }
@@ -127,8 +127,7 @@ fun productDetailResponse(
         optimalTemperatureMin = productInfo.optimalTemperature.optimalTemperatureMin,
         optimalTemperatureMax = productInfo.optimalTemperature.optimalTemperatureMax,
         difficultyLevel = productInfo.difficultyLevel.description,
-        optimalTankSizeMin = productInfo.optimalTankSizeLiter.optimalTankSizeLiterMin,
-        optimalTankSizeMax = productInfo.optimalTankSizeLiter.optimalTankSizeLiterMax,
+        optimalTankSize = productInfo.optimalTankSize.description,
         temperament = productInfo.temperament.description,
         isWished = isWished,
     )

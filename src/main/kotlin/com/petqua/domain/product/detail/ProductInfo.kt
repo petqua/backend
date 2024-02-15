@@ -27,8 +27,9 @@ class ProductInfo(
     @Enumerated(STRING)
     val difficultyLevel: DifficultyLevel,
 
-    @Embedded
-    val optimalTankSizeLiter: OptimalTankSizeLiter,
+    @Column(nullable = false)
+    @Enumerated(STRING)
+    val optimalTankSize: OptimalTankSize,
 
     @Column(nullable = false)
     @Enumerated(STRING)
