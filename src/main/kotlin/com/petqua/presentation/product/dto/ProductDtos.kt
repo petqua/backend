@@ -5,8 +5,8 @@ import com.petqua.application.product.dto.ProductReadQuery
 import com.petqua.application.product.dto.ProductSearchQuery
 import com.petqua.common.domain.dto.DEFAULT_LAST_VIEWED_ID
 import com.petqua.common.domain.dto.PAGING_LIMIT_CEILING
-import com.petqua.domain.delivery.DeliveryMethod
 import com.petqua.domain.auth.LoginMemberOrGuest
+import com.petqua.domain.delivery.DeliveryMethod
 import com.petqua.domain.product.ProductSourceType
 import com.petqua.domain.product.Sorter
 import io.swagger.v3.oas.annotations.media.Schema
@@ -98,8 +98,8 @@ data class ProductSearchRequest(
 
 data class ProductKeywordRequest(
     @Schema(
-        description = "마지막으로 조회한 상품의 Id",
-        example = "1"
+        description = "검색어",
+        example = "상"
     )
     val word: String,
 
