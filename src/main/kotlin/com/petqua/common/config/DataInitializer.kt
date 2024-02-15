@@ -14,6 +14,24 @@ import com.petqua.domain.product.category.Category
 import com.petqua.domain.product.category.CategoryRepository
 import com.petqua.domain.product.category.Family
 import com.petqua.domain.product.category.Species
+import com.petqua.domain.product.detail.DifficultyLevel.EASY
+import com.petqua.domain.product.detail.DifficultyLevel.HARD
+import com.petqua.domain.product.detail.DifficultyLevel.NORMAL
+import com.petqua.domain.product.detail.OptimalTankSize.TANK1
+import com.petqua.domain.product.detail.OptimalTankSize.TANK2
+import com.petqua.domain.product.detail.OptimalTankSize.TANK3
+import com.petqua.domain.product.detail.OptimalTemperature
+import com.petqua.domain.product.detail.ProductImage
+import com.petqua.domain.product.detail.ProductImageRepository
+import com.petqua.domain.product.detail.ProductInfo
+import com.petqua.domain.product.detail.ProductInfoRepository
+import com.petqua.domain.product.detail.Temperament.AGGRESSIVE
+import com.petqua.domain.product.detail.Temperament.PEACEFUL
+import com.petqua.domain.product.option.ProductOption
+import com.petqua.domain.product.option.ProductOptionRepository
+import com.petqua.domain.product.option.Sex.FEMALE
+import com.petqua.domain.product.option.Sex.HERMAPHRODITE
+import com.petqua.domain.product.option.Sex.MALE
 import com.petqua.domain.product.review.ProductReview
 import com.petqua.domain.product.review.ProductReviewImage
 import com.petqua.domain.product.review.ProductReviewImageRepository
@@ -41,6 +59,9 @@ class DataInitializer(
     private val categoryRepository: CategoryRepository,
     private val productReviewRepository: ProductReviewRepository,
     private val productReviewImageRepository: ProductReviewImageRepository,
+    private val productInfoRepository: ProductInfoRepository,
+    private val productImageRepository: ProductImageRepository,
+    private val productOptionRepository: ProductOptionRepository,
 ) {
 
     @EventListener(ApplicationReadyEvent::class)
@@ -103,9 +124,9 @@ class DataInitializer(
             reviewTotalScore = 50,
             thumbnailUrl = "https://docs.petqua.co.kr/products/thumbnails/thumbnail1.jpeg",
             description = "니모를 찾아서 주연",
-            canDeliverSafely = true,
+            canDeliverSafely = false,
             canDeliverCommonly = true,
-            canPickUp = true,
+            canPickUp = false,
         )
         val product2 = Product(
             name = "참고등어",
@@ -120,7 +141,7 @@ class DataInitializer(
             thumbnailUrl = "https://docs.petqua.co.kr/products/thumbnails/thumbnail2.jpeg",
             description = "제주산",
             canDeliverSafely = true,
-            canDeliverCommonly = true,
+            canDeliverCommonly = false,
             canPickUp = true,
         )
         val product3 = Product(
@@ -135,7 +156,7 @@ class DataInitializer(
             reviewTotalScore = 250,
             thumbnailUrl = "https://docs.petqua.co.kr/products/thumbnails/thumbnail3.jpeg",
             description = "니모를 찾아서 주연 조연",
-            canDeliverSafely = true,
+            canDeliverSafely = false,
             canDeliverCommonly = true,
             canPickUp = true,
         )
@@ -145,6 +166,103 @@ class DataInitializer(
         // productRecommendation
         val productRecommendation1 = ProductRecommendation(productId = product3.id)
         recommendationRepository.saveAll(listOf(productRecommendation1))
+
+        // productOption
+        productOptionRepository.saveAll(
+            listOf(
+                ProductOption(
+                    productId = product1.id,
+                    sex = MALE,
+                    additionalPrice = BigDecimal.ZERO
+                ),
+                ProductOption(
+                    productId = product2.id,
+                    sex = FEMALE,
+                    additionalPrice = BigDecimal.ZERO
+                ),
+                ProductOption(
+                    productId = product3.id,
+                    sex = HERMAPHRODITE,
+                    additionalPrice = BigDecimal.ZERO
+                ),
+            )
+        )
+
+        //productImage
+        productImageRepository.saveAll(
+            listOf(
+                ProductImage(
+                    productId = product1.id,
+                    imageUrl = "https://docs.petqua.co.kr/products/thumbnails/thumbnail1.jpeg"
+                ),
+                ProductImage(
+                    productId = product1.id,
+                    imageUrl = "https://docs.petqua.co.kr/products/thumbnails/thumbnail1.jpeg"
+                ),
+                ProductImage(
+                    productId = product1.id,
+                    imageUrl = "https://docs.petqua.co.kr/products/thumbnails/thumbnail1.jpeg"
+                ),
+                ProductImage(
+                    productId = product1.id,
+                    imageUrl = "https://docs.petqua.co.kr/products/thumbnails/thumbnail1.jpeg"
+                ),
+                ProductImage(
+                    productId = product1.id,
+                    imageUrl = "https://docs.petqua.co.kr/products/thumbnails/thumbnail1.jpeg"
+                ),
+                ProductImage(
+                    productId = product2.id,
+                    imageUrl = "https://docs.petqua.co.kr/products/thumbnails/thumbnail2.jpeg"
+                ),
+                ProductImage(
+                    productId = product2.id,
+                    imageUrl = "https://docs.petqua.co.kr/products/thumbnails/thumbnail2.jpeg"
+                ),
+                ProductImage(
+                    productId = product2.id,
+                    imageUrl = "https://docs.petqua.co.kr/products/thumbnails/thumbnail2.jpeg"
+                ),
+                ProductImage(
+                    productId = product3.id,
+                    imageUrl = "https://docs.petqua.co.kr/products/thumbnails/thumbnail3.jpeg"
+                ),
+                ProductImage(
+                    productId = product3.id,
+                    imageUrl = "https://docs.petqua.co.kr/products/thumbnails/thumbnail3.jpeg"
+                ),
+            )
+        )
+
+        // productInfo
+        productInfoRepository.saveAll(
+            listOf(
+                ProductInfo(
+                    productId = product1.id,
+                    categoryId = category1.id,
+                    optimalTemperature = OptimalTemperature(22, 25),
+                    difficultyLevel = EASY,
+                    optimalTankSize = TANK1,
+                    temperament = AGGRESSIVE
+                ),
+                ProductInfo(
+                    productId = product2.id,
+                    categoryId = category2.id,
+                    optimalTemperature = OptimalTemperature(22, 25),
+                    difficultyLevel = HARD,
+                    optimalTankSize = TANK3,
+                    temperament = PEACEFUL
+                ),
+                ProductInfo(
+                    productId = product3.id,
+                    categoryId = category2.id,
+                    optimalTemperature = OptimalTemperature(22, 25),
+                    difficultyLevel = NORMAL,
+                    optimalTankSize = TANK2,
+                    temperament = PEACEFUL
+                )
+            )
+        )
 
         // member
         val member = memberRepository.save(
