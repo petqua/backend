@@ -2,6 +2,7 @@ package com.petqua.presentation.product.category
 
 import com.petqua.domain.delivery.DeliveryMethod
 import com.petqua.domain.product.Sorter
+import com.petqua.test.authorize
 import io.restassured.module.kotlin.extensions.Extract
 import io.restassured.module.kotlin.extensions.Given
 import io.restassured.module.kotlin.extensions.Then
@@ -34,6 +35,7 @@ fun requestReadProducts(
     sorter: Sorter? = null,
     lastViewedId: Long? = null,
     limit: Int? = null,
+    accessToken: String? = null,
 ): Response {
     val paramMap = mutableMapOf<String, Any?>().apply {
         put("family", family)
@@ -46,6 +48,7 @@ fun requestReadProducts(
 
     return Given {
         log().all()
+        authorize(accessToken)
         params(paramMap)
     } When {
         get("/categories/products")

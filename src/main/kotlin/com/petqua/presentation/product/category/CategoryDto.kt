@@ -4,6 +4,7 @@ import com.petqua.application.product.category.CategoryProductReadQuery
 import com.petqua.application.product.category.CategoryReadQuery
 import com.petqua.common.domain.dto.DEFAULT_LAST_VIEWED_ID
 import com.petqua.common.domain.dto.PAGING_LIMIT_CEILING
+import com.petqua.domain.auth.LoginMemberOrGuest
 import com.petqua.domain.delivery.DeliveryMethod
 import com.petqua.domain.product.Sorter
 import io.swagger.v3.oas.annotations.media.Schema
@@ -63,7 +64,7 @@ data class CategoryProductReadRequest(
     val limit: Int = PAGING_LIMIT_CEILING,
 ) {
 
-    fun toQuery(): CategoryProductReadQuery {
+    fun toQuery(loginMemberOrGuest: LoginMemberOrGuest): CategoryProductReadQuery {
         return CategoryProductReadQuery(
             family = family,
             species = species,
@@ -71,6 +72,7 @@ data class CategoryProductReadRequest(
             sorter = sorter,
             lastViewedId = lastViewedId,
             limit = limit,
+            loginMemberOrGuest = loginMemberOrGuest,
         )
     }
 }
