@@ -11,6 +11,7 @@ enum class ProductReviewExceptionType(
 ) : BaseExceptionType {
 
     NOT_FOUND_PRODUCT_REVIEW(NOT_FOUND, "PR01", "존재하지 않는 리뷰입니다."),
+    REVIEW_SCORE_OUT_OF_RANGE(NOT_FOUND, "PR02", "리뷰 별점은 1점부터 5점까지만 가능합니다.")
     ;
 
     override fun httpStatus(): HttpStatus {

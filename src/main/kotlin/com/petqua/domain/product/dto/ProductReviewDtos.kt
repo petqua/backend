@@ -31,7 +31,7 @@ data class ProductReviewWithMemberResponse(
     constructor(productReview: ProductReview, reviewer: Member) : this(
         id = productReview.id,
         productId = productReview.productId,
-        score = productReview.score,
+        score = productReview.score.value,
         content = productReview.content,
         createdAt = productReview.createdAt,
         hasPhotos = productReview.hasPhotos,

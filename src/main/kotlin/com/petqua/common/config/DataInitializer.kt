@@ -35,6 +35,7 @@ import com.petqua.domain.product.review.ProductReview
 import com.petqua.domain.product.review.ProductReviewImage
 import com.petqua.domain.product.review.ProductReviewImageRepository
 import com.petqua.domain.product.review.ProductReviewRepository
+import com.petqua.domain.product.review.ProductReviewScore
 import com.petqua.domain.recommendation.ProductRecommendation
 import com.petqua.domain.recommendation.ProductRecommendationRepository
 import com.petqua.domain.store.Store
@@ -258,7 +259,7 @@ class DataInitializer(
                     productId = product.id,
                     memberId = memberId,
                     content = "좋아요 ${product.name}",
-                    score = it % 5 + 1,
+                    score = ProductReviewScore(it % 5 + 1),
                     hasPhotos = hasPhotos
                 )
             }

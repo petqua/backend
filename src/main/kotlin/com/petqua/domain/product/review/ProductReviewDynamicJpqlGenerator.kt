@@ -22,7 +22,7 @@ class ProductReviewDynamicJpqlGenerator : Jpql() {
     }
 
     fun Jpql.productReviewScoreEq(score: Int?): Predicate? {
-        return score?.let { path(ProductReview::score).eq(it) }
+        return score?.let { path(ProductReview::score).eq(ProductReviewScore(it)) }
     }
 
     fun Jpql.sortBy(sorter: ProductReviewSorter): SortNullsStep {
