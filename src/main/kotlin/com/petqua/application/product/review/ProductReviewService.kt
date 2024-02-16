@@ -40,7 +40,16 @@ class ProductReviewService(
         val responses = reviewsByCondition.map {
             ProductReviewResponse(it, imagesByReview[it.id] ?: emptyList())
         }
-        // TODO: 추천 여부 반영
+
+        if (query.loginMemberOrGuest.isMember()) {
+            val recommendations = productReviewRecommendationRepository.findAllByMemberIdAndProductReviewIdIn(
+                query.loginMemberOrGuest.memberId,
+                responses.map { it.id },
+            ).map { it.productReviewId }
+
+            val recommendationMarkedResponses = responses.map { it.copy(recommended = recommendations.contains(it.id)) }
+            return ProductReviewsResponse.of(recommendationMarkedResponses, query.limit)
+        }
         return ProductReviewsResponse.of(responses, query.limit)
     }
 

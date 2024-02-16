@@ -4,6 +4,7 @@ import com.petqua.common.domain.dto.CursorBasedPaging
 import com.petqua.common.domain.dto.DEFAULT_LAST_VIEWED_ID
 import com.petqua.common.domain.dto.PADDING_FOR_HAS_NEXT_PAGE
 import com.petqua.common.domain.dto.PAGING_LIMIT_CEILING
+import com.petqua.domain.auth.LoginMemberOrGuest
 import com.petqua.domain.product.dto.ProductReviewReadCondition
 import com.petqua.domain.product.dto.ProductReviewWithMemberResponse
 import com.petqua.domain.product.review.ProductReviewSorter
@@ -14,7 +15,7 @@ import java.time.LocalDateTime
 
 data class ProductReviewReadQuery(
     val productId: Long,
-    val memberId: Long?,
+    val loginMemberOrGuest: LoginMemberOrGuest,
     val sorter: ProductReviewSorter = REVIEW_DATE_DESC,
     val score: Int? = null,
     val photoOnly: Boolean = false,

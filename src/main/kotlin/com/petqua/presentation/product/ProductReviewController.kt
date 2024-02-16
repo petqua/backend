@@ -6,6 +6,7 @@ import com.petqua.application.product.review.ProductReviewService
 import com.petqua.common.config.ACCESS_TOKEN_SECURITY_SCHEME_KEY
 import com.petqua.domain.auth.Auth
 import com.petqua.domain.auth.LoginMember
+import com.petqua.domain.auth.LoginMemberOrGuest
 import com.petqua.presentation.product.dto.ReadAllProductReviewsRequest
 import com.petqua.presentation.product.dto.UpdateReviewRecommendationRequest
 import io.swagger.v3.oas.annotations.Operation
@@ -27,16 +28,17 @@ class ProductReviewController(
 
     @Operation(summary = "상품 후기 조건 조회 API", description = "상품의 후기를 조건에 따라 조회합니다")
     @ApiResponse(responseCode = "200", description = "상품 후기 조건 조회 성공")
+    @SecurityRequirement(name = ACCESS_TOKEN_SECURITY_SCHEME_KEY)
     @GetMapping("/products/{productId}/reviews")
     fun readAll(
-//        @Auth loginMember: LoginMember, TODO: 비회원도 조회 가능 (회원인 경우 추천 여부 반영)
+        @Auth loginMemberOrGuest: LoginMemberOrGuest,
         request: ReadAllProductReviewsRequest,
         @PathVariable productId: Long,
     ): ResponseEntity<ProductReviewsResponse> {
         val responses = productReviewService.readAll(
             request.toCommand(
                 productId = productId,
-                null, // loginMember.memberId
+                loginMemberOrGuest = loginMemberOrGuest,
             )
         )
         return ResponseEntity.ok(responses)
