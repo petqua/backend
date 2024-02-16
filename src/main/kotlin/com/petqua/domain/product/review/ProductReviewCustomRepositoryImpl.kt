@@ -7,6 +7,7 @@ import com.petqua.common.domain.dto.CursorBasedPaging
 import com.petqua.common.util.createQuery
 import com.petqua.domain.member.Member
 import com.petqua.domain.product.dto.ProductReviewReadCondition
+import com.petqua.domain.product.dto.ProductReviewScoreWithCount
 import com.petqua.domain.product.dto.ProductReviewWithMemberResponse
 import jakarta.persistence.EntityManager
 import org.springframework.stereotype.Repository
@@ -45,6 +46,27 @@ class ProductReviewCustomRepositoryImpl(
             jpqlRenderContext,
             jpqlRenderer,
             paging.limit
+        )
+    }
+
+    override fun findReviewScoresWithCount(productId: Long): List<ProductReviewScoreWithCount> {
+        val query = jpql {
+            selectNew<ProductReviewScoreWithCount>(
+                path(ProductReview::score),
+                count(path(ProductReview::score)),
+            ).from(
+                entity(ProductReview::class),
+            ).where(
+                path(ProductReview::productId).eq(productId),
+            ).groupBy(
+                path(ProductReview::score)
+            )
+        }
+
+        return entityManager.createQuery(
+            query,
+            jpqlRenderContext,
+            jpqlRenderer
         )
     }
 }

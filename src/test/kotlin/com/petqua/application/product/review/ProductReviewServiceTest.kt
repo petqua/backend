@@ -35,71 +35,70 @@ class ProductReviewServiceTest(
     private val dataCleaner: DataCleaner,
 ) : BehaviorSpec({
 
-    val store = storeRepository.save(store(name = "펫쿠아"))
-    val member = memberRepository.save(member(nickname = "쿠아"))
-    val product = productRepository.save(
-        product(
-            name = "상품1",
-            storeId = store.id,
-            discountPrice = BigDecimal.ZERO,
-            reviewCount = 0,
-            reviewTotalScore = 0
-        )
-    )
-
-    val savedProductReviews = productReviewRepository.saveAll(
-        listOf(
-            productReview(
-                productId = product.id,
-                reviewerId = member.id,
-                score = 5,
-                recommendCount = 1,
-                hasPhotos = false,
-            ),
-            productReview(
-                productId = product.id,
-                reviewerId = member.id,
-                score = 4,
-                recommendCount = 2,
-                hasPhotos = true,
-            ),
-            productReview(
-                productId = product.id,
-                reviewerId = member.id,
-                score = 3,
-                recommendCount = 3,
-                hasPhotos = false,
-            ),
-            productReview(
-                productId = product.id,
-                reviewerId = member.id,
-                score = 2,
-                recommendCount = 4,
-                hasPhotos = true,
-            ),
-            productReview(
-                productId = product.id,
-                reviewerId = member.id,
-                score = 1,
-                recommendCount = 5,
-                hasPhotos = true,
-            ),
-        )
-    )
-
-    val hasPhotoReviewIds = savedProductReviews.filter { it.hasPhotos }.map { it.id } // total 3
-    productReviewImageRepository.saveAll(
-        listOf(
-            productReviewImage(productReviewId = hasPhotoReviewIds[0], imageUrl = "imageUrl1-1"),
-            productReviewImage(productReviewId = hasPhotoReviewIds[1], imageUrl = "imageUrl2-1"),
-            productReviewImage(productReviewId = hasPhotoReviewIds[1], imageUrl = "imageUrl2-2"),
-            productReviewImage(productReviewId = hasPhotoReviewIds[1], imageUrl = "imageUrl2-3"),
-            productReviewImage(productReviewId = hasPhotoReviewIds[2], imageUrl = "imageUrl3-1"),
-            productReviewImage(productReviewId = hasPhotoReviewIds[2], imageUrl = "imageUrl3-2"),
-        )
-    )
-
     Given("상품 후기를 조건에 따라") {
+        val store = storeRepository.save(store(name = "펫쿠아"))
+        val member = memberRepository.save(member(nickname = "쿠아"))
+        val product = productRepository.save(
+            product(
+                name = "상품1",
+                storeId = store.id,
+                discountPrice = BigDecimal.ZERO,
+                reviewCount = 0,
+                reviewTotalScore = 0
+            )
+        )
+
+        val savedProductReviews = productReviewRepository.saveAll(
+            listOf(
+                productReview(
+                    productId = product.id,
+                    reviewerId = member.id,
+                    score = 5,
+                    recommendCount = 1,
+                    hasPhotos = false,
+                ),
+                productReview(
+                    productId = product.id,
+                    reviewerId = member.id,
+                    score = 4,
+                    recommendCount = 2,
+                    hasPhotos = true,
+                ),
+                productReview(
+                    productId = product.id,
+                    reviewerId = member.id,
+                    score = 3,
+                    recommendCount = 3,
+                    hasPhotos = false,
+                ),
+                productReview(
+                    productId = product.id,
+                    reviewerId = member.id,
+                    score = 2,
+                    recommendCount = 4,
+                    hasPhotos = true,
+                ),
+                productReview(
+                    productId = product.id,
+                    reviewerId = member.id,
+                    score = 1,
+                    recommendCount = 5,
+                    hasPhotos = true,
+                ),
+            )
+        )
+
+        val hasPhotoReviewIds = savedProductReviews.filter { it.hasPhotos }.map { it.id } // total 3
+        productReviewImageRepository.saveAll(
+            listOf(
+                productReviewImage(productReviewId = hasPhotoReviewIds[0], imageUrl = "imageUrl1-1"),
+                productReviewImage(productReviewId = hasPhotoReviewIds[1], imageUrl = "imageUrl2-1"),
+                productReviewImage(productReviewId = hasPhotoReviewIds[1], imageUrl = "imageUrl2-2"),
+                productReviewImage(productReviewId = hasPhotoReviewIds[1], imageUrl = "imageUrl2-3"),
+                productReviewImage(productReviewId = hasPhotoReviewIds[2], imageUrl = "imageUrl3-1"),
+                productReviewImage(productReviewId = hasPhotoReviewIds[2], imageUrl = "imageUrl3-2"),
+            )
+        )
 
         When("전체 별점, 최신순으로 조회 하면") {
             val query = ProductReviewReadQuery(
@@ -173,6 +172,74 @@ class ProductReviewServiceTest(
                     size shouldBe 1
                     shouldBeSortedWith(compareByDescending { it.recommendCount })
                     forAll { it.score shouldBe 3 }
+                }
+            }
+        }
+    }
+
+    Given("상품 후기의 점수별 개수를 조회 할 때") {
+        val store = storeRepository.save(store(name = "펫쿠아"))
+        val member = memberRepository.save(member(nickname = "쿠아"))
+        val product = productRepository.save(
+            product(
+                name = "상품1",
+                storeId = store.id,
+                discountPrice = BigDecimal.ZERO,
+                reviewCount = 0,
+                reviewTotalScore = 0
+            )
+        )
+
+        val savedProductReviews = productReviewRepository.saveAll(
+            listOf(
+                productReview(
+                    productId = product.id,
+                    reviewerId = member.id,
+                    score = 5,
+                    recommendCount = 1,
+                    hasPhotos = false,
+                ),
+                productReview(
+                    productId = product.id,
+                    reviewerId = member.id,
+                    score = 5,
+                    recommendCount = 2,
+                    hasPhotos = true,
+                ),
+                productReview(
+                    productId = product.id,
+                    reviewerId = member.id,
+                    score = 5,
+                    recommendCount = 3,
+                    hasPhotos = false,
+                ),
+                productReview(
+                    productId = product.id,
+                    reviewerId = member.id,
+                    score = 2,
+                    recommendCount = 4,
+                    hasPhotos = true,
+                ),
+                productReview(
+                    productId = product.id,
+                    reviewerId = member.id,
+                    score = 2,
+                    recommendCount = 5,
+                    hasPhotos = true,
+                ),
+            )
+        )
+
+        When("상품 ID를 입력 하면") {
+            val response = productReviewService.readReviewCountStatistics(product.id)
+
+            Then("점수별 개수를 반환한다") {
+                assertSoftly(response) {
+                    scoreFiveCount shouldBe 3
+                    scoreFourCount shouldBe 0
+                    scoreThreeCount shouldBe 0
+                    scoreTwoCount shouldBe 2
+                    scoreOneCount shouldBe 0
                 }
             }
         }

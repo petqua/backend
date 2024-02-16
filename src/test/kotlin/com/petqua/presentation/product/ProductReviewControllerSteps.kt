@@ -1,3 +1,5 @@
+package com.petqua.presentation.product
+
 import com.petqua.domain.product.review.ProductReviewSorter
 import com.petqua.domain.product.review.ProductReviewSorter.REVIEW_DATE_DESC
 import io.restassured.module.kotlin.extensions.Extract
@@ -27,6 +29,18 @@ fun requestReadAllReviewProducts(
         pathParam("productId", productId)
     } When {
         get("/products/{productId}/reviews")
+    } Then {
+        log().all()
+    } Extract {
+        response()
+    }
+}
+
+fun requestReadProductReviewCount(productId: Long): Response {
+    return Given {
+        log().all()
+    } When {
+        get("/products/{productId}/review-statistics", productId)
     } Then {
         log().all()
     } Extract {

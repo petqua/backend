@@ -1,5 +1,6 @@
 package com.petqua.presentation.product
 
+import com.petqua.application.product.dto.ProductReviewStatisticsResponse
 import com.petqua.application.product.dto.ProductReviewsResponse
 import com.petqua.application.product.review.ProductReviewService
 import com.petqua.presentation.product.dto.ReadAllProductReviewsRequest
@@ -32,5 +33,15 @@ class ProductReviewController(
             )
         )
         return ResponseEntity.ok(responses)
+    }
+
+    @Operation(summary = "상품 후기 통계 조회 API", description = "상품의 후기 통계를 조회합니다")
+    @ApiResponse(responseCode = "200", description = "상품 후기 통계 조회 성공")
+    @GetMapping("/products/{productId}/review-statistics")
+    fun readReviewCountStatistics(
+        @PathVariable productId: Long
+    ): ResponseEntity<ProductReviewStatisticsResponse> {
+        val response = productReviewService.readReviewCountStatistics(productId)
+        return ResponseEntity.ok(response)
     }
 }

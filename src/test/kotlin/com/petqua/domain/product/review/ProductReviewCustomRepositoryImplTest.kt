@@ -162,6 +162,72 @@ class ProductReviewCustomRepositoryImplTest(
         }
     }
 
+    Given("상품 후기의 점수별 개수를 조회 할 때") {
+        val store = storeRepository.save(store(name = "펫쿠아"))
+        val member = memberRepository.save(member(nickname = "쿠아"))
+        val product = productRepository.save(
+            product(
+                name = "상품1",
+                storeId = store.id,
+                discountPrice = BigDecimal.ZERO,
+                reviewCount = 0,
+                reviewTotalScore = 0
+            )
+        )
+
+        productReviewRepository.saveAll(
+            listOf(
+                productReview(
+                    productId = product.id,
+                    reviewerId = member.id,
+                    score = 5,
+                    recommendCount = 1,
+                    hasPhotos = false,
+                ),
+                productReview(
+                    productId = product.id,
+                    reviewerId = member.id,
+                    score = 5,
+                    recommendCount = 2,
+                    hasPhotos = true,
+                ),
+                productReview(
+                    productId = product.id,
+                    reviewerId = member.id,
+                    score = 5,
+                    recommendCount = 3,
+                    hasPhotos = false,
+                ),
+                productReview(
+                    productId = product.id,
+                    reviewerId = member.id,
+                    score = 2,
+                    recommendCount = 4,
+                    hasPhotos = true,
+                ),
+                productReview(
+                    productId = product.id,
+                    reviewerId = member.id,
+                    score = 2,
+                    recommendCount = 5,
+                    hasPhotos = true,
+                ),
+            )
+        )
+
+        When("상품 후기의 점수별 개수를 조회 하면") {
+            val productReviewScoreWithCount = productReviewRepository.findReviewScoresWithCount(product.id)
+
+            Then("점수별 개수를 반환 한다") {
+                assertSoftly(productReviewScoreWithCount) {
+                    size shouldBe 2
+                    find { it.score == 5 }?.count shouldBe 3
+                    find { it.score == 2 }?.count shouldBe 2
+                }
+            }
+        }
+    }
+
     afterContainer {
         dataCleaner.clean()
     }
