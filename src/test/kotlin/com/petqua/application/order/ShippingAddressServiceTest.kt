@@ -86,6 +86,82 @@ class ShippingAddressServiceTest(
                 }.exceptionType() shouldBe ShippingAddressExceptionType.INVALID_PHONE_NUMBER
             }
         }
+
+        When("배송지 이름이 비어있으면") {
+            val command = SaveShippingAddressCommand(
+                memberId = memberId,
+                name = "",
+                receiver = "홍길동",
+                phoneNumber = "010-1234-5678",
+                zipCode = 12345,
+                address = "서울시 강남구 역삼동 99번길",
+                detailAddress = "101동 101호",
+                isDefaultAddress = true
+            )
+
+            Then("예외가 발생한다") {
+                shouldThrow<ShippingAddressException> {
+                    shippingAddressService.save(command)
+                }.exceptionType() shouldBe ShippingAddressExceptionType.EMPTY_NAME
+            }
+        }
+
+        When("받는 사람이 비어있으면") {
+            val command = SaveShippingAddressCommand(
+                memberId = memberId,
+                name = "집",
+                receiver = "",
+                phoneNumber = "010-1234-5678",
+                zipCode = 12345,
+                address = "서울시 강남구 역삼동 99번길",
+                detailAddress = "101동 101호",
+                isDefaultAddress = true
+            )
+
+            Then("예외가 발생한다") {
+                shouldThrow<ShippingAddressException> {
+                    shippingAddressService.save(command)
+                }.exceptionType() shouldBe ShippingAddressExceptionType.EMPTY_RECEIVER
+            }
+        }
+
+        When("주소가 비어있으면") {
+            val command = SaveShippingAddressCommand(
+                memberId = memberId,
+                name = "집",
+                receiver = "홍길동",
+                phoneNumber = "010-1234-5678",
+                zipCode = 12345,
+                address = "",
+                detailAddress = "101동 101호",
+                isDefaultAddress = true
+            )
+
+            Then("예외가 발생한다") {
+                shouldThrow<ShippingAddressException> {
+                    shippingAddressService.save(command)
+                }.exceptionType() shouldBe ShippingAddressExceptionType.EMPTY_ADDRESS
+            }
+        }
+
+        When("상세주소가 비어있으면") {
+            val command = SaveShippingAddressCommand(
+                memberId = memberId,
+                name = "집",
+                receiver = "홍길동",
+                phoneNumber = "010-1234-5678",
+                zipCode = 12345,
+                address = "서울시 강남구 역삼동 99번길",
+                detailAddress = "",
+                isDefaultAddress = true
+            )
+
+            Then("예외가 발생한다") {
+                shouldThrow<ShippingAddressException> {
+                    shippingAddressService.save(command)
+                }.exceptionType() shouldBe ShippingAddressExceptionType.EMPTY_DETAIL_ADDRESS
+            }
+        }
     }
 
     afterContainer {
