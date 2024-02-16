@@ -3,6 +3,7 @@ package com.petqua.presentation.product.dto
 import com.petqua.application.product.dto.ProductReviewReadQuery
 import com.petqua.application.product.dto.UpdateReviewRecommendationCommand
 import com.petqua.common.domain.dto.PAGING_LIMIT_CEILING
+import com.petqua.domain.auth.LoginMemberOrGuest
 import com.petqua.domain.product.review.ProductReviewSorter
 import com.petqua.domain.product.review.ProductReviewSorter.REVIEW_DATE_DESC
 import io.swagger.v3.oas.annotations.media.Schema
@@ -40,10 +41,10 @@ data class ReadAllProductReviewsRequest(
     )
     val limit: Int = PAGING_LIMIT_CEILING,
 ) {
-    fun toCommand(productId: Long, memberId: Long?): ProductReviewReadQuery {
+    fun toCommand(productId: Long, loginMemberOrGuest: LoginMemberOrGuest): ProductReviewReadQuery {
         return ProductReviewReadQuery(
             productId = productId,
-            memberId = memberId,
+            loginMemberOrGuest = loginMemberOrGuest,
             sorter = sorter,
             score = score,
             photoOnly = photoOnly,

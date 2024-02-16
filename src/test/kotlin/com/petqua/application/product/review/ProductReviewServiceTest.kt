@@ -3,6 +3,7 @@ package com.petqua.application.product.review
 import com.petqua.application.product.dto.ProductReviewReadQuery
 import com.petqua.application.product.dto.UpdateReviewRecommendationCommand
 import com.petqua.common.domain.findByIdOrThrow
+import com.petqua.domain.auth.LoginMemberOrGuest
 import com.petqua.domain.member.MemberRepository
 import com.petqua.domain.product.ProductRepository
 import com.petqua.domain.product.review.ProductReviewImageRepository
@@ -112,7 +113,7 @@ class ProductReviewServiceTest(
         When("전체 별점, 최신순으로 조회 하면") {
             val query = ProductReviewReadQuery(
                 productId = product.id,
-                memberId = member.id,
+                loginMemberOrGuest = LoginMemberOrGuest(member.id, member.authority),
                 sorter = REVIEW_DATE_DESC,
                 score = null,
                 limit = 3,
@@ -131,7 +132,7 @@ class ProductReviewServiceTest(
         When("마지막 id의 값을 입력 하면") {
             val query = ProductReviewReadQuery(
                 productId = product.id,
-                memberId = member.id,
+                loginMemberOrGuest = LoginMemberOrGuest(member.id, member.authority),
                 lastViewedId = savedProductReviews[2].id,  // 5개의 상품 후기 중 3번째 후기의 id
                 limit = 4,
             )
@@ -149,7 +150,7 @@ class ProductReviewServiceTest(
         When("사진이 있는 후기만 조회 하면") {
             val query = ProductReviewReadQuery(
                 productId = product.id,
-                memberId = member.id,
+                loginMemberOrGuest = LoginMemberOrGuest(member.id, member.authority),
                 photoOnly = true,
                 limit = 3,
             )
@@ -169,7 +170,7 @@ class ProductReviewServiceTest(
         When("별점과 정렬 조건을 입력 하면") {
             val query = ProductReviewReadQuery(
                 productId = product.id,
-                memberId = member.id,
+                loginMemberOrGuest = LoginMemberOrGuest(member.id, member.authority),
                 sorter = RECOMMEND_DESC,
                 score = 3,
                 limit = 3,
@@ -181,6 +182,51 @@ class ProductReviewServiceTest(
                     size shouldBe 1
                     shouldBeSortedWith(compareByDescending { it.recommendCount })
                     forAll { it.score shouldBe 3 }
+                }
+            }
+        }
+
+        When("추천한 상품 후기인 경우") {
+            val recommendProductReviewId = savedProductReviews[0].id
+            productReviewRecommendationRepository.save(
+                ProductReviewRecommendation(
+                    productReviewId = recommendProductReviewId,
+                    memberId = member.id,
+                )
+            )
+
+            val query = ProductReviewReadQuery(
+                productId = product.id,
+                loginMemberOrGuest = LoginMemberOrGuest(member.id, member.authority),
+            )
+            val response = productReviewService.readAll(query)
+
+            Then("추천 여부를 반환한다") {
+                assertSoftly(response.productReviews) {
+                    size shouldBe 5
+                    find { it.id == recommendProductReviewId }?.recommended shouldBe true
+                }
+            }
+        }
+
+        When("추천 이력이 있어도 요청시 인증 정보를 포함 하지 않으면") {
+            val recommendProductReviewId = savedProductReviews[0].id
+            productReviewRecommendationRepository.save(
+                ProductReviewRecommendation(
+                    productReviewId = recommendProductReviewId,
+                    memberId = member.id,
+                )
+            )
+            val query = ProductReviewReadQuery(
+                productId = product.id,
+                loginMemberOrGuest = LoginMemberOrGuest.getGuest(),
+            )
+            val response = productReviewService.readAll(query)
+
+            Then("추천 여부를 반환 하지 않는다") {
+                assertSoftly(response.productReviews) {
+                    size shouldBe 5
+                    forAll { it.recommended shouldBe false }
                 }
             }
         }
