@@ -1,13 +1,19 @@
 package com.petqua.application.product.review
 
 import com.petqua.application.product.dto.ProductReviewReadQuery
+import com.petqua.application.product.dto.UpdateReviewRecommendationCommand
+import com.petqua.common.domain.findByIdOrThrow
 import com.petqua.domain.member.MemberRepository
 import com.petqua.domain.product.ProductRepository
 import com.petqua.domain.product.review.ProductReviewImageRepository
+import com.petqua.domain.product.review.ProductReviewRecommendation
+import com.petqua.domain.product.review.ProductReviewRecommendationRepository
 import com.petqua.domain.product.review.ProductReviewRepository
 import com.petqua.domain.product.review.ProductReviewSorter.RECOMMEND_DESC
 import com.petqua.domain.product.review.ProductReviewSorter.REVIEW_DATE_DESC
 import com.petqua.domain.store.StoreRepository
+import com.petqua.exception.product.review.ProductReviewException
+import com.petqua.exception.product.review.ProductReviewExceptionType.NOT_FOUND_PRODUCT_REVIEW
 import com.petqua.test.DataCleaner
 import com.petqua.test.fixture.member
 import com.petqua.test.fixture.product
@@ -15,10 +21,12 @@ import com.petqua.test.fixture.productReview
 import com.petqua.test.fixture.productReviewImage
 import com.petqua.test.fixture.store
 import io.kotest.assertions.assertSoftly
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.inspectors.forAll
 import io.kotest.matchers.collections.shouldBeSortedWith
 import io.kotest.matchers.ints.shouldBeGreaterThanOrEqual
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import java.math.BigDecimal
 import org.springframework.boot.test.context.SpringBootTest
@@ -32,6 +40,7 @@ class ProductReviewServiceTest(
     private val storeRepository: StoreRepository,
     private val productReviewRepository: ProductReviewRepository,
     private val productReviewImageRepository: ProductReviewImageRepository,
+    private val productReviewRecommendationRepository: ProductReviewRecommendationRepository,
     private val dataCleaner: DataCleaner,
 ) : BehaviorSpec({
 
@@ -190,7 +199,7 @@ class ProductReviewServiceTest(
             )
         )
 
-        val savedProductReviews = productReviewRepository.saveAll(
+        productReviewRepository.saveAll(
             listOf(
                 productReview(
                     productId = product.id,
@@ -241,6 +250,79 @@ class ProductReviewServiceTest(
                     scoreTwoCount shouldBe 2
                     scoreOneCount shouldBe 0
                 }
+            }
+        }
+    }
+
+    Given("상품 후기 추천을 토글 할 때") {
+        val store = storeRepository.save(store(name = "펫쿠아"))
+        val member = memberRepository.save(member(nickname = "쿠아"))
+        val product = productRepository.save(
+            product(
+                name = "상품1",
+                storeId = store.id,
+                discountPrice = BigDecimal.ZERO,
+                reviewCount = 0,
+                reviewTotalScore = 0
+            )
+        )
+
+        val savedProductReview = productReviewRepository.save(
+            productReview(
+                productId = product.id,
+                reviewerId = member.id,
+                score = 5,
+                recommendCount = 1,
+                hasPhotos = false,
+            )
+        )
+
+        When("상품 후기 ID와 회원 ID를 입력 하면") {
+            val command = UpdateReviewRecommendationCommand(
+                productReviewId = savedProductReview.id,
+                memberId = member.id,
+            )
+            productReviewService.updateReviewRecommendation(command)
+
+            Then("상품 후기를 추천 한다") {
+                savedProductReview.recommendCount shouldBe 1
+            }
+        }
+
+        When("이미 추천한 상품 후기를 다시 추천 하면") {
+            productReviewRecommendationRepository.save(
+                ProductReviewRecommendation(
+                    productReviewId = savedProductReview.id,
+                    memberId = member.id,
+                )
+            )
+
+            val command = UpdateReviewRecommendationCommand(
+                productReviewId = savedProductReview.id,
+                memberId = member.id,
+            )
+            productReviewService.updateReviewRecommendation(command)
+
+            Then("상품 후기 추천을 취소 한다") {
+                productReviewRecommendationRepository.findByProductReviewIdAndMemberId(
+                    savedProductReview.id,
+                    member.id,
+                )?.shouldBeNull()
+
+                productReviewRepository.findByIdOrThrow(savedProductReview.id).recommendCount shouldBe 0
+            }
+        }
+
+        When("존재 하지 않는 상품 후기의 ID를 입력하면") {
+            val command = UpdateReviewRecommendationCommand(
+                productReviewId = Long.MIN_VALUE,
+                memberId = member.id,
+            )
+
+            Then("상품 후기를 찾을 수 없다는 예외를 반환한다") {
+                shouldThrow<ProductReviewException> {
+                    productReviewService.updateReviewRecommendation(command)
+                }.exceptionType() shouldBe NOT_FOUND_PRODUCT_REVIEW
             }
         }
     }

@@ -8,34 +8,14 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 
 @Entity
-class ProductReview(
+class ProductReviewRecommendation(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0L,
 
     @Column(nullable = false)
-    val content: String,
-
-    @Column(nullable = false)
-    val productId: Long,
+    val productReviewId: Long,
 
     @Column(nullable = false)
     val memberId: Long,
-
-    @Column(nullable = false)
-    val score: Int,
-
-    @Column(nullable = false)
-    var recommendCount: Int = 0,
-
-    @Column(nullable = false)
-    val hasPhotos: Boolean = false,
 ) : BaseEntity() {
-
-    fun increaseRecommendCount() {
-        recommendCount += 1
-    }
-
-    fun decreaseRecommendCount() {
-        recommendCount -= 1
-    }
 }
