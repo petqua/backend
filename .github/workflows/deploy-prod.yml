@@ -56,6 +56,4 @@ jobs:
           key: ${{ secrets.AWS_SSH_KEY }}
           script: |
             echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-            cd api/bin/
-            sudo docker compose down --rmi all
-            sudo docker compose up -d
+            cd api/bin/ && ./deploy.sh
