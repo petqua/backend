@@ -9,6 +9,8 @@ import com.petqua.exception.order.ShippingAddressException
 import com.petqua.exception.order.ShippingAddressExceptionType
 import com.petqua.test.DataCleaner
 import com.petqua.test.fixture.member
+import com.petqua.test.fixture.shippingAddress
+import io.kotest.assertions.assertSoftly
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -160,6 +162,50 @@ class ShippingAddressServiceTest(
                 shouldThrow<ShippingAddressException> {
                     shippingAddressService.save(command)
                 }.exceptionType() shouldBe ShippingAddressExceptionType.EMPTY_DETAIL_ADDRESS
+            }
+        }
+    }
+
+    Given("기본 배송지 조회 명령으로") {
+        val memberId = memberRepository.save(member()).id
+        val savedShippingAddress = shippingAddressRepository.save(
+            shippingAddress(
+                memberId = memberId,
+                isDefaultAddress = true
+            )
+        )
+
+        When("멤버의 기본 배송지를") {
+            val response = shippingAddressService.readDefaultShippingAddress(memberId)
+
+            Then("조회한다") {
+                assertSoftly(response) {
+                    response.id shouldBe savedShippingAddress.id
+                    response.name shouldBe savedShippingAddress.name
+                    response.receiver shouldBe savedShippingAddress.receiver
+                    response.phoneNumber shouldBe savedShippingAddress.phoneNumber
+                    response.zipCode shouldBe savedShippingAddress.zipCode
+                    response.address shouldBe savedShippingAddress.address
+                    response.detailAddress shouldBe savedShippingAddress.detailAddress
+                }
+            }
+        }
+    }
+
+    Given("기본 배송지 조회 명령시") {
+        val memberId = memberRepository.save(member()).id
+        shippingAddressRepository.save(
+            shippingAddress(
+                memberId = memberId,
+                isDefaultAddress = false
+            )
+        )
+
+        When("멤버의 기본 배송지가 존재하지 않으면") {
+            Then("예외가 발생한다") {
+                shouldThrow<ShippingAddressException> {
+                    shippingAddressService.readDefaultShippingAddress(memberId)
+                }.exceptionType() shouldBe ShippingAddressExceptionType.NOT_FOUND_SHIPPING_ADDRESS
             }
         }
     }
