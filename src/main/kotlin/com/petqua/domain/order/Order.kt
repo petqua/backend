@@ -24,7 +24,7 @@ class Order(
     val orderNumber: OrderNumber,
 
     @Embedded
-    val deliveryInfo: OrderDeliveryInfo,
+    val deliveryInfo: OrderShippingAddressInfo,
 
     @Embedded
     val productInfo: OrderProductInfo,
