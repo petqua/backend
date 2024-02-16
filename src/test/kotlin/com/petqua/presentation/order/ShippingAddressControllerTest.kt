@@ -1,11 +1,13 @@
 package com.petqua.presentation.order
 
+import com.petqua.application.order.dto.ReadDefaultShippingAddressResponse
 import com.petqua.application.order.dto.SaveShippingAddressResponse
 import com.petqua.common.exception.ExceptionResponse
 import com.petqua.domain.order.ShippingAddressRepository
 import com.petqua.exception.order.ShippingAddressExceptionType
 import com.petqua.presentation.order.dto.SaveShippingAddressRequest
 import com.petqua.test.ApiTestConfig
+import com.petqua.test.fixture.shippingAddress
 import io.kotest.assertions.assertSoftly
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
@@ -145,6 +147,58 @@ class ShippingAddressControllerTest(
                     assertSoftly(response) {
                         statusCode shouldBe HttpStatus.BAD_REQUEST.value()
                         errorResponse.code shouldBe ShippingAddressExceptionType.EMPTY_DETAIL_ADDRESS.code()
+                    }
+                }
+            }
+        }
+
+        Given("기본 배송지 조회를") {
+            val accessToken = signInAsMember().accessToken
+            val memberId = getMemberIdByAccessToken(accessToken)
+            val savedShippingAddress = shippingAddressRepository.save(
+                shippingAddress(
+                    memberId = memberId,
+                    isDefaultAddress = true
+                )
+            )
+
+            When("요청하면") {
+                val response = requestReadDefaultShippingAddress(accessToken)
+
+                Then("멤버의 기본 배송지가 조회된다") {
+                    val responseBody = response.`as`(ReadDefaultShippingAddressResponse::class.java)
+                    assertSoftly(response) {
+                        statusCode shouldBe HttpStatus.OK.value()
+                        responseBody.id shouldBe savedShippingAddress.id
+                        responseBody.name shouldBe savedShippingAddress.name
+                        responseBody.receiver shouldBe savedShippingAddress.receiver
+                        responseBody.phoneNumber shouldBe savedShippingAddress.phoneNumber
+                        responseBody.zipCode shouldBe savedShippingAddress.zipCode
+                        responseBody.address shouldBe savedShippingAddress.address
+                        responseBody.detailAddress shouldBe savedShippingAddress.detailAddress
+                        responseBody.isDefaultAddress shouldBe savedShippingAddress.isDefaultAddress
+                    }
+                }
+            }
+        }
+
+        Given("기본 배송지 조회시") {
+            val accessToken = signInAsMember().accessToken
+            val memberId = getMemberIdByAccessToken(accessToken)
+            shippingAddressRepository.save(
+                shippingAddress(
+                    memberId = memberId,
+                    isDefaultAddress = false
+                )
+            )
+
+            When("멤버가 기본 배송지를 설정하지 않았으면") {
+                Then("예외가 발생한다") {
+                    val response = requestReadDefaultShippingAddress(accessToken)
+                    val errorResponse = response.`as`(ExceptionResponse::class.java)
+                    assertSoftly(response) {
+                        statusCode shouldBe HttpStatus.NOT_FOUND.value()
+                        errorResponse.code shouldBe ShippingAddressExceptionType.NOT_FOUND_SHIPPING_ADDRESS.code()
                     }
                 }
             }

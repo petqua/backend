@@ -24,3 +24,18 @@ fun requestSaveShippingAddress(
         response()
     }
 }
+
+fun requestReadDefaultShippingAddress(
+    accessToken: String
+): Response {
+    return Given {
+        log().all()
+            .auth().preemptive().oauth2(accessToken)
+    } When {
+        get("/shipping-address/default")
+    } Then {
+        log().all()
+    } Extract {
+        response()
+    }
+}
