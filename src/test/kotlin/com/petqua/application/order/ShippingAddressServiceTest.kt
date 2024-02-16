@@ -1,6 +1,7 @@
 package com.petqua.application.order
 
 import com.petqua.application.order.dto.SaveShippingAddressCommand
+import com.petqua.common.domain.findByIdOrThrow
 import com.petqua.domain.member.MemberRepository
 import com.petqua.domain.order.ShippingAddressRepository
 import com.petqua.exception.member.MemberException
@@ -44,6 +45,35 @@ class ShippingAddressServiceTest(
 
             Then("저장한다") {
                 shippingAddressRepository.findById(response.id).shouldNotBeNull()
+            }
+        }
+    }
+
+    Given("기본 배송지가 있는 상태에서") {
+        val memberId = memberRepository.save(member()).id
+        val prevDefaultShippingAddress = shippingAddressRepository.save(
+            shippingAddress(
+                memberId = memberId,
+                isDefaultAddress = true,
+            )
+        )
+        val command = SaveShippingAddressCommand(
+            memberId = memberId,
+            name = "집",
+            receiver = "홍길동",
+            phoneNumber = "010-1234-5678",
+            zipCode = 12345,
+            address = "서울시 강남구 역삼동 99번길",
+            detailAddress = "101동 101호",
+            isDefaultAddress = true
+        )
+
+        When(" 새로운 기본 배송지를 생성하면") {
+            val response = shippingAddressService.save(command)
+
+            Then("이전 기본 배송지의 기본 설정이 취소되고, 새로운 배송지가 기본 배송지가 된다") {
+                shippingAddressRepository.findByIdOrThrow(prevDefaultShippingAddress.id).isDefaultAddress shouldBe false
+                shippingAddressRepository.findByIdOrThrow(response.id).isDefaultAddress shouldBe true
             }
         }
     }

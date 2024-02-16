@@ -41,7 +41,7 @@ class ShippingAddress(
     val detailAddress: String,
 
     @Column(nullable = false)
-    val isDefaultAddress: Boolean = false,
+    var isDefaultAddress: Boolean = false,
 ) : BaseEntity() {
 
     init {
