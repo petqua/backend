@@ -10,7 +10,9 @@ import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType.IDENTITY
 import jakarta.persistence.Id
+import jakarta.persistence.Table
 
+@Table(name = "orders")
 @Entity
 class Order(
     @Id @GeneratedValue(strategy = IDENTITY)
