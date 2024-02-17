@@ -17,7 +17,7 @@ import com.petqua.domain.product.WishProductRepository
 import com.petqua.domain.product.category.CategoryRepository
 import com.petqua.domain.product.detail.description.ProductDescriptionRepository
 import com.petqua.domain.product.detail.image.ImageType
-import com.petqua.domain.product.detail.image.ImageType.EXAMPLE
+import com.petqua.domain.product.detail.image.ImageType.SAMPLE
 import com.petqua.domain.product.detail.image.ProductImageRepository
 import com.petqua.domain.product.detail.info.DifficultyLevel
 import com.petqua.domain.product.detail.info.OptimalTankSize
@@ -114,7 +114,7 @@ class ProductControllerTest(
                 productImage(
                     productId = product.id,
                     imageUrl = "image.jpeg",
-                    imageType = EXAMPLE
+                    imageType = SAMPLE
                 )
             )
             val productDescriptionImage = productImageRepository.save(

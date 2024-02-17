@@ -12,7 +12,7 @@ import com.petqua.domain.product.ProductRepository
 import com.petqua.domain.product.WishProductRepository
 import com.petqua.domain.product.detail.image.ImageType
 import com.petqua.domain.product.detail.image.ImageType.DESCRIPTION
-import com.petqua.domain.product.detail.image.ImageType.EXAMPLE
+import com.petqua.domain.product.detail.image.ImageType.SAMPLE
 import com.petqua.domain.product.detail.image.ProductImageRepository
 import com.petqua.domain.product.dto.ProductResponse
 import com.petqua.exception.product.ProductException
@@ -43,7 +43,7 @@ class ProductService(
 
         return ProductDetailResponse(
             productWithInfoResponse = productWithInfo,
-            imageUrls = imagesByType[EXAMPLE] ?: emptyList(),
+            imageUrls = imagesByType[SAMPLE] ?: emptyList(),
             descriptionImageUrls = imagesByType[DESCRIPTION] ?: emptyList(),
             isWished = isWished
         )

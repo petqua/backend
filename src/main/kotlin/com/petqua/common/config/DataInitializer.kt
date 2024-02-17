@@ -23,7 +23,7 @@ import com.petqua.domain.product.detail.description.ProductDescriptionContent
 import com.petqua.domain.product.detail.description.ProductDescriptionRepository
 import com.petqua.domain.product.detail.description.ProductDescriptionTitle
 import com.petqua.domain.product.detail.image.ImageType.DESCRIPTION
-import com.petqua.domain.product.detail.image.ImageType.EXAMPLE
+import com.petqua.domain.product.detail.image.ImageType.SAMPLE
 import com.petqua.domain.product.detail.image.ProductImage
 import com.petqua.domain.product.detail.image.ProductImageRepository
 import com.petqua.domain.product.detail.info.DifficultyLevel.NORMAL
@@ -264,7 +264,7 @@ class DataInitializer(
                 ProductImage(
                     productId = product.id,
                     imageUrl = "https://docs.petqua.co.kr/products/thumbnails/thumbnail3.jpeg",
-                    imageType = EXAMPLE
+                    imageType = SAMPLE
                 )
             }
         }
