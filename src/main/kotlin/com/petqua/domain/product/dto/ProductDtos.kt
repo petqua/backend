@@ -6,7 +6,6 @@ import com.petqua.domain.product.Product
 import com.petqua.domain.product.ProductSourceType
 import com.petqua.domain.product.Sorter
 import com.petqua.domain.product.category.Category
-import com.petqua.domain.product.detail.description.ProductDescription
 import com.petqua.domain.product.detail.info.ProductInfo
 import com.petqua.domain.product.option.ProductOption
 import com.petqua.exception.product.ProductException
@@ -87,7 +86,7 @@ data class ProductWithInfoResponse(
     constructor(
         product: Product,
         storeName: String,
-        productDescription: ProductDescription,
+        productDescription: ProductDescriptionResponse,
         productInfo: ProductInfo,
         category: Category,
         productOption: ProductOption,
@@ -104,8 +103,8 @@ data class ProductWithInfoResponse(
         reviewCount = product.reviewCount,
         reviewAverageScore = product.averageReviewScore(),
         thumbnailUrl = product.thumbnailUrl,
-        descriptionTitle = productDescription.title.value,
-        descriptionContent = productDescription.content.value,
+        descriptionTitle = productDescription.title,
+        descriptionContent = productDescription.content,
         canDeliverSafely = product.canDeliverSafely,
         canDeliverCommonly = product.canDeliverCommonly,
         canPickUp = product.canPickUp,
@@ -117,6 +116,11 @@ data class ProductWithInfoResponse(
         hasDistinctSex = productOption.hasDistinctSex(),
     )
 }
+
+data class ProductDescriptionResponse(
+    val title: String,
+    val content: String,
+)
 
 data class ProductResponse(
     @Schema(

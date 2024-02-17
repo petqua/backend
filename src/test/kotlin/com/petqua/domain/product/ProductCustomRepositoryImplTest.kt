@@ -16,6 +16,7 @@ import com.petqua.domain.product.detail.info.OptimalTankSize
 import com.petqua.domain.product.detail.info.OptimalTemperature
 import com.petqua.domain.product.detail.info.ProductInfoRepository
 import com.petqua.domain.product.detail.info.Temperament.PEACEFUL
+import com.petqua.domain.product.dto.ProductDescriptionResponse
 import com.petqua.domain.product.dto.ProductReadCondition
 import com.petqua.domain.product.dto.ProductResponse
 import com.petqua.domain.product.dto.ProductSearchCondition
@@ -66,7 +67,7 @@ class ProductCustomRepositoryImplTest(
                 species = "고정구피"
             )
         )
-        val product = productRepository.save(
+        val product1 = productRepository.save(
             product(
                 name = "고정구피",
                 storeId = store.id,
@@ -76,16 +77,19 @@ class ProductCustomRepositoryImplTest(
                 reviewTotalScore = 0
             )
         )
-        val productDescription = productDescriptionRepository.save(
-            productDescription(
-                productId = product.id,
-                title = "물생활 핵 인싸어, 레드 브론즈 구피",
-                content = "레드 턱시도라고도 불리며 지느러미가 아름다운 구피입니다"
+        val product2 = productRepository.save(
+            product(
+                name = "팬시구피",
+                storeId = store.id,
+                categoryId = category.id,
+                discountPrice = ZERO,
+                reviewCount = 0,
+                reviewTotalScore = 0
             )
         )
-        val productInfo = productInfoRepository.save(
+        val productInfo1 = productInfoRepository.save(
             productInfo(
-                productId = product.id,
+                productId = product1.id,
                 categoryId = 0,
                 optimalTemperature = OptimalTemperature(26, 28),
                 difficultyLevel = EASY,
@@ -93,26 +97,72 @@ class ProductCustomRepositoryImplTest(
                 temperament = PEACEFUL,
             )
         )
-        val productOption = productOptionRepository.save(
+        val productInfo2 = productInfoRepository.save(
+            productInfo(
+                productId = product2.id,
+                categoryId = 0,
+                optimalTemperature = OptimalTemperature(26, 28),
+                difficultyLevel = EASY,
+                optimalTankSize = OptimalTankSize.TANK1,
+                temperament = PEACEFUL,
+            )
+        )
+        val productOption1 = productOptionRepository.save(
             productOption(
-                productId = product.id,
+                productId = product1.id,
                 sex = Sex.MALE,
+            )
+        )
+        val productOption2 = productOptionRepository.save(
+            productOption(
+                productId = product2.id,
+                sex = Sex.MALE,
+            )
+        )
+        val productDescription1 = productDescriptionRepository.save(
+            productDescription(
+                productId = product1.id,
+                title = "물생활 핵 인싸어, 레드 브론즈 구피",
+                content = "레드 턱시도라고도 불리며 지느러미가 아름다운 구피입니다"
             )
         )
 
         When("Id를 입력하면") {
-            val productWithInfoResponse = productRepository.findProductWithInfoByIdOrThrow(product.id) {
+            val productWithInfoResponse = productRepository.findProductWithInfoByIdOrThrow(product1.id) {
                 ProductException(NOT_FOUND_PRODUCT)
             }
 
             Then("입력한 Id의 상품과 상세정보가 반환된다") {
                 productWithInfoResponse shouldBe ProductWithInfoResponse(
-                    product = product,
+                    product = product1,
                     storeName = store.name,
-                    productDescription = productDescription,
-                    productInfo = productInfo,
+                    productDescription = ProductDescriptionResponse(
+                        title = productDescription1.title.value,
+                        content = productDescription1.content.value
+                    ),
+                    productInfo = productInfo1,
                     category = category,
-                    productOption = productOption,
+                    productOption = productOption1,
+                )
+            }
+        }
+
+        When("상세 설명이 없는 상품의 Id를 입력하면") {
+            val productWithInfoResponse = productRepository.findProductWithInfoByIdOrThrow(product2.id) {
+                ProductException(NOT_FOUND_PRODUCT)
+            }
+
+            Then("상세 설명이 없이 입력한 Id의 상품과 상세정보가 반환된다") {
+                productWithInfoResponse shouldBe ProductWithInfoResponse(
+                    product = product2,
+                    storeName = store.name,
+                    productDescription = ProductDescriptionResponse(
+                        title = "",
+                        content = ""
+                    ),
+                    productInfo = productInfo2,
+                    category = category,
+                    productOption = productOption2,
                 )
             }
         }
