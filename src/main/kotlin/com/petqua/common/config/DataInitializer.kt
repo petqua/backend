@@ -202,7 +202,9 @@ class DataInitializer(
         wishProductRepository.saveAll(wishProducts)
 
         // productDescription
-        val productDescriptions = products.map {
+        val productDescriptions = products.filter {
+            (it.id % 4).toInt() != 0
+        }.map {
             ProductDescription(
                 productId = it.id,
                 title = ProductDescriptionTitle("물생활 핵 인싸어, ${it.name}"),
