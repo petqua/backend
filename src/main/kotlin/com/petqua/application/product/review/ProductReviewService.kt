@@ -5,17 +5,13 @@ import com.petqua.application.product.dto.ProductReviewResponse
 import com.petqua.application.product.dto.ProductReviewStatisticsResponse
 import com.petqua.application.product.dto.ProductReviewsResponse
 import com.petqua.application.product.dto.UpdateReviewRecommendationCommand
-import com.petqua.common.domain.existByIdOrThrow
 import com.petqua.common.domain.findByIdOrThrow
-import com.petqua.domain.member.MemberRepository
 import com.petqua.domain.product.dto.ProductReviewWithMemberResponse
 import com.petqua.domain.product.review.ProductReviewImageRepository
 import com.petqua.domain.product.review.ProductReviewRecommendation
 import com.petqua.domain.product.review.ProductReviewRecommendationRepository
 import com.petqua.domain.product.review.ProductReviewRepository
 import com.petqua.domain.product.review.ProductReviewStatistics
-import com.petqua.exception.member.MemberException
-import com.petqua.exception.member.MemberExceptionType
 import com.petqua.exception.product.review.ProductReviewException
 import com.petqua.exception.product.review.ProductReviewExceptionType.NOT_FOUND_PRODUCT_REVIEW
 import org.springframework.stereotype.Service
@@ -26,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional
 class ProductReviewService(
     private val productReviewRepository: ProductReviewRepository,
     private val productReviewImageRepository: ProductReviewImageRepository,
-    private val memberRepository: MemberRepository,
     private val productReviewRecommendationRepository: ProductReviewRecommendationRepository,
 ) {
 
@@ -67,7 +62,6 @@ class ProductReviewService(
     }
 
     fun updateReviewRecommendation(command: UpdateReviewRecommendationCommand) {
-        memberRepository.existByIdOrThrow(command.memberId, MemberException(MemberExceptionType.NOT_FOUND_MEMBER))
         productReviewRecommendationRepository.findByProductReviewIdAndMemberId(
             command.productReviewId,
             command.memberId,

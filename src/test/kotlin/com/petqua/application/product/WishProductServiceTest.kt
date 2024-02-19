@@ -9,8 +9,6 @@ import com.petqua.domain.product.ProductRepository
 import com.petqua.domain.product.WishProductRepository
 import com.petqua.domain.store.Store
 import com.petqua.domain.store.StoreRepository
-import com.petqua.exception.member.MemberException
-import com.petqua.exception.member.MemberExceptionType
 import com.petqua.exception.product.ProductException
 import com.petqua.exception.product.ProductExceptionType
 import com.petqua.presentation.product.dto.WishProductResponse
@@ -77,19 +75,6 @@ class WishProductServiceTest(
     Given("찜 상품 수정시") {
         val product = productRepository.save(product())
         val member = memberRepository.save(member())
-
-        When("멤버가 존재하지 않으면") {
-            val command = UpdateWishCommand(
-                memberId = MIN_VALUE,
-                productId = product.id
-            )
-
-            Then("예외가 발생한다") {
-                shouldThrow<MemberException> {
-                    wishProductService.update(command)
-                }.exceptionType() shouldBe MemberExceptionType.NOT_FOUND_MEMBER
-            }
-        }
 
         When("상품이 존재하지 않으면") {
             val command = UpdateWishCommand(
@@ -172,18 +157,6 @@ class WishProductServiceTest(
                     WishProductResponse(wish2.id, product2, store.name),
                     WishProductResponse(wish1.id, product3, store.name),
                 )
-            }
-        }
-
-        When("멤버가 존재하지 않으면") {
-            val command = ReadAllWishProductCommand(
-                memberId = MIN_VALUE
-            )
-
-            Then("예외가 발생한다") {
-                shouldThrow<MemberException> {
-                    wishProductService.readAll(command)
-                }.exceptionType() shouldBe MemberExceptionType.NOT_FOUND_MEMBER
             }
         }
     }

@@ -12,15 +12,17 @@ fun member(
     profileImageUrl: String = "profile.jpg",
     fishBowlCount: Int = 0,
     years: Int = 1,
+    isDeleted: Boolean = false,
 ): Member {
     return Member(
-        id,
-        oauthId,
-        oauthServerNumber,
-        authority,
-        nickname,
-        profileImageUrl,
-        fishBowlCount,
-        years,
+        id = id,
+        oauthId = oauthId,
+        oauthServerNumber = oauthServerNumber,
+        authority = authority,
+        nickname = nickname,
+        profileImageUrl = profileImageUrl,
+        fishBowlCount = fishBowlCount,
+        years = years,
+        isDeleted = isDeleted
     )
 }
