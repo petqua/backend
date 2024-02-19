@@ -35,16 +35,17 @@ import com.petqua.domain.product.review.ProductReview
 import com.petqua.domain.product.review.ProductReviewImage
 import com.petqua.domain.product.review.ProductReviewImageRepository
 import com.petqua.domain.product.review.ProductReviewRepository
+import com.petqua.domain.product.review.ProductReviewScore
 import com.petqua.domain.recommendation.ProductRecommendation
 import com.petqua.domain.recommendation.ProductRecommendationRepository
 import com.petqua.domain.store.Store
 import com.petqua.domain.store.StoreRepository
+import java.math.BigDecimal
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.annotation.Profile
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
-import java.math.BigDecimal
 
 @Component
 @Profile("local", "prod")
@@ -258,7 +259,7 @@ class DataInitializer(
                     productId = product.id,
                     memberId = memberId,
                     content = "좋아요 ${product.name}",
-                    score = it,
+                    score = ProductReviewScore(it % 5 + 1),
                     hasPhotos = hasPhotos
                 )
             }

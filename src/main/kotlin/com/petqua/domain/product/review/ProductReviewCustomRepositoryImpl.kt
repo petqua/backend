@@ -52,7 +52,7 @@ class ProductReviewCustomRepositoryImpl(
     override fun findReviewScoresWithCount(productId: Long): List<ProductReviewScoreWithCount> {
         val query = jpql {
             selectNew<ProductReviewScoreWithCount>(
-                path(ProductReview::score),
+                path(ProductReview::score)(ProductReviewScore::value),
                 count(path(ProductReview::score)),
             ).from(
                 entity(ProductReview::class),
