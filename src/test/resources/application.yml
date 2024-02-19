@@ -24,6 +24,11 @@ spring:
     hibernate:
       ddl-auto: create
 
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
 logging:
   level:
     org.hibernate.orm.jdbc.bind: TRACE
