@@ -15,12 +15,15 @@ import com.petqua.domain.product.ProductSourceType.NONE
 import com.petqua.domain.product.Sorter.ENROLLMENT_DATE_DESC
 import com.petqua.domain.product.WishProductRepository
 import com.petqua.domain.product.category.CategoryRepository
-import com.petqua.domain.product.detail.DifficultyLevel
-import com.petqua.domain.product.detail.OptimalTankSize
-import com.petqua.domain.product.detail.OptimalTemperature
-import com.petqua.domain.product.detail.ProductImageRepository
-import com.petqua.domain.product.detail.ProductInfoRepository
-import com.petqua.domain.product.detail.Temperament
+import com.petqua.domain.product.detail.description.ProductDescriptionRepository
+import com.petqua.domain.product.detail.image.ImageType.DESCRIPTION
+import com.petqua.domain.product.detail.image.ImageType.EXAMPLE
+import com.petqua.domain.product.detail.image.ProductImageRepository
+import com.petqua.domain.product.detail.info.DifficultyLevel
+import com.petqua.domain.product.detail.info.OptimalTankSize
+import com.petqua.domain.product.detail.info.OptimalTemperature
+import com.petqua.domain.product.detail.info.ProductInfoRepository
+import com.petqua.domain.product.detail.info.Temperament
 import com.petqua.domain.product.option.ProductOptionRepository
 import com.petqua.domain.product.option.Sex.FEMALE
 import com.petqua.domain.store.StoreRepository
@@ -30,6 +33,7 @@ import com.petqua.test.DataCleaner
 import com.petqua.test.fixture.category
 import com.petqua.test.fixture.member
 import com.petqua.test.fixture.product
+import com.petqua.test.fixture.productDescription
 import com.petqua.test.fixture.productDetailResponse
 import com.petqua.test.fixture.productImage
 import com.petqua.test.fixture.productInfo
@@ -58,6 +62,7 @@ class ProductServiceTest(
     private val wishProductRepository: WishProductRepository,
     private val categoryRepository: CategoryRepository,
     private val productOptionRepository: ProductOptionRepository,
+    private val productDescriptionRepository: ProductDescriptionRepository,
     private val dataCleaner: DataCleaner,
 ) : BehaviorSpec({
 
@@ -82,6 +87,13 @@ class ProductServiceTest(
                 reviewTotalScore = 0
             )
         )
+        val productDescription = productDescriptionRepository.save(
+            productDescription(
+                productId = product.id,
+                title = "물생활 핵 인싸어, 레드 브론즈 구피",
+                content = "레드 턱시도라고도 불리며 지느러미가 아름다운 구피입니다"
+            )
+        )
         val productInfo = productInfoRepository.save(
             productInfo(
                 productId = product.id,
@@ -95,7 +107,15 @@ class ProductServiceTest(
         val productImage = productImageRepository.save(
             productImage(
                 productId = product.id,
-                imageUrl = "image.jpeg"
+                imageUrl = "image.jpeg",
+                imageType = EXAMPLE
+            )
+        )
+        val productDescriptionImage = productImageRepository.save(
+            productImage(
+                productId = product.id,
+                imageUrl = "image.jpeg",
+                imageType = DESCRIPTION
             )
         )
         val productOption = productOptionRepository.save(
@@ -122,6 +142,8 @@ class ProductServiceTest(
                     product = product,
                     storeName = store.name,
                     imageUrls = listOf(productImage.imageUrl),
+                    productDescription = productDescription,
+                    descriptionImageUrls = listOf(productDescriptionImage.imageUrl),
                     productInfo = productInfo,
                     category = category,
                     hasDistinctSex = productOption.hasDistinctSex(),
@@ -155,6 +177,8 @@ class ProductServiceTest(
                     product = product,
                     storeName = store.name,
                     imageUrls = listOf(productImage.imageUrl),
+                    productDescription = productDescription,
+                    descriptionImageUrls = listOf(productDescriptionImage.imageUrl),
                     productInfo = productInfo,
                     category = category,
                     hasDistinctSex = productOption.hasDistinctSex(),

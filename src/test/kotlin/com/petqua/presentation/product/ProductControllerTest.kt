@@ -15,12 +15,15 @@ import com.petqua.domain.product.Sorter.SALE_PRICE_ASC
 import com.petqua.domain.product.Sorter.SALE_PRICE_DESC
 import com.petqua.domain.product.WishProductRepository
 import com.petqua.domain.product.category.CategoryRepository
-import com.petqua.domain.product.detail.DifficultyLevel
-import com.petqua.domain.product.detail.OptimalTankSize
-import com.petqua.domain.product.detail.OptimalTemperature
-import com.petqua.domain.product.detail.ProductImageRepository
-import com.petqua.domain.product.detail.ProductInfoRepository
-import com.petqua.domain.product.detail.Temperament
+import com.petqua.domain.product.detail.description.ProductDescriptionRepository
+import com.petqua.domain.product.detail.image.ImageType
+import com.petqua.domain.product.detail.image.ImageType.EXAMPLE
+import com.petqua.domain.product.detail.image.ProductImageRepository
+import com.petqua.domain.product.detail.info.DifficultyLevel
+import com.petqua.domain.product.detail.info.OptimalTankSize
+import com.petqua.domain.product.detail.info.OptimalTemperature
+import com.petqua.domain.product.detail.info.ProductInfoRepository
+import com.petqua.domain.product.detail.info.Temperament
 import com.petqua.domain.product.dto.ProductResponse
 import com.petqua.domain.product.option.ProductOptionRepository
 import com.petqua.domain.product.option.Sex.HERMAPHRODITE
@@ -31,6 +34,7 @@ import com.petqua.exception.product.ProductExceptionType.NOT_FOUND_PRODUCT
 import com.petqua.test.ApiTestConfig
 import com.petqua.test.fixture.category
 import com.petqua.test.fixture.product
+import com.petqua.test.fixture.productDescription
 import com.petqua.test.fixture.productDetailResponse
 import com.petqua.test.fixture.productImage
 import com.petqua.test.fixture.productInfo
@@ -63,6 +67,7 @@ class ProductControllerTest(
     private val wishProductRepository: WishProductRepository,
     private val categoryRepository: CategoryRepository,
     private val productOptionRepository: ProductOptionRepository,
+    private val productDescriptionRepository: ProductDescriptionRepository,
 ) : ApiTestConfig() {
 
     init {
@@ -88,6 +93,13 @@ class ProductControllerTest(
                     reviewTotalScore = 0
                 )
             )
+            val productDescription = productDescriptionRepository.save(
+                productDescription(
+                    productId = product.id,
+                    title = "물생활 핵 인싸어, 레드 브론즈 구피",
+                    content = "레드 턱시도라고도 불리며 지느러미가 아름다운 구피입니다"
+                )
+            )
             val productInfo = productInfoRepository.save(
                 productInfo(
                     productId = product.id,
@@ -101,7 +113,15 @@ class ProductControllerTest(
             val productImage = productImageRepository.save(
                 productImage(
                     productId = product.id,
-                    imageUrl = "image.jpeg"
+                    imageUrl = "image.jpeg",
+                    imageType = EXAMPLE
+                )
+            )
+            val productDescriptionImage = productImageRepository.save(
+                productImage(
+                    productId = product.id,
+                    imageUrl = "image.jpeg",
+                    imageType = ImageType.DESCRIPTION
                 )
             )
             val productOption = productOptionRepository.save(
@@ -132,6 +152,8 @@ class ProductControllerTest(
                             product = product,
                             storeName = store.name,
                             imageUrls = listOf(productImage.imageUrl),
+                            productDescription = productDescription,
+                            descriptionImageUrls = listOf(productDescriptionImage.imageUrl),
                             productInfo = productInfo,
                             category = category,
                             hasDistinctSex = productOption.hasDistinctSex(),
@@ -172,6 +194,8 @@ class ProductControllerTest(
                             product = product,
                             storeName = store.name,
                             imageUrls = listOf(productImage.imageUrl),
+                            productDescription = productDescription,
+                            descriptionImageUrls = listOf(productDescriptionImage.imageUrl),
                             productInfo = productInfo,
                             category = category,
                             hasDistinctSex = productOption.hasDistinctSex(),

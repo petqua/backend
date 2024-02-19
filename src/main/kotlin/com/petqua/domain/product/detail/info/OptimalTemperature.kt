@@ -1,4 +1,4 @@
-package com.petqua.domain.product.detail
+package com.petqua.domain.product.detail.info
 
 import jakarta.persistence.Column
 import jakarta.persistence.Embeddable

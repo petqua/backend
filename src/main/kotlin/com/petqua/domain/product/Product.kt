@@ -14,9 +14,6 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import java.math.BigDecimal
 
-private const val SCALE = 1
-private const val ZERO = 0
-
 @Entity
 class Product(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -54,9 +51,6 @@ class Product(
     val thumbnailUrl: String,
 
     @Column(nullable = false)
-    val description: String,
-
-    @Column(nullable = false)
     var isDeleted: Boolean = false,
 
     @Column(nullable = false)
@@ -88,6 +82,6 @@ class Product(
     }
 
     override fun toString(): String {
-        return "Product(id=$id, name='$name', categoryId=$categoryId, price=$price, storeId=$storeId, discountRate=$discountRate, discountPrice=$discountPrice, wishCount=$wishCount, reviewCount=$reviewCount, reviewTotalScore=$reviewTotalScore, thumbnailUrl='$thumbnailUrl', description='$description', isDeleted=$isDeleted, canDeliverSafely=$canDeliverSafely, canDeliverCommonly=$canDeliverCommonly, canPickUp=$canPickUp)"
+        return "Product(id=$id, name='$name', categoryId=$categoryId, price=$price, storeId=$storeId, discountRate=$discountRate, discountPrice=$discountPrice, wishCount=$wishCount, reviewCount=$reviewCount, reviewTotalScore=$reviewTotalScore, thumbnailUrl='$thumbnailUrl', isDeleted=$isDeleted, canDeliverSafely=$canDeliverSafely, canDeliverCommonly=$canDeliverCommonly, canPickUp=$canPickUp)"
     }
 }

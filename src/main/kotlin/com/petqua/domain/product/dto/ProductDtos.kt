@@ -6,7 +6,8 @@ import com.petqua.domain.product.Product
 import com.petqua.domain.product.ProductSourceType
 import com.petqua.domain.product.Sorter
 import com.petqua.domain.product.category.Category
-import com.petqua.domain.product.detail.ProductInfo
+import com.petqua.domain.product.detail.description.ProductDescription
+import com.petqua.domain.product.detail.info.ProductInfo
 import com.petqua.domain.product.option.ProductOption
 import com.petqua.exception.product.ProductException
 import com.petqua.exception.product.ProductExceptionType
@@ -71,7 +72,8 @@ data class ProductWithInfoResponse(
     val reviewCount: Int,
     val reviewAverageScore: Double,
     val thumbnailUrl: String,
-    val description: String,
+    val descriptionTitle: String,
+    val descriptionContent: String,
     val canDeliverSafely: Boolean,
     val canDeliverCommonly: Boolean,
     val canPickUp: Boolean,
@@ -85,6 +87,7 @@ data class ProductWithInfoResponse(
     constructor(
         product: Product,
         storeName: String,
+        productDescription: ProductDescription,
         productInfo: ProductInfo,
         category: Category,
         productOption: ProductOption,
@@ -101,7 +104,8 @@ data class ProductWithInfoResponse(
         reviewCount = product.reviewCount,
         reviewAverageScore = product.averageReviewScore(),
         thumbnailUrl = product.thumbnailUrl,
-        description = product.description,
+        descriptionTitle = productDescription.title.value,
+        descriptionContent = productDescription.content.value,
         canDeliverSafely = product.canDeliverSafely,
         canDeliverCommonly = product.canDeliverCommonly,
         canPickUp = product.canPickUp,

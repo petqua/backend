@@ -84,22 +84,28 @@ data class ProductDetailResponse(
     val reviewAverageScore: Double,
 
     @Schema(
-        description = "상품 썸네일 이미지",
-        example = "https://docs.petqua.co.kr/products/thumbnails/thumbnail1.jpeg"
-    )
-    val thumbnailUrl: String,
-
-    @Schema(
         description = "상품 이미지 목록",
         example = "[image1.jpeg, image2.jpeg]"
     )
     val imageUrls: List<String>,
 
     @Schema(
-        description = "상품 상세 설명",
-        example = "귀엽습니다"
+        description = "상품 상세 설명 제목",
+        example = "물생활 핵 인싸어, 레드 브론즈 구피"
     )
-    val description: String,
+    val descriptionTitle: String,
+
+    @Schema(
+        description = "상품 상세 설명 내용",
+        example = "레드 턱시도라고도 불리며 지느러미가 아름다운 구피입니다"
+    )
+    val descriptionContent: String,
+
+    @Schema(
+        description = "상품 상세 이미지",
+        example = "[image1.jpeg, image2.jpeg]"
+    )
+    val descriptionImageUrls: List<String>,
 
     @Schema(
         description = "안전 배송 가능 여부",
@@ -164,6 +170,7 @@ data class ProductDetailResponse(
     constructor(
         productWithInfoResponse: ProductWithInfoResponse,
         imageUrls: List<String>,
+        descriptionImageUrls: List<String>,
         isWished: Boolean,
     ) : this(
         id = productWithInfoResponse.id,
@@ -177,9 +184,10 @@ data class ProductDetailResponse(
         wishCount = productWithInfoResponse.wishCount,
         reviewCount = productWithInfoResponse.reviewCount,
         reviewAverageScore = productWithInfoResponse.reviewAverageScore,
-        thumbnailUrl = productWithInfoResponse.thumbnailUrl,
-        description = productWithInfoResponse.description,
         imageUrls = imageUrls,
+        descriptionTitle = productWithInfoResponse.descriptionTitle,
+        descriptionContent = productWithInfoResponse.descriptionContent,
+        descriptionImageUrls = descriptionImageUrls,
         canDeliverSafely = productWithInfoResponse.canDeliverSafely,
         canDeliverCommonly = productWithInfoResponse.canDeliverCommonly,
         canPickUp = productWithInfoResponse.canPickUp,

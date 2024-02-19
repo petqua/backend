@@ -10,7 +10,8 @@ import com.petqua.common.util.createSingleQueryOrThrow
 import com.petqua.domain.keyword.ProductKeyword
 import com.petqua.domain.product.Sorter.ENROLLMENT_DATE_DESC
 import com.petqua.domain.product.category.Category
-import com.petqua.domain.product.detail.ProductInfo
+import com.petqua.domain.product.detail.description.ProductDescription
+import com.petqua.domain.product.detail.info.ProductInfo
 import com.petqua.domain.product.dto.ProductReadCondition
 import com.petqua.domain.product.dto.ProductResponse
 import com.petqua.domain.product.dto.ProductSearchCondition
@@ -37,12 +38,14 @@ class ProductCustomRepositoryImpl(
             selectNew<ProductWithInfoResponse>(
                 entity(Product::class),
                 path(Store::name),
+                entity(ProductDescription::class),
                 entity(ProductInfo::class),
                 entity(Category::class),
                 entity(ProductOption::class),
             ).from(
                 entity(Product::class),
                 join(Store::class).on(path(Product::storeId).eq(path(Store::id))),
+                join(ProductDescription::class).on(path(Product::id).eq(path(ProductDescription::productId))),
                 join(ProductInfo::class).on(path(Product::id).eq(path(ProductInfo::productId))),
                 join(Category::class).on(path(Product::categoryId).eq(path(Category::id))),
                 join(ProductOption::class).on(path(Product::id).eq(path(ProductOption::productId)))

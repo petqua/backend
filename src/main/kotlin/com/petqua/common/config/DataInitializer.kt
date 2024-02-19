@@ -18,14 +18,20 @@ import com.petqua.domain.product.category.Category
 import com.petqua.domain.product.category.CategoryRepository
 import com.petqua.domain.product.category.Family
 import com.petqua.domain.product.category.Species
-import com.petqua.domain.product.detail.DifficultyLevel.NORMAL
-import com.petqua.domain.product.detail.OptimalTankSize.TANK2
-import com.petqua.domain.product.detail.OptimalTemperature
-import com.petqua.domain.product.detail.ProductImage
-import com.petqua.domain.product.detail.ProductImageRepository
-import com.petqua.domain.product.detail.ProductInfo
-import com.petqua.domain.product.detail.ProductInfoRepository
-import com.petqua.domain.product.detail.Temperament.PEACEFUL
+import com.petqua.domain.product.detail.description.ProductDescription
+import com.petqua.domain.product.detail.description.ProductDescriptionContent
+import com.petqua.domain.product.detail.description.ProductDescriptionRepository
+import com.petqua.domain.product.detail.description.ProductDescriptionTitle
+import com.petqua.domain.product.detail.image.ImageType.DESCRIPTION
+import com.petqua.domain.product.detail.image.ImageType.EXAMPLE
+import com.petqua.domain.product.detail.image.ProductImage
+import com.petqua.domain.product.detail.image.ProductImageRepository
+import com.petqua.domain.product.detail.info.DifficultyLevel.NORMAL
+import com.petqua.domain.product.detail.info.OptimalTankSize.TANK2
+import com.petqua.domain.product.detail.info.OptimalTemperature
+import com.petqua.domain.product.detail.info.ProductInfo
+import com.petqua.domain.product.detail.info.ProductInfoRepository
+import com.petqua.domain.product.detail.info.Temperament.PEACEFUL
 import com.petqua.domain.product.option.ProductOption
 import com.petqua.domain.product.option.ProductOptionRepository
 import com.petqua.domain.product.option.Sex.FEMALE
@@ -46,6 +52,7 @@ import org.springframework.context.annotation.Profile
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
+import kotlin.random.Random
 
 @Component
 @Profile("local", "prod")
@@ -64,6 +71,7 @@ class DataInitializer(
     private val productOptionRepository: ProductOptionRepository,
     private val wishProductRepository: WishProductRepository,
     private val productKeywordRepository: ProductKeywordRepository,
+    private val productDescriptionRepository: ProductDescriptionRepository,
 ) {
 
     @EventListener(ApplicationReadyEvent::class)
@@ -175,7 +183,6 @@ class DataInitializer(
                 reviewCount = reviewCount,
                 reviewTotalScore = (1..reviewCount).sum(),
                 thumbnailUrl = "https://docs.petqua.co.kr/products/thumbnails/thumbnail3.jpeg",
-                description = "https://www.goldmoonaqua.com/web/upload/NNEditor/20221226/copy-1672038777-guppy_EC958CEBB984EB85B8ED9280EBA088EB939C_02.png",
                 canDeliverSafely = canDeliverSafely,
                 canDeliverCommonly = canDeliverCommonly,
                 canPickUp = canPickUp,
@@ -193,6 +200,16 @@ class DataInitializer(
             )
         }
         wishProductRepository.saveAll(wishProducts)
+
+        // productDescription
+        val productDescriptions = products.map {
+            ProductDescription(
+                productId = it.id,
+                title = ProductDescriptionTitle("물생활 핵 인싸어, ${it.name}"),
+                content = ProductDescriptionContent("지느러미가 아름다운 ${it.name}입니다")
+            )
+        }
+        productDescriptionRepository.saveAll(productDescriptions)
 
         // productKeyword
         val productKeywords = products.filter {
@@ -242,13 +259,26 @@ class DataInitializer(
         productInfoRepository.saveAll(productInfos)
 
         // productImage
-        val productImages = products.map {
-            ProductImage(
-                productId = it.id,
-                imageUrl = "https://docs.petqua.co.kr/products/thumbnails/thumbnail3.jpeg"
-            )
+        val productImages = products.flatMap { product ->
+            List(Random.nextInt(1, 6)) {
+                ProductImage(
+                    productId = product.id,
+                    imageUrl = "https://docs.petqua.co.kr/products/thumbnails/thumbnail3.jpeg",
+                    imageType = EXAMPLE
+                )
+            }
         }
         productImageRepository.saveAll(productImages)
+
+        // productDescriptionImage
+        val productDescriptionImages = products.map {
+            ProductImage(
+                productId = it.id,
+                imageUrl = "https://www.goldmoonaqua.com/web/upload/NNEditor/20221226/copy-1672038777-guppy_EC958CEBB984EB85B8ED9280EBA088EB939C_02.png",
+                imageType = DESCRIPTION
+            )
+        }
+        productImageRepository.saveAll(productDescriptionImages)
 
         // review
         val productReviews = products.flatMap { product ->

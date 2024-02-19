@@ -10,11 +10,12 @@ import com.petqua.domain.product.Sorter.REVIEW_COUNT_DESC
 import com.petqua.domain.product.Sorter.SALE_PRICE_ASC
 import com.petqua.domain.product.Sorter.SALE_PRICE_DESC
 import com.petqua.domain.product.category.CategoryRepository
-import com.petqua.domain.product.detail.DifficultyLevel.EASY
-import com.petqua.domain.product.detail.OptimalTankSize
-import com.petqua.domain.product.detail.OptimalTemperature
-import com.petqua.domain.product.detail.ProductInfoRepository
-import com.petqua.domain.product.detail.Temperament.PEACEFUL
+import com.petqua.domain.product.detail.description.ProductDescriptionRepository
+import com.petqua.domain.product.detail.info.DifficultyLevel.EASY
+import com.petqua.domain.product.detail.info.OptimalTankSize
+import com.petqua.domain.product.detail.info.OptimalTemperature
+import com.petqua.domain.product.detail.info.ProductInfoRepository
+import com.petqua.domain.product.detail.info.Temperament.PEACEFUL
 import com.petqua.domain.product.dto.ProductReadCondition
 import com.petqua.domain.product.dto.ProductResponse
 import com.petqua.domain.product.dto.ProductSearchCondition
@@ -28,6 +29,7 @@ import com.petqua.exception.product.ProductExceptionType.NOT_FOUND_PRODUCT
 import com.petqua.test.DataCleaner
 import com.petqua.test.fixture.category
 import com.petqua.test.fixture.product
+import com.petqua.test.fixture.productDescription
 import com.petqua.test.fixture.productInfo
 import com.petqua.test.fixture.productOption
 import com.petqua.test.fixture.productRecommendation
@@ -51,6 +53,7 @@ class ProductCustomRepositoryImplTest(
     private val productInfoRepository: ProductInfoRepository,
     private val categoryRepository: CategoryRepository,
     private val productOptionRepository: ProductOptionRepository,
+    private val productDescriptionRepository: ProductDescriptionRepository,
     private val dataCleaner: DataCleaner,
 ) : BehaviorSpec({
 
@@ -71,6 +74,13 @@ class ProductCustomRepositoryImplTest(
                 discountPrice = ZERO,
                 reviewCount = 0,
                 reviewTotalScore = 0
+            )
+        )
+        val productDescription = productDescriptionRepository.save(
+            productDescription(
+                productId = product.id,
+                title = "물생활 핵 인싸어, 레드 브론즈 구피",
+                content = "레드 턱시도라고도 불리며 지느러미가 아름다운 구피입니다"
             )
         )
         val productInfo = productInfoRepository.save(
@@ -99,6 +109,7 @@ class ProductCustomRepositoryImplTest(
                 productWithInfoResponse shouldBe ProductWithInfoResponse(
                     product = product,
                     storeName = store.name,
+                    productDescription = productDescription,
                     productInfo = productInfo,
                     category = category,
                     productOption = productOption,

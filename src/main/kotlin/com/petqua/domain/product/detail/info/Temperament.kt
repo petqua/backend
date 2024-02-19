@@ -1,4 +1,4 @@
-package com.petqua.domain.product.detail
+package com.petqua.domain.product.detail.info
 
 enum class Temperament(
     val description: String,

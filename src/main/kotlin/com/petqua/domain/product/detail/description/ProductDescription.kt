@@ -11,15 +11,15 @@ import jakarta.persistence.Id
 @Entity
 class ProductDescription(
     @Id @GeneratedValue(strategy = IDENTITY)
-    val id: Long,
+    val id: Long = 0,
 
     @Column(nullable = false)
     val productId: Long,
 
     @Embedded
-    val productDescriptionTitle: ProductDescriptionTitle,
+    val title: ProductDescriptionTitle,
 
     @Embedded
-    val productDescriptionContent: ProductDescriptionContent,
+    val content: ProductDescriptionContent,
 ) : BaseEntity() {
 }
