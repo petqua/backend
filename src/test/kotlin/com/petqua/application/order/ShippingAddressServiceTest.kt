@@ -14,6 +14,9 @@ import com.petqua.test.fixture.shippingAddress
 import io.kotest.assertions.assertSoftly
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.booleans.shouldBeFalse
+import io.kotest.matchers.booleans.shouldBeTrue
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import org.springframework.boot.test.context.SpringBootTest
@@ -210,6 +213,7 @@ class ShippingAddressServiceTest(
 
             Then("조회한다") {
                 assertSoftly(response) {
+                    response.shouldNotBeNull()
                     response.id shouldBe savedShippingAddress.id
                     response.name shouldBe savedShippingAddress.name
                     response.receiver shouldBe savedShippingAddress.receiver
@@ -232,10 +236,10 @@ class ShippingAddressServiceTest(
         )
 
         When("멤버의 기본 배송지가 존재하지 않으면") {
-            Then("예외가 발생한다") {
-                shouldThrow<ShippingAddressException> {
-                    shippingAddressService.readDefaultShippingAddress(memberId)
-                }.exceptionType() shouldBe ShippingAddressExceptionType.NOT_FOUND_SHIPPING_ADDRESS
+            val response = shippingAddressService.readDefaultShippingAddress(memberId)
+
+            Then("빈 응답이 반환된다") {
+                response.shouldBeNull()
             }
         }
     }

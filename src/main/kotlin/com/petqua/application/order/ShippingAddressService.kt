@@ -5,12 +5,9 @@ import com.petqua.application.order.dto.SaveShippingAddressCommand
 import com.petqua.application.order.dto.SaveShippingAddressResponse
 import com.petqua.common.domain.existByIdOrThrow
 import com.petqua.domain.member.MemberRepository
-import com.petqua.domain.order.ShippingAddress
 import com.petqua.domain.order.ShippingAddressRepository
 import com.petqua.exception.member.MemberException
 import com.petqua.exception.member.MemberExceptionType.NOT_FOUND_MEMBER
-import com.petqua.exception.order.ShippingAddressException
-import com.petqua.exception.order.ShippingAddressExceptionType
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -32,9 +29,9 @@ class ShippingAddressService(
     }
 
     @Transactional(readOnly = true)
-    fun readDefaultShippingAddress(memberId: Long): ReadDefaultShippingAddressResponse {
+    fun readDefaultShippingAddress(memberId: Long): ReadDefaultShippingAddressResponse? {
         val shippingAddress = shippingAddressRepository.findByMemberIdAndIsDefaultAddress(memberId)
-            ?: throw ShippingAddressException(ShippingAddressExceptionType.NOT_FOUND_SHIPPING_ADDRESS)
+            ?: return null
         return ReadDefaultShippingAddressResponse.from(shippingAddress)
     }
 }

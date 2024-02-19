@@ -9,6 +9,7 @@ import com.petqua.presentation.order.dto.SaveShippingAddressRequest
 import com.petqua.test.ApiTestConfig
 import com.petqua.test.fixture.shippingAddress
 import io.kotest.assertions.assertSoftly
+import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import org.springframework.http.HttpStatus
@@ -193,12 +194,12 @@ class ShippingAddressControllerTest(
             )
 
             When("멤버가 기본 배송지를 설정하지 않았으면") {
-                Then("예외가 발생한다") {
-                    val response = requestReadDefaultShippingAddress(accessToken)
-                    val errorResponse = response.`as`(ExceptionResponse::class.java)
+                val response = requestReadDefaultShippingAddress(accessToken)
+
+                Then("빈 응답이 반환된다") {
                     assertSoftly(response) {
-                        statusCode shouldBe HttpStatus.NOT_FOUND.value()
-                        errorResponse.code shouldBe ShippingAddressExceptionType.NOT_FOUND_SHIPPING_ADDRESS.code()
+                        statusCode shouldBe HttpStatus.OK.value()
+                        response.body.asString().isEmpty().shouldBeTrue()
                     }
                 }
             }

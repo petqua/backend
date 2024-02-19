@@ -9,7 +9,6 @@ enum class ShippingAddressExceptionType(
     private val errorMessage: String,
 ) : BaseExceptionType {
 
-    NOT_FOUND_SHIPPING_ADDRESS(HttpStatus.NOT_FOUND, "SA01", "배송지가 존재하지 않습니다."),
     INVALID_PHONE_NUMBER(HttpStatus.BAD_REQUEST, "SA02", "잘못된 휴대전화 번호입니다."),
     EMPTY_ADDRESS(HttpStatus.BAD_REQUEST, "SA03", "주소가 입력되지 않았습니다."),
     EMPTY_DETAIL_ADDRESS(HttpStatus.BAD_REQUEST, "SA04", "상세주소가 입력되지 않았습니다."),

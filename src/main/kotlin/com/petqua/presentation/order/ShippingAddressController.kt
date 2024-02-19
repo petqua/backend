@@ -42,7 +42,7 @@ class ShippingAddressController(
     @GetMapping("/default")
     fun readDefaultShippingAddress(
         @Auth loginMember: LoginMember,
-    ): ResponseEntity<ReadDefaultShippingAddressResponse> {
+    ): ResponseEntity<ReadDefaultShippingAddressResponse?> {
         val response = shippingAddressService.readDefaultShippingAddress(loginMember.memberId)
         return ResponseEntity.ok(response)
     }
