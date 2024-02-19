@@ -68,12 +68,12 @@ class ShippingAddressServiceTest(
             isDefaultAddress = true
         )
 
-        When(" 새로운 기본 배송지를 생성하면") {
+        When("새로운 기본 배송지를 생성하면") {
             val response = shippingAddressService.save(command)
 
-            Then("이전 기본 배송지의 기본 설정이 취소되고, 새로운 배송지가 기본 배송지가 된다") {
-                shippingAddressRepository.findByIdOrThrow(prevDefaultShippingAddress.id).isDefaultAddress shouldBe false
-                shippingAddressRepository.findByIdOrThrow(response.id).isDefaultAddress shouldBe true
+            Then("이전 기본 배송지는 삭제되고, 새로운 배송지가 기본 배송지가 된다") {
+                shippingAddressRepository.existsById(prevDefaultShippingAddress.id).shouldBeFalse()
+                shippingAddressRepository.findByIdOrThrow(response.id).isDefaultAddress.shouldBeTrue()
             }
         }
     }

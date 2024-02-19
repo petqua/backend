@@ -24,7 +24,7 @@ class ShippingAddressService(
     fun save(command: SaveShippingAddressCommand): SaveShippingAddressResponse {
         memberRepository.existByIdOrThrow(command.memberId, MemberException(NOT_FOUND_MEMBER))
         if (command.isDefaultAddress) {
-            unsetPrevDefaultShippingAddress(command.memberId)
+            shippingAddressRepository.deleteByMemberIdAndIsDefaultAddress(command.memberId)
         }
 
         val id = shippingAddressRepository.save(
@@ -40,13 +40,6 @@ class ShippingAddressService(
             )
         ).id
         return SaveShippingAddressResponse(id = id)
-    }
-
-    private fun unsetPrevDefaultShippingAddress(memberId: Long) {
-        val prevDefaultAddress = shippingAddressRepository.findByMemberIdAndIsDefaultAddress(memberId)
-        prevDefaultAddress?.let {
-            it.isDefaultAddress = false
-        }
     }
 
     @Transactional(readOnly = true)
