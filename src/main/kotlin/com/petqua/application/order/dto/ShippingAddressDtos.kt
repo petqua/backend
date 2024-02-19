@@ -12,7 +12,21 @@ data class SaveShippingAddressCommand(
     val address: String,
     val detailAddress: String,
     val isDefaultAddress: Boolean = false,
-)
+) {
+
+    fun toShippingAddress(): ShippingAddress {
+        return ShippingAddress(
+            memberId = memberId,
+            name = name,
+            receiver = receiver,
+            phoneNumber = phoneNumber,
+            zipCode = zipCode,
+            address = address,
+            detailAddress = detailAddress,
+            isDefaultAddress = isDefaultAddress,
+        )
+    }
+}
 
 data class SaveShippingAddressResponse(
     @Schema(

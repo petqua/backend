@@ -27,18 +27,7 @@ class ShippingAddressService(
             shippingAddressRepository.deleteByMemberIdAndIsDefaultAddress(command.memberId)
         }
 
-        val id = shippingAddressRepository.save(
-            ShippingAddress(
-                memberId = command.memberId,
-                name = command.name,
-                receiver = command.receiver,
-                phoneNumber = command.phoneNumber,
-                zipCode = command.zipCode,
-                address = command.address,
-                detailAddress = command.detailAddress,
-                isDefaultAddress = command.isDefaultAddress
-            )
-        ).id
+        val id = shippingAddressRepository.save(command.toShippingAddress()).id
         return SaveShippingAddressResponse(id = id)
     }
 
