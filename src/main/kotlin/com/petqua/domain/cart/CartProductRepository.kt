@@ -15,8 +15,6 @@ interface CartProductRepository : JpaRepository<CartProduct, Long>, CartProductC
         deliveryMethod: DeliveryMethod
     ): CartProduct?
 
-    fun findAllByMemberId(id: Long): List<CartProduct>
-
     @Modifying
     @Query("DELETE FROM CartProduct cp WHERE cp.memberId =:memberId")
     fun deleteByMemberId(memberId: Long)
