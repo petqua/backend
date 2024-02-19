@@ -2,6 +2,7 @@ package com.petqua.application.announcement
 
 import com.petqua.domain.announcement.Announcement
 import com.petqua.domain.announcement.AnnouncementRepository
+import com.petqua.test.DataCleaner
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import org.mockito.Mockito.atMost
@@ -15,8 +16,9 @@ import org.springframework.test.context.TestConstructor.AutowireMode.ALL
 @TestConstructor(autowireMode = ALL)
 @SpringBootTest(webEnvironment = NONE)
 class AnnouncementServiceTest(
-    private var announcementService: AnnouncementService,
-    @SpyBean private var announcementRepository: AnnouncementRepository,
+    private val announcementService: AnnouncementService,
+    @SpyBean private val announcementRepository: AnnouncementRepository,
+    private val dataCleaner: DataCleaner,
 ) : BehaviorSpec({
 
     Given("공지사항 조회 테스트") {
@@ -43,5 +45,9 @@ class AnnouncementServiceTest(
                 verify(announcementRepository, atMost(1)).findAll()
             }
         }
+    }
+
+    afterContainer {
+        dataCleaner.clean()
     }
 })

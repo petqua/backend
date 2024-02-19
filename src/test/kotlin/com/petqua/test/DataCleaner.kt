@@ -2,10 +2,11 @@ package com.petqua.test
 
 import jakarta.persistence.EntityManager
 import jakarta.persistence.PersistenceContext
+import javax.sql.DataSource
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.cache.CacheManager
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
-import javax.sql.DataSource
 
 private const val FIRST_COLUMN = 1
 private const val SHOW_TABLES_QUERY = "SHOW TABLES"
@@ -19,7 +20,10 @@ class DataCleaner(
     @PersistenceContext
     val entityManager: EntityManager,
 
-    val truncateQueries: MutableList<String> = mutableListOf()
+    val truncateQueries: MutableList<String> = mutableListOf(),
+
+    @Autowired
+    val cacheManager: CacheManager,
 ) {
 
     @Transactional
@@ -28,6 +32,7 @@ class DataCleaner(
             initialize()
         }
         truncateAllTables()
+        clearCache()
     }
 
     private fun initialize() {
@@ -43,5 +48,9 @@ class DataCleaner(
 
     private fun truncateAllTables() {
         truncateQueries.forEach { entityManager.createNativeQuery(it).executeUpdate() }
+    }
+
+    private fun clearCache() {
+        cacheManager.cacheNames.forEach { cacheManager.getCache(it)?.clear() }
     }
 }

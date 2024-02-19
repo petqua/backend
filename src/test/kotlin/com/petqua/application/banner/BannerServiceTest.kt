@@ -2,6 +2,7 @@ package com.petqua.application.banner
 
 import com.petqua.domain.banner.Banner
 import com.petqua.domain.banner.BannerRepository
+import com.petqua.test.DataCleaner
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import org.mockito.Mockito.atMost
@@ -12,8 +13,9 @@ import org.springframework.boot.test.mock.mockito.SpyBean
 
 @SpringBootTest(webEnvironment = NONE)
 class BannerServiceTest(
-    private var bannerService: BannerService,
-    @SpyBean private var bannerRepository: BannerRepository,
+    private val bannerService: BannerService,
+    @SpyBean private val bannerRepository: BannerRepository,
+    private val dataCleaner: DataCleaner,
 ) : BehaviorSpec({
 
     Given("Banner 조회 테스트") {
@@ -40,5 +42,9 @@ class BannerServiceTest(
                 verify(bannerRepository, atMost(1)).findAll()
             }
         }
+    }
+
+    afterContainer {
+        dataCleaner.clean()
     }
 })
