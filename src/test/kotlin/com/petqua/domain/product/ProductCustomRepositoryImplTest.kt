@@ -67,6 +67,40 @@ class ProductCustomRepositoryImplTest(
                 species = "고정구피"
             )
         )
+        val productInfo1 = productInfoRepository.save(
+            productInfo(
+                categoryId = category.id,
+                optimalTemperature = OptimalTemperature(26, 28),
+                difficultyLevel = EASY,
+                optimalTankSize = OptimalTankSize.TANK1,
+                temperament = PEACEFUL,
+            )
+        )
+        val productInfo2 = productInfoRepository.save(
+            productInfo(
+                categoryId = category.id,
+                optimalTemperature = OptimalTemperature(26, 28),
+                difficultyLevel = EASY,
+                optimalTankSize = OptimalTankSize.TANK1,
+                temperament = PEACEFUL,
+            )
+        )
+        val productOption1 = productOptionRepository.save(
+            productOption(
+                sex = Sex.MALE,
+            )
+        )
+        val productOption2 = productOptionRepository.save(
+            productOption(
+                sex = Sex.MALE,
+            )
+        )
+        val productDescription1 = productDescriptionRepository.save(
+            productDescription(
+                title = "물생활 핵 인싸어, 레드 브론즈 구피",
+                content = "레드 턱시도라고도 불리며 지느러미가 아름다운 구피입니다"
+            )
+        )
         val product1 = productRepository.save(
             product(
                 name = "고정구피",
@@ -74,7 +108,10 @@ class ProductCustomRepositoryImplTest(
                 categoryId = category.id,
                 discountPrice = ZERO,
                 reviewCount = 0,
-                reviewTotalScore = 0
+                reviewTotalScore = 0,
+                productOptionId = productOption1.id,
+                productDescriptionId = productDescription1.id,
+                productInfoId = productInfo1.id,
             )
         )
         val product2 = productRepository.save(
@@ -84,46 +121,9 @@ class ProductCustomRepositoryImplTest(
                 categoryId = category.id,
                 discountPrice = ZERO,
                 reviewCount = 0,
-                reviewTotalScore = 0
-            )
-        )
-        val productInfo1 = productInfoRepository.save(
-            productInfo(
-                productId = product1.id,
-                categoryId = 0,
-                optimalTemperature = OptimalTemperature(26, 28),
-                difficultyLevel = EASY,
-                optimalTankSize = OptimalTankSize.TANK1,
-                temperament = PEACEFUL,
-            )
-        )
-        val productInfo2 = productInfoRepository.save(
-            productInfo(
-                productId = product2.id,
-                categoryId = 0,
-                optimalTemperature = OptimalTemperature(26, 28),
-                difficultyLevel = EASY,
-                optimalTankSize = OptimalTankSize.TANK1,
-                temperament = PEACEFUL,
-            )
-        )
-        val productOption1 = productOptionRepository.save(
-            productOption(
-                productId = product1.id,
-                sex = Sex.MALE,
-            )
-        )
-        val productOption2 = productOptionRepository.save(
-            productOption(
-                productId = product2.id,
-                sex = Sex.MALE,
-            )
-        )
-        val productDescription1 = productDescriptionRepository.save(
-            productDescription(
-                productId = product1.id,
-                title = "물생활 핵 인싸어, 레드 브론즈 구피",
-                content = "레드 턱시도라고도 불리며 지느러미가 아름다운 구피입니다"
+                reviewTotalScore = 0,
+                productOptionId = productOption2.id,
+                productInfoId = productInfo2.id,
             )
         )
 

@@ -38,6 +38,9 @@ fun product(
     canDeliverySafely: Boolean = true,
     canDeliveryCommonly: Boolean = true,
     canPickUp: Boolean = true,
+    productOptionId: Long = 0,
+    productDescriptionId: Long? = null,
+    productInfoId: Long = 0,
 ): Product {
     return Product(
         id = id,
@@ -55,6 +58,9 @@ fun product(
         canDeliverSafely = canDeliverySafely,
         canDeliverCommonly = canDeliveryCommonly,
         canPickUp = canPickUp,
+        productOptionId = productOptionId,
+        productDescriptionId = productDescriptionId,
+        productInfoId = productInfoId
     )
 }
 
@@ -72,7 +78,6 @@ fun productKeyword(
 
 fun productInfo(
     id: Long = 0L,
-    productId: Long,
     categoryId: Long,
     optimalTemperature: OptimalTemperature,
     difficultyLevel: DifficultyLevel,
@@ -81,7 +86,6 @@ fun productInfo(
 ): ProductInfo {
     return ProductInfo(
         id = id,
-        productId = productId,
         categoryId = categoryId,
         optimalTemperature = optimalTemperature,
         difficultyLevel = difficultyLevel,
@@ -106,13 +110,11 @@ fun productImage(
 
 fun productOption(
     id: Long = 0,
-    productId: Long,
     sex: Sex,
     additionalPrice: BigDecimal = BigDecimal.ZERO,
 ): ProductOption {
     return ProductOption(
         id = id,
-        productId = productId,
         sex = sex,
         additionalPrice = additionalPrice,
     )
@@ -120,13 +122,11 @@ fun productOption(
 
 fun productDescription(
     id: Long = 0,
-    productId: Long,
     title: String = "제목",
     content: String = "내용",
 ): ProductDescription {
     return ProductDescription(
         id = id,
-        productId = productId,
         title = ProductDescriptionTitle(title),
         content = ProductDescriptionContent(content)
     )

@@ -83,6 +83,26 @@ class ProductControllerTest(
                     species = "고정구피"
                 )
             )
+            val productDescription = productDescriptionRepository.save(
+                productDescription(
+                    title = "물생활 핵 인싸어, 레드 브론즈 구피",
+                    content = "레드 턱시도라고도 불리며 지느러미가 아름다운 구피입니다"
+                )
+            )
+            val productInfo = productInfoRepository.save(
+                productInfo(
+                    categoryId = category.id,
+                    optimalTemperature = OptimalTemperature(26, 28),
+                    difficultyLevel = DifficultyLevel.EASY,
+                    optimalTankSize = OptimalTankSize.TANK1,
+                    temperament = Temperament.PEACEFUL,
+                )
+            )
+            val productOption = productOptionRepository.save(
+                productOption(
+                    sex = HERMAPHRODITE
+                )
+            )
             val product = productRepository.save(
                 product(
                     name = "고정구피",
@@ -90,24 +110,10 @@ class ProductControllerTest(
                     storeId = store.id,
                     discountPrice = ZERO,
                     reviewCount = 0,
-                    reviewTotalScore = 0
-                )
-            )
-            val productDescription = productDescriptionRepository.save(
-                productDescription(
-                    productId = product.id,
-                    title = "물생활 핵 인싸어, 레드 브론즈 구피",
-                    content = "레드 턱시도라고도 불리며 지느러미가 아름다운 구피입니다"
-                )
-            )
-            val productInfo = productInfoRepository.save(
-                productInfo(
-                    productId = product.id,
-                    categoryId = 0,
-                    optimalTemperature = OptimalTemperature(26, 28),
-                    difficultyLevel = DifficultyLevel.EASY,
-                    optimalTankSize = OptimalTankSize.TANK1,
-                    temperament = Temperament.PEACEFUL,
+                    reviewTotalScore = 0,
+                    productOptionId = productOption.id,
+                    productDescriptionId = productDescription.id,
+                    productInfoId = productInfo.id
                 )
             )
             val productImage = productImageRepository.save(
@@ -124,12 +130,7 @@ class ProductControllerTest(
                     imageType = ImageType.DESCRIPTION
                 )
             )
-            val productOption = productOptionRepository.save(
-                productOption(
-                    productId = product.id,
-                    sex = HERMAPHRODITE
-                )
-            )
+
             wishProductRepository.save(
                 wishProduct(
                     productId = product.id,

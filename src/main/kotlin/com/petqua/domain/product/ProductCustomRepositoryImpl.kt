@@ -53,10 +53,10 @@ class ProductCustomRepositoryImpl(
             ).from(
                 entity(Product::class),
                 join(Store::class).on(path(Product::storeId).eq(path(Store::id))),
-                leftJoin(ProductDescription::class).on(path(Product::id).eq(path(ProductDescription::productId))),
-                join(ProductInfo::class).on(path(Product::id).eq(path(ProductInfo::productId))),
+                leftJoin(ProductDescription::class).on(path(Product::productDescriptionId).eq(path(ProductDescription::id))),
+                join(ProductInfo::class).on(path(Product::productInfoId).eq(path(ProductInfo::id))),
                 join(Category::class).on(path(Product::categoryId).eq(path(Category::id))),
-                join(ProductOption::class).on(path(Product::id).eq(path(ProductOption::productId)))
+                join(ProductOption::class).on(path(Product::productOptionId).eq(path(ProductOption::id)))
             ).whereAnd(
                 path(Product::id).eq(id),
                 active(),

@@ -172,6 +172,39 @@ class DataInitializer(
             }
             val reviewCount = (1..5).random()
 
+            val sex = when {
+                (it % 3) == 0 -> MALE
+                (it % 7) == 0 -> FEMALE
+                else -> HERMAPHRODITE
+            }
+            val productOption = productOptionRepository.save(
+                ProductOption(
+                    sex = sex,
+                    additionalPrice = BigDecimal.ZERO
+                )
+            )
+
+            val productInfo = productInfoRepository.save(
+                ProductInfo(
+                    categoryId = categoryId,
+                    optimalTemperature = OptimalTemperature(22, 25),
+                    difficultyLevel = NORMAL,
+                    optimalTankSize = TANK2,
+                    temperament = PEACEFUL
+                )
+            )
+
+            val productDescriptionId = when {
+                (it % 4) != 0 -> productDescriptionRepository.save(
+                    ProductDescription(
+                        title = ProductDescriptionTitle("물생활 핵 인싸어, 상품$it"),
+                        content = ProductDescriptionContent("지느러미가 아름다운 상품$it 입니다")
+                    )
+                ).id
+
+                else -> null
+            }
+
             Product(
                 name = "상품$it",
                 categoryId = categoryId,
@@ -186,6 +219,9 @@ class DataInitializer(
                 canDeliverSafely = canDeliverSafely,
                 canDeliverCommonly = canDeliverCommonly,
                 canPickUp = canPickUp,
+                productOptionId = productOption.id,
+                productDescriptionId = productDescriptionId,
+                productInfoId = productInfo.id,
             )
         }
         productRepository.saveAll(products)
@@ -200,18 +236,6 @@ class DataInitializer(
             )
         }
         wishProductRepository.saveAll(wishProducts)
-
-        // productDescription
-        val productDescriptions = products.filter {
-            (it.id % 4).toInt() != 0
-        }.map {
-            ProductDescription(
-                productId = it.id,
-                title = ProductDescriptionTitle("물생활 핵 인싸어, ${it.name}"),
-                content = ProductDescriptionContent("지느러미가 아름다운 ${it.name}입니다")
-            )
-        }
-        productDescriptionRepository.saveAll(productDescriptions)
 
         // productKeyword
         val productKeywords = products.filter {
@@ -231,34 +255,6 @@ class DataInitializer(
             ProductRecommendation(productId = it.id)
         }
         recommendationRepository.saveAll(productRecommendations)
-
-        // productOption
-        val productOptions = products.map {
-            val sex = when {
-                (it.id % 3).toInt() == 0 -> MALE
-                (it.id % 7).toInt() == 0 -> HERMAPHRODITE
-                else -> FEMALE
-            }
-            ProductOption(
-                productId = it.id,
-                sex = sex,
-                additionalPrice = BigDecimal.ZERO
-            )
-        }
-        productOptionRepository.saveAll(productOptions)
-
-        // productInfo
-        val productInfos = products.map {
-            ProductInfo(
-                productId = it.id,
-                categoryId = it.categoryId,
-                optimalTemperature = OptimalTemperature(22, 25),
-                difficultyLevel = NORMAL,
-                optimalTankSize = TANK2,
-                temperament = PEACEFUL
-            )
-        }
-        productInfoRepository.saveAll(productInfos)
 
         // productImage
         val productImages = products.flatMap { product ->

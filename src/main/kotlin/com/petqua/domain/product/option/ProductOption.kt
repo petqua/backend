@@ -16,9 +16,6 @@ class ProductOption(
     val id: Long = 0L,
 
     @Column(nullable = false)
-    val productId: Long,
-
-    @Column(nullable = false)
     @Enumerated(STRING)
     val sex: Sex,
 

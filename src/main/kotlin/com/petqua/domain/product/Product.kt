@@ -61,6 +61,14 @@ class Product(
 
     @Column(nullable = false)
     val canPickUp: Boolean,
+
+    @Column(nullable = false)
+    val productOptionId: Long,
+
+    val productDescriptionId: Long?,
+
+    @Column(nullable = false)
+    val productInfoId: Long,
 ) : BaseEntity(), SoftDeleteEntity {
 
     fun averageReviewScore(): Double {

@@ -1,7 +1,6 @@
 package com.petqua.domain.product.detail.description
 
 import com.petqua.common.domain.BaseEntity
-import jakarta.persistence.Column
 import jakarta.persistence.Embedded
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
@@ -12,9 +11,6 @@ import jakarta.persistence.Id
 class ProductDescription(
     @Id @GeneratedValue(strategy = IDENTITY)
     val id: Long = 0,
-
-    @Column(nullable = false)
-    val productId: Long,
 
     @Embedded
     val title: ProductDescriptionTitle,

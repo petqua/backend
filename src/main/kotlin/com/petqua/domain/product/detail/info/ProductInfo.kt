@@ -16,9 +16,6 @@ class ProductInfo(
     val id: Long = 0L,
 
     @Column(nullable = false)
-    val productId: Long,
-
-    @Column(nullable = false)
     val categoryId: Long,
 
     @Embedded
