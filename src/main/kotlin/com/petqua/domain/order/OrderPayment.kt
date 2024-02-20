@@ -12,5 +12,5 @@ class OrderPayment(
 
     val orderId: Long,
 
-    val paymentId: Long,
+    val tossPaymentId: Long,
 )

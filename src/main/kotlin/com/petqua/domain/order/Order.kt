@@ -26,10 +26,10 @@ class Order(
     val orderNumber: OrderNumber,
 
     @Embedded
-    val deliveryInfo: OrderShippingAddressInfo,
+    val orderShippingAddress: OrderShippingAddress,
 
     @Embedded
-    val productInfo: OrderProductInfo,
+    val orderProduct: OrderProduct,
 
     @Column(nullable = false)
     val isAbleToCancel: Boolean,

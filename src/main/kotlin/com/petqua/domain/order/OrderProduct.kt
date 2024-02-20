@@ -9,7 +9,7 @@ import jakarta.persistence.Enumerated
 import java.math.BigDecimal
 
 @Embeddable
-class OrderProductInfo(
+class OrderProduct(
 
     @Column(nullable = false)
     val quantity: Int,

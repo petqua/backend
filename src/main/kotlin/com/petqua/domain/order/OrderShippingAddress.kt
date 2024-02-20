@@ -4,7 +4,7 @@ import jakarta.persistence.Column
 import jakarta.persistence.Embeddable
 
 @Embeddable
-class OrderShippingAddressInfo(
+class OrderShippingAddress(
     @Column(nullable = false)
     val receiver: String,
 
