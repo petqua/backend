@@ -11,6 +11,7 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType.IDENTITY
 import jakarta.persistence.Id
 import jakarta.persistence.Table
+import java.math.BigDecimal
 
 @Table(name = "orders")
 @Entity
@@ -37,4 +38,7 @@ class Order(
     @Enumerated(STRING)
     @Column(nullable = false)
     val status: OrderStatus,
+
+    @Column(nullable = false)
+    val totalAmount: BigDecimal,
 ) : BaseEntity()

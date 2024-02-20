@@ -27,7 +27,10 @@ class OrderProduct(
     val deliveryFee: BigDecimal,
 
     @Column(nullable = false)
-    val totalPrice: BigDecimal,
+    val shippingNumber: String,
+
+    @Column(nullable = false)
+    val orderPrice: BigDecimal,
 
     @Column(nullable = false)
     val productId: Long = 0,
