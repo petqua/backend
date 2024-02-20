@@ -1,5 +1,6 @@
 package com.petqua.domain.payment.tosspayment
 
+import com.petqua.domain.order.OrderName
 import com.petqua.domain.order.OrderNumber
 import jakarta.persistence.Column
 import jakarta.persistence.Embedded
@@ -22,8 +23,8 @@ class TossPayment(
     @Embedded
     val orderNumber: OrderNumber,
 
-    @Column(nullable = false)
-    val orderName: String,
+    @Embedded
+    val orderName: OrderName,
 
     @Enumerated(STRING)
     @Column(nullable = false)
@@ -34,7 +35,7 @@ class TossPayment(
 
     @Enumerated(STRING)
     @Column(nullable = false)
-    val status: TossPaymentStatus, // FIXME: 레퍼런스 첨부 https://docs.tosspayments.com/common/webhook#payment_status_changed
+    val status: TossPaymentStatus,
 
     @Column(nullable = false)
     val requestedAt: String,
