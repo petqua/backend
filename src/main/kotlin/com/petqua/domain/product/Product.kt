@@ -23,13 +23,13 @@ class Product(
     val name: String,
 
     @Column(nullable = false)
-    val categoryId: Long = 0,
+    val categoryId: Long,
 
     @Column(nullable = false)
     val price: BigDecimal,
 
     @Column(nullable = false)
-    val storeId: Long = 0,
+    val storeId: Long,
 
     @Column(nullable = false)
     val discountRate: Int = 0,
