@@ -10,7 +10,11 @@ import com.petqua.common.util.createSingleQueryOrThrow
 import com.petqua.domain.keyword.ProductKeyword
 import com.petqua.domain.product.Sorter.ENROLLMENT_DATE_DESC
 import com.petqua.domain.product.category.Category
-import com.petqua.domain.product.detail.ProductInfo
+import com.petqua.domain.product.detail.description.ProductDescription
+import com.petqua.domain.product.detail.description.ProductDescriptionContent
+import com.petqua.domain.product.detail.description.ProductDescriptionTitle
+import com.petqua.domain.product.detail.info.ProductInfo
+import com.petqua.domain.product.dto.ProductDescriptionResponse
 import com.petqua.domain.product.dto.ProductReadCondition
 import com.petqua.domain.product.dto.ProductResponse
 import com.petqua.domain.product.dto.ProductSearchCondition
@@ -21,6 +25,7 @@ import jakarta.persistence.EntityManager
 import org.springframework.stereotype.Repository
 
 private const val ESCAPE_LETTER = '\\'
+private const val EMPTY_VALUE = ""
 
 @Repository
 class ProductCustomRepositoryImpl(
@@ -37,15 +42,21 @@ class ProductCustomRepositoryImpl(
             selectNew<ProductWithInfoResponse>(
                 entity(Product::class),
                 path(Store::name),
+                new(
+                    ProductDescriptionResponse::class,
+                    coalesce(path(ProductDescription::title)(ProductDescriptionTitle::value), EMPTY_VALUE),
+                    coalesce(path(ProductDescription::content)(ProductDescriptionContent::value), EMPTY_VALUE)
+                ),
                 entity(ProductInfo::class),
                 entity(Category::class),
                 entity(ProductOption::class),
             ).from(
                 entity(Product::class),
                 join(Store::class).on(path(Product::storeId).eq(path(Store::id))),
-                join(ProductInfo::class).on(path(Product::id).eq(path(ProductInfo::productId))),
+                leftJoin(ProductDescription::class).on(path(Product::productDescriptionId).eq(path(ProductDescription::id))),
+                join(ProductInfo::class).on(path(Product::productInfoId).eq(path(ProductInfo::id))),
                 join(Category::class).on(path(Product::categoryId).eq(path(Category::id))),
-                join(ProductOption::class).on(path(Product::id).eq(path(ProductOption::productId)))
+                join(ProductOption::class).on(path(Product::productOptionId).eq(path(ProductOption::id)))
             ).whereAnd(
                 path(Product::id).eq(id),
                 active(),

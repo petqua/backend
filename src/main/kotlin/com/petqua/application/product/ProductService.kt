@@ -10,7 +10,10 @@ import com.petqua.domain.auth.LoginMemberOrGuest
 import com.petqua.domain.keyword.ProductKeywordRepository
 import com.petqua.domain.product.ProductRepository
 import com.petqua.domain.product.WishProductRepository
-import com.petqua.domain.product.detail.ProductImageRepository
+import com.petqua.domain.product.detail.image.ImageType
+import com.petqua.domain.product.detail.image.ImageType.DESCRIPTION
+import com.petqua.domain.product.detail.image.ImageType.SAMPLE
+import com.petqua.domain.product.detail.image.ProductImageRepository
 import com.petqua.domain.product.dto.ProductResponse
 import com.petqua.exception.product.ProductException
 import com.petqua.exception.product.ProductExceptionType.NOT_FOUND_PRODUCT
@@ -31,13 +34,24 @@ class ProductService(
         val productWithInfo = productRepository.findProductWithInfoByIdOrThrow(productId) {
             ProductException(NOT_FOUND_PRODUCT)
         }
-        val imageUrls = productImageRepository.findProductImagesByProductId(productId).map { it.imageUrl }
+
+        val imagesByType = getProductImagesGroupedByType(productId)
         val isWished = loginMemberOrGuest.isMember() && wishProductRepository.existsByProductIdAndMemberId(
             productId = productId,
             memberId = loginMemberOrGuest.memberId
         )
 
-        return ProductDetailResponse(productWithInfo, imageUrls, isWished)
+        return ProductDetailResponse(
+            productWithInfoResponse = productWithInfo,
+            imageUrls = imagesByType[SAMPLE] ?: emptyList(),
+            descriptionImageUrls = imagesByType[DESCRIPTION] ?: emptyList(),
+            isWished = isWished
+        )
+    }
+
+    private fun getProductImagesGroupedByType(productId: Long): Map<ImageType, List<String>> {
+        return productImageRepository.findProductImagesByProductId(productId).groupBy { it.imageType }
+            .mapValues { it.value.map { productImage -> productImage.imageUrl } }
     }
 
     @Transactional(readOnly = true)

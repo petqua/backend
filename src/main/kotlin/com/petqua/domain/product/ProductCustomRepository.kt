@@ -3,8 +3,8 @@ package com.petqua.domain.product
 import com.petqua.common.domain.dto.CursorBasedPaging
 import com.petqua.domain.product.dto.ProductReadCondition
 import com.petqua.domain.product.dto.ProductResponse
-import com.petqua.domain.product.dto.ProductWithInfoResponse
 import com.petqua.domain.product.dto.ProductSearchCondition
+import com.petqua.domain.product.dto.ProductWithInfoResponse
 
 interface ProductCustomRepository {
 

@@ -5,12 +5,16 @@ import com.petqua.domain.keyword.ProductKeyword
 import com.petqua.domain.product.Product
 import com.petqua.domain.product.WishCount
 import com.petqua.domain.product.category.Category
-import com.petqua.domain.product.detail.DifficultyLevel
-import com.petqua.domain.product.detail.OptimalTankSize
-import com.petqua.domain.product.detail.OptimalTemperature
-import com.petqua.domain.product.detail.ProductImage
-import com.petqua.domain.product.detail.ProductInfo
-import com.petqua.domain.product.detail.Temperament
+import com.petqua.domain.product.detail.description.ProductDescription
+import com.petqua.domain.product.detail.description.ProductDescriptionContent
+import com.petqua.domain.product.detail.description.ProductDescriptionTitle
+import com.petqua.domain.product.detail.image.ImageType
+import com.petqua.domain.product.detail.image.ProductImage
+import com.petqua.domain.product.detail.info.DifficultyLevel
+import com.petqua.domain.product.detail.info.OptimalTankSize
+import com.petqua.domain.product.detail.info.OptimalTemperature
+import com.petqua.domain.product.detail.info.ProductInfo
+import com.petqua.domain.product.detail.info.Temperament
 import com.petqua.domain.product.dto.ProductResponse
 import com.petqua.domain.product.option.ProductOption
 import com.petqua.domain.product.option.Sex
@@ -30,29 +34,33 @@ fun product(
     reviewCount: Int = 0,
     reviewTotalScore: Int = 0,
     thumbnailUrl: String = "image.jpg",
-    description: String = "description",
     isDeleted: Boolean = false,
     canDeliverySafely: Boolean = true,
     canDeliveryCommonly: Boolean = true,
     canPickUp: Boolean = true,
+    productOptionId: Long = 0,
+    productDescriptionId: Long? = null,
+    productInfoId: Long = 0,
 ): Product {
     return Product(
-        id,
-        name,
-        categoryId,
-        price.setScale(DEFAULT_SCALE),
-        storeId,
-        discountRate,
-        discountPrice.setScale(DEFAULT_SCALE),
-        WishCount(wishCount),
-        reviewCount,
-        reviewTotalScore,
-        thumbnailUrl,
-        description,
-        isDeleted,
-        canDeliverySafely,
-        canDeliveryCommonly,
-        canPickUp,
+        id = id,
+        name = name,
+        categoryId = categoryId,
+        price = price.setScale(DEFAULT_SCALE),
+        storeId = storeId,
+        discountRate = discountRate,
+        discountPrice = discountPrice.setScale(DEFAULT_SCALE),
+        wishCount = WishCount(wishCount),
+        reviewCount = reviewCount,
+        reviewTotalScore = reviewTotalScore,
+        thumbnailUrl = thumbnailUrl,
+        isDeleted = isDeleted,
+        canDeliverSafely = canDeliverySafely,
+        canDeliverCommonly = canDeliveryCommonly,
+        canPickUp = canPickUp,
+        productOptionId = productOptionId,
+        productDescriptionId = productDescriptionId,
+        productInfoId = productInfoId
     )
 }
 
@@ -70,7 +78,6 @@ fun productKeyword(
 
 fun productInfo(
     id: Long = 0L,
-    productId: Long,
     categoryId: Long,
     optimalTemperature: OptimalTemperature,
     difficultyLevel: DifficultyLevel,
@@ -79,7 +86,6 @@ fun productInfo(
 ): ProductInfo {
     return ProductInfo(
         id = id,
-        productId = productId,
         categoryId = categoryId,
         optimalTemperature = optimalTemperature,
         difficultyLevel = difficultyLevel,
@@ -92,25 +98,37 @@ fun productImage(
     id: Long = 0,
     productId: Long,
     imageUrl: String,
+    imageType: ImageType,
 ): ProductImage {
     return ProductImage(
         id = id,
         productId = productId,
         imageUrl = imageUrl,
+        imageType = imageType,
     )
 }
 
 fun productOption(
     id: Long = 0,
-    productId: Long,
     sex: Sex,
     additionalPrice: BigDecimal = BigDecimal.ZERO,
 ): ProductOption {
     return ProductOption(
         id = id,
-        productId = productId,
         sex = sex,
         additionalPrice = additionalPrice,
+    )
+}
+
+fun productDescription(
+    id: Long = 0,
+    title: String = "제목",
+    content: String = "내용",
+): ProductDescription {
+    return ProductDescription(
+        id = id,
+        title = ProductDescriptionTitle(title),
+        content = ProductDescriptionContent(content)
     )
 }
 
@@ -118,6 +136,8 @@ fun productDetailResponse(
     product: Product,
     storeName: String,
     imageUrls: List<String>,
+    productDescription: ProductDescription,
+    descriptionImageUrls: List<String>,
     productInfo: ProductInfo,
     category: Category,
     hasDistinctSex: Boolean,
@@ -135,9 +155,10 @@ fun productDetailResponse(
         wishCount = product.wishCount.value,
         reviewCount = product.reviewCount,
         reviewAverageScore = product.averageReviewScore(),
-        thumbnailUrl = product.thumbnailUrl,
         imageUrls = imageUrls,
-        description = product.description,
+        descriptionTitle = productDescription.title.value,
+        descriptionContent = productDescription.content.value,
+        descriptionImageUrls = descriptionImageUrls,
         canDeliverSafely = product.canDeliverSafely,
         canDeliverCommonly = product.canDeliverCommonly,
         canPickUp = product.canPickUp,

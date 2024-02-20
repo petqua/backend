@@ -14,9 +14,6 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import java.math.BigDecimal
 
-private const val SCALE = 1
-private const val ZERO = 0
-
 @Entity
 class Product(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,13 +23,13 @@ class Product(
     val name: String,
 
     @Column(nullable = false)
-    val categoryId: Long = 0,
+    val categoryId: Long,
 
     @Column(nullable = false)
     val price: BigDecimal,
 
     @Column(nullable = false)
-    val storeId: Long = 0,
+    val storeId: Long,
 
     @Column(nullable = false)
     val discountRate: Int = 0,
@@ -54,9 +51,6 @@ class Product(
     val thumbnailUrl: String,
 
     @Column(nullable = false)
-    val description: String,
-
-    @Column(nullable = false)
     var isDeleted: Boolean = false,
 
     @Column(nullable = false)
@@ -67,6 +61,14 @@ class Product(
 
     @Column(nullable = false)
     val canPickUp: Boolean,
+
+    @Column(nullable = false)
+    val productOptionId: Long,
+
+    val productDescriptionId: Long?,
+
+    @Column(nullable = false)
+    val productInfoId: Long,
 ) : BaseEntity(), SoftDeleteEntity {
 
     fun averageReviewScore(): Double {
@@ -88,6 +90,6 @@ class Product(
     }
 
     override fun toString(): String {
-        return "Product(id=$id, name='$name', categoryId=$categoryId, price=$price, storeId=$storeId, discountRate=$discountRate, discountPrice=$discountPrice, wishCount=$wishCount, reviewCount=$reviewCount, reviewTotalScore=$reviewTotalScore, thumbnailUrl='$thumbnailUrl', description='$description', isDeleted=$isDeleted, canDeliverSafely=$canDeliverSafely, canDeliverCommonly=$canDeliverCommonly, canPickUp=$canPickUp)"
+        return "Product(id=$id, name='$name', categoryId=$categoryId, price=$price, storeId=$storeId, discountRate=$discountRate, discountPrice=$discountPrice, wishCount=$wishCount, reviewCount=$reviewCount, reviewTotalScore=$reviewTotalScore, thumbnailUrl='$thumbnailUrl', isDeleted=$isDeleted, canDeliverSafely=$canDeliverSafely, canDeliverCommonly=$canDeliverCommonly, canPickUp=$canPickUp)"
     }
 }
