@@ -81,13 +81,13 @@ data class WishProductResponse(
         description = "찜 Id",
         example = "1"
     )
-    val id: Long,
+    val wishProductId: Long,
 
     @Schema(
         description = "상품 Id",
         example = "1"
     )
-    val productId: Long,
+    val id: Long,
 
     @Schema(
         description = "상품 이름",
