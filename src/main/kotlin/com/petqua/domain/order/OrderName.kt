@@ -1,14 +1,18 @@
 package com.petqua.domain.order
 
+import com.petqua.domain.product.Product
 import jakarta.persistence.Column
 import jakarta.persistence.Embeddable
 
 @Embeddable
-class OrderName(
-
+data class OrderName(
     @Column(nullable = false, unique = true)
     val value: String,
 ) {
 
-    //TODO : 주문 이름 생성 로직
+    companion object {
+        fun from(products: List<Product>): OrderName {
+            return OrderName("${products.first().name} 외 ${products.size - 1}건")
+        }
+    }
 }

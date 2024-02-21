@@ -45,10 +45,10 @@ import com.petqua.test.fixture.wishProduct
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.context.SpringBootTest.WebEnvironment
 import java.math.BigDecimal
 import kotlin.Long.Companion.MIN_VALUE
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment
 
 @SpringBootTest(webEnvironment = WebEnvironment.NONE)
 class ProductServiceTest(
@@ -92,11 +92,6 @@ class ProductServiceTest(
                 temperament = Temperament.PEACEFUL,
             )
         )
-        val productOption = productOptionRepository.save(
-            productOption(
-                sex = FEMALE,
-            )
-        )
         val product = productRepository.save(
             product(
                 name = "고정구피",
@@ -105,9 +100,14 @@ class ProductServiceTest(
                 discountPrice = BigDecimal.ZERO,
                 reviewCount = 0,
                 reviewTotalScore = 0,
-                productOptionId = productOption.id,
                 productDescriptionId = productDescription.id,
                 productInfoId = productInfo.id,
+            )
+        )
+        val productOption = productOptionRepository.save(
+            productOption(
+                productId = product.id,
+                sex = FEMALE,
             )
         )
         val productImage = productImageRepository.save(

@@ -2,6 +2,7 @@ package com.petqua.domain.payment.tosspayment
 
 import com.petqua.domain.order.OrderName
 import com.petqua.domain.order.OrderNumber
+import jakarta.persistence.AttributeOverride
 import jakarta.persistence.Column
 import jakarta.persistence.Embedded
 import jakarta.persistence.Entity
@@ -21,9 +22,11 @@ class TossPayment(
     val paymentKey: String,
 
     @Embedded
+    @AttributeOverride(name = "value", column = Column(name = "order_number", nullable = false, unique = true))
     val orderNumber: OrderNumber,
 
     @Embedded
+    @AttributeOverride(name = "value", column = Column(name = "order_name", nullable = false))
     val orderName: OrderName,
 
     @Enumerated(STRING)

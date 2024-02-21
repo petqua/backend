@@ -40,11 +40,11 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
-import org.springframework.boot.test.context.SpringBootTest
 import java.math.BigDecimal.ONE
 import java.math.BigDecimal.TEN
 import java.math.BigDecimal.ZERO
 import kotlin.Long.Companion.MIN_VALUE
+import org.springframework.boot.test.context.SpringBootTest
 
 @SpringBootTest
 class ProductCustomRepositoryImplTest(
@@ -85,16 +85,6 @@ class ProductCustomRepositoryImplTest(
                 temperament = PEACEFUL,
             )
         )
-        val productOption1 = productOptionRepository.save(
-            productOption(
-                sex = Sex.MALE,
-            )
-        )
-        val productOption2 = productOptionRepository.save(
-            productOption(
-                sex = Sex.MALE,
-            )
-        )
         val productDescription1 = productDescriptionRepository.save(
             productDescription(
                 title = "물생활 핵 인싸어, 레드 브론즈 구피",
@@ -109,7 +99,6 @@ class ProductCustomRepositoryImplTest(
                 discountPrice = ZERO,
                 reviewCount = 0,
                 reviewTotalScore = 0,
-                productOptionId = productOption1.id,
                 productDescriptionId = productDescription1.id,
                 productInfoId = productInfo1.id,
             )
@@ -122,8 +111,19 @@ class ProductCustomRepositoryImplTest(
                 discountPrice = ZERO,
                 reviewCount = 0,
                 reviewTotalScore = 0,
-                productOptionId = productOption2.id,
                 productInfoId = productInfo2.id,
+            )
+        )
+        val productOption1 = productOptionRepository.save(
+            productOption(
+                productId = product1.id,
+                sex = Sex.MALE,
+            )
+        )
+        val productOption2 = productOptionRepository.save(
+            productOption(
+                productId = product2.id,
+                sex = Sex.MALE,
             )
         )
 
@@ -347,9 +347,9 @@ class ProductCustomRepositoryImplTest(
                 discountPrice = ZERO,
                 reviewCount = 0,
                 reviewTotalScore = 0,
-                canDeliverySafely = false,
-                canDeliveryCommonly = false,
-                canPickUp = true,
+                safeDeliveryFee = null,
+                commonDeliveryFee = null,
+                pickUpDeliveryFee = 0.toBigDecimal(),
             )
         )
         val product2 = productRepository.save(
@@ -359,9 +359,9 @@ class ProductCustomRepositoryImplTest(
                 discountPrice = ONE,
                 reviewCount = 1,
                 reviewTotalScore = 1,
-                canDeliverySafely = false,
-                canDeliveryCommonly = true,
-                canPickUp = true,
+                safeDeliveryFee = null,
+                commonDeliveryFee = 3000.toBigDecimal(),
+                pickUpDeliveryFee = 0.toBigDecimal(),
             )
         )
         val product3 = productRepository.save(
@@ -371,9 +371,9 @@ class ProductCustomRepositoryImplTest(
                 discountPrice = ONE,
                 reviewCount = 1,
                 reviewTotalScore = 5,
-                canDeliverySafely = true,
-                canDeliveryCommonly = false,
-                canPickUp = true,
+                safeDeliveryFee = 5000.toBigDecimal(),
+                commonDeliveryFee = null,
+                pickUpDeliveryFee = 0.toBigDecimal(),
             )
         )
         val product4 = productRepository.save(
@@ -383,9 +383,9 @@ class ProductCustomRepositoryImplTest(
                 discountPrice = TEN,
                 reviewCount = 2,
                 reviewTotalScore = 10,
-                canDeliverySafely = true,
-                canDeliveryCommonly = true,
-                canPickUp = true,
+                safeDeliveryFee = 5000.toBigDecimal(),
+                commonDeliveryFee = 3000.toBigDecimal(),
+                pickUpDeliveryFee = 0.toBigDecimal(),
             )
         )
 

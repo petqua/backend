@@ -4,7 +4,7 @@ enum class OrderStatus(
     private val description: String,
 ) {
 
-    ORDER_CHECKING("주문 확인 중"),
+    ORDER_CREATED("주문 생성"),
     ORDERED("주문 완료"),
     ORDER_CONFIRMED("주문 확인"),
     CANCELED("주문 취소"),

@@ -27,6 +27,10 @@ class Order(
     val orderNumber: OrderNumber,
 
     @Embedded
+    @AttributeOverride(name = "value", column = Column(name = "orderName"))
+    val orderName: OrderName,
+
+    @Embedded
     val orderShippingAddress: OrderShippingAddress,
 
     @Embedded

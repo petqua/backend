@@ -32,7 +32,6 @@ import com.petqua.domain.product.detail.info.OptimalTemperature
 import com.petqua.domain.product.detail.info.ProductInfo
 import com.petqua.domain.product.detail.info.ProductInfoRepository
 import com.petqua.domain.product.detail.info.Temperament.PEACEFUL
-import com.petqua.domain.product.option.ProductOption
 import com.petqua.domain.product.option.ProductOptionRepository
 import com.petqua.domain.product.option.Sex.FEMALE
 import com.petqua.domain.product.option.Sex.HERMAPHRODITE
@@ -47,12 +46,12 @@ import com.petqua.domain.recommendation.ProductRecommendationRepository
 import com.petqua.domain.store.Store
 import com.petqua.domain.store.StoreRepository
 import java.math.BigDecimal
+import kotlin.random.Random
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.annotation.Profile
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
-import kotlin.random.Random
 
 @Component
 @Profile("local", "prod")
@@ -158,17 +157,17 @@ class DataInitializer(
                 (it % 2) == 0 -> category1.id
                 else -> category2.id
             }
-            val canDeliverSafely = when {
-                (it % 4) == 0 -> true
-                else -> false
+            val safeDeliveryFee = when {
+                (it % 4) == 0 -> 5000.toBigDecimal()
+                else -> null
             }
-            val canDeliverCommonly = when {
-                (it % 5) == 0 -> true
-                else -> false
+            val commonDeliveryFee = when {
+                (it % 5) == 0 -> 3000.toBigDecimal()
+                else -> null
             }
-            val canPickUp = when {
-                (it % 2) == 0 -> true
-                else -> false
+            val pickUpDeliveryFee = when {
+                (it % 2) == 0 -> BigDecimal.ZERO
+                else -> null
             }
             val reviewCount = (1..5).random()
 
@@ -177,12 +176,12 @@ class DataInitializer(
                 (it % 7) == 0 -> FEMALE
                 else -> HERMAPHRODITE
             }
-            val productOption = productOptionRepository.save(
-                ProductOption(
-                    sex = sex,
-                    additionalPrice = BigDecimal.ZERO
-                )
-            )
+//            val productOption = productOptionRepository.save(
+//                ProductOption(
+//                    sex = sex,
+//                    additionalPrice = BigDecimal.ZERO
+//                )
+//            )
 
             val productInfo = productInfoRepository.save(
                 ProductInfo(
@@ -216,10 +215,9 @@ class DataInitializer(
                 reviewCount = reviewCount,
                 reviewTotalScore = (1..reviewCount).sum(),
                 thumbnailUrl = "https://docs.petqua.co.kr/products/thumbnails/thumbnail3.jpeg",
-                canDeliverSafely = canDeliverSafely,
-                canDeliverCommonly = canDeliverCommonly,
-                canPickUp = canPickUp,
-                productOptionId = productOption.id,
+                safeDeliveryFee = safeDeliveryFee,
+                commonDeliveryFee = commonDeliveryFee,
+                pickUpDeliveryFee = pickUpDeliveryFee,
                 productDescriptionId = productDescriptionId,
                 productInfoId = productInfo.id,
             )

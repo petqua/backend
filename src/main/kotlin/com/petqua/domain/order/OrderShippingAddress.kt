@@ -4,7 +4,7 @@ import jakarta.persistence.Column
 import jakarta.persistence.Embeddable
 
 @Embeddable
-class OrderShippingAddress(
+data class OrderShippingAddress(
     @Column(nullable = false)
     val receiver: String,
 
@@ -19,6 +19,18 @@ class OrderShippingAddress(
 
     @Column(nullable = false)
     val detailAddress: String,
-    val requestMessage: String,
+    val requestMessage: String?,
 ) {
+    companion object {
+        fun from(shippingAddress: ShippingAddress, requestMessage: String?): OrderShippingAddress {
+            return OrderShippingAddress(
+                receiver = shippingAddress.receiver,
+                phoneNumber = shippingAddress.phoneNumber,
+                zipCode = shippingAddress.zipCode,
+                address = shippingAddress.address,
+                detailAddress = shippingAddress.detailAddress,
+                requestMessage = requestMessage,
+            )
+        }
+    }
 }

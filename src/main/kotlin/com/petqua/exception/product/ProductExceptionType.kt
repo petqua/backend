@@ -16,6 +16,10 @@ enum class ProductExceptionType(
     INVALID_SEARCH_WORD(BAD_REQUEST, "P10", "유효하지 않은 검색어입니다."),
 
     WISH_COUNT_UNDER_MINIMUM(BAD_REQUEST, "P20", "찜 개수는 0 이상이어야 합니다."),
+
+    INVALID_PRODUCT_OPTION(BAD_REQUEST, "P30", "유효하지 않은 상품 옵션입니다."),
+
+    INVALID_DELIVERY_METHOD(BAD_REQUEST, "P31", "유효하지 않는 배송 방법입니다."),
     ;
 
     override fun httpStatus(): HttpStatus {

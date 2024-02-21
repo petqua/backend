@@ -11,6 +11,7 @@ import com.petqua.domain.product.option.ProductOption
 import com.petqua.exception.product.ProductException
 import com.petqua.exception.product.ProductExceptionType
 import io.swagger.v3.oas.annotations.media.Schema
+import java.math.BigDecimal
 
 data class ProductReadCondition(
     val canDeliverSafely: Boolean? = null,
@@ -73,9 +74,9 @@ data class ProductWithInfoResponse(
     val thumbnailUrl: String,
     val descriptionTitle: String,
     val descriptionContent: String,
-    val canDeliverSafely: Boolean,
-    val canDeliverCommonly: Boolean,
-    val canPickUp: Boolean,
+    val safeDeliveryFee: BigDecimal?,
+    val commonDeliveryFee: BigDecimal?,
+    val pickUpDeliveryFee: BigDecimal?,
     val optimalTemperatureMin: Int,
     val optimalTemperatureMax: Int,
     val difficultyLevel: String,
@@ -105,9 +106,9 @@ data class ProductWithInfoResponse(
         thumbnailUrl = product.thumbnailUrl,
         descriptionTitle = productDescription.title,
         descriptionContent = productDescription.content,
-        canDeliverSafely = product.canDeliverSafely,
-        canDeliverCommonly = product.canDeliverCommonly,
-        canPickUp = product.canPickUp,
+        safeDeliveryFee = product.safeDeliveryFee,
+        commonDeliveryFee = product.commonDeliveryFee,
+        pickUpDeliveryFee = product.pickUpDeliveryFee,
         optimalTemperatureMin = productInfo.optimalTemperature.optimalTemperatureMin,
         optimalTemperatureMax = productInfo.optimalTemperature.optimalTemperatureMax,
         difficultyLevel = productInfo.difficultyLevel.description,
@@ -190,22 +191,22 @@ data class ProductResponse(
     val thumbnailUrl: String,
 
     @Schema(
-        description = "안전 배송 가능 여부",
-        example = "true"
+        description = "안전 배송 가격",
+        example = "5000"
     )
-    val canDeliverSafely: Boolean,
+    val safeDeliveryFee: BigDecimal?,
 
     @Schema(
-        description = "일반 배송 가능 여부",
-        example = "true"
+        description = "일반 배송 가격",
+        example = "3000"
     )
-    val canDeliverCommonly: Boolean,
+    val commonDeliveryFee: BigDecimal?,
 
     @Schema(
-        description = "직접 수령 가능 여부",
-        example = "true"
+        description = "픽업 배송 가격",
+        example = "0"
     )
-    val canPickUp: Boolean,
+    val pickUpDeliveryFee: BigDecimal?,
 
     @Schema(
         description = "찜 여부",
@@ -225,8 +226,8 @@ data class ProductResponse(
         product.reviewCount,
         product.averageReviewScore(),
         product.thumbnailUrl,
-        product.canDeliverSafely,
-        product.canDeliverCommonly,
-        product.canPickUp,
+        product.safeDeliveryFee,
+        product.commonDeliveryFee,
+        product.pickUpDeliveryFee,
     )
 }
