@@ -1,6 +1,7 @@
 package com.petqua.test.fixture
 
 import com.petqua.application.product.dto.ProductDetailResponse
+import com.petqua.common.util.setDefaultScale
 import com.petqua.domain.keyword.ProductKeyword
 import com.petqua.domain.product.Product
 import com.petqua.domain.product.WishCount
@@ -19,8 +20,6 @@ import com.petqua.domain.product.dto.ProductResponse
 import com.petqua.domain.product.option.ProductOption
 import com.petqua.domain.product.option.Sex
 import java.math.BigDecimal
-
-private const val DEFAULT_SCALE = 2
 
 fun product(
     id: Long = 0L,
@@ -45,18 +44,18 @@ fun product(
         id = id,
         name = name,
         categoryId = categoryId,
-        price = price.setScale(DEFAULT_SCALE),
+        price = price.setDefaultScale(),
         storeId = storeId,
         discountRate = discountRate,
-        discountPrice = discountPrice.setScale(DEFAULT_SCALE),
+        discountPrice = discountPrice.setDefaultScale(),
         wishCount = WishCount(wishCount),
         reviewCount = reviewCount,
         reviewTotalScore = reviewTotalScore,
         thumbnailUrl = thumbnailUrl,
         isDeleted = isDeleted,
-        safeDeliveryFee = safeDeliveryFee?.setScale(DEFAULT_SCALE),
-        commonDeliveryFee = commonDeliveryFee?.setScale(DEFAULT_SCALE),
-        pickUpDeliveryFee = pickUpDeliveryFee?.setScale(DEFAULT_SCALE),
+        safeDeliveryFee = safeDeliveryFee?.setDefaultScale(),
+        commonDeliveryFee = commonDeliveryFee?.setDefaultScale(),
+        pickUpDeliveryFee = pickUpDeliveryFee?.setDefaultScale(),
         productDescriptionId = productDescriptionId,
         productInfoId = productInfoId
     )

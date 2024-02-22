@@ -2,6 +2,7 @@ package com.petqua.test.fixture
 
 import com.petqua.application.order.dto.OrderProductCommand
 import com.petqua.application.order.dto.SaveOrderCommand
+import com.petqua.common.util.setDefaultScale
 import com.petqua.domain.delivery.DeliveryMethod
 import com.petqua.domain.delivery.DeliveryMethod.COMMON
 import com.petqua.domain.product.option.Sex
@@ -9,8 +10,6 @@ import com.petqua.domain.product.option.Sex.FEMALE
 import java.math.BigDecimal
 import java.math.BigDecimal.ONE
 import java.math.BigDecimal.ZERO
-
-private const val DEFAULT_SCALE = 2
 
 fun saveOrderCommand(
     memberId: Long = 0L,
@@ -24,7 +23,7 @@ fun saveOrderCommand(
         shippingAddressId = shippingAddressId,
         shippingRequest = shippingRequest,
         orderProductCommands = orderProductCommands,
-        totalAmount = totalAmount.setScale(DEFAULT_SCALE),
+        totalAmount = totalAmount.setDefaultScale(),
     )
 }
 
@@ -43,13 +42,13 @@ fun orderProductCommand(
     return OrderProductCommand(
         productId = productId,
         quantity = quantity,
-        originalPrice = originalPrice.setScale(DEFAULT_SCALE),
+        originalPrice = originalPrice.setDefaultScale(),
         discountRate = discountRate,
-        discountPrice = discountPrice.setScale(DEFAULT_SCALE),
-        orderPrice = orderPrice.setScale(DEFAULT_SCALE),
+        discountPrice = discountPrice.setDefaultScale(),
+        orderPrice = orderPrice.setDefaultScale(),
         sex = sex,
-        additionalPrice = additionalPrice.setScale(DEFAULT_SCALE),
-        deliveryFee = deliveryFee.setScale(DEFAULT_SCALE),
+        additionalPrice = additionalPrice.setDefaultScale(),
+        deliveryFee = deliveryFee.setDefaultScale(),
         deliveryMethod = deliveryMethod,
     )
 }

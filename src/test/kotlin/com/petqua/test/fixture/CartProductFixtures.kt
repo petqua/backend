@@ -2,6 +2,7 @@ package com.petqua.test.fixture
 
 import com.petqua.application.cart.dto.SaveCartProductCommand
 import com.petqua.application.cart.dto.UpdateCartProductOptionCommand
+import com.petqua.common.util.setDefaultScale
 import com.petqua.domain.cart.CartProduct
 import com.petqua.domain.cart.CartProductQuantity
 import com.petqua.domain.delivery.DeliveryMethod
@@ -47,7 +48,7 @@ fun saveCartProductCommand(
         quantity = quantity,
         sex = sex,
         deliveryMethod = deliveryMethod,
-        deliveryFee = deliveryFee.setScale(2),
+        deliveryFee = deliveryFee.setDefaultScale(),
     )
 }
 
@@ -65,7 +66,7 @@ fun updateCartProductOptionCommand(
         quantity = CartProductQuantity(quantity),
         sex = sex,
         deliveryMethod = deliveryMethod,
-        deliveryFee = deliveryFee.setScale(2),
+        deliveryFee = deliveryFee.setDefaultScale(),
     )
 }
 
@@ -82,7 +83,7 @@ fun saveCartProductRequest(
         quantity = quantity,
         sex = sex,
         deliveryMethod = deliveryMethod,
-        deliveryFee = deliveryFee.setScale(2),
+        deliveryFee = deliveryFee.setDefaultScale(),
     )
 }
 
@@ -96,7 +97,7 @@ fun updateCartProductOptionRequest(
         quantity = quantity,
         sex = sex,
         deliveryMethod = deliveryMethod,
-        deliveryFee = deliveryFee.setScale(2),
+        deliveryFee = deliveryFee.setDefaultScale(),
     )
 }
 
