@@ -4,22 +4,26 @@ import com.petqua.domain.cart.CartProduct
 import com.petqua.domain.cart.CartProductQuantity
 import com.petqua.domain.delivery.DeliveryMethod
 import com.petqua.domain.product.Product
+import com.petqua.domain.product.option.Sex
 import io.swagger.v3.oas.annotations.media.Schema
+import java.math.BigDecimal
 
 data class SaveCartProductCommand(
     val memberId: Long,
     val productId: Long,
     val quantity: Int,
-    val isMale: Boolean,
+    val sex: Sex,
     val deliveryMethod: DeliveryMethod,
+    val deliveryFee: BigDecimal,
 ) {
     fun toCartProduct(): CartProduct {
         return CartProduct(
             memberId = memberId,
             productId = productId,
             quantity = CartProductQuantity(quantity),
-            isMale = isMale,
+            sex = sex,
             deliveryMethod = deliveryMethod,
+            deliveryFee = deliveryFee.setScale(2),
         )
     }
 }
@@ -29,8 +33,9 @@ data class UpdateCartProductOptionCommand(
     val memberId: Long,
     val cartProductId: Long,
     val quantity: CartProductQuantity,
-    val isMale: Boolean,
+    val sex: Sex,
     val deliveryMethod: DeliveryMethod,
+    val deliveryFee: BigDecimal,
 )
 
 data class DeleteCartProductCommand(
@@ -94,11 +99,11 @@ data class CartProductResponse(
     val quantity: Int,
 
     @Schema(
-        description = "수컷 여부",
-        example = "true",
-        allowableValues = ["true", "false"]
+        description = "성별",
+        example = "MALE",
+        allowableValues = ["MALE", "FEMALE", "HERMAPHRODITE"]
     )
-    val isMale: Boolean,
+    val sex: Sex,
 
     @Schema(
         description = "배송 방법(\"COMMON : 일반\", \"SAFETY : 안전\", \"PICK_UP : 직접\")",
@@ -106,6 +111,12 @@ data class CartProductResponse(
         allowableValues = ["COMMON", "SAFETY", "PICK_UP"]
     )
     val deliveryMethod: String,
+
+    @Schema(
+        description = "배송비",
+        example = "3000"
+    )
+    val deliveryFee: BigDecimal,
 
     @Schema(
         description = "판매 여부(품절 및 삭제 확인)",
@@ -124,8 +135,9 @@ data class CartProductResponse(
         productDiscountRate = product?.discountRate ?: 0,
         productDiscountPrice = product?.discountPrice?.intValueExact() ?: 0,
         quantity = cartProduct.quantity.value,
-        isMale = cartProduct.isMale,
+        sex = cartProduct.sex,
         deliveryMethod = cartProduct.deliveryMethod.name,
+        deliveryFee = cartProduct.deliveryFee,
         isOnSale = product != null
     )
 }

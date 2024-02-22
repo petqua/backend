@@ -3,6 +3,7 @@ package com.petqua.domain.cart
 import com.petqua.common.domain.BaseEntity
 import com.petqua.common.util.throwExceptionWhen
 import com.petqua.domain.delivery.DeliveryMethod
+import com.petqua.domain.product.option.Sex
 import com.petqua.exception.cart.CartProductException
 import com.petqua.exception.cart.CartProductExceptionType.FORBIDDEN_CART_PRODUCT
 import jakarta.persistence.AttributeOverride
@@ -14,6 +15,7 @@ import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
+import java.math.BigDecimal
 
 @Entity
 class CartProduct(
@@ -31,11 +33,14 @@ class CartProduct(
     var quantity: CartProductQuantity,
 
     @Column(nullable = false)
-    var isMale: Boolean,
+    var sex: Sex,
 
     @Enumerated(value = EnumType.STRING)
     @Column(nullable = false)
     var deliveryMethod: DeliveryMethod,
+
+    @Column(nullable = false)
+    var deliveryFee: BigDecimal,
 ) : BaseEntity() {
 
     fun validateOwner(accessMemberId: Long) {
@@ -44,11 +49,13 @@ class CartProduct(
 
     fun updateOptions(
         quantity: CartProductQuantity,
-        isMale: Boolean,
+        sex: Sex,
         deliveryMethod: DeliveryMethod,
+        deliveryFee: BigDecimal,
     ) {
         this.quantity = quantity
-        this.isMale = isMale
+        this.sex = sex
         this.deliveryMethod = deliveryMethod
+        this.deliveryFee = deliveryFee
     }
 }

@@ -4,7 +4,9 @@ import com.petqua.application.cart.dto.SaveCartProductCommand
 import com.petqua.application.cart.dto.UpdateCartProductOptionCommand
 import com.petqua.domain.cart.CartProductQuantity
 import com.petqua.domain.delivery.DeliveryMethod
+import com.petqua.domain.product.option.Sex
 import io.swagger.v3.oas.annotations.media.Schema
+import java.math.BigDecimal
 
 data class SaveCartProductRequest(
     @Schema(
@@ -20,11 +22,11 @@ data class SaveCartProductRequest(
     val quantity: Int,
 
     @Schema(
-        description = "수컷 여부",
-        example = "true",
-        allowableValues = ["true", "false"]
+        description = "성별",
+        example = "MALE",
+        allowableValues = ["MALE", "FEMALE", "HERMAPHRODITE"]
     )
-    val isMale: Boolean,
+    val sex: Sex,
 
     @Schema(
         description = "배송 방법(\"COMMON : 일반\", \"SAFETY : 안전\", \"PICK_UP : 직접\")",
@@ -32,6 +34,12 @@ data class SaveCartProductRequest(
         allowableValues = ["COMMON", "SAFETY", "PICK_UP"]
     )
     val deliveryMethod: String,
+
+    @Schema(
+        description = "배송비",
+        example = "3000"
+    )
+    val deliveryFee: BigDecimal,
 ) {
 
     fun toCommand(memberId: Long): SaveCartProductCommand {
@@ -39,8 +47,9 @@ data class SaveCartProductRequest(
             memberId = memberId,
             productId = productId,
             quantity = quantity,
-            isMale = isMale,
-            deliveryMethod = DeliveryMethod.from(deliveryMethod)
+            sex = sex,
+            deliveryMethod = DeliveryMethod.from(deliveryMethod),
+            deliveryFee = deliveryFee,
         )
     }
 }
@@ -53,11 +62,11 @@ data class UpdateCartProductOptionRequest(
     val quantity: Int,
 
     @Schema(
-        description = "수컷 여부",
-        example = "true",
-        allowableValues = ["true", "false"]
+        description = "성별",
+        example = "MALE",
+        allowableValues = ["MALE", "FEMALE", "HERMAPHRODITE"]
     )
-    val isMale: Boolean,
+    val sex: Sex,
 
     @Schema(
         description = "배송 방법(\"COMMON : 일반\", \"SAFETY : 안전\", \"PICK_UP : 직접\")",
@@ -65,6 +74,12 @@ data class UpdateCartProductOptionRequest(
         allowableValues = ["COMMON", "SAFETY", "PICK_UP"]
     )
     val deliveryMethod: String,
+
+    @Schema(
+        description = "배송비",
+        example = "3000"
+    )
+    val deliveryFee: BigDecimal,
 ) {
 
     fun toCommand(memberId: Long, cartProductId: Long): UpdateCartProductOptionCommand {
@@ -72,8 +87,9 @@ data class UpdateCartProductOptionRequest(
             memberId = memberId,
             cartProductId = cartProductId,
             quantity = CartProductQuantity(quantity),
-            isMale = isMale,
-            deliveryMethod = DeliveryMethod.from(deliveryMethod)
+            sex = sex,
+            deliveryMethod = DeliveryMethod.from(deliveryMethod),
+            deliveryFee = deliveryFee,
         )
     }
 }

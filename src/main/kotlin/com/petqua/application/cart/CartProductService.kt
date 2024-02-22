@@ -7,17 +7,21 @@ import com.petqua.application.cart.dto.UpdateCartProductOptionCommand
 import com.petqua.common.domain.existActiveByIdOrThrow
 import com.petqua.common.domain.existByIdOrThrow
 import com.petqua.common.domain.findByIdOrThrow
+import com.petqua.common.util.throwExceptionWhen
 import com.petqua.domain.cart.CartProductRepository
 import com.petqua.domain.delivery.DeliveryMethod
 import com.petqua.domain.member.MemberRepository
 import com.petqua.domain.product.ProductRepository
+import com.petqua.domain.product.option.Sex
 import com.petqua.exception.cart.CartProductException
+import com.petqua.exception.cart.CartProductExceptionType.DIFFERENT_DELIVERY_FEE
 import com.petqua.exception.cart.CartProductExceptionType.DUPLICATED_PRODUCT
 import com.petqua.exception.cart.CartProductExceptionType.NOT_FOUND_CART_PRODUCT
 import com.petqua.exception.member.MemberException
 import com.petqua.exception.member.MemberExceptionType.NOT_FOUND_MEMBER
 import com.petqua.exception.product.ProductException
 import com.petqua.exception.product.ProductExceptionType.NOT_FOUND_PRODUCT
+import java.math.BigDecimal
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -35,9 +39,10 @@ class CartProductService(
         validateDuplicatedProduct(
             memberId = command.memberId,
             productId = command.productId,
-            isMale = command.isMale,
+            sex = command.sex,
             deliveryMethod = command.deliveryMethod
         )
+        validateDeliveryFee(command.productId, command.deliveryMethod, command.deliveryFee)
         return cartProductRepository.save(command.toCartProduct()).id
     }
 
@@ -50,22 +55,34 @@ class CartProductService(
         validateDuplicatedProduct(
             memberId = command.memberId,
             productId = cartProduct.productId,
-            isMale = command.isMale,
+            sex = command.sex,
             deliveryMethod = command.deliveryMethod
         )
-        cartProduct.updateOptions(command.quantity, command.isMale, command.deliveryMethod)
+        validateDeliveryFee(cartProduct.productId, command.deliveryMethod, command.deliveryFee)
+        cartProduct.updateOptions(
+            command.quantity,
+            command.sex,
+            command.deliveryMethod,
+            command.deliveryFee
+        )
+    }
+
+    private fun validateDeliveryFee(productId: Long, deliveryMethod: DeliveryMethod, deliveryFee: BigDecimal) {
+        productRepository.findByIdOrThrow(productId, ProductException(NOT_FOUND_PRODUCT))
+            .getDeliveryFee(deliveryMethod)
+            .also { throwExceptionWhen(it != deliveryFee) { CartProductException(DIFFERENT_DELIVERY_FEE) } }
     }
 
     private fun validateDuplicatedProduct(
         memberId: Long,
         productId: Long,
-        isMale: Boolean,
+        sex: Sex,
         deliveryMethod: DeliveryMethod
     ) {
-        cartProductRepository.findByMemberIdAndProductIdAndIsMaleAndDeliveryMethod(
+        cartProductRepository.findByMemberIdAndProductIdAndSexAndDeliveryMethod(
             memberId = memberId,
             productId = productId,
-            isMale = isMale,
+            sex = sex,
             deliveryMethod = deliveryMethod
         )?.also { throw CartProductException(DUPLICATED_PRODUCT) }
     }
