@@ -56,7 +56,7 @@ class ProductCustomRepositoryImpl(
                 leftJoin(ProductDescription::class).on(path(Product::productDescriptionId).eq(path(ProductDescription::id))),
                 join(ProductInfo::class).on(path(Product::productInfoId).eq(path(ProductInfo::id))),
                 join(Category::class).on(path(Product::categoryId).eq(path(Category::id))),
-                join(ProductOption::class).on(path(Product::productOptionId).eq(path(ProductOption::id)))
+                join(ProductOption::class).on(path(Product::id).eq(path(ProductOption::productId)))
             ).whereAnd(
                 path(Product::id).eq(id),
                 active(),

@@ -1,6 +1,8 @@
 package com.petqua.domain.payment.tosspayment
 
+import com.petqua.domain.order.OrderName
 import com.petqua.domain.order.OrderNumber
+import jakarta.persistence.AttributeOverride
 import jakarta.persistence.Column
 import jakarta.persistence.Embedded
 import jakarta.persistence.Entity
@@ -20,10 +22,12 @@ class TossPayment(
     val paymentKey: String,
 
     @Embedded
+    @AttributeOverride(name = "value", column = Column(name = "order_number", nullable = false, unique = true))
     val orderNumber: OrderNumber,
 
-    @Column(nullable = false)
-    val orderName: String,
+    @Embedded
+    @AttributeOverride(name = "value", column = Column(name = "order_name", nullable = false))
+    val orderName: OrderName,
 
     @Enumerated(STRING)
     @Column(nullable = false)
@@ -34,7 +38,7 @@ class TossPayment(
 
     @Enumerated(STRING)
     @Column(nullable = false)
-    val status: TossPaymentStatus, // FIXME: 레퍼런스 첨부 https://docs.tosspayments.com/common/webhook#payment_status_changed
+    val status: TossPaymentStatus,
 
     @Column(nullable = false)
     val requestedAt: String,

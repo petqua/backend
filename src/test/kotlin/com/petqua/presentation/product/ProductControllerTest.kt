@@ -49,13 +49,13 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.restassured.common.mapper.TypeRef
-import org.springframework.http.HttpStatus
-import org.springframework.http.HttpStatus.BAD_REQUEST
-import org.springframework.http.HttpStatus.NOT_FOUND
 import java.math.BigDecimal.ONE
 import java.math.BigDecimal.TEN
 import java.math.BigDecimal.ZERO
 import kotlin.Long.Companion.MIN_VALUE
+import org.springframework.http.HttpStatus
+import org.springframework.http.HttpStatus.BAD_REQUEST
+import org.springframework.http.HttpStatus.NOT_FOUND
 
 class ProductControllerTest(
     private val productRepository: ProductRepository,
@@ -98,11 +98,6 @@ class ProductControllerTest(
                     temperament = Temperament.PEACEFUL,
                 )
             )
-            val productOption = productOptionRepository.save(
-                productOption(
-                    sex = HERMAPHRODITE
-                )
-            )
             val product = productRepository.save(
                 product(
                     name = "고정구피",
@@ -111,9 +106,14 @@ class ProductControllerTest(
                     discountPrice = ZERO,
                     reviewCount = 0,
                     reviewTotalScore = 0,
-                    productOptionId = productOption.id,
                     productDescriptionId = productDescription.id,
                     productInfoId = productInfo.id
+                )
+            )
+            val productOption = productOptionRepository.save(
+                productOption(
+                    productId = product.id,
+                    sex = HERMAPHRODITE
                 )
             )
             val productImage = productImageRepository.save(
@@ -545,9 +545,9 @@ class ProductControllerTest(
                     name = "블루네온 구피",
                     storeId = store.id,
                     reviewCount = 2,
-                    canDeliverySafely = false,
-                    canDeliveryCommonly = false,
-                    canPickUp = true,
+                    safeDeliveryFee = null,
+                    commonDeliveryFee = null,
+                    pickUpDeliveryFee = 0.toBigDecimal(),
                 )
             )
             val product2 = productRepository.save(
@@ -555,9 +555,9 @@ class ProductControllerTest(
                     name = "레드턱시도 구피",
                     storeId = store.id,
                     reviewCount = 3,
-                    canDeliverySafely = false,
-                    canDeliveryCommonly = true,
-                    canPickUp = true,
+                    safeDeliveryFee = null,
+                    commonDeliveryFee = 3000.toBigDecimal(),
+                    pickUpDeliveryFee = 0.toBigDecimal(),
                 )
             )
             val product3 = productRepository.save(
@@ -565,9 +565,9 @@ class ProductControllerTest(
                     name = "열대어 브론디 턱시도 구피",
                     storeId = store.id,
                     reviewCount = 1,
-                    canDeliverySafely = true,
-                    canDeliveryCommonly = false,
-                    canPickUp = true,
+                    safeDeliveryFee = 5000.toBigDecimal(),
+                    commonDeliveryFee = null,
+                    pickUpDeliveryFee = 0.toBigDecimal(),
                 )
             )
             val product4 = productRepository.save(
@@ -575,9 +575,9 @@ class ProductControllerTest(
                     name = "단정 금붕어",
                     storeId = store.id,
                     reviewCount = 0,
-                    canDeliverySafely = true,
-                    canDeliveryCommonly = true,
-                    canPickUp = true,
+                    safeDeliveryFee = 5000.toBigDecimal(),
+                    commonDeliveryFee = 3000.toBigDecimal(),
+                    pickUpDeliveryFee = 0.toBigDecimal(),
                 )
             )
 

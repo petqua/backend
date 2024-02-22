@@ -2,15 +2,16 @@ package com.petqua.domain.order
 
 import com.petqua.domain.delivery.DeliveryMethod
 import com.petqua.domain.product.option.Sex
+import jakarta.persistence.AttributeOverride
 import jakarta.persistence.Column
 import jakarta.persistence.Embeddable
+import jakarta.persistence.Embedded
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
 import java.math.BigDecimal
 
 @Embeddable
-class OrderProductInfo(
-
+data class OrderProduct(
     @Column(nullable = false)
     val quantity: Int,
 
@@ -26,8 +27,12 @@ class OrderProductInfo(
     @Column(nullable = false)
     val deliveryFee: BigDecimal,
 
+    @Embedded
+    @AttributeOverride(name = "value", column = Column(name = "shippingNumber"))
+    var shippingNumber: ShippingNumber,
+
     @Column(nullable = false)
-    val totalPrice: BigDecimal,
+    val orderPrice: BigDecimal,
 
     @Column(nullable = false)
     val productId: Long = 0,

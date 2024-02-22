@@ -16,6 +16,9 @@ class ProductOption(
     val id: Long = 0L,
 
     @Column(nullable = false)
+    val productId: Long,
+
+    @Column(nullable = false)
     @Enumerated(STRING)
     val sex: Sex,
 
@@ -26,4 +29,11 @@ class ProductOption(
     fun hasDistinctSex(): Boolean {
         return sex != Sex.HERMAPHRODITE
     }
+
+    fun isSame(other: ProductOption): Boolean {
+        return productId == other.productId
+                && sex == other.sex
+                && additionalPrice == other.additionalPrice
+    }
+
 }

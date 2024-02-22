@@ -35,10 +35,9 @@ fun product(
     reviewTotalScore: Int = 0,
     thumbnailUrl: String = "image.jpg",
     isDeleted: Boolean = false,
-    canDeliverySafely: Boolean = true,
-    canDeliveryCommonly: Boolean = true,
-    canPickUp: Boolean = true,
-    productOptionId: Long = 0,
+    safeDeliveryFee: BigDecimal? = null,
+    commonDeliveryFee: BigDecimal? = null,
+    pickUpDeliveryFee: BigDecimal? = null,
     productDescriptionId: Long? = null,
     productInfoId: Long = 0,
 ): Product {
@@ -55,10 +54,9 @@ fun product(
         reviewTotalScore = reviewTotalScore,
         thumbnailUrl = thumbnailUrl,
         isDeleted = isDeleted,
-        canDeliverSafely = canDeliverySafely,
-        canDeliverCommonly = canDeliveryCommonly,
-        canPickUp = canPickUp,
-        productOptionId = productOptionId,
+        safeDeliveryFee = safeDeliveryFee?.setScale(DEFAULT_SCALE),
+        commonDeliveryFee = commonDeliveryFee?.setScale(DEFAULT_SCALE),
+        pickUpDeliveryFee = pickUpDeliveryFee?.setScale(DEFAULT_SCALE),
         productDescriptionId = productDescriptionId,
         productInfoId = productInfoId
     )
@@ -109,12 +107,14 @@ fun productImage(
 }
 
 fun productOption(
-    id: Long = 0,
+    id: Long = 0L,
+    productId: Long = 0L,
     sex: Sex,
     additionalPrice: BigDecimal = BigDecimal.ZERO,
 ): ProductOption {
     return ProductOption(
         id = id,
+        productId = productId,
         sex = sex,
         additionalPrice = additionalPrice,
     )
@@ -159,9 +159,9 @@ fun productDetailResponse(
         descriptionTitle = productDescription.title.value,
         descriptionContent = productDescription.content.value,
         descriptionImageUrls = descriptionImageUrls,
-        canDeliverSafely = product.canDeliverSafely,
-        canDeliverCommonly = product.canDeliverCommonly,
-        canPickUp = product.canPickUp,
+        safeDeliveryFee = product.safeDeliveryFee,
+        commonDeliveryFee = product.commonDeliveryFee,
+        pickUpDeliveryFee = product.pickUpDeliveryFee,
         optimalTemperatureMin = productInfo.optimalTemperature.optimalTemperatureMin,
         optimalTemperatureMax = productInfo.optimalTemperature.optimalTemperatureMax,
         difficultyLevel = productInfo.difficultyLevel.description,
@@ -189,9 +189,9 @@ fun productResponse(
         reviewCount = product.reviewCount,
         reviewAverageScore = product.averageReviewScore(),
         thumbnailUrl = product.thumbnailUrl,
-        canDeliverSafely = product.canDeliverSafely,
-        canDeliverCommonly = product.canDeliverCommonly,
-        canPickUp = product.canPickUp,
+        safeDeliveryFee = product.safeDeliveryFee,
+        commonDeliveryFee = product.commonDeliveryFee,
+        pickUpDeliveryFee = product.pickUpDeliveryFee,
         isWished = isWished,
     )
 }

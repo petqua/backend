@@ -1,5 +1,9 @@
 package com.petqua.domain.product.option
 
+import com.petqua.exception.product.ProductException
+import com.petqua.exception.product.ProductExceptionType.INVALID_PRODUCT_OPTION
+import java.util.Locale
+
 enum class Sex(
     val description: String,
 ) {
@@ -8,4 +12,15 @@ enum class Sex(
     MALE("수"),
     HERMAPHRODITE("자웅동체"),
     ;
+
+    fun isLogical(other: Sex): Boolean {
+        return this != HERMAPHRODITE
+    }
+
+    companion object {
+        fun from(name: String): Sex {
+            return enumValues<Sex>().find { it.name == name.uppercase(Locale.ENGLISH) }
+                ?: throw ProductException(INVALID_PRODUCT_OPTION)
+        }
+    }
 }

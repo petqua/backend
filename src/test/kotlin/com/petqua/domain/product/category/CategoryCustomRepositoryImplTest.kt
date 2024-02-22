@@ -19,8 +19,8 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
-import org.springframework.boot.test.context.SpringBootTest
 import java.math.BigDecimal
+import org.springframework.boot.test.context.SpringBootTest
 
 @SpringBootTest
 class CategoryCustomRepositoryImplTest(
@@ -42,9 +42,9 @@ class CategoryCustomRepositoryImplTest(
                 categoryId = category1.id,
                 discountPrice = BigDecimal.ZERO,
                 reviewCount = 0,
-                canDeliverySafely = false,
-                canDeliveryCommonly = false,
-                canPickUp = true,
+                safeDeliveryFee = null,
+                commonDeliveryFee = null,
+                pickUpDeliveryFee = 0.toBigDecimal(),
             )
         )
         val product2 = productRepository.save(
@@ -54,9 +54,9 @@ class CategoryCustomRepositoryImplTest(
                 categoryId = category2.id,
                 discountPrice = BigDecimal.ONE,
                 reviewCount = 2,
-                canDeliverySafely = false,
-                canDeliveryCommonly = true,
-                canPickUp = true,
+                safeDeliveryFee = null,
+                commonDeliveryFee = 3000.toBigDecimal(),
+                pickUpDeliveryFee = 0.toBigDecimal(),
             )
         )
         val product3 = productRepository.save(
@@ -66,9 +66,9 @@ class CategoryCustomRepositoryImplTest(
                 categoryId = category2.id,
                 discountPrice = BigDecimal.TEN,
                 reviewCount = 1,
-                canDeliverySafely = true,
-                canDeliveryCommonly = true,
-                canPickUp = false,
+                safeDeliveryFee = 5000.toBigDecimal(),
+                commonDeliveryFee = 3000.toBigDecimal(),
+                pickUpDeliveryFee = null,
             )
         )
 
@@ -255,25 +255,25 @@ class CategoryCustomRepositoryImplTest(
                     name = "고정구피",
                     storeId = store.id,
                     categoryId = category1.id,
-                    canDeliverySafely = false,
-                    canDeliveryCommonly = false,
-                    canPickUp = true,
+                    safeDeliveryFee = null,
+                    commonDeliveryFee = null,
+                    pickUpDeliveryFee = 0.toBigDecimal(),
                 ),
                 product(
                     name = "팬시구피",
                     storeId = store.id,
                     categoryId = category2.id,
-                    canDeliverySafely = false,
-                    canDeliveryCommonly = true,
-                    canPickUp = true,
+                    safeDeliveryFee = null,
+                    commonDeliveryFee = 3000.toBigDecimal(),
+                    pickUpDeliveryFee = 0.toBigDecimal(),
                 ),
                 product(
                     name = "팬시구피 세트",
                     storeId = store.id,
                     categoryId = category2.id,
-                    canDeliverySafely = true,
-                    canDeliveryCommonly = true,
-                    canPickUp = false,
+                    safeDeliveryFee = 5000.toBigDecimal(),
+                    commonDeliveryFee = 3000.toBigDecimal(),
+                    pickUpDeliveryFee = null,
                 )
             )
         )

@@ -2,8 +2,10 @@ package com.petqua.domain.product
 
 import com.petqua.common.domain.BaseEntity
 import com.petqua.common.domain.SoftDeleteEntity
+import com.petqua.domain.delivery.DeliveryMethod
 import com.petqua.domain.product.review.ProductReviewStatistics
 import com.petqua.exception.product.ProductException
+import com.petqua.exception.product.ProductExceptionType.INVALID_DELIVERY_METHOD
 import com.petqua.exception.product.ProductExceptionType.NOT_FOUND_PRODUCT
 import jakarta.persistence.AttributeOverride
 import jakarta.persistence.Column
@@ -53,17 +55,11 @@ class Product(
     @Column(nullable = false)
     var isDeleted: Boolean = false,
 
-    @Column(nullable = false)
-    val canDeliverSafely: Boolean,
+    val safeDeliveryFee: BigDecimal?,
 
-    @Column(nullable = false)
-    val canDeliverCommonly: Boolean,
+    val commonDeliveryFee: BigDecimal?,
 
-    @Column(nullable = false)
-    val canPickUp: Boolean,
-
-    @Column(nullable = false)
-    val productOptionId: Long,
+    val pickUpDeliveryFee: BigDecimal?,
 
     val productDescriptionId: Long?,
 
@@ -83,13 +79,19 @@ class Product(
         wishCount = wishCount.decrease()
     }
 
+    fun getDeliveryFee(deliveryMethod: DeliveryMethod): BigDecimal {
+        return when (deliveryMethod) {
+            DeliveryMethod.SAFETY -> safeDeliveryFee ?: throw ProductException(INVALID_DELIVERY_METHOD)
+            DeliveryMethod.COMMON -> commonDeliveryFee ?: throw ProductException(INVALID_DELIVERY_METHOD)
+            DeliveryMethod.PICK_UP -> pickUpDeliveryFee ?: throw ProductException(INVALID_DELIVERY_METHOD)
+            else -> throw ProductException(INVALID_DELIVERY_METHOD)
+        }
+    }
+
     override fun validateDeleted() {
         if (isDeleted) {
             throw ProductException(NOT_FOUND_PRODUCT)
         }
     }
 
-    override fun toString(): String {
-        return "Product(id=$id, name='$name', categoryId=$categoryId, price=$price, storeId=$storeId, discountRate=$discountRate, discountPrice=$discountPrice, wishCount=$wishCount, reviewCount=$reviewCount, reviewTotalScore=$reviewTotalScore, thumbnailUrl='$thumbnailUrl', isDeleted=$isDeleted, canDeliverSafely=$canDeliverSafely, canDeliverCommonly=$canDeliverCommonly, canPickUp=$canPickUp)"
-    }
 }

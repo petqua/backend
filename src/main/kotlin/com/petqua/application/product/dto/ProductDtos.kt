@@ -15,6 +15,7 @@ import com.petqua.domain.product.dto.ProductSearchCondition
 import com.petqua.domain.product.dto.ProductWithInfoResponse
 import com.petqua.domain.product.review.ProductReviewRecommendation
 import io.swagger.v3.oas.annotations.media.Schema
+import java.math.BigDecimal
 
 data class ProductDetailResponse(
     @Schema(
@@ -108,22 +109,22 @@ data class ProductDetailResponse(
     val descriptionImageUrls: List<String>,
 
     @Schema(
-        description = "안전 배송 가능 여부",
-        example = "true"
+        description = "안전 배송 가격",
+        example = "5000"
     )
-    val canDeliverSafely: Boolean,
+    val safeDeliveryFee: BigDecimal?,
 
     @Schema(
-        description = "일반 배송 가능 여부",
-        example = "true"
+        description = "일반 배송 가격",
+        example = "3000"
     )
-    val canDeliverCommonly: Boolean,
+    val commonDeliveryFee: BigDecimal?,
 
     @Schema(
-        description = "직접 수령 가능 여부",
-        example = "true"
+        description = "픽업 배송 가격",
+        example = "0"
     )
-    val canPickUp: Boolean,
+    val pickUpDeliveryFee: BigDecimal?,
 
     @Schema(
         description = "사육 온도 최소",
@@ -188,9 +189,9 @@ data class ProductDetailResponse(
         descriptionTitle = productWithInfoResponse.descriptionTitle,
         descriptionContent = productWithInfoResponse.descriptionContent,
         descriptionImageUrls = descriptionImageUrls,
-        canDeliverSafely = productWithInfoResponse.canDeliverSafely,
-        canDeliverCommonly = productWithInfoResponse.canDeliverCommonly,
-        canPickUp = productWithInfoResponse.canPickUp,
+        safeDeliveryFee = productWithInfoResponse.safeDeliveryFee,
+        commonDeliveryFee = productWithInfoResponse.commonDeliveryFee,
+        pickUpDeliveryFee = productWithInfoResponse.pickUpDeliveryFee,
         optimalTemperatureMin = productWithInfoResponse.optimalTemperatureMin,
         optimalTemperatureMax = productWithInfoResponse.optimalTemperatureMax,
         difficultyLevel = productWithInfoResponse.difficultyLevel,

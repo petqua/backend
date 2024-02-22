@@ -11,6 +11,7 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType.IDENTITY
 import jakarta.persistence.Id
 import jakarta.persistence.Table
+import java.math.BigDecimal
 
 @Table(name = "orders")
 @Entity
@@ -26,10 +27,14 @@ class Order(
     val orderNumber: OrderNumber,
 
     @Embedded
-    val deliveryInfo: OrderShippingAddressInfo,
+    @AttributeOverride(name = "value", column = Column(name = "orderName"))
+    val orderName: OrderName,
 
     @Embedded
-    val productInfo: OrderProductInfo,
+    val orderShippingAddress: OrderShippingAddress,
+
+    @Embedded
+    val orderProduct: OrderProduct,
 
     @Column(nullable = false)
     val isAbleToCancel: Boolean,
@@ -37,4 +42,7 @@ class Order(
     @Enumerated(STRING)
     @Column(nullable = false)
     val status: OrderStatus,
+
+    @Column(nullable = false)
+    val totalAmount: BigDecimal,
 ) : BaseEntity()

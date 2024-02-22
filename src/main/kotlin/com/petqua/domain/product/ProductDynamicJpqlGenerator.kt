@@ -45,9 +45,9 @@ class ProductDynamicJpqlGenerator : Jpql() {
 
     fun Jpql.productDeliveryOptionBy(deliveryMethod: DeliveryMethod): Predicate? {
         return when (deliveryMethod) {
-            DeliveryMethod.SAFETY -> path(Product::canDeliverSafely).eq(true)
-            DeliveryMethod.COMMON -> path(Product::canDeliverCommonly).eq(true)
-            DeliveryMethod.PICK_UP -> path(Product::canPickUp).eq(true)
+            DeliveryMethod.SAFETY -> path(Product::safeDeliveryFee).isNotNull()
+            DeliveryMethod.COMMON -> path(Product::commonDeliveryFee).isNotNull()
+            DeliveryMethod.PICK_UP -> path(Product::pickUpDeliveryFee).isNotNull()
             else -> null
         }
     }

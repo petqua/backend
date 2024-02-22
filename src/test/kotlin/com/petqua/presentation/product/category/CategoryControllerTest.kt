@@ -22,9 +22,9 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.restassured.common.mapper.TypeRef
+import java.math.BigDecimal
 import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.OK
-import java.math.BigDecimal
 
 class CategoryControllerTest(
     private val categoryRepository: CategoryRepository,
@@ -93,9 +93,9 @@ class CategoryControllerTest(
                     categoryId = category1.id,
                     discountPrice = BigDecimal.ZERO,
                     reviewCount = 0,
-                    canDeliverySafely = false,
-                    canDeliveryCommonly = false,
-                    canPickUp = true,
+                    safeDeliveryFee = null,
+                    commonDeliveryFee = null,
+                    pickUpDeliveryFee = 0.toBigDecimal(),
                 )
             )
             val product2 = productRepository.save(
@@ -105,9 +105,9 @@ class CategoryControllerTest(
                     categoryId = category2.id,
                     discountPrice = BigDecimal.ONE,
                     reviewCount = 2,
-                    canDeliverySafely = false,
-                    canDeliveryCommonly = true,
-                    canPickUp = true,
+                    safeDeliveryFee = null,
+                    commonDeliveryFee = 3000.toBigDecimal(),
+                    pickUpDeliveryFee = 0.toBigDecimal(),
                 )
             )
             val product3 = productRepository.save(
@@ -117,9 +117,9 @@ class CategoryControllerTest(
                     categoryId = category2.id,
                     discountPrice = BigDecimal.TEN,
                     reviewCount = 1,
-                    canDeliverySafely = true,
-                    canDeliveryCommonly = true,
-                    canPickUp = false,
+                    safeDeliveryFee = 5000.toBigDecimal(),
+                    commonDeliveryFee = 3000.toBigDecimal(),
+                    pickUpDeliveryFee = null,
                 )
             )
 
