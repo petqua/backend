@@ -43,7 +43,7 @@ data class DeleteCartProductCommand(
     val cartProductId: Long,
 )
 
-data class CartProductResponse(
+data class CartProductWithSupportedOptionResponse(
     @Schema(
         description = "봉달(장바구니) 상품 id",
         example = "1"
@@ -123,9 +123,89 @@ data class CartProductResponse(
         example = "true"
     )
     val isOnSale: Boolean,
+
+
+    @Schema(
+        description = "안전 배송 가격 (null인 경우 지원 X)",
+        example = "5000"
+    )
+    val safeDeliveryFee: BigDecimal?,
+
+    @Schema(
+        description = "일반 배송 가격 (null인 경우 지원 X)",
+        example = "3000"
+    )
+    val commonDeliveryFee: BigDecimal?,
+
+    @Schema(
+        description = "픽업 배송 가격 (null인 경우 지원 X)",
+        example = "0"
+    )
+    val pickUpDeliveryFee: BigDecimal?,
+
+    @Schema(
+        description = "수컷 추가 가격 (null인 경우 지원 X)",
+        example = "1000"
+    )
+    val maleAdditionalPrice: BigDecimal?,
+
+    @Schema(
+        description = "암컷 추가 가격 (null인 경우 지원 X)",
+        example = "1000"
+    )
+    val femaleAdditionalPrice: BigDecimal?,
 ) {
 
-    constructor(cartProduct: CartProduct, product: Product?, storeName: String?) : this(
+    constructor(
+        cartProductResponse: CartProductResponse,
+        maleAdditionalPrice: BigDecimal?,
+        femaleAdditionalPrice: BigDecimal?,
+    ) : this(
+        id = cartProductResponse.id,
+        storeName = cartProductResponse.storeName,
+        productId = cartProductResponse.productId,
+        productName = cartProductResponse.productName,
+        productThumbnailUrl = cartProductResponse.productThumbnailUrl,
+        productPrice = cartProductResponse.productPrice,
+        productDiscountRate = cartProductResponse.productDiscountRate,
+        productDiscountPrice = cartProductResponse.productDiscountPrice,
+        quantity = cartProductResponse.quantity,
+        sex = cartProductResponse.sex,
+        deliveryMethod = cartProductResponse.deliveryMethod,
+        deliveryFee = cartProductResponse.deliveryFee,
+        isOnSale = cartProductResponse.isOnSale,
+        safeDeliveryFee = cartProductResponse.safeDeliveryFee,
+        commonDeliveryFee = cartProductResponse.commonDeliveryFee,
+        pickUpDeliveryFee = cartProductResponse.pickUpDeliveryFee,
+        maleAdditionalPrice = maleAdditionalPrice,
+        femaleAdditionalPrice = femaleAdditionalPrice,
+    )
+}
+
+data class CartProductResponse(
+    val id: Long,
+    val storeName: String,
+    val productId: Long,
+    val productName: String,
+    val productThumbnailUrl: String,
+    val productPrice: Int,
+    val productDiscountRate: Int,
+    val productDiscountPrice: Int,
+    val quantity: Int,
+    val sex: Sex,
+    val deliveryMethod: String,
+    val deliveryFee: BigDecimal,
+    val isOnSale: Boolean,
+    val safeDeliveryFee: BigDecimal?,
+    val commonDeliveryFee: BigDecimal?,
+    val pickUpDeliveryFee: BigDecimal?,
+) {
+
+    constructor(
+        cartProduct: CartProduct,
+        product: Product?,
+        storeName: String?,
+    ) : this(
         id = cartProduct.id,
         storeName = storeName ?: "",
         productId = product?.id ?: 0L,
@@ -138,6 +218,9 @@ data class CartProductResponse(
         sex = cartProduct.sex,
         deliveryMethod = cartProduct.deliveryMethod.name,
         deliveryFee = cartProduct.deliveryFee,
-        isOnSale = product != null
+        isOnSale = product != null,
+        safeDeliveryFee = product?.safeDeliveryFee,
+        commonDeliveryFee = product?.commonDeliveryFee,
+        pickUpDeliveryFee = product?.pickUpDeliveryFee,
     )
 }

@@ -1,7 +1,7 @@
 package com.petqua.presentation.cart
 
 import com.petqua.application.cart.CartProductService
-import com.petqua.application.cart.dto.CartProductResponse
+import com.petqua.application.cart.dto.CartProductWithSupportedOptionResponse
 import com.petqua.application.cart.dto.DeleteCartProductCommand
 import com.petqua.application.product.dto.ProductDetailResponse
 import com.petqua.common.config.ACCESS_TOKEN_SECURITY_SCHEME_KEY
@@ -83,7 +83,7 @@ class CartProductController(
     @GetMapping
     fun readAll(
         @Auth loginMember: LoginMember,
-    ): ResponseEntity<List<CartProductResponse>> {
+    ): ResponseEntity<List<CartProductWithSupportedOptionResponse>> {
         val responses = cartProductService.readAll(loginMember.memberId)
         return ResponseEntity.ok(responses)
     }

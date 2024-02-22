@@ -1,9 +1,11 @@
 package com.petqua.presentation.cart
 
-import com.petqua.application.cart.dto.CartProductResponse
+import com.petqua.application.cart.dto.CartProductWithSupportedOptionResponse
 import com.petqua.common.exception.ExceptionResponse
 import com.petqua.domain.product.ProductRepository
+import com.petqua.domain.product.option.ProductOptionRepository
 import com.petqua.domain.product.option.Sex.FEMALE
+import com.petqua.domain.product.option.Sex.HERMAPHRODITE
 import com.petqua.domain.product.option.Sex.MALE
 import com.petqua.domain.store.StoreRepository
 import com.petqua.exception.cart.CartProductExceptionType.DIFFERENT_DELIVERY_FEE
@@ -15,6 +17,7 @@ import com.petqua.exception.cart.CartProductExceptionType.PRODUCT_QUANTITY_OVER_
 import com.petqua.exception.product.ProductExceptionType.NOT_FOUND_PRODUCT
 import com.petqua.test.ApiTestConfig
 import com.petqua.test.fixture.product
+import com.petqua.test.fixture.productOption
 import com.petqua.test.fixture.saveCartProductRequest
 import com.petqua.test.fixture.store
 import com.petqua.test.fixture.updateCartProductOptionRequest
@@ -22,6 +25,7 @@ import io.kotest.assertions.assertSoftly
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
+import java.math.BigDecimal
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.BAD_REQUEST
@@ -33,6 +37,7 @@ import org.springframework.http.HttpStatus.NO_CONTENT
 class CartProductControllerTest(
     private val productRepository: ProductRepository,
     private val storeRepository: StoreRepository,
+    private val productOptionRepository: ProductOptionRepository,
 ) : ApiTestConfig() {
     init {
         val storeId = storeRepository.save(store()).id
@@ -422,6 +427,34 @@ class CartProductControllerTest(
                     commonDeliveryFee = 3000.toBigDecimal()
                 )
             )
+            productOptionRepository.save(
+                productOption(
+                    productId = productC.id,
+                    sex = MALE,
+                    additionalPrice = BigDecimal.ZERO,
+                )
+            )
+            productOptionRepository.save(
+                productOption(
+                    productId = productC.id,
+                    sex = FEMALE,
+                    additionalPrice = 3000.toBigDecimal()
+                )
+            )
+            productOptionRepository.save(
+                productOption(
+                    productId = productB.id,
+                    sex = MALE,
+                    additionalPrice = BigDecimal.ZERO,
+                )
+            )
+            productOptionRepository.save(
+                productOption(
+                    productId = productA.id,
+                    sex = HERMAPHRODITE,
+                    additionalPrice = BigDecimal.ZERO,
+                )
+            )
             val memberAuthResponse = signInAsMember()
             saveCartProductAndReturnId(memberAuthResponse.accessToken, productA.id)
             saveCartProductAndReturnId(memberAuthResponse.accessToken, productB.id)
@@ -431,7 +464,7 @@ class CartProductControllerTest(
                 val response = requestReadAllCartProducts(memberAuthResponse.accessToken)
 
                 Then("봉달 목록이 조회된다") {
-                    val responseBody = response.`as`(Array<CartProductResponse>::class.java)
+                    val responseBody = response.`as`(Array<CartProductWithSupportedOptionResponse>::class.java)
 
                     assertSoftly(response) {
                         statusCode shouldBe HttpStatus.OK.value()
@@ -446,11 +479,11 @@ class CartProductControllerTest(
                 val response = requestReadAllCartProducts(otherMemberResponse.accessToken)
 
                 Then("빈 목록이 조회된다") {
-                    val responseBody = response.`as`(Array<CartProductResponse>::class.java)
+                    val responseBody = response.`as`(Array<CartProductWithSupportedOptionResponse>::class.java)
 
                     assertSoftly(response) {
                         statusCode shouldBe HttpStatus.OK.value()
-                        responseBody shouldBe emptyArray<CartProductResponse>()
+                        responseBody shouldBe emptyArray<CartProductWithSupportedOptionResponse>()
                     }
                 }
             }
@@ -460,7 +493,7 @@ class CartProductControllerTest(
                 val response = requestReadAllCartProducts(memberAuthResponse.accessToken)
 
                 Then("삭제된 상품은 구매 불가능 하도록 조회된다") {
-                    val responseBody = response.`as`(Array<CartProductResponse>::class.java)
+                    val responseBody = response.`as`(Array<CartProductWithSupportedOptionResponse>::class.java)
 
                     assertSoftly(response) {
                         statusCode shouldBe HttpStatus.OK.value()

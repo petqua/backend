@@ -1,6 +1,6 @@
 package com.petqua.application.cart
 
-import com.petqua.application.cart.dto.CartProductResponse
+import com.petqua.application.cart.dto.CartProductWithSupportedOptionResponse
 import com.petqua.application.cart.dto.DeleteCartProductCommand
 import com.petqua.application.cart.dto.SaveCartProductCommand
 import com.petqua.application.cart.dto.UpdateCartProductOptionCommand
@@ -12,7 +12,10 @@ import com.petqua.domain.cart.CartProductRepository
 import com.petqua.domain.delivery.DeliveryMethod
 import com.petqua.domain.member.MemberRepository
 import com.petqua.domain.product.ProductRepository
+import com.petqua.domain.product.option.ProductOptionRepository
 import com.petqua.domain.product.option.Sex
+import com.petqua.domain.product.option.Sex.FEMALE
+import com.petqua.domain.product.option.Sex.MALE
 import com.petqua.exception.cart.CartProductException
 import com.petqua.exception.cart.CartProductExceptionType.DIFFERENT_DELIVERY_FEE
 import com.petqua.exception.cart.CartProductExceptionType.DUPLICATED_PRODUCT
@@ -30,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional
 class CartProductService(
     private val cartProductRepository: CartProductRepository,
     private val productRepository: ProductRepository,
+    private val productOptionRepository: ProductOptionRepository,
     private val memberRepository: MemberRepository,
 ) {
 
@@ -97,8 +101,19 @@ class CartProductService(
     }
 
     @Transactional(readOnly = true)
-    fun readAll(memberId: Long): List<CartProductResponse> {
+    fun readAll(memberId: Long): List<CartProductWithSupportedOptionResponse> {
         memberRepository.existByIdOrThrow(memberId, MemberException(NOT_FOUND_MEMBER))
-        return cartProductRepository.findAllCartResultsByMemberId(memberId)
+        val cartByProduct = cartProductRepository.findAllCartResultsByMemberId(memberId).associateBy { it.productId }
+        val productOptions = productOptionRepository.findByProductIdIn(cartByProduct.map { it.key })
+        val maleProductOption = productOptions.filter { it.sex == MALE }.associateBy { it.productId }
+        val femaleProductOption = productOptions.filter { it.sex == FEMALE }.associateBy { it.productId }
+
+        return cartByProduct.values.map {
+            CartProductWithSupportedOptionResponse(
+                it,
+                maleProductOption[it.productId]?.additionalPrice,
+                femaleProductOption[it.productId]?.additionalPrice
+            )
+        }
     }
 }
