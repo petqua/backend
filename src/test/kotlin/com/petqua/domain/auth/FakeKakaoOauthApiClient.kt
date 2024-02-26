@@ -5,11 +5,10 @@ import com.petqua.domain.auth.oauth.kakao.KakaoAccount
 import com.petqua.domain.auth.oauth.kakao.KakaoOauthApiClient
 import com.petqua.domain.auth.oauth.kakao.KakaoUserInfo
 import com.petqua.domain.auth.oauth.kakao.Profile
-import org.springframework.util.MultiValueMap
 import java.util.*
 
 class FakeKakaoOauthApiClient : KakaoOauthApiClient {
-    override fun fetchToken(body: MultiValueMap<String, String>): OauthTokenInfo {
+    override fun fetchToken(body: Map<String, String>): OauthTokenInfo {
         return OauthTokenInfo(
             tokenType = "bearer",
             accessToken = "accessToken",

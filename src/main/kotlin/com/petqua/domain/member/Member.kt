@@ -3,8 +3,9 @@ package com.petqua.domain.member
 import com.petqua.common.domain.BaseEntity
 import com.petqua.common.domain.SoftDeleteEntity
 import com.petqua.domain.auth.Authority
+import com.petqua.domain.auth.oauth.OauthTokenInfo
 import com.petqua.exception.member.MemberException
-import com.petqua.exception.member.MemberExceptionType
+import com.petqua.exception.member.MemberExceptionType.NOT_FOUND_MEMBER
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType.STRING
@@ -50,6 +51,7 @@ class Member(
     var oauthRefreshToken: String?,
 ) : BaseEntity(), SoftDeleteEntity {
 
+
     fun delete() {
         isDeleted = true
         anonymize()
@@ -66,7 +68,18 @@ class Member(
 
     override fun validateDeleted() {
         if (isDeleted) {
-            throw MemberException(MemberExceptionType.NOT_FOUND_MEMBER)
+            throw MemberException(NOT_FOUND_MEMBER)
         }
+    }
+
+    fun hasExpiredToken(): Boolean {
+        return expireAt?.let { it < LocalDateTime.now() } ?: throw MemberException(NOT_FOUND_MEMBER)
+    }
+
+    fun updateToken(oauthTokenInfo: OauthTokenInfo): Member {
+        oauthAccessToken = oauthTokenInfo.accessToken
+        expireAt = LocalDateTime.now().plusSeconds(oauthTokenInfo.expiresIn)
+        oauthRefreshToken = oauthTokenInfo.refreshToken ?: oauthRefreshToken
+        return this
     }
 }

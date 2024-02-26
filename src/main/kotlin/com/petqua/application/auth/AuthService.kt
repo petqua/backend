@@ -1,11 +1,10 @@
 package com.petqua.application.auth
 
-import com.petqua.common.domain.findByIdOrThrow
+import com.petqua.common.domain.findActiveByIdOrThrow
 import com.petqua.domain.auth.Authority.MEMBER
+import com.petqua.domain.auth.oauth.OauthClient
 import com.petqua.domain.auth.oauth.OauthClientProvider
 import com.petqua.domain.auth.oauth.OauthServerType
-import com.petqua.domain.auth.oauth.OauthTokenInfo
-import com.petqua.domain.auth.oauth.OauthUserInfo
 import com.petqua.domain.auth.token.AuthToken
 import com.petqua.domain.auth.token.AuthTokenProvider
 import com.petqua.domain.auth.token.RefreshToken
@@ -42,17 +41,37 @@ class AuthService(
         val oauthClient = oauthClientProvider.getOauthClient(oauthServerType)
         val oauthTokenInfo = oauthClient.requestToken(code)
         val oauthUserInfo = oauthClient.requestOauthUserInfo(oauthTokenInfo)
-        val member = getMemberByOauthInfo(oauthUserInfo.oauthId, oauthServerType)
-            ?: createMember(
-                oauthTokenInfo = oauthTokenInfo,
-                oauthUserInfo = oauthUserInfo,
-                oauthServerType = oauthServerType
+
+        val member: Member = memberRepository.findByOauthIdAndOauthServerNumber(
+            oauthUserInfo.oauthId,
+            oauthServerType.number
+        )?.let {
+            updateTokenOrNothing(it, oauthClient)
+        } ?: memberRepository.save(
+            Member(
+                oauthId = oauthUserInfo.oauthId,
+                oauthServerNumber = oauthServerType.number,
+                authority = MEMBER,
+                oauthAccessToken = oauthTokenInfo.accessToken,
+                expireAt = LocalDateTime.now().plusSeconds(oauthTokenInfo.expiresIn),
+                oauthRefreshToken = oauthTokenInfo.refreshToken,
             )
+        )
         val authToken = createAuthToken(member)
         return AuthTokenInfo(
             accessToken = authToken.accessToken,
             refreshToken = authToken.refreshToken,
         )
+    }
+
+    private fun updateTokenOrNothing(member: Member, oauthClient: OauthClient): Member {
+        return if (member.hasExpiredToken()) {
+            val refreshToken = member.oauthRefreshToken ?: throw MemberException(NOT_FOUND_MEMBER)
+            val renewalOauthTokenInfo = oauthClient.updateToken(refreshToken)
+            member.updateToken(renewalOauthTokenInfo)
+        } else {
+            member
+        }
     }
 
     fun extendLogin(accessToken: String, refreshToken: String): AuthTokenInfo {
@@ -62,9 +81,11 @@ class AuthService(
         if (savedRefreshToken.token != refreshToken) {
             throw AuthException(INVALID_REFRESH_TOKEN)
         }
-        val member = memberRepository.findByIdOrThrow(savedRefreshToken.memberId) {
+        val member = memberRepository.findActiveByIdOrThrow(savedRefreshToken.memberId) {
             MemberException(NOT_FOUND_MEMBER)
         }
+        val oauthClient = oauthClientProvider.getOauthClient(OauthServerType.numberOf(member.oauthServerNumber))
+        updateTokenOrNothing(member, oauthClient)
         val authToken = createAuthToken(member)
         return AuthTokenInfo(
             accessToken = authToken.accessToken,
@@ -79,27 +100,6 @@ class AuthService(
         if (authTokenProvider.isExpiredRefreshToken(refreshToken)) {
             throw AuthException(EXPIRED_REFRESH_TOKEN)
         }
-    }
-
-    private fun getMemberByOauthInfo(oauthId: String, oauthServerType: OauthServerType): Member? {
-        return memberRepository.findByOauthIdAndOauthServerNumber(oauthId, oauthServerType.number)
-    }
-
-    private fun createMember(
-        oauthTokenInfo: OauthTokenInfo,
-        oauthUserInfo: OauthUserInfo,
-        oauthServerType: OauthServerType
-    ): Member {
-        return memberRepository.save(
-            Member(
-                oauthId = oauthUserInfo.oauthId,
-                oauthServerNumber = oauthServerType.number,
-                authority = MEMBER,
-                oauthAccessToken = oauthTokenInfo.accessToken,
-                expireAt = LocalDateTime.now().plusSeconds(oauthTokenInfo.expiresIn),
-                oauthRefreshToken = oauthTokenInfo.refreshToken,
-            )
-        )
     }
 
     private fun createAuthToken(member: Member): AuthToken {

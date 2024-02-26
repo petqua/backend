@@ -8,8 +8,8 @@ data class OauthTokenInfo(
     val tokenType: String,
     val accessToken: String,
     val expiresIn: Long,
-    val refreshToken: String,
-    val refreshTokenExpiresIn: Long,
+    val refreshToken: String?,
+    val refreshTokenExpiresIn: Long?,
 )
 
 data class OauthUserInfo(
