@@ -1,10 +1,8 @@
 package com.petqua.domain.product
 
-import com.petqua.domain.order.OrderNumber
 import com.petqua.test.fixture.product
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.Test
 
 class ProductTest : BehaviorSpec({
 
@@ -24,9 +22,4 @@ class ProductTest : BehaviorSpec({
     }
 
 
-}) {
-    @Test
-    fun test() {
-        println(OrderNumber.generate().value)
-    }
-}
+})

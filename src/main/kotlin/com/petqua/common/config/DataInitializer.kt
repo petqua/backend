@@ -32,6 +32,7 @@ import com.petqua.domain.product.detail.info.OptimalTemperature
 import com.petqua.domain.product.detail.info.ProductInfo
 import com.petqua.domain.product.detail.info.ProductInfoRepository
 import com.petqua.domain.product.detail.info.Temperament.PEACEFUL
+import com.petqua.domain.product.option.ProductOption
 import com.petqua.domain.product.option.ProductOptionRepository
 import com.petqua.domain.product.option.Sex.FEMALE
 import com.petqua.domain.product.option.Sex.HERMAPHRODITE
@@ -45,13 +46,13 @@ import com.petqua.domain.recommendation.ProductRecommendation
 import com.petqua.domain.recommendation.ProductRecommendationRepository
 import com.petqua.domain.store.Store
 import com.petqua.domain.store.StoreRepository
-import java.math.BigDecimal
-import kotlin.random.Random
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.annotation.Profile
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
+import java.math.BigDecimal
+import kotlin.random.Random
 
 @Component
 @Profile("local", "prod")
@@ -171,18 +172,6 @@ class DataInitializer(
             }
             val reviewCount = (1..5).random()
 
-            val sex = when {
-                (it % 3) == 0 -> MALE
-                (it % 7) == 0 -> FEMALE
-                else -> HERMAPHRODITE
-            }
-//            val productOption = productOptionRepository.save(
-//                ProductOption(
-//                    sex = sex,
-//                    additionalPrice = BigDecimal.ZERO
-//                )
-//            )
-
             val productInfo = productInfoRepository.save(
                 ProductInfo(
                     categoryId = categoryId,
@@ -223,6 +212,21 @@ class DataInitializer(
             )
         }
         productRepository.saveAll(products)
+
+        val productOptions = products.map {
+            val sex = when {
+                (it.id % 3).toInt() == 0 -> MALE
+                (it.id % 7).toInt() == 0 -> FEMALE
+                else -> HERMAPHRODITE
+            }
+
+            ProductOption(
+                productId = it.id,
+                sex = sex,
+                additionalPrice = BigDecimal.ZERO,
+            )
+        }
+        productOptionRepository.saveAll(productOptions)
 
         // wishProducts
         val wishProducts = products.filter {
