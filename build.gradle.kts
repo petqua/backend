@@ -68,6 +68,10 @@ dependencies {
     testImplementation("io.kotest.extensions:kotest-extensions-spring:1.1.2")
     testImplementation("io.rest-assured:rest-assured:5.3.1")
     testImplementation("io.rest-assured:kotlin-extensions:5.3.1")
+
+    // testcontainers
+    testImplementation("io.kotest.extensions:kotest-extensions-testcontainers:5.4.2")
+//    testImplementation("com.redis.testcontainers:testcontainers-redis-junit:1.6.4")
 }
 
 tasks.withType<KotlinCompile> {
