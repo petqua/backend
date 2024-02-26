@@ -38,8 +38,8 @@ class KakaoOauthClient(
         return KAKAO
     }
 
-    override fun requestOauthUserInfo(oauthTokenInfo: OauthTokenInfo): OauthUserInfo {
-        val kakaoOauthUserInfo = kakaoOauthApiClient.fetchUserInfo("Bearer ${oauthTokenInfo.accessToken}")
+    override fun requestOauthUserInfo(accessToken: String): OauthUserInfo {
+        val kakaoOauthUserInfo = kakaoOauthApiClient.fetchUserInfo("Bearer $accessToken")
         return kakaoOauthUserInfo.toOauthUserInfo()
     }
 

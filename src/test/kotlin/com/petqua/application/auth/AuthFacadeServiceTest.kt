@@ -21,12 +21,12 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE
 import org.springframework.context.annotation.Import
 import java.lang.System.currentTimeMillis
-import java.util.Date
+import java.util.*
 
 @SpringBootTest(webEnvironment = NONE)
 @Import(OauthTestConfig::class)
-class AuthServiceTest(
-    private var authService: AuthService,
+class AuthFacadeServiceTest(
+    private val authFacadeService: AuthFacadeService,
     private val refreshTokenRepository: RefreshTokenRepository,
     private val authTokenProvider: AuthTokenProvider,
     private val jwtProvider: JwtProvider,
@@ -37,7 +37,7 @@ class AuthServiceTest(
     Given("카카오 소셜 로그인을") {
 
         When("요청하면") {
-            val authTokenInfo = authService.login(KAKAO, "accessCode")
+            val authTokenInfo = authFacadeService.login(KAKAO, "accessCode")
 
             Then("멤버의 인증 토큰을 발급한다") {
                 assertSoftly(authTokenInfo) {
@@ -68,7 +68,7 @@ class AuthServiceTest(
         )
 
         When("요청하면") {
-            val authTokenInfo = authService.extendLogin(expiredAccessToken, refreshToken)
+            val authTokenInfo = authFacadeService.extendLogin(expiredAccessToken, refreshToken)
 
             Then("멤버의 인증 토큰을 발급한다") {
                 assertSoftly(authTokenInfo) {
@@ -101,7 +101,7 @@ class AuthServiceTest(
 
             Then("예외가 발생한다") {
                 shouldThrow<AuthException> {
-                    authService.extendLogin(authToken.accessToken, authToken.refreshToken)
+                    authFacadeService.extendLogin(authToken.accessToken, authToken.refreshToken)
                 }.exceptionType() shouldBe AuthExceptionType.NOT_RENEWABLE_ACCESS_TOKEN
             }
         }
@@ -117,7 +117,7 @@ class AuthServiceTest(
 
             Then("예외가 발생한다") {
                 shouldThrow<AuthException> {
-                    authService.extendLogin(expiredAuthToken.accessToken, expiredAuthToken.refreshToken)
+                    authFacadeService.extendLogin(expiredAuthToken.accessToken, expiredAuthToken.refreshToken)
                 }.exceptionType() shouldBe AuthExceptionType.EXPIRED_REFRESH_TOKEN
             }
         }
@@ -128,7 +128,7 @@ class AuthServiceTest(
 
             Then("예외가 발생한다") {
                 shouldThrow<AuthException> {
-                    authService.extendLogin(expiredAccessToken, unsavedRefreshToken)
+                    authFacadeService.extendLogin(expiredAccessToken, unsavedRefreshToken)
                 }.exceptionType() shouldBe AuthExceptionType.INVALID_REFRESH_TOKEN
             }
         }
@@ -147,7 +147,7 @@ class AuthServiceTest(
 
             Then("예외가 발생한다") {
                 shouldThrow<AuthException> {
-                    authService.extendLogin(expiredAccessToken, unsavedRefreshToken)
+                    authFacadeService.extendLogin(expiredAccessToken, unsavedRefreshToken)
                 }.exceptionType() shouldBe AuthExceptionType.INVALID_REFRESH_TOKEN
             }
         }

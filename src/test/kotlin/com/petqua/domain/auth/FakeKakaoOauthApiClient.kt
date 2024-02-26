@@ -5,7 +5,7 @@ import com.petqua.domain.auth.oauth.kakao.KakaoAccount
 import com.petqua.domain.auth.oauth.kakao.KakaoOauthApiClient
 import com.petqua.domain.auth.oauth.kakao.KakaoUserInfo
 import com.petqua.domain.auth.oauth.kakao.Profile
-import java.util.*
+import java.util.UUID
 
 class FakeKakaoOauthApiClient : KakaoOauthApiClient {
     override fun fetchToken(body: Map<String, String>): OauthTokenInfo {

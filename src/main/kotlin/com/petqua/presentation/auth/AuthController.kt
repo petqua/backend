@@ -1,6 +1,6 @@
 package com.petqua.presentation.auth
 
-import com.petqua.application.auth.AuthService
+import com.petqua.application.auth.AuthFacadeService
 import com.petqua.application.auth.AuthTokenInfo
 import com.petqua.domain.auth.Auth
 import com.petqua.domain.auth.LoginMember
@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/auth")
 @RestController
 class AuthController(
-    private val authService: AuthService
+    private val authFacadeService: AuthFacadeService
 ) {
 
     @Operation(summary = "리다이렉트 요청 API", description = "Oauth 로그인 페이지로 리다이렉트하는 URI를 조회합니다")
@@ -38,7 +38,7 @@ class AuthController(
         @Schema(description = "Oauth 서버", example = "KAKAO")
         @PathVariable oauthServerType: OauthServerType,
     ): ResponseEntity<RedirectUriResponse> {
-        val redirectUri = authService.getAuthCodeRequestUrl(oauthServerType)
+        val redirectUri = authFacadeService.getAuthCodeRequestUrl(oauthServerType)
         return ResponseEntity
             .ok()
             .body(RedirectUriResponse(redirectUri.toString()))
@@ -54,7 +54,7 @@ class AuthController(
         @Schema(description = "auth code")
         @RequestParam("code") code: String,
     ): ResponseEntity<Unit> {
-        val authTokenInfo = authService.login(oauthServerType, code)
+        val authTokenInfo = authFacadeService.login(oauthServerType, code)
         val refreshTokenCookie = createRefreshTokenCookie(authTokenInfo)
         val headers = HttpHeaders().apply {
             set(AUTHORIZATION, authTokenInfo.accessToken)
@@ -91,7 +91,7 @@ class AuthController(
     fun extendLogin(
         @Parameter(hidden = true) @Auth authToken: AuthToken,
     ): ResponseEntity<Unit> {
-        val authTokenInfo = authService.extendLogin(authToken.accessToken, authToken.refreshToken)
+        val authTokenInfo = authFacadeService.extendLogin(authToken.accessToken, authToken.refreshToken)
         val refreshTokenCookie = createRefreshTokenCookie(authTokenInfo)
         val headers = HttpHeaders().apply {
             set(AUTHORIZATION, authTokenInfo.accessToken)
@@ -117,7 +117,7 @@ class AuthController(
     fun delete(
         @Auth loginMember: LoginMember
     ): ResponseEntity<Unit> {
-        authService.deleteBy(loginMember.memberId)
+        authFacadeService.deleteBy(loginMember.memberId)
         return ResponseEntity.noContent().build()
     }
 }

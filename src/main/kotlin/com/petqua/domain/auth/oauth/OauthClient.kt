@@ -8,11 +8,10 @@ interface OauthClient {
 
     fun oauthServerType(): OauthServerType
 
-    fun requestOauthUserInfo(oauthTokenInfo: OauthTokenInfo): OauthUserInfo
+    fun requestOauthUserInfo(accessToken: String): OauthUserInfo
 
     fun requestToken(code: String): OauthTokenInfo
 
     fun updateToken(refreshToken: String): OauthTokenInfo
-
     fun disconnect(accessToken: String)
 }

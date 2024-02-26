@@ -4,8 +4,8 @@ import com.petqua.common.domain.BaseEntity
 import com.petqua.common.domain.SoftDeleteEntity
 import com.petqua.domain.auth.Authority
 import com.petqua.domain.auth.oauth.OauthServerType
-import com.petqua.domain.auth.oauth.OauthTokenInfo
 import com.petqua.exception.member.MemberException
+import com.petqua.exception.member.MemberExceptionType.INVALID_MEMBER_STATE
 import com.petqua.exception.member.MemberExceptionType.NOT_FOUND_MEMBER
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
@@ -17,7 +17,7 @@ import jakarta.persistence.Id
 import java.time.LocalDateTime
 
 private const val DELETED_MEMBER_NAME = ""
-private const val DELETED_MEMBER_OAUTH_ID = ""
+private const val DELETED_AUTH_FIELD = ""
 
 @Entity
 class Member(
@@ -47,9 +47,9 @@ class Member(
     @Column(nullable = false)
     var isDeleted: Boolean = false,
 
-    var oauthAccessToken: String?,
-    var expireAt: LocalDateTime?,
-    var oauthRefreshToken: String?,
+    var oauthAccessToken: String = "",
+    var expireAt: LocalDateTime? = null,
+    var oauthRefreshToken: String = "",
 ) : BaseEntity(), SoftDeleteEntity {
 
     val oauthServerType: OauthServerType
@@ -61,12 +61,12 @@ class Member(
     }
 
     private fun anonymize() {
-        oauthId = DELETED_MEMBER_OAUTH_ID
+        oauthId = DELETED_AUTH_FIELD
         nickname = DELETED_MEMBER_NAME
         profileImageUrl = null
-        oauthAccessToken = null
+        oauthAccessToken = DELETED_AUTH_FIELD
         expireAt = null
-        oauthRefreshToken = null
+        oauthRefreshToken = DELETED_AUTH_FIELD
     }
 
     override fun validateDeleted() {
@@ -75,14 +75,18 @@ class Member(
         }
     }
 
-    fun hasExpiredToken(): Boolean {
-        return expireAt?.let { it < LocalDateTime.now() } ?: throw MemberException(NOT_FOUND_MEMBER)
+    fun updateToken(
+        accessToken: String,
+        expiresIn: Long,
+        refreshToken: String?,
+    ) {
+        oauthAccessToken = accessToken
+        expireAt = LocalDateTime.now().plusSeconds(expiresIn)
+        oauthRefreshToken = refreshToken ?: oauthRefreshToken
     }
 
-    fun updateToken(oauthTokenInfo: OauthTokenInfo): Member {
-        oauthAccessToken = oauthTokenInfo.accessToken
-        expireAt = LocalDateTime.now().plusSeconds(oauthTokenInfo.expiresIn)
-        oauthRefreshToken = oauthTokenInfo.refreshToken ?: oauthRefreshToken
-        return this
+
+    fun hasExpiredOauthToken(): Boolean {
+        return expireAt?.let { it < LocalDateTime.now() } ?: throw MemberException(INVALID_MEMBER_STATE)
     }
 }
