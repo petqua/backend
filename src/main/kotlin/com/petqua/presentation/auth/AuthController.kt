@@ -3,6 +3,7 @@ package com.petqua.presentation.auth
 import com.petqua.application.auth.AuthService
 import com.petqua.application.auth.AuthTokenInfo
 import com.petqua.domain.auth.Auth
+import com.petqua.domain.auth.LoginMember
 import com.petqua.domain.auth.oauth.OauthServerType
 import com.petqua.domain.auth.token.AuthToken
 import io.swagger.v3.oas.annotations.Operation
@@ -16,6 +17,7 @@ import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.http.HttpHeaders.SET_COOKIE
 import org.springframework.http.ResponseCookie
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
@@ -107,5 +109,15 @@ class AuthController(
             .secure(true)
             .httpOnly(true)
             .build()
+    }
+
+    @Operation(summary = "회원 탈퇴 API", description = "회원 탈퇴를 합니다")
+    @ApiResponse(responseCode = "204", description = "회원 탈퇴 성공")
+    @DeleteMapping
+    fun delete(
+        @Auth loginMember: LoginMember
+    ): ResponseEntity<Unit> {
+        authService.deleteBy(loginMember.memberId)
+        return ResponseEntity.noContent().build()
     }
 }

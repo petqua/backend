@@ -3,6 +3,7 @@ package com.petqua.domain.member
 import com.petqua.common.domain.BaseEntity
 import com.petqua.common.domain.SoftDeleteEntity
 import com.petqua.domain.auth.Authority
+import com.petqua.domain.auth.oauth.OauthServerType
 import com.petqua.domain.auth.oauth.OauthTokenInfo
 import com.petqua.exception.member.MemberException
 import com.petqua.exception.member.MemberExceptionType.NOT_FOUND_MEMBER
@@ -51,6 +52,8 @@ class Member(
     var oauthRefreshToken: String?,
 ) : BaseEntity(), SoftDeleteEntity {
 
+    val oauthServerType: OauthServerType
+        get() = OauthServerType.numberOf(oauthServerNumber)
 
     fun delete() {
         isDeleted = true

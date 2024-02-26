@@ -65,6 +65,6 @@ class KakaoOauthClient(
     }
 
     override fun disconnect(accessToken: String) {
-        kakaoOauthApiClient.disconnect(accessToken)
+        kakaoOauthApiClient.disconnect("Bearer $accessToken")
     }
 }

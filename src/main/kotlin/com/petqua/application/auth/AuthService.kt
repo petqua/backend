@@ -9,6 +9,7 @@ import com.petqua.domain.auth.token.AuthToken
 import com.petqua.domain.auth.token.AuthTokenProvider
 import com.petqua.domain.auth.token.RefreshToken
 import com.petqua.domain.auth.token.RefreshTokenRepository
+import com.petqua.domain.cart.CartProductRepository
 import com.petqua.domain.member.Member
 import com.petqua.domain.member.MemberRepository
 import com.petqua.exception.auth.AuthException
@@ -29,6 +30,7 @@ class AuthService(
     private val oauthClientProvider: OauthClientProvider,
     private val memberRepository: MemberRepository,
     private val authTokenProvider: AuthTokenProvider,
+    private val cartProductRepository: CartProductRepository,
     private val refreshTokenRepository: RefreshTokenRepository,
 ) {
 
@@ -84,7 +86,7 @@ class AuthService(
         val member = memberRepository.findActiveByIdOrThrow(savedRefreshToken.memberId) {
             MemberException(NOT_FOUND_MEMBER)
         }
-        val oauthClient = oauthClientProvider.getOauthClient(OauthServerType.numberOf(member.oauthServerNumber))
+        val oauthClient = oauthClientProvider.getOauthClient(member.oauthServerType)
         updateTokenOrNothing(member, oauthClient)
         val authToken = createAuthToken(member)
         return AuthTokenInfo(
@@ -114,8 +116,19 @@ class AuthService(
         return authToken
     }
 
-    fun disconnect(oauthServerType: OauthServerType, accessToken: Member) {
-        val oauthClient = oauthClientProvider.getOauthClient(oauthServerType)
+    fun deleteBy(memberId: Long) {
+        val member = memberRepository.findActiveByIdOrThrow(memberId) {
+            MemberException(NOT_FOUND_MEMBER)
+        }
+        val oauthClient = oauthClientProvider.getOauthClient(member.oauthServerType)
+        updateTokenOrNothing(member, oauthClient)
 
+        val oauthAccessToken = member.oauthAccessToken ?: throw MemberException(NOT_FOUND_MEMBER)
+        oauthClient.disconnect(oauthAccessToken)
+
+        member.delete()
+
+        cartProductRepository.deleteByMemberId(member.id)
+        refreshTokenRepository.deleteByMemberId(member.id)
     }
 }
