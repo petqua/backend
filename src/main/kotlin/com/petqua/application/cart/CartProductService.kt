@@ -4,13 +4,13 @@ import com.petqua.application.cart.dto.CartProductWithSupportedOptionResponse
 import com.petqua.application.cart.dto.DeleteCartProductCommand
 import com.petqua.application.cart.dto.SaveCartProductCommand
 import com.petqua.application.cart.dto.UpdateCartProductOptionCommand
-import com.petqua.common.domain.existActiveByIdOrThrow
 import com.petqua.common.domain.existByIdOrThrow
 import com.petqua.common.domain.findByIdOrThrow
 import com.petqua.common.util.throwExceptionWhen
 import com.petqua.domain.cart.CartProductRepository
 import com.petqua.domain.delivery.DeliveryMethod
 import com.petqua.domain.member.MemberRepository
+import com.petqua.domain.product.Product
 import com.petqua.domain.product.ProductRepository
 import com.petqua.domain.product.option.ProductOptionRepository
 import com.petqua.domain.product.option.Sex
@@ -19,6 +19,7 @@ import com.petqua.domain.product.option.Sex.MALE
 import com.petqua.exception.cart.CartProductException
 import com.petqua.exception.cart.CartProductExceptionType.DIFFERENT_DELIVERY_FEE
 import com.petqua.exception.cart.CartProductExceptionType.DUPLICATED_PRODUCT
+import com.petqua.exception.cart.CartProductExceptionType.NOT_EXIST_OPTION
 import com.petqua.exception.cart.CartProductExceptionType.NOT_FOUND_CART_PRODUCT
 import com.petqua.exception.member.MemberException
 import com.petqua.exception.member.MemberExceptionType.NOT_FOUND_MEMBER
@@ -39,15 +40,22 @@ class CartProductService(
 
     fun save(command: SaveCartProductCommand): Long {
         memberRepository.existByIdOrThrow(command.memberId, MemberException(NOT_FOUND_MEMBER))
-        productRepository.existActiveByIdOrThrow(command.productId, ProductException(NOT_FOUND_PRODUCT))
+        val product = productRepository.findByIdOrThrow(command.productId, ProductException(NOT_FOUND_PRODUCT))
         validateDuplicatedProduct(
             memberId = command.memberId,
             productId = command.productId,
             sex = command.sex,
             deliveryMethod = command.deliveryMethod
         )
-        validateDeliveryFee(command.productId, command.deliveryMethod, command.deliveryFee)
+        validateSupportedOption(command.productId, command.sex)
+        validateDeliveryFee(product, command.deliveryMethod, command.deliveryFee)
         return cartProductRepository.save(command.toCartProduct()).id
+    }
+
+    private fun validateSupportedOption(productId: Long, sex: Sex) {
+        throwExceptionWhen(!productOptionRepository.existsByProductIdAndSex(productId, sex)) {
+            CartProductException(NOT_EXIST_OPTION)
+        }
     }
 
     fun updateOptions(command: UpdateCartProductOptionCommand) {
@@ -62,7 +70,9 @@ class CartProductService(
             sex = command.sex,
             deliveryMethod = command.deliveryMethod
         )
-        validateDeliveryFee(cartProduct.productId, command.deliveryMethod, command.deliveryFee)
+        val product = productRepository.findByIdOrThrow(cartProduct.productId, ProductException(NOT_FOUND_PRODUCT))
+        validateSupportedOption(product.id, command.sex)
+        validateDeliveryFee(product, command.deliveryMethod, command.deliveryFee)
         cartProduct.updateOptions(
             command.quantity,
             command.sex,
@@ -71,9 +81,8 @@ class CartProductService(
         )
     }
 
-    private fun validateDeliveryFee(productId: Long, deliveryMethod: DeliveryMethod, deliveryFee: BigDecimal) {
-        productRepository.findByIdOrThrow(productId, ProductException(NOT_FOUND_PRODUCT))
-            .getDeliveryFee(deliveryMethod)
+    private fun validateDeliveryFee(product: Product, deliveryMethod: DeliveryMethod, deliveryFee: BigDecimal) {
+        product.getDeliveryFee(deliveryMethod)
             .also { throwExceptionWhen(it != deliveryFee) { CartProductException(DIFFERENT_DELIVERY_FEE) } }
     }
 

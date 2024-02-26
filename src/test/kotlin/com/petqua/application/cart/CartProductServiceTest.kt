@@ -8,12 +8,15 @@ import com.petqua.domain.delivery.DeliveryMethod.COMMON
 import com.petqua.domain.delivery.DeliveryMethod.SAFETY
 import com.petqua.domain.member.MemberRepository
 import com.petqua.domain.product.ProductRepository
+import com.petqua.domain.product.option.ProductOptionRepository
 import com.petqua.domain.product.option.Sex.FEMALE
+import com.petqua.domain.product.option.Sex.HERMAPHRODITE
 import com.petqua.domain.product.option.Sex.MALE
 import com.petqua.domain.store.StoreRepository
 import com.petqua.exception.cart.CartProductException
 import com.petqua.exception.cart.CartProductExceptionType.DUPLICATED_PRODUCT
 import com.petqua.exception.cart.CartProductExceptionType.FORBIDDEN_CART_PRODUCT
+import com.petqua.exception.cart.CartProductExceptionType.NOT_EXIST_OPTION
 import com.petqua.exception.cart.CartProductExceptionType.NOT_FOUND_CART_PRODUCT
 import com.petqua.exception.member.MemberException
 import com.petqua.exception.member.MemberExceptionType.NOT_FOUND_MEMBER
@@ -23,6 +26,7 @@ import com.petqua.test.DataCleaner
 import com.petqua.test.fixture.cartProduct
 import com.petqua.test.fixture.member
 import com.petqua.test.fixture.product
+import com.petqua.test.fixture.productOption
 import com.petqua.test.fixture.saveCartProductCommand
 import com.petqua.test.fixture.store
 import com.petqua.test.fixture.updateCartProductOptionCommand
@@ -38,6 +42,7 @@ class CartProductServiceTest(
     private val cartProductService: CartProductService,
     private val cartProductRepository: CartProductRepository,
     private val productRepository: ProductRepository,
+    private val productOptionRepository: ProductOptionRepository,
     private val memberRepository: MemberRepository,
     private val storeRepository: StoreRepository,
     private val dataCleaner: DataCleaner,
@@ -51,6 +56,7 @@ class CartProductServiceTest(
                 safeDeliveryFee = 5000.toBigDecimal()
             )
         ).id
+        productOptionRepository.save(productOption(productId = productId, sex = MALE))
         val memberId = memberRepository.save(member(id = 1L)).id
         val command = saveCartProductCommand(
             memberId = memberId,
@@ -72,6 +78,7 @@ class CartProductServiceTest(
 
     Given("봉달 상품 저장시") {
         val productId = productRepository.save(product(id = 1L, commonDeliveryFee = 3000.toBigDecimal())).id
+        productOptionRepository.save(productOption(productId = productId, sex = MALE))
         val memberId = memberRepository.save(member(id = 1L)).id
 
         When("존재 하지 않는 회원이 요청 하는 경우") {
@@ -122,6 +129,22 @@ class CartProductServiceTest(
                 }.exceptionType() shouldBe DUPLICATED_PRODUCT
             }
         }
+
+        When("존재 하지 않는 상품 옵션을 선택 하는 경우") {
+            val command = saveCartProductCommand(
+                memberId = memberId,
+                productId = productId,
+                quantity = 1,
+                sex = HERMAPHRODITE,
+                deliveryMethod = COMMON,
+                deliveryFee = 3000.toBigDecimal(),
+            )
+            Then("예외가 발생 한다") {
+                shouldThrow<CartProductException> {
+                    cartProductService.save(command)
+                }.exceptionType() shouldBe NOT_EXIST_OPTION
+            }
+        }
     }
 
     Given("봉달 상품 옵션 수정 명령으로") {
@@ -130,6 +153,8 @@ class CartProductServiceTest(
                 id = 1L, commonDeliveryFee = 3000.toBigDecimal(), safeDeliveryFee = 5000.toBigDecimal()
             )
         ).id
+        productOptionRepository.save(productOption(productId = productId, sex = MALE))
+        productOptionRepository.save(productOption(productId = productId, sex = FEMALE))
         val memberId = memberRepository.save(member(id = 1L)).id
         val cartProduct = cartProductRepository.save(
             cartProduct(
@@ -169,6 +194,8 @@ class CartProductServiceTest(
                 safeDeliveryFee = 5000.toBigDecimal()
             )
         ).id
+        productOptionRepository.save(productOption(productId = productId, sex = MALE))
+        productOptionRepository.save(productOption(productId = productId, sex = FEMALE))
         val memberId = memberRepository.save(member()).id
         val cartProduct = cartProductRepository.save(
             cartProduct(
@@ -216,6 +243,23 @@ class CartProductServiceTest(
                 shouldThrow<CartProductException> {
                     cartProductService.updateOptions(command)
                 }.exceptionType() shouldBe DUPLICATED_PRODUCT
+            }
+        }
+
+        When("존재 하지 않는 상품 옵션으로 수정 시") {
+            val command = updateCartProductOptionCommand(
+                cartProductId = cartProduct.id,
+                memberId = memberId,
+                quantity = 2,
+                sex = HERMAPHRODITE,
+                deliveryMethod = COMMON,
+                deliveryFee = 3000.toBigDecimal(),
+            )
+
+            Then("예외가 발생 한다") {
+                shouldThrow<CartProductException> {
+                    cartProductService.updateOptions(command)
+                }.exceptionType() shouldBe NOT_EXIST_OPTION
             }
         }
     }
