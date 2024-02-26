@@ -211,6 +211,24 @@ class ProductServiceTest(
                 )
             )
 
+            val productsResponse1 = productService.readAll(
+                ProductReadQuery(
+                    sourceType = NONE,
+                    sorter = ENROLLMENT_DATE_DESC,
+                    limit = 2,
+                    loginMemberOrGuest = LoginMemberOrGuest.getMemberFrom(AccessTokenClaims(member.id, MEMBER))
+                )
+            )
+
+            val productsResponse2 = productService.readAll(
+                ProductReadQuery(
+                    sourceType = NONE,
+                    sorter = ENROLLMENT_DATE_DESC,
+                    limit = 2,
+                    loginMemberOrGuest = LoginMemberOrGuest.getMemberFrom(AccessTokenClaims(member.id, MEMBER))
+                )
+            )
+
             Then("상품의 찜 여부와 함께 상품 정보가 반환된다") {
                 productsResponse shouldBe ProductsResponse(
                     products = listOf(
@@ -228,6 +246,9 @@ class ProductServiceTest(
                     hasNextPage = false,
                     totalProductsCount = 2
                 )
+
+                productsResponse1.totalProductsCount shouldBe 2
+                productsResponse2.totalProductsCount shouldBe 2
             }
         }
 
