@@ -26,7 +26,8 @@ import com.petqua.domain.product.detail.info.ProductInfoRepository
 import com.petqua.domain.product.detail.info.Temperament
 import com.petqua.domain.product.dto.ProductResponse
 import com.petqua.domain.product.option.ProductOptionRepository
-import com.petqua.domain.product.option.Sex.HERMAPHRODITE
+import com.petqua.domain.product.option.Sex.FEMALE
+import com.petqua.domain.product.option.Sex.MALE
 import com.petqua.domain.recommendation.ProductRecommendationRepository
 import com.petqua.domain.store.StoreRepository
 import com.petqua.exception.product.ProductExceptionType.INVALID_SEARCH_WORD
@@ -110,10 +111,19 @@ class ProductControllerTest(
                     productInfoId = productInfo.id
                 )
             )
-            val productOption = productOptionRepository.save(
+            productOptionRepository.save(
                 productOption(
                     productId = product.id,
-                    sex = HERMAPHRODITE
+                    sex = MALE,
+                    additionalPrice = ZERO,
+                )
+            )
+
+            productOptionRepository.save(
+                productOption(
+                    productId = product.id,
+                    sex = FEMALE,
+                    additionalPrice = 2000.toBigDecimal(),
                 )
             )
             val productImage = productImageRepository.save(
@@ -157,7 +167,7 @@ class ProductControllerTest(
                             descriptionImageUrls = listOf(productDescriptionImage.imageUrl),
                             productInfo = productInfo,
                             category = category,
-                            hasDistinctSex = productOption.hasDistinctSex(),
+                            femaleAdditionalPrice = 2000.toBigDecimal(),
                             isWished = true
                         )
                     }
@@ -199,7 +209,7 @@ class ProductControllerTest(
                             descriptionImageUrls = listOf(productDescriptionImage.imageUrl),
                             productInfo = productInfo,
                             category = category,
-                            hasDistinctSex = productOption.hasDistinctSex(),
+                            femaleAdditionalPrice = 2000.toBigDecimal(),
                             isWished = false
                         )
                     }

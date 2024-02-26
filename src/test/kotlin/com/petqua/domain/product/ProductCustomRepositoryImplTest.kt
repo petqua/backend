@@ -22,7 +22,7 @@ import com.petqua.domain.product.dto.ProductResponse
 import com.petqua.domain.product.dto.ProductSearchCondition
 import com.petqua.domain.product.dto.ProductWithInfoResponse
 import com.petqua.domain.product.option.ProductOptionRepository
-import com.petqua.domain.product.option.Sex
+import com.petqua.domain.product.option.Sex.MALE
 import com.petqua.domain.recommendation.ProductRecommendationRepository
 import com.petqua.domain.store.StoreRepository
 import com.petqua.exception.product.ProductException
@@ -114,16 +114,16 @@ class ProductCustomRepositoryImplTest(
                 productInfoId = productInfo2.id,
             )
         )
-        val productOption1 = productOptionRepository.save(
+        productOptionRepository.save(
             productOption(
                 productId = product1.id,
-                sex = Sex.MALE,
+                sex = MALE,
             )
         )
-        val productOption2 = productOptionRepository.save(
+        productOptionRepository.save(
             productOption(
                 productId = product2.id,
-                sex = Sex.MALE,
+                sex = MALE,
             )
         )
 
@@ -142,7 +142,6 @@ class ProductCustomRepositoryImplTest(
                     ),
                     productInfo = productInfo1,
                     category = category,
-                    productOption = productOption1,
                 )
             }
         }
@@ -162,7 +161,6 @@ class ProductCustomRepositoryImplTest(
                     ),
                     productInfo = productInfo2,
                     category = category,
-                    productOption = productOption2,
                 )
             }
         }

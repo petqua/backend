@@ -26,6 +26,7 @@ import com.petqua.domain.product.detail.info.ProductInfoRepository
 import com.petqua.domain.product.detail.info.Temperament
 import com.petqua.domain.product.option.ProductOptionRepository
 import com.petqua.domain.product.option.Sex.FEMALE
+import com.petqua.domain.product.option.Sex.MALE
 import com.petqua.domain.store.StoreRepository
 import com.petqua.exception.product.ProductException
 import com.petqua.exception.product.ProductExceptionType.NOT_FOUND_PRODUCT
@@ -45,7 +46,7 @@ import com.petqua.test.fixture.wishProduct
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import java.math.BigDecimal
+import java.math.BigDecimal.ZERO
 import kotlin.Long.Companion.MIN_VALUE
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment
@@ -97,17 +98,25 @@ class ProductServiceTest(
                 name = "고정구피",
                 storeId = store.id,
                 categoryId = category.id,
-                discountPrice = BigDecimal.ZERO,
+                discountPrice = ZERO,
                 reviewCount = 0,
                 reviewTotalScore = 0,
                 productDescriptionId = productDescription.id,
                 productInfoId = productInfo.id,
             )
         )
-        val productOption = productOptionRepository.save(
+        productOptionRepository.save(
+            productOption(
+                productId = product.id,
+                sex = MALE,
+                additionalPrice = ZERO,
+            )
+        )
+        productOptionRepository.save(
             productOption(
                 productId = product.id,
                 sex = FEMALE,
+                additionalPrice = 2000.toBigDecimal(),
             )
         )
         val productImage = productImageRepository.save(
@@ -146,7 +155,7 @@ class ProductServiceTest(
                     descriptionImageUrls = listOf(productDescriptionImage.imageUrl),
                     productInfo = productInfo,
                     category = category,
-                    hasDistinctSex = productOption.hasDistinctSex(),
+                    femaleAdditionalPrice = 2000.toBigDecimal(),
                     isWished = true
                 )
             }
@@ -181,7 +190,7 @@ class ProductServiceTest(
                     descriptionImageUrls = listOf(productDescriptionImage.imageUrl),
                     productInfo = productInfo,
                     category = category,
-                    hasDistinctSex = productOption.hasDistinctSex(),
+                    femaleAdditionalPrice = 2000.toBigDecimal(),
                     isWished = false
                 )
             }

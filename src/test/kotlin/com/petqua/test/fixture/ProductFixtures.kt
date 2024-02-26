@@ -139,7 +139,8 @@ fun productDetailResponse(
     descriptionImageUrls: List<String>,
     productInfo: ProductInfo,
     category: Category,
-    hasDistinctSex: Boolean,
+    maleAdditionalPrice: BigDecimal? = BigDecimal.ZERO,
+    femaleAdditionalPrice: BigDecimal? = BigDecimal.ZERO,
     isWished: Boolean,
 ): ProductDetailResponse {
     return ProductDetailResponse(
@@ -161,12 +162,13 @@ fun productDetailResponse(
         safeDeliveryFee = product.safeDeliveryFee,
         commonDeliveryFee = product.commonDeliveryFee,
         pickUpDeliveryFee = product.pickUpDeliveryFee,
+        maleAdditionalPrice = maleAdditionalPrice?.setScale(2),
+        femaleAdditionalPrice = femaleAdditionalPrice?.setScale(2),
         optimalTemperatureMin = productInfo.optimalTemperature.optimalTemperatureMin,
         optimalTemperatureMax = productInfo.optimalTemperature.optimalTemperatureMax,
         difficultyLevel = productInfo.difficultyLevel.description,
         optimalTankSize = productInfo.optimalTankSize.description,
         temperament = productInfo.temperament.description,
-        hasDistinctSex = hasDistinctSex,
         isWished = isWished,
     )
 }

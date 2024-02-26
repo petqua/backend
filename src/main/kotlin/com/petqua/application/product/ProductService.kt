@@ -15,6 +15,9 @@ import com.petqua.domain.product.detail.image.ImageType.DESCRIPTION
 import com.petqua.domain.product.detail.image.ImageType.SAMPLE
 import com.petqua.domain.product.detail.image.ProductImageRepository
 import com.petqua.domain.product.dto.ProductResponse
+import com.petqua.domain.product.option.ProductOptionRepository
+import com.petqua.domain.product.option.Sex.FEMALE
+import com.petqua.domain.product.option.Sex.MALE
 import com.petqua.exception.product.ProductException
 import com.petqua.exception.product.ProductExceptionType.NOT_FOUND_PRODUCT
 import org.springframework.stereotype.Service
@@ -25,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional
 class ProductService(
     private val productRepository: ProductRepository,
     private val productImageRepository: ProductImageRepository,
+    private val productOptionRepository: ProductOptionRepository,
     private val productKeywordRepository: ProductKeywordRepository,
     private val wishProductRepository: WishProductRepository,
 ) {
@@ -40,12 +44,17 @@ class ProductService(
             productId = productId,
             memberId = loginMemberOrGuest.memberId
         )
+        val productOptions = productOptionRepository.findAllByProductId(productId)
+        val maleAdditionalPrice = productOptions.find { it.sex == MALE }?.additionalPrice
+        val femaleAdditionalPrice = productOptions.find { it.sex == FEMALE }?.additionalPrice
 
         return ProductDetailResponse(
             productWithInfoResponse = productWithInfo,
             imageUrls = imagesByType[SAMPLE] ?: emptyList(),
             descriptionImageUrls = imagesByType[DESCRIPTION] ?: emptyList(),
-            isWished = isWished
+            isWished = isWished,
+            maleAdditionalPrice = maleAdditionalPrice,
+            femaleAdditionalPrice = femaleAdditionalPrice,
         )
     }
 
