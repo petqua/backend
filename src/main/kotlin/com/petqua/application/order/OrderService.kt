@@ -19,7 +19,7 @@ import com.petqua.exception.order.OrderException
 import com.petqua.exception.order.OrderExceptionType.ORDER_PRICE_NOT_MATCH
 import com.petqua.exception.order.OrderExceptionType.PRODUCT_NOT_FOUND
 import com.petqua.exception.order.ShippingAddressException
-import com.petqua.exception.order.ShippingAddressExceptionType
+import com.petqua.exception.order.ShippingAddressExceptionType.NOT_FOUND_SHIPPING_ADDRESS
 import com.petqua.exception.product.ProductException
 import com.petqua.exception.product.ProductExceptionType.INVALID_PRODUCT_OPTION
 import org.springframework.stereotype.Service
@@ -55,11 +55,9 @@ class OrderService(
         }
 
         // TODO 배송지 존재 검증
-        val shippingAddress = shippingAddressRepository.findByIdOrThrow(
-            command.shippingAddressId, ShippingAddressException(
-                ShippingAddressExceptionType.NOT_FOUND_SHIPPING_ADDRESS
-            )
-        )
+        val shippingAddress = shippingAddressRepository.findByIdOrThrow(command.shippingAddressId) {
+            ShippingAddressException(NOT_FOUND_SHIPPING_ADDRESS)
+        }
 
         // TODO 총 가격 검증
         // 1. 상품 가격
