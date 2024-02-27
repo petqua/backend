@@ -55,7 +55,9 @@ class AuthService(
         if (savedRefreshToken.token != refreshToken) {
             throw AuthException(INVALID_REFRESH_TOKEN)
         }
-        val member = memberRepository.findByIdOrThrow(savedRefreshToken.memberId, MemberException(NOT_FOUND_MEMBER))
+        val member = memberRepository.findByIdOrThrow(savedRefreshToken.memberId) {
+            MemberException(NOT_FOUND_MEMBER)
+        }
         val authToken = createAuthToken(member)
         return AuthTokenInfo(
             accessToken = authToken.accessToken,

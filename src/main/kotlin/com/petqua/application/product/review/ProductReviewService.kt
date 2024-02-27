@@ -70,19 +70,17 @@ class ProductReviewService(
 
     private fun save(productReviewRecommendation: ProductReviewRecommendation) {
         productReviewRecommendationRepository.save(productReviewRecommendation)
-        val productReview = productReviewRepository.findByIdOrThrow(
-            productReviewRecommendation.productReviewId,
+        val productReview = productReviewRepository.findByIdOrThrow(productReviewRecommendation.productReviewId) {
             ProductReviewException(NOT_FOUND_PRODUCT_REVIEW)
-        )
+        }
         productReview.increaseRecommendCount()
     }
 
     private fun delete(productReviewRecommendation: ProductReviewRecommendation) {
         productReviewRecommendationRepository.delete(productReviewRecommendation)
-        val productReview = productReviewRepository.findByIdOrThrow(
-            productReviewRecommendation.productReviewId,
+        val productReview = productReviewRepository.findByIdOrThrow(productReviewRecommendation.productReviewId) {
             ProductReviewException(NOT_FOUND_PRODUCT_REVIEW)
-        )
+        }
         productReview.decreaseRecommendCount()
     }
 }

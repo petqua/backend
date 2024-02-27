@@ -25,9 +25,9 @@ import com.petqua.exception.member.MemberException
 import com.petqua.exception.member.MemberExceptionType.NOT_FOUND_MEMBER
 import com.petqua.exception.product.ProductException
 import com.petqua.exception.product.ProductExceptionType.NOT_FOUND_PRODUCT
-import java.math.BigDecimal
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.math.BigDecimal
 
 @Transactional
 @Service
@@ -39,8 +39,12 @@ class CartProductService(
 ) {
 
     fun save(command: SaveCartProductCommand): Long {
-        memberRepository.existByIdOrThrow(command.memberId, MemberException(NOT_FOUND_MEMBER))
-        val product = productRepository.findByIdOrThrow(command.productId, ProductException(NOT_FOUND_PRODUCT))
+        memberRepository.existByIdOrThrow(command.memberId) {
+            MemberException(NOT_FOUND_MEMBER)
+        }
+        val product = productRepository.findByIdOrThrow(command.productId) {
+            ProductException(NOT_FOUND_PRODUCT)
+        }
         validateDuplicatedProduct(
             memberId = command.memberId,
             productId = command.productId,
@@ -59,10 +63,9 @@ class CartProductService(
     }
 
     fun updateOptions(command: UpdateCartProductOptionCommand) {
-        val cartProduct = cartProductRepository.findByIdOrThrow(
-            command.cartProductId,
+        val cartProduct = cartProductRepository.findByIdOrThrow(command.cartProductId) {
             CartProductException(NOT_FOUND_CART_PRODUCT)
-        )
+        }
         cartProduct.validateOwner(command.memberId)
         validateDuplicatedProduct(
             memberId = command.memberId,
@@ -70,7 +73,9 @@ class CartProductService(
             sex = command.sex,
             deliveryMethod = command.deliveryMethod
         )
-        val product = productRepository.findByIdOrThrow(cartProduct.productId, ProductException(NOT_FOUND_PRODUCT))
+        val product = productRepository.findByIdOrThrow(cartProduct.productId) {
+            ProductException(NOT_FOUND_PRODUCT)
+        }
         validateSupportedOption(product.id, command.sex)
         validateDeliveryFee(product, command.deliveryMethod, command.deliveryFee)
         cartProduct.updateOptions(
@@ -101,17 +106,18 @@ class CartProductService(
     }
 
     fun delete(command: DeleteCartProductCommand) {
-        val cartProduct = cartProductRepository.findByIdOrThrow(
-            command.cartProductId,
+        val cartProduct = cartProductRepository.findByIdOrThrow(command.cartProductId) {
             CartProductException(NOT_FOUND_CART_PRODUCT)
-        )
+        }
         cartProduct.validateOwner(command.memberId)
         cartProductRepository.delete(cartProduct)
     }
 
     @Transactional(readOnly = true)
     fun readAll(memberId: Long): List<CartProductWithSupportedOptionResponse> {
-        memberRepository.existByIdOrThrow(memberId, MemberException(NOT_FOUND_MEMBER))
+        memberRepository.existByIdOrThrow(memberId) {
+            MemberException(NOT_FOUND_MEMBER)
+        }
         val cartByProduct = cartProductRepository.findAllCartResultsByMemberId(memberId).associateBy { it.productId }
         val productOptions = productOptionRepository.findByProductIdIn(cartByProduct.map { it.key })
         val maleProductOption = productOptions.filter { it.sex == MALE }.associateBy { it.productId }

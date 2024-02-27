@@ -55,7 +55,9 @@ class AuthExtractor(
     fun getAccessTokenClaimsOrThrow(token: String): AccessTokenClaims {
         try {
             val accessTokenClaims = AccessTokenClaims.from(jwtProvider.getPayload(token))
-            memberRepository.existActiveByIdOrThrow(accessTokenClaims.memberId, MemberException(NOT_FOUND_MEMBER))
+            memberRepository.existActiveByIdOrThrow(accessTokenClaims.memberId) {
+                MemberException(NOT_FOUND_MEMBER)
+            }
             return accessTokenClaims
         } catch (e: ExpiredJwtException) {
             throw AuthException(EXPIRED_ACCESS_TOKEN)

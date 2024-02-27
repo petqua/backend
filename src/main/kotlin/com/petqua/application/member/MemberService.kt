@@ -18,7 +18,9 @@ class MemberService(
 ) {
 
     fun deleteBy(memberId: Long) {
-        val member = memberRepository.findActiveByIdOrThrow(memberId, MemberException(NOT_FOUND_MEMBER))
+        val member = memberRepository.findActiveByIdOrThrow(memberId) {
+            MemberException(NOT_FOUND_MEMBER)
+        }
         member.delete()
 
         cartProductRepository.deleteByMemberId(member.id)
