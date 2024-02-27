@@ -13,6 +13,7 @@ enum class CartProductExceptionType(
 ) : BaseExceptionType {
 
     NOT_FOUND_CART_PRODUCT(httpStatus = NOT_FOUND, code = "CP01", errorMessage = "존재 하지 않는 봉달 상품입니다."),
+    NOT_EXIST_OPTION(httpStatus = BAD_REQUEST, code = "CP02", errorMessage = "존재 하지 않는 상품 옵션입니다."),
 
     INVALID_DELIVERY_METHOD(httpStatus = BAD_REQUEST, code = "CP10", errorMessage = "유효하지 않는 배송 방법입니다."),
 
@@ -21,6 +22,8 @@ enum class CartProductExceptionType(
 
     DUPLICATED_PRODUCT(httpStatus = BAD_REQUEST, code = "CP30", errorMessage = "이미 봉달 목록에 담긴 상품입니다."),
     FORBIDDEN_CART_PRODUCT(httpStatus = FORBIDDEN, code = "CP31", errorMessage = "해당 봉달 상품에 대한 권한이 없습니다."),
+
+    DIFFERENT_DELIVERY_FEE(httpStatus = BAD_REQUEST, code = "CP40", errorMessage = "잘못된 배송비입니다."),
     ;
 
     override fun httpStatus(): HttpStatus {

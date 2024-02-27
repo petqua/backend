@@ -19,7 +19,6 @@ import com.petqua.domain.product.dto.ProductReadCondition
 import com.petqua.domain.product.dto.ProductResponse
 import com.petqua.domain.product.dto.ProductSearchCondition
 import com.petqua.domain.product.dto.ProductWithInfoResponse
-import com.petqua.domain.product.option.ProductOption
 import com.petqua.domain.store.Store
 import jakarta.persistence.EntityManager
 import org.springframework.stereotype.Repository
@@ -49,14 +48,12 @@ class ProductCustomRepositoryImpl(
                 ),
                 entity(ProductInfo::class),
                 entity(Category::class),
-                entity(ProductOption::class),
             ).from(
                 entity(Product::class),
                 join(Store::class).on(path(Product::storeId).eq(path(Store::id))),
                 leftJoin(ProductDescription::class).on(path(Product::productDescriptionId).eq(path(ProductDescription::id))),
                 join(ProductInfo::class).on(path(Product::productInfoId).eq(path(ProductInfo::id))),
                 join(Category::class).on(path(Product::categoryId).eq(path(Category::id))),
-                join(ProductOption::class).on(path(Product::id).eq(path(ProductOption::productId)))
             ).whereAnd(
                 path(Product::id).eq(id),
                 active(),

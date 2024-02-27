@@ -1,9 +1,8 @@
 package com.petqua.presentation.cart
 
 import com.petqua.application.cart.CartProductService
-import com.petqua.application.cart.dto.CartProductResponse
+import com.petqua.application.cart.dto.CartProductWithSupportedOptionResponse
 import com.petqua.application.cart.dto.DeleteCartProductCommand
-import com.petqua.application.product.dto.ProductDetailResponse
 import com.petqua.common.config.ACCESS_TOKEN_SECURITY_SCHEME_KEY
 import com.petqua.domain.auth.Auth
 import com.petqua.domain.auth.LoginMember
@@ -39,7 +38,7 @@ class CartProductController(
     fun save(
         @Auth loginMember: LoginMember,
         @RequestBody request: SaveCartProductRequest
-    ): ResponseEntity<ProductDetailResponse> {
+    ): ResponseEntity<Void> {
         val command = request.toCommand(loginMember.memberId)
         val cartProductId = cartProductService.save(command)
         val location = ServletUriComponentsBuilder.fromCurrentRequest()
@@ -83,7 +82,7 @@ class CartProductController(
     @GetMapping
     fun readAll(
         @Auth loginMember: LoginMember,
-    ): ResponseEntity<List<CartProductResponse>> {
+    ): ResponseEntity<List<CartProductWithSupportedOptionResponse>> {
         val responses = cartProductService.readAll(loginMember.memberId)
         return ResponseEntity.ok(responses)
     }

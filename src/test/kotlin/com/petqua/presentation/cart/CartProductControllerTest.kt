@@ -1,24 +1,32 @@
 package com.petqua.presentation.cart
 
-import com.petqua.application.cart.dto.CartProductResponse
+import com.petqua.application.cart.dto.CartProductWithSupportedOptionResponse
 import com.petqua.common.exception.ExceptionResponse
 import com.petqua.domain.product.ProductRepository
+import com.petqua.domain.product.option.ProductOptionRepository
+import com.petqua.domain.product.option.Sex.FEMALE
+import com.petqua.domain.product.option.Sex.HERMAPHRODITE
+import com.petqua.domain.product.option.Sex.MALE
 import com.petqua.domain.store.StoreRepository
+import com.petqua.exception.cart.CartProductExceptionType.DIFFERENT_DELIVERY_FEE
 import com.petqua.exception.cart.CartProductExceptionType.DUPLICATED_PRODUCT
 import com.petqua.exception.cart.CartProductExceptionType.FORBIDDEN_CART_PRODUCT
 import com.petqua.exception.cart.CartProductExceptionType.INVALID_DELIVERY_METHOD
+import com.petqua.exception.cart.CartProductExceptionType.NOT_EXIST_OPTION
 import com.petqua.exception.cart.CartProductExceptionType.NOT_FOUND_CART_PRODUCT
 import com.petqua.exception.cart.CartProductExceptionType.PRODUCT_QUANTITY_OVER_MAXIMUM
 import com.petqua.exception.product.ProductExceptionType.NOT_FOUND_PRODUCT
-import com.petqua.presentation.cart.dto.SaveCartProductRequest
-import com.petqua.presentation.cart.dto.UpdateCartProductOptionRequest
 import com.petqua.test.ApiTestConfig
 import com.petqua.test.fixture.product
+import com.petqua.test.fixture.productOption
+import com.petqua.test.fixture.saveCartProductRequest
 import com.petqua.test.fixture.store
+import com.petqua.test.fixture.updateCartProductOptionRequest
 import io.kotest.assertions.assertSoftly
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
+import java.math.BigDecimal
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.BAD_REQUEST
@@ -30,18 +38,23 @@ import org.springframework.http.HttpStatus.NO_CONTENT
 class CartProductControllerTest(
     private val productRepository: ProductRepository,
     private val storeRepository: StoreRepository,
+    private val productOptionRepository: ProductOptionRepository,
 ) : ApiTestConfig() {
     init {
         val storeId = storeRepository.save(store()).id
         Given("봉달에 상품 저장을") {
             val memberAuthResponse = signInAsMember()
-            val savedProduct = productRepository.save(product(storeId = storeId))
-            val request = SaveCartProductRequest(
+            val savedProduct =
+                productRepository.save(product(storeId = storeId, safeDeliveryFee = 5000.toBigDecimal()))
+            val request = saveCartProductRequest(
                 productId = savedProduct.id,
                 quantity = 1,
-                isMale = true,
-                deliveryMethod = "SAFETY"
+                sex = MALE,
+                deliveryMethod = "SAFETY",
+                deliveryFee = 5000.toBigDecimal(),
             )
+            productOptionRepository.save(productOption(productId = savedProduct.id, sex = MALE))
+            productOptionRepository.save(productOption(productId = savedProduct.id, sex = FEMALE))
             When("요청 하면") {
                 val response = requestSaveCartProduct(request, memberAuthResponse.accessToken)
 
@@ -56,13 +69,17 @@ class CartProductControllerTest(
 
         Given("봉달에 상품 저장 요청시") {
             val memberAuthResponse = signInAsMember()
-            val savedProduct = productRepository.save(product(storeId = storeId))
-            When("지원하지 않는 배송 방식으로 요청 하면") {
-                val invalidDeliveryMethodRequest = SaveCartProductRequest(
+            val savedProduct =
+                productRepository.save(product(storeId = storeId, safeDeliveryFee = 5000.toBigDecimal()))
+            productOptionRepository.save(productOption(productId = savedProduct.id, sex = MALE))
+            productOptionRepository.save(productOption(productId = savedProduct.id, sex = FEMALE))
+            When("존재 하지 않는 배송 방식으로 요청 하면") {
+                val invalidDeliveryMethodRequest = saveCartProductRequest(
                     productId = savedProduct.id,
                     quantity = 1,
-                    isMale = true,
-                    deliveryMethod = "NOT_SUPPORTED"
+                    sex = MALE,
+                    deliveryMethod = "NOT_SUPPORTED",
+                    deliveryFee = 5000.toBigDecimal(),
                 )
                 val response = requestSaveCartProduct(invalidDeliveryMethodRequest, memberAuthResponse.accessToken)
 
@@ -76,11 +93,12 @@ class CartProductControllerTest(
             }
 
             When("존재 하지 않는 상품 저장을 요청 하면") {
-                val notExistProductRequest = SaveCartProductRequest(
+                val notExistProductRequest = saveCartProductRequest(
                     productId = 999L,
                     quantity = 1,
-                    isMale = true,
-                    deliveryMethod = "SAFETY"
+                    sex = MALE,
+                    deliveryMethod = "SAFETY",
+                    deliveryFee = 5000.toBigDecimal(),
                 )
                 val response = requestSaveCartProduct(notExistProductRequest, memberAuthResponse.accessToken)
 
@@ -94,11 +112,12 @@ class CartProductControllerTest(
             }
 
             When("유효하지 않은 상품 수량을 담으면") {
-                val invalidProductQuantityRequest = SaveCartProductRequest(
+                val invalidProductQuantityRequest = saveCartProductRequest(
                     productId = savedProduct.id,
                     quantity = 1_000,
-                    isMale = false,
-                    deliveryMethod = "SAFETY"
+                    sex = MALE,
+                    deliveryMethod = "SAFETY",
+                    deliveryFee = 5000.toBigDecimal(),
                 )
                 val response = requestSaveCartProduct(invalidProductQuantityRequest, memberAuthResponse.accessToken)
 
@@ -112,11 +131,12 @@ class CartProductControllerTest(
             }
 
             When("중복 상품을 담으면") {
-                val request = SaveCartProductRequest(
+                val request = saveCartProductRequest(
                     productId = savedProduct.id,
                     quantity = 1,
-                    isMale = true,
-                    deliveryMethod = "SAFETY"
+                    sex = MALE,
+                    deliveryMethod = "SAFETY",
+                    deliveryFee = 5000.toBigDecimal(),
                 )
                 requestSaveCartProduct(request, memberAuthResponse.accessToken)
 
@@ -130,18 +150,67 @@ class CartProductControllerTest(
                     }
                 }
             }
+
+            When("배송 방식과 배송비가 다르게 상품을 담으면") {
+                val request = saveCartProductRequest(
+                    productId = savedProduct.id,
+                    quantity = 1,
+                    sex = MALE,
+                    deliveryMethod = "SAFETY",
+                    deliveryFee = 15_000.toBigDecimal(),
+                )
+                requestSaveCartProduct(request, memberAuthResponse.accessToken)
+
+                val response = requestSaveCartProduct(request, memberAuthResponse.accessToken)
+
+                Then("예외가 발생한다") {
+                    val errorResponse = response.`as`(ExceptionResponse::class.java)
+                    assertSoftly(response) {
+                        statusCode shouldBe BAD_REQUEST.value()
+                        errorResponse.message shouldBe DIFFERENT_DELIVERY_FEE.errorMessage()
+                    }
+                }
+            }
+
+            When("존재 하지 않는 옵션을 선택하면") {
+                val request = saveCartProductRequest(
+                    productId = savedProduct.id,
+                    quantity = 1,
+                    sex = HERMAPHRODITE,
+                    deliveryMethod = "SAFETY",
+                    deliveryFee = 5000.toBigDecimal(),
+                )
+                val response = requestSaveCartProduct(request, memberAuthResponse.accessToken)
+
+                Then("예외가 발생한다") {
+                    val errorResponse = response.`as`(ExceptionResponse::class.java)
+                    assertSoftly(response) {
+                        statusCode shouldBe BAD_REQUEST.value()
+                        errorResponse.message shouldBe NOT_EXIST_OPTION.errorMessage()
+                    }
+                }
+            }
         }
 
         Given("봉달 상품의 옵션 수정을") {
-            val savedProduct = productRepository.save(product(storeId = storeId))
+            val savedProduct = productRepository.save(
+                product(
+                    storeId = storeId,
+                    commonDeliveryFee = 3000.toBigDecimal(),
+                    safeDeliveryFee = 5000.toBigDecimal()
+                )
+            )
+            productOptionRepository.save(productOption(productId = savedProduct.id, sex = MALE))
+            productOptionRepository.save(productOption(productId = savedProduct.id, sex = FEMALE))
             val memberAuthResponse = signInAsMember()
             val cartProductId = saveCartProductAndReturnId(memberAuthResponse.accessToken, savedProduct.id)
 
             When("요청 하면") {
-                val request = UpdateCartProductOptionRequest(
+                val request = updateCartProductOptionRequest(
                     quantity = 2,
-                    isMale = false,
-                    deliveryMethod = "SAFETY"
+                    sex = FEMALE,
+                    deliveryMethod = "SAFETY",
+                    deliveryFee = 5000.toBigDecimal(),
                 )
 
                 val response = requestUpdateCartProductOption(
@@ -157,15 +226,25 @@ class CartProductControllerTest(
         }
 
         Given("봉달 상품의 옵션 수정시") {
-            val savedProduct = productRepository.save(product(storeId = storeId))
+            val savedProduct =
+                productRepository.save(
+                    product(
+                        storeId = storeId,
+                        commonDeliveryFee = 3000.toBigDecimal(),
+                        safeDeliveryFee = 5000.toBigDecimal()
+                    )
+                )
+            productOptionRepository.save(productOption(productId = savedProduct.id, sex = MALE))
+            productOptionRepository.save(productOption(productId = savedProduct.id, sex = FEMALE))
             val memberAuthResponse = signInAsMember()
             val cartProductId = saveCartProductAndReturnId(memberAuthResponse.accessToken, savedProduct.id)
 
             When("존재하지 않는 봉달 상품 수정을 요청 하면") {
-                val request = UpdateCartProductOptionRequest(
+                val request = updateCartProductOptionRequest(
                     quantity = 2,
-                    isMale = false,
-                    deliveryMethod = "SAFETY"
+                    sex = FEMALE,
+                    deliveryMethod = "SAFETY",
+                    deliveryFee = 5000.toBigDecimal(),
                 )
 
                 val response = requestUpdateCartProductOption(
@@ -184,10 +263,11 @@ class CartProductControllerTest(
             }
 
             When("유효하지 않은 상품 수량으로 수정 하면") {
-                val request = UpdateCartProductOptionRequest(
+                val request = updateCartProductOptionRequest(
                     quantity = 1_000,
-                    isMale = false,
-                    deliveryMethod = "SAFETY"
+                    sex = FEMALE,
+                    deliveryMethod = "SAFETY",
+                    deliveryFee = 5000.toBigDecimal(),
                 )
 
                 val response = requestUpdateCartProductOption(
@@ -205,11 +285,12 @@ class CartProductControllerTest(
                 }
             }
 
-            When("지원하지 않는 배송 방식으로 수정 하면") {
-                val request = UpdateCartProductOptionRequest(
+            When("존재 하지 않는 배송 방식으로 수정 하면") {
+                val request = updateCartProductOptionRequest(
                     quantity = 2,
-                    isMale = false,
-                    deliveryMethod = "NOT_SUPPORTED"
+                    sex = FEMALE,
+                    deliveryMethod = "NOT_SUPPORTED",
+                    deliveryFee = 5000.toBigDecimal(),
                 )
 
                 val response = requestUpdateCartProductOption(
@@ -229,10 +310,11 @@ class CartProductControllerTest(
 
             When("다른 회원의 상품을 수정 하면") {
                 val otherMemberResponse = signInAsMember()
-                val request = UpdateCartProductOptionRequest(
+                val request = updateCartProductOptionRequest(
                     quantity = 2,
-                    isMale = false,
-                    deliveryMethod = "SAFETY"
+                    sex = FEMALE,
+                    deliveryMethod = "SAFETY",
+                    deliveryFee = 5000.toBigDecimal(),
                 )
 
                 val response = requestUpdateCartProductOption(
@@ -250,20 +332,22 @@ class CartProductControllerTest(
                 }
             }
 
-            When("중복 상품을 수정 하면") {
+            When("중복 옵션으로 수정 하면") {
                 requestSaveCartProduct(
-                    SaveCartProductRequest(
+                    saveCartProductRequest(
                         productId = savedProduct.id,
                         quantity = 1,
-                        isMale = true,
-                        deliveryMethod = "SAFETY"
+                        sex = MALE,
+                        deliveryMethod = "SAFETY",
+                        deliveryFee = 5000.toBigDecimal(),
                     ),
                     memberAuthResponse.accessToken
                 )
-                val duplicationProductOptionRequest = UpdateCartProductOptionRequest(
+                val duplicationProductOptionRequest = updateCartProductOptionRequest(
                     quantity = 2,
-                    isMale = true,
-                    deliveryMethod = "SAFETY"
+                    sex = MALE,
+                    deliveryMethod = "SAFETY",
+                    deliveryFee = 5000.toBigDecimal(),
                 )
 
                 val response = requestUpdateCartProductOption(
@@ -280,10 +364,41 @@ class CartProductControllerTest(
                     }
                 }
             }
+
+            When("존재 하지 않는 옵션으로 수정 하면") {
+                val request = updateCartProductOptionRequest(
+                    quantity = 2,
+                    sex = HERMAPHRODITE,
+                    deliveryMethod = "SAFETY",
+                    deliveryFee = 5000.toBigDecimal(),
+                )
+
+                val response = requestUpdateCartProductOption(
+                    cartProductId,
+                    request,
+                    memberAuthResponse.accessToken
+                )
+
+                Then("예외가 발생한다") {
+                    val errorResponse = response.`as`(ExceptionResponse::class.java)
+                    assertSoftly(response) {
+                        statusCode shouldBe BAD_REQUEST.value()
+                        errorResponse.message shouldBe NOT_EXIST_OPTION.errorMessage()
+                    }
+                }
+            }
         }
 
         Given("봉달 상품 삭제를") {
-            val product = productRepository.save(product(storeId = storeId))
+            val product = productRepository.save(
+                product(
+                    storeId = storeId,
+                    commonDeliveryFee = 3000.toBigDecimal(),
+                    safeDeliveryFee = 5000.toBigDecimal(),
+                )
+            )
+            productOptionRepository.save(productOption(productId = product.id, sex = MALE))
+            productOptionRepository.save(productOption(productId = product.id, sex = FEMALE))
             val memberAuthResponse = signInAsMember()
             val cartProductAId = saveCartProductAndReturnId(memberAuthResponse.accessToken, product.id)
 
@@ -301,7 +416,15 @@ class CartProductControllerTest(
         }
 
         Given("봉달 상품 삭제시") {
-            val product = productRepository.save(product(storeId = storeId))
+            val product = productRepository.save(
+                product(
+                    storeId = storeId,
+                    commonDeliveryFee = 3000.toBigDecimal(),
+                    safeDeliveryFee = 5000.toBigDecimal(),
+                )
+            )
+            productOptionRepository.save(productOption(productId = product.id, sex = MALE))
+            productOptionRepository.save(productOption(productId = product.id, sex = FEMALE))
             val memberAuthResponse = signInAsMember()
             val cartProductAId = saveCartProductAndReturnId(memberAuthResponse.accessToken, product.id)
 
@@ -338,9 +461,62 @@ class CartProductControllerTest(
         }
 
         Given("봉달 목록 전체 조회를") {
-            val productA = productRepository.save(product(name = "쿠아1", storeId = storeId))
-            val productB = productRepository.save(product(name = "쿠아2", storeId = storeId))
-            val productC = productRepository.save(product(name = "쿠아3", storeId = storeId))
+            val productA = productRepository.save(
+                product(
+                    name = "쿠아1",
+                    storeId = storeId,
+                    commonDeliveryFee = 3000.toBigDecimal()
+                )
+            )
+            val productB = productRepository.save(
+                product(
+                    name = "쿠아2",
+                    storeId = storeId,
+                    commonDeliveryFee = 3000.toBigDecimal()
+                )
+            )
+            val productC = productRepository.save(
+                product(
+                    name = "쿠아3",
+                    storeId = storeId,
+                    commonDeliveryFee = 3000.toBigDecimal()
+                )
+            )
+            productOptionRepository.save(
+                productOption(
+                    productId = productC.id,
+                    sex = MALE,
+                    additionalPrice = BigDecimal.ZERO,
+                )
+            )
+            productOptionRepository.save(
+                productOption(
+                    productId = productC.id,
+                    sex = FEMALE,
+                    additionalPrice = 3000.toBigDecimal()
+                )
+            )
+            productOptionRepository.save(
+                productOption(
+                    productId = productB.id,
+                    sex = MALE,
+                    additionalPrice = BigDecimal.ZERO,
+                )
+            )
+            productOptionRepository.save(
+                productOption(
+                    productId = productA.id,
+                    sex = HERMAPHRODITE,
+                    additionalPrice = BigDecimal.ZERO,
+                )
+            )
+            productOptionRepository.save(
+                productOption(
+                    productId = productA.id,
+                    sex = MALE,
+                    additionalPrice = BigDecimal.ZERO,
+                )
+            )
             val memberAuthResponse = signInAsMember()
             saveCartProductAndReturnId(memberAuthResponse.accessToken, productA.id)
             saveCartProductAndReturnId(memberAuthResponse.accessToken, productB.id)
@@ -350,7 +526,7 @@ class CartProductControllerTest(
                 val response = requestReadAllCartProducts(memberAuthResponse.accessToken)
 
                 Then("봉달 목록이 조회된다") {
-                    val responseBody = response.`as`(Array<CartProductResponse>::class.java)
+                    val responseBody = response.`as`(Array<CartProductWithSupportedOptionResponse>::class.java)
 
                     assertSoftly(response) {
                         statusCode shouldBe HttpStatus.OK.value()
@@ -365,11 +541,11 @@ class CartProductControllerTest(
                 val response = requestReadAllCartProducts(otherMemberResponse.accessToken)
 
                 Then("빈 목록이 조회된다") {
-                    val responseBody = response.`as`(Array<CartProductResponse>::class.java)
+                    val responseBody = response.`as`(Array<CartProductWithSupportedOptionResponse>::class.java)
 
                     assertSoftly(response) {
                         statusCode shouldBe HttpStatus.OK.value()
-                        responseBody shouldBe emptyArray<CartProductResponse>()
+                        responseBody shouldBe emptyArray<CartProductWithSupportedOptionResponse>()
                     }
                 }
             }
@@ -379,7 +555,7 @@ class CartProductControllerTest(
                 val response = requestReadAllCartProducts(memberAuthResponse.accessToken)
 
                 Then("삭제된 상품은 구매 불가능 하도록 조회된다") {
-                    val responseBody = response.`as`(Array<CartProductResponse>::class.java)
+                    val responseBody = response.`as`(Array<CartProductWithSupportedOptionResponse>::class.java)
 
                     assertSoftly(response) {
                         statusCode shouldBe HttpStatus.OK.value()

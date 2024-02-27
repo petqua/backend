@@ -127,6 +127,18 @@ data class ProductDetailResponse(
     val pickUpDeliveryFee: BigDecimal?,
 
     @Schema(
+        description = "수컷 추가 가격 (null인 경우 지원 X)",
+        example = "0"
+    )
+    val maleAdditionalPrice: BigDecimal?,
+
+    @Schema(
+        description = "암컷 추가 가격 (null인 경우 지원 X)",
+        example = "2000"
+    )
+    val femaleAdditionalPrice: BigDecimal?,
+
+    @Schema(
         description = "사육 온도 최소",
         example = "10"
     )
@@ -157,12 +169,6 @@ data class ProductDetailResponse(
     val temperament: String,
 
     @Schema(
-        description = "암/수 성별을 갖는지 여부",
-        example = "true"
-    )
-    val hasDistinctSex: Boolean,
-
-    @Schema(
         description = "찜 여부",
         example = "true"
     )
@@ -173,6 +179,8 @@ data class ProductDetailResponse(
         imageUrls: List<String>,
         descriptionImageUrls: List<String>,
         isWished: Boolean,
+        maleAdditionalPrice: BigDecimal?,
+        femaleAdditionalPrice: BigDecimal?,
     ) : this(
         id = productWithInfoResponse.id,
         name = productWithInfoResponse.name,
@@ -192,12 +200,13 @@ data class ProductDetailResponse(
         safeDeliveryFee = productWithInfoResponse.safeDeliveryFee,
         commonDeliveryFee = productWithInfoResponse.commonDeliveryFee,
         pickUpDeliveryFee = productWithInfoResponse.pickUpDeliveryFee,
+        maleAdditionalPrice = maleAdditionalPrice,
+        femaleAdditionalPrice = femaleAdditionalPrice,
         optimalTemperatureMin = productWithInfoResponse.optimalTemperatureMin,
         optimalTemperatureMax = productWithInfoResponse.optimalTemperatureMax,
         difficultyLevel = productWithInfoResponse.difficultyLevel,
         optimalTankSize = productWithInfoResponse.optimalTankSize,
         temperament = productWithInfoResponse.temperament,
-        hasDistinctSex = productWithInfoResponse.hasDistinctSex,
         isWished = isWished,
     )
 }

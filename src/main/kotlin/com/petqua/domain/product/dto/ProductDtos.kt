@@ -7,7 +7,6 @@ import com.petqua.domain.product.ProductSourceType
 import com.petqua.domain.product.Sorter
 import com.petqua.domain.product.category.Category
 import com.petqua.domain.product.detail.info.ProductInfo
-import com.petqua.domain.product.option.ProductOption
 import com.petqua.exception.product.ProductException
 import com.petqua.exception.product.ProductExceptionType
 import io.swagger.v3.oas.annotations.media.Schema
@@ -82,7 +81,6 @@ data class ProductWithInfoResponse(
     val difficultyLevel: String,
     val optimalTankSize: String,
     val temperament: String,
-    val hasDistinctSex: Boolean,
 ) {
     constructor(
         product: Product,
@@ -90,7 +88,6 @@ data class ProductWithInfoResponse(
         productDescription: ProductDescriptionResponse,
         productInfo: ProductInfo,
         category: Category,
-        productOption: ProductOption,
     ) : this(
         id = product.id,
         name = product.name,
@@ -114,7 +111,6 @@ data class ProductWithInfoResponse(
         difficultyLevel = productInfo.difficultyLevel.description,
         optimalTankSize = productInfo.optimalTankSize.description,
         temperament = productInfo.temperament.description,
-        hasDistinctSex = productOption.hasDistinctSex(),
     )
 }
 

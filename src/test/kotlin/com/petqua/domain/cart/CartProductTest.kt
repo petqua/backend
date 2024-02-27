@@ -1,6 +1,8 @@
 package com.petqua.domain.cart
 
 import com.petqua.domain.delivery.DeliveryMethod
+import com.petqua.domain.product.option.Sex.FEMALE
+import com.petqua.domain.product.option.Sex.MALE
 import com.petqua.exception.cart.CartProductException
 import io.kotest.assertions.assertSoftly
 import io.kotest.assertions.throwables.shouldThrow
@@ -14,18 +16,20 @@ class CartProductTest : StringSpec({
             memberId = 1L,
             productId = 1L,
             quantity = CartProductQuantity(5),
-            isMale = true,
+            sex = FEMALE,
             deliveryMethod = DeliveryMethod.COMMON,
+            deliveryFee = 3000.toBigDecimal(),
         )
 
         cartProduct.updateOptions(
             quantity = CartProductQuantity(10),
-            isMale = false,
+            sex = MALE,
             deliveryMethod = DeliveryMethod.COMMON,
+            deliveryFee = 3000.toBigDecimal(),
         )
 
         assertSoftly(cartProduct) {
-            isMale shouldBe false
+            sex shouldBe MALE
             quantity.value shouldBe 10
             deliveryMethod shouldBe DeliveryMethod.COMMON
         }
@@ -36,8 +40,9 @@ class CartProductTest : StringSpec({
             memberId = 1L,
             productId = 1L,
             quantity = CartProductQuantity(5),
-            isMale = true,
+            sex = MALE,
             deliveryMethod = DeliveryMethod.COMMON,
+            deliveryFee = 3000.toBigDecimal(),
         )
 
         shouldThrow<CartProductException> {

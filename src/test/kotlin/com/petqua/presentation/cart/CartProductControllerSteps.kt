@@ -1,7 +1,9 @@
 package com.petqua.presentation.cart
 
+import com.petqua.domain.product.option.Sex.MALE
 import com.petqua.presentation.cart.dto.SaveCartProductRequest
 import com.petqua.presentation.cart.dto.UpdateCartProductOptionRequest
+import com.petqua.test.fixture.saveCartProductRequest
 import io.restassured.module.kotlin.extensions.Extract
 import io.restassured.module.kotlin.extensions.Given
 import io.restassured.module.kotlin.extensions.Then
@@ -28,11 +30,12 @@ fun requestSaveCartProduct(
 }
 
 fun saveCartProductAndReturnId(accessToken: String, productId: Long = 1L): Long {
-    val sampleCartProduct = SaveCartProductRequest(
+    val sampleCartProduct = saveCartProductRequest(
         productId = productId,
         quantity = 1,
-        isMale = true,
-        deliveryMethod = "COMMON"
+        sex = MALE,
+        deliveryMethod = "COMMON",
+        deliveryFee = 3000.toBigDecimal(),
     )
     val response = requestSaveCartProduct(sampleCartProduct, accessToken)
     return parseCartProductIdFromLocationHeader(response)
