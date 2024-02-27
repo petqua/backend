@@ -1,5 +1,6 @@
 package com.petqua.test.fake
 
+import com.petqua.domain.auth.oauth.OauthIdInfo
 import com.petqua.domain.auth.oauth.OauthTokenInfo
 import com.petqua.domain.auth.oauth.kakao.KakaoAccount
 import com.petqua.domain.auth.oauth.kakao.KakaoOauthApiClient
@@ -33,7 +34,7 @@ class FakeKakaoOauthApiClient() : KakaoOauthApiClient {
         )
     }
 
-    override fun disconnect(accessToken: String): Long {
-        return Random.nextLong()
+    override fun disconnect(accessToken: String): OauthIdInfo {
+        return OauthIdInfo(Random.nextLong())
     }
 }

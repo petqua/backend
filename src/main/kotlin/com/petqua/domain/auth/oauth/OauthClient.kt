@@ -14,5 +14,5 @@ interface OauthClient {
 
     fun updateToken(refreshToken: String): OauthTokenInfo
 
-    fun disconnect(accessToken: String): Long
+    fun disconnect(accessToken: String): OauthIdInfo
 }

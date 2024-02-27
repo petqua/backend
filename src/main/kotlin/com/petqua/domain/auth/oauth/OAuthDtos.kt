@@ -17,3 +17,7 @@ data class OauthUserInfo(
     val imageUrl: String,
     val oauthId: Long,
 )
+
+data class OauthIdInfo(
+    val id: Long,
+)

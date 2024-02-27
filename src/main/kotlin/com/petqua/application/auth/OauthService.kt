@@ -1,6 +1,7 @@
 package com.petqua.application.auth
 
 import com.petqua.domain.auth.oauth.OauthClientProvider
+import com.petqua.domain.auth.oauth.OauthIdInfo
 import com.petqua.domain.auth.oauth.OauthServerType
 import com.petqua.domain.auth.oauth.OauthTokenInfo
 import com.petqua.domain.auth.oauth.OauthUserInfo
@@ -32,7 +33,7 @@ class OauthService(
         return oauthClient.updateToken(oauthRefreshToken)
     }
 
-    fun disconnectBy(oauthServerType: OauthServerType, oauthAccessToken: String): Long {
+    fun disconnectBy(oauthServerType: OauthServerType, oauthAccessToken: String): OauthIdInfo {
         val oauthClient = oauthClientProvider.getOauthClient(oauthServerType)
         return oauthClient.disconnect(oauthAccessToken)
     }

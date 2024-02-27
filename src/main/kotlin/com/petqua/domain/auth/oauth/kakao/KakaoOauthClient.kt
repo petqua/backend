@@ -1,6 +1,7 @@
 package com.petqua.domain.auth.oauth.kakao
 
 import com.petqua.domain.auth.oauth.OauthClient
+import com.petqua.domain.auth.oauth.OauthIdInfo
 import com.petqua.domain.auth.oauth.OauthServerType
 import com.petqua.domain.auth.oauth.OauthServerType.KAKAO
 import com.petqua.domain.auth.oauth.OauthTokenInfo
@@ -64,7 +65,7 @@ class KakaoOauthClient(
         return kakaoOauthApiClient.fetchToken(tokenRequestBody)
     }
 
-    override fun disconnect(accessToken: String): Long {
+    override fun disconnect(accessToken: String): OauthIdInfo {
         return kakaoOauthApiClient.disconnect("Bearer $accessToken")
     }
 }
