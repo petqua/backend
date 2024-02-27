@@ -16,6 +16,6 @@ interface KakaoOauthApiClient {
     @GetExchange(url = "https://kapi.kakao.com/v2/user/me")
     fun fetchUserInfo(@RequestHeader(name = AUTHORIZATION) bearerToken: String): KakaoUserInfo
 
-    @PostExchange(url = "https://kapi.kakao.com/v1/user/unlink")
+    @PostExchange(url = "https://kapi.kakao.com/v1/user/unlink", contentType = APPLICATION_FORM_URLENCODED_VALUE)
     fun disconnect(@RequestHeader(name = AUTHORIZATION) accessToken: String): Long
 }

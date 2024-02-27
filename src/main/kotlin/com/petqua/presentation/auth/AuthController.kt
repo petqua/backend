@@ -2,6 +2,7 @@ package com.petqua.presentation.auth
 
 import com.petqua.application.auth.AuthFacadeService
 import com.petqua.application.auth.AuthTokenInfo
+import com.petqua.common.config.ACCESS_TOKEN_SECURITY_SCHEME_KEY
 import com.petqua.domain.auth.Auth
 import com.petqua.domain.auth.LoginMember
 import com.petqua.domain.auth.oauth.OauthServerType
@@ -11,6 +12,7 @@ import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.enums.ParameterIn
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpHeaders.AUTHORIZATION
@@ -24,7 +26,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
-@Tag(name = "Auth", description = "인증 관련 API 명세(테스트 불가)")
+@Tag(name = "Auth", description = "인증 관련 API 명세")
 @RequestMapping("/auth")
 @RestController
 class AuthController(
@@ -44,7 +46,7 @@ class AuthController(
             .body(RedirectUriResponse(redirectUri.toString()))
     }
 
-    @Operation(summary = "소셜 로그인 API", description = "소셜 로그인을 합니다")
+    @Operation(summary = "소셜 로그인 API(테스트 불가)", description = "소셜 로그인을 합니다")
     @ApiResponse(responseCode = "200", description = "로그인 성공")
     @GetMapping("/login/{oauthServerType}")
     fun login(
@@ -67,7 +69,7 @@ class AuthController(
     }
 
     @Operation(
-        summary = "로그인 유지 API",
+        summary = "로그인 유지 API(테스트 불가)",
         description = "refresh token으로 access token을 재발급 받습니다",
         parameters = [
             Parameter(
@@ -113,6 +115,7 @@ class AuthController(
 
     @Operation(summary = "회원 탈퇴 API", description = "회원 탈퇴를 합니다")
     @ApiResponse(responseCode = "204", description = "회원 탈퇴 성공")
+    @SecurityRequirement(name = ACCESS_TOKEN_SECURITY_SCHEME_KEY)
     @DeleteMapping
     fun delete(
         @Auth loginMember: LoginMember

@@ -6,16 +6,16 @@ import java.time.LocalDateTime
 
 fun member(
     id: Long = 0L,
-    oauthId: String = "oauthId",
+    oauthId: Long = 1L,
     oauthServerNumber: Int = 1,
     authority: Authority = Authority.MEMBER,
     nickname: String = "nickname",
-    profileImageUrl: String = "profile.jpg",
+    profileImageUrl: String = "imageUrl",
     fishBowlCount: Int = 0,
     years: Int = 1,
     isDeleted: Boolean = false,
     oauthAccessToken: String = "oauthAccessToken",
-    expireAt: LocalDateTime = LocalDateTime.now().plusSeconds(10000),
+    expireAt: LocalDateTime = LocalDateTime.now().plusSeconds(21599),
     oauthRefreshToken: String = "oauthRefreshToken",
 ): Member {
     return Member(

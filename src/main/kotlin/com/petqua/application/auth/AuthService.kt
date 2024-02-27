@@ -34,7 +34,7 @@ class AuthService(
         oauthTokenInfo: OauthTokenInfo,
         oauthUserInfo: OauthUserInfo
     ): Member {
-        val member = findOrSaveMemberBy(oauthUserInfo, oauthServerType)
+        val member = findOrSaveMemberBy(oauthServerType, oauthUserInfo)
         member.updateToken(
             accessToken = oauthTokenInfo.accessToken,
             expiresIn = oauthTokenInfo.expiresIn,
@@ -44,10 +44,10 @@ class AuthService(
     }
 
     private fun findOrSaveMemberBy(
-        oauthUserInfo: OauthUserInfo,
-        oauthServerType: OauthServerType
+        oauthServerType: OauthServerType,
+        oauthUserInfo: OauthUserInfo
     ): Member {
-        return memberRepository.findByOauthIdAndOauthServerNumber(
+        return memberRepository.findByOauthIdAndOauthServerNumberAndIsDeletedFalse(
             oauthId = oauthUserInfo.oauthId,
             oauthServerNumber = oauthServerType.number
         ) ?: memberRepository.save(
@@ -103,6 +103,7 @@ class AuthService(
     fun delete(member: Member) {
         member.delete()
         memberRepository.save(member)
+
         cartProductRepository.deleteByMemberId(member.id)
         refreshTokenRepository.deleteByMemberId(member.id)
     }

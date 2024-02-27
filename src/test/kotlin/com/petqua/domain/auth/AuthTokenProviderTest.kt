@@ -31,7 +31,7 @@ class AuthTokenProviderTest(
     Given("인증 토큰 발급 테스트") {
         val issuedLocalDate = LocalDate.of(3000, 1, 1)
         val issuedDate = Date.from(issuedLocalDate.atStartOfDay(ZoneId.systemDefault()).toInstant())
-        val member = member(1L, "oauthId", OauthServerType.KAKAO.number, Authority.MEMBER)
+        val member = member(1L, 1L, OauthServerType.KAKAO.number, Authority.MEMBER)
 
         When("인증 토큰을 발급하면") {
             val authToken = authTokenProvider.createAuthToken(member, issuedDate)

@@ -18,6 +18,7 @@ import java.time.LocalDateTime
 
 private const val DELETED_MEMBER_NAME = ""
 private const val DELETED_AUTH_FIELD = ""
+private const val DELETED_OAUTH_ID = -1L
 
 @Entity
 class Member(
@@ -25,7 +26,7 @@ class Member(
     val id: Long = 0L,
 
     @Column(nullable = false)
-    var oauthId: String,
+    var oauthId: Long,
 
     @Column(nullable = false)
     val oauthServerNumber: Int,
@@ -48,7 +49,9 @@ class Member(
     var isDeleted: Boolean = false,
 
     var oauthAccessToken: String = "",
+
     var expireAt: LocalDateTime? = null,
+
     var oauthRefreshToken: String = "",
 ) : BaseEntity(), SoftDeleteEntity {
 
@@ -61,7 +64,7 @@ class Member(
     }
 
     private fun anonymize() {
-        oauthId = DELETED_AUTH_FIELD
+        oauthId = DELETED_OAUTH_ID
         nickname = DELETED_MEMBER_NAME
         profileImageUrl = null
         oauthAccessToken = DELETED_AUTH_FIELD

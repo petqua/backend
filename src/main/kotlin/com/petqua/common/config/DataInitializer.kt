@@ -94,7 +94,7 @@ class DataInitializer(
     private fun saveMember(): Member {
         return memberRepository.save(
             Member(
-                oauthId = "oauthId",
+                oauthId = 1L,
                 oauthServerNumber = 1,
                 authority = MEMBER,
                 oauthAccessToken = "xxx.yyy.zzz",

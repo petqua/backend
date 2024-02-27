@@ -16,7 +16,7 @@ class MemberTest : StringSpec({
     "회원을 삭제한다" {
         val member = Member(
             id = 1L,
-            oauthId = "oauthId",
+            oauthId = 1L,
             oauthServerNumber = OauthServerType.KAKAO.number,
             authority = Authority.MEMBER,
             isDeleted = false,
@@ -36,7 +36,7 @@ class MemberTest : StringSpec({
     "회원 삭제 여부를 검증한다" {
         val member = Member(
             id = 1L,
-            oauthId = "oauthId",
+            oauthId = 1L,
             oauthServerNumber = OauthServerType.KAKAO.number,
             authority = Authority.MEMBER,
             isDeleted = false,
@@ -53,7 +53,7 @@ class MemberTest : StringSpec({
     "삭제된 회원에 대해 삭제 여부를 검증하면 예외를 던진다" {
         val member = Member(
             id = 1L,
-            oauthId = "oauthId",
+            oauthId = 1L,
             oauthServerNumber = OauthServerType.KAKAO.number,
             authority = Authority.MEMBER,
             isDeleted = true,

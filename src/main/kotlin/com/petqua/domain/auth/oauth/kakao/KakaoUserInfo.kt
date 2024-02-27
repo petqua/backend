@@ -10,7 +10,7 @@ class KakaoUserInfo(
     private val kakaoAccount: KakaoAccount,
 
     @JsonProperty("id")
-    private val oauthId: String,
+    private val oauthId: Long,
 ) {
 
     fun toOauthUserInfo(): OauthUserInfo {

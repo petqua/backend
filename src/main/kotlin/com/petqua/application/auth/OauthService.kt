@@ -32,8 +32,8 @@ class OauthService(
         return oauthClient.updateToken(oauthRefreshToken)
     }
 
-    fun disconnectBy(oauthServerType: OauthServerType, oauthAccessToken: String) {
+    fun disconnectBy(oauthServerType: OauthServerType, oauthAccessToken: String): Long {
         val oauthClient = oauthClientProvider.getOauthClient(oauthServerType)
-        oauthClient.disconnect(oauthAccessToken)
+        return oauthClient.disconnect(oauthAccessToken)
     }
 }

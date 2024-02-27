@@ -15,5 +15,5 @@ data class OauthTokenInfo(
 data class OauthUserInfo(
     val nickname: String,
     val imageUrl: String,
-    val oauthId: String,
+    val oauthId: Long,
 )
