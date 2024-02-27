@@ -116,7 +116,7 @@ class AuthController(
     @Operation(summary = "회원 탈퇴 API", description = "회원 탈퇴를 합니다")
     @ApiResponse(responseCode = "204", description = "회원 탈퇴 성공")
     @SecurityRequirement(name = ACCESS_TOKEN_SECURITY_SCHEME_KEY)
-    @DeleteMapping
+    @DeleteMapping("/members")
     fun delete(
         @Auth loginMember: LoginMember
     ): ResponseEntity<Unit> {
