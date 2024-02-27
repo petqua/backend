@@ -9,6 +9,7 @@ import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
+import java.time.LocalDateTime
 
 class MemberTest : StringSpec({
 
@@ -19,13 +20,16 @@ class MemberTest : StringSpec({
             oauthServerNumber = OauthServerType.KAKAO.number,
             authority = Authority.MEMBER,
             isDeleted = false,
+            oauthAccessToken = "oauthAccessToken",
+            expireAt = LocalDateTime.now().plusSeconds(10000),
+            oauthRefreshToken = "oauthRefreshToken",
         )
 
         member.delete()
 
         assertSoftly(member) {
             it.isDeleted shouldBe true
-            it.nickname shouldBe "탈퇴한 회원"
+            it.nickname shouldBe ""
         }
     }
 
@@ -36,6 +40,9 @@ class MemberTest : StringSpec({
             oauthServerNumber = OauthServerType.KAKAO.number,
             authority = Authority.MEMBER,
             isDeleted = false,
+            oauthAccessToken = "oauthAccessToken",
+            expireAt = LocalDateTime.now().plusSeconds(10000),
+            oauthRefreshToken = "oauthRefreshToken",
         )
 
         shouldNotThrow<MemberException> {
@@ -50,6 +57,9 @@ class MemberTest : StringSpec({
             oauthServerNumber = OauthServerType.KAKAO.number,
             authority = Authority.MEMBER,
             isDeleted = true,
+            oauthAccessToken = "oauthAccessToken",
+            expireAt = LocalDateTime.now().plusSeconds(10000),
+            oauthRefreshToken = "oauthRefreshToken",
         )
 
         shouldThrow<MemberException> {

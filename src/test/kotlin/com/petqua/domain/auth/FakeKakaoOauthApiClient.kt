@@ -5,12 +5,18 @@ import com.petqua.domain.auth.oauth.kakao.KakaoAccount
 import com.petqua.domain.auth.oauth.kakao.KakaoOauthApiClient
 import com.petqua.domain.auth.oauth.kakao.KakaoUserInfo
 import com.petqua.domain.auth.oauth.kakao.Profile
-import java.util.UUID
 import org.springframework.util.MultiValueMap
+import java.util.*
 
 class FakeKakaoOauthApiClient : KakaoOauthApiClient {
     override fun fetchToken(body: MultiValueMap<String, String>): OauthTokenInfo {
-        return OauthTokenInfo("accessToken")
+        return OauthTokenInfo(
+            tokenType = "bearer",
+            accessToken = "accessToken",
+            expiresIn = 21599,
+            refreshToken = "refreshToken",
+            refreshTokenExpiresIn = 5183999,
+        )
     }
 
     override fun fetchUserInfo(bearerToken: String): KakaoUserInfo {
@@ -24,5 +30,9 @@ class FakeKakaoOauthApiClient : KakaoOauthApiClient {
             kakaoAccount = kakaoAccount,
             oauthId = "oauthId" + UUID.randomUUID().toString()
         )
+    }
+
+    override fun disconnect(accessToken: String): Long {
+        TODO("Not yet implemented")
     }
 }

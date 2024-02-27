@@ -12,8 +12,10 @@ import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
+import java.time.LocalDateTime
 
-private const val DELETED_MEMBER_NAME = "탈퇴한 회원"
+private const val DELETED_MEMBER_NAME = ""
+private const val DELETED_MEMBER_OAUTH_ID = ""
 
 @Entity
 class Member(
@@ -21,7 +23,7 @@ class Member(
     val id: Long = 0L,
 
     @Column(nullable = false)
-    val oauthId: String,
+    var oauthId: String,
 
     @Column(nullable = false)
     val oauthServerNumber: Int,
@@ -32,7 +34,7 @@ class Member(
     @Column(nullable = false)
     var nickname: String = "쿠아", // FIXME: 회원 닉네임 정책 추가
 
-    val profileImageUrl: String? = null,
+    var profileImageUrl: String? = null,
 
     @Column(nullable = false)
     val fishBowlCount: Int = 0,
@@ -42,6 +44,10 @@ class Member(
 
     @Column(nullable = false)
     var isDeleted: Boolean = false,
+
+    var oauthAccessToken: String?,
+    var expireAt: LocalDateTime?,
+    var oauthRefreshToken: String?,
 ) : BaseEntity(), SoftDeleteEntity {
 
     fun delete() {
@@ -50,7 +56,12 @@ class Member(
     }
 
     private fun anonymize() {
+        oauthId = DELETED_MEMBER_OAUTH_ID
         nickname = DELETED_MEMBER_NAME
+        profileImageUrl = null
+        oauthAccessToken = null
+        expireAt = null
+        oauthRefreshToken = null
     }
 
     override fun validateDeleted() {

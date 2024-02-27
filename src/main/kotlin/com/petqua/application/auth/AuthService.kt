@@ -4,6 +4,7 @@ import com.petqua.common.domain.findByIdOrThrow
 import com.petqua.domain.auth.Authority.MEMBER
 import com.petqua.domain.auth.oauth.OauthClientProvider
 import com.petqua.domain.auth.oauth.OauthServerType
+import com.petqua.domain.auth.oauth.OauthTokenInfo
 import com.petqua.domain.auth.oauth.OauthUserInfo
 import com.petqua.domain.auth.token.AuthToken
 import com.petqua.domain.auth.token.AuthTokenProvider
@@ -20,7 +21,8 @@ import com.petqua.exception.member.MemberExceptionType.NOT_FOUND_MEMBER
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.net.URI
-import java.util.Date
+import java.time.LocalDateTime
+import java.util.*
 
 @Transactional
 @Service
@@ -38,9 +40,14 @@ class AuthService(
 
     fun login(oauthServerType: OauthServerType, code: String): AuthTokenInfo {
         val oauthClient = oauthClientProvider.getOauthClient(oauthServerType)
-        val oauthUserInfo = oauthClient.requestOauthUserInfo(oauthClient.requestToken(code))
+        val oauthTokenInfo = oauthClient.requestToken(code)
+        val oauthUserInfo = oauthClient.requestOauthUserInfo(oauthTokenInfo)
         val member = getMemberByOauthInfo(oauthUserInfo.oauthId, oauthServerType)
-            ?: createMember(oauthUserInfo, oauthServerType)
+            ?: createMember(
+                oauthTokenInfo = oauthTokenInfo,
+                oauthUserInfo = oauthUserInfo,
+                oauthServerType = oauthServerType
+            )
         val authToken = createAuthToken(member)
         return AuthTokenInfo(
             accessToken = authToken.accessToken,
@@ -78,12 +85,19 @@ class AuthService(
         return memberRepository.findByOauthIdAndOauthServerNumber(oauthId, oauthServerType.number)
     }
 
-    private fun createMember(oauthUserInfo: OauthUserInfo, oauthServerType: OauthServerType): Member {
+    private fun createMember(
+        oauthTokenInfo: OauthTokenInfo,
+        oauthUserInfo: OauthUserInfo,
+        oauthServerType: OauthServerType
+    ): Member {
         return memberRepository.save(
             Member(
                 oauthId = oauthUserInfo.oauthId,
                 oauthServerNumber = oauthServerType.number,
-                authority = MEMBER
+                authority = MEMBER,
+                oauthAccessToken = oauthTokenInfo.accessToken,
+                expireAt = LocalDateTime.now().plusSeconds(oauthTokenInfo.expiresIn),
+                oauthRefreshToken = oauthTokenInfo.refreshToken,
             )
         )
     }
@@ -98,5 +112,10 @@ class AuthService(
             )
         )
         return authToken
+    }
+
+    fun disconnect(oauthServerType: OauthServerType, accessToken: Member) {
+        val oauthClient = oauthClientProvider.getOauthClient(oauthServerType)
+
     }
 }

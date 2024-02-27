@@ -48,7 +48,7 @@ class MemberServiceTest(
 
                 assertSoftly(deletedMember) {
                     it.isDeleted shouldBe true
-                    it.nickname shouldBe "탈퇴한 회원"
+                    it.nickname shouldBe ""
 
                     cartProductRepository.existsById(cartProduct.id) shouldBe false
                     refreshTokenRepository.existsById(refreshToken.id) shouldBe false
