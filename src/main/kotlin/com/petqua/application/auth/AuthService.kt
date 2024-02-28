@@ -35,7 +35,7 @@ class AuthService(
         oauthUserInfo: OauthUserInfo
     ): Member {
         val member = findOrSaveMemberBy(oauthServerType, oauthUserInfo)
-        member.updateToken(
+        member.updateOauthToken(
             accessToken = oauthTokenInfo.accessToken,
             expiresIn = oauthTokenInfo.expiresIn,
             refreshToken = oauthTokenInfo.refreshToken
@@ -92,7 +92,7 @@ class AuthService(
     }
 
     fun updateOauthToken(member: Member, oauthTokenInfo: OauthTokenInfo) {
-        member.updateToken(
+        member.updateOauthToken(
             accessToken = oauthTokenInfo.accessToken,
             expiresIn = oauthTokenInfo.expiresIn,
             refreshToken = oauthTokenInfo.refreshToken

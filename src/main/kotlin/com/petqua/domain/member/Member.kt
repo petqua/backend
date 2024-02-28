@@ -78,7 +78,7 @@ class Member(
         }
     }
 
-    fun updateToken(
+    fun updateOauthToken(
         accessToken: String,
         expiresIn: Long,
         refreshToken: String?,
