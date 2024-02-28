@@ -1,10 +1,9 @@
-package com.petqua.presentation.order
+package com.petqua.presentation.payment
 
-import com.petqua.application.payment.PaymentService
+import com.petqua.application.payment.PaymentFacadeService
 import com.petqua.common.config.ACCESS_TOKEN_SECURITY_SCHEME_KEY
 import com.petqua.domain.auth.Auth
 import com.petqua.domain.auth.LoginMember
-import com.petqua.presentation.order.dto.PayOrderRequest
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ResponseEntity
@@ -18,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/orders/payment")
 @RestController
 class PaymentController(
-    private val paymentService: PaymentService,
+    private val paymentFacadeService: PaymentFacadeService,
 ) {
 
     @PostMapping("/success")
@@ -26,7 +25,7 @@ class PaymentController(
         @Auth loginMember: LoginMember,
         @RequestBody request: PayOrderRequest,
     ): ResponseEntity<Unit> {
-        paymentService.payOrder(request.toCommand())
+        paymentFacadeService.payOrder(request.toCommand())
         return ResponseEntity.ok().build()
     }
 
