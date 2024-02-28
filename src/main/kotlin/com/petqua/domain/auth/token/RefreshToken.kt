@@ -21,7 +21,7 @@ class RefreshToken(
     val token: String,
 ) : BaseEntity() {
 
-    fun validateToken(other: String) {
+    fun validateTokenValue(other: String) {
         if (token != other) {
             throw AuthException(INVALID_REFRESH_TOKEN)
         }

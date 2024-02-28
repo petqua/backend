@@ -78,7 +78,7 @@ class AuthService(
         val savedRefreshToken = refreshTokenRepository.findByTokenOrThrow(refreshToken) {
             AuthException(INVALID_REFRESH_TOKEN)
         }
-        savedRefreshToken.validateToken(refreshToken)
+        savedRefreshToken.validateTokenValue(refreshToken)
         return memberRepository.findActiveByIdOrThrow(savedRefreshToken.memberId) {
             MemberException(NOT_FOUND_MEMBER)
         }
