@@ -177,3 +177,8 @@ data class CashReceiptHistoryResponseFromPG(
 data class DiscountResponseFromPG(
     val amount: BigDecimal,
 )
+
+data class PaymentErrorResponseFromPG(
+    val code: String,
+    val message: String,
+)

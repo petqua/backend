@@ -149,8 +149,6 @@ class OrderService(
 
         // api 승인 요청
         val paymentResponse = paymentGatewayClient.confirmPayment(command.toPaymentConfirmRequest())
-        val payment = paymentRepository.save(paymentResponse.toPayment())
-
-        // 응답 추가
+        paymentRepository.save(paymentResponse.toPayment())
     }
 }
