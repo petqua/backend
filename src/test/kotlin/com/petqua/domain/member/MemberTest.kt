@@ -21,7 +21,7 @@ class MemberTest : StringSpec({
             authority = Authority.MEMBER,
             isDeleted = false,
             oauthAccessToken = "oauthAccessToken",
-            expireAt = LocalDateTime.now().plusSeconds(10000),
+            oauthAccessTokenExpiresAt = LocalDateTime.now().plusSeconds(10000),
             oauthRefreshToken = "oauthRefreshToken",
         )
 
@@ -41,7 +41,7 @@ class MemberTest : StringSpec({
             authority = Authority.MEMBER,
             isDeleted = false,
             oauthAccessToken = "oauthAccessToken",
-            expireAt = LocalDateTime.now().plusSeconds(10000),
+            oauthAccessTokenExpiresAt = LocalDateTime.now().plusSeconds(10000),
             oauthRefreshToken = "oauthRefreshToken",
         )
 
@@ -58,7 +58,7 @@ class MemberTest : StringSpec({
             authority = Authority.MEMBER,
             isDeleted = true,
             oauthAccessToken = "oauthAccessToken",
-            expireAt = LocalDateTime.now().plusSeconds(10000),
+            oauthAccessTokenExpiresAt = LocalDateTime.now().plusSeconds(10000),
             oauthRefreshToken = "oauthRefreshToken",
         )
 

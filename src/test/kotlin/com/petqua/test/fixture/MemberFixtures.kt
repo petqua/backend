@@ -15,7 +15,7 @@ fun member(
     years: Int = 1,
     isDeleted: Boolean = false,
     oauthAccessToken: String = "oauthAccessToken",
-    expireAt: LocalDateTime = LocalDateTime.now().plusSeconds(21599),
+    oauthAccessTokenExpiresAt: LocalDateTime = LocalDateTime.now().plusSeconds(21599),
     oauthRefreshToken: String = "oauthRefreshToken",
 ): Member {
     return Member(
@@ -29,7 +29,7 @@ fun member(
         years = years,
         isDeleted = isDeleted,
         oauthAccessToken = oauthAccessToken,
-        expireAt = expireAt,
+        oauthAccessTokenExpiresAt = oauthAccessTokenExpiresAt,
         oauthRefreshToken = oauthRefreshToken,
     )
 }

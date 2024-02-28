@@ -52,8 +52,8 @@ import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
-import kotlin.random.Random
 import java.time.LocalDateTime
+import kotlin.random.Random
 
 @Component
 @Profile("local", "prod")
@@ -98,7 +98,7 @@ class DataInitializer(
                 oauthServerNumber = 1,
                 authority = MEMBER,
                 oauthAccessToken = "xxx.yyy.zzz",
-                expireAt = LocalDateTime.now().plusSeconds(10000),
+                oauthAccessTokenExpiresAt = LocalDateTime.now().plusSeconds(10000),
                 oauthRefreshToken = "xxx.yyy.zzz",
             )
         )

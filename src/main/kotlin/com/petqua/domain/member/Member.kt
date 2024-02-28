@@ -50,7 +50,7 @@ class Member(
 
     var oauthAccessToken: String = "",
 
-    var expireAt: LocalDateTime? = null,
+    var oauthAccessTokenExpiresAt: LocalDateTime? = null,
 
     var oauthRefreshToken: String = "",
 ) : BaseEntity(), SoftDeleteEntity {
@@ -68,7 +68,7 @@ class Member(
         nickname = DELETED_MEMBER_NAME
         profileImageUrl = null
         oauthAccessToken = DELETED_AUTH_FIELD
-        expireAt = null
+        oauthAccessTokenExpiresAt = null
         oauthRefreshToken = DELETED_AUTH_FIELD
     }
 
@@ -84,12 +84,13 @@ class Member(
         refreshToken: String?,
     ) {
         oauthAccessToken = accessToken
-        expireAt = LocalDateTime.now().plusSeconds(expiresIn)
+        oauthAccessTokenExpiresAt = LocalDateTime.now().plusSeconds(expiresIn)
         oauthRefreshToken = refreshToken ?: oauthRefreshToken
     }
 
 
     fun hasExpiredOauthToken(): Boolean {
-        return expireAt?.let { it < LocalDateTime.now() } ?: throw MemberException(INVALID_MEMBER_STATE)
+        return oauthAccessTokenExpiresAt?.let { it < LocalDateTime.now() }
+            ?: throw MemberException(INVALID_MEMBER_STATE)
     }
 }

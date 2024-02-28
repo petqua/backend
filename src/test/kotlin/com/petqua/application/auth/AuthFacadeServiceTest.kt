@@ -166,7 +166,7 @@ class AuthFacadeServiceTest(
                 oauthId = 1L,
                 oauthServerNumber = KAKAO.number,
                 oauthAccessToken = "oauthAccessToken",
-                expireAt = LocalDateTime.now().plusSeconds(21599),
+                oauthAccessTokenExpiresAt = LocalDateTime.now().plusSeconds(21599),
                 oauthRefreshToken = "oauthAccessToken",
             )
         )
@@ -184,7 +184,7 @@ class AuthFacadeServiceTest(
                     it.nickname shouldBe ""
                     it.profileImageUrl shouldBe null
                     it.oauthAccessToken shouldBe ""
-                    it.expireAt shouldBe null
+                    it.oauthAccessTokenExpiresAt shouldBe null
                     it.oauthRefreshToken shouldBe ""
                 }
             }
@@ -206,7 +206,7 @@ class AuthFacadeServiceTest(
                     oauthId = 1L,
                     oauthServerNumber = KAKAO.number,
                     oauthAccessToken = "expiredOauthAccessToken",
-                    expireAt = LocalDateTime.of(2024, 1, 1, 0, 0),
+                    oauthAccessTokenExpiresAt = LocalDateTime.of(2024, 1, 1, 0, 0),
                     oauthRefreshToken = "oauthRefreshToken",
                 )
             )

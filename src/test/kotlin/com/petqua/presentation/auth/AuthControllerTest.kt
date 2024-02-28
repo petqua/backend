@@ -91,7 +91,7 @@ class AuthControllerTest(
                         it.nickname shouldBe ""
                         it.profileImageUrl shouldBe null
                         it.oauthAccessToken shouldBe ""
-                        it.expireAt shouldBe null
+                        it.oauthAccessTokenExpiresAt shouldBe null
                         it.oauthRefreshToken shouldBe ""
                     }
                 }
