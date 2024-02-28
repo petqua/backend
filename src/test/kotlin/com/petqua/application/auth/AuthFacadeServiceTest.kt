@@ -158,6 +158,40 @@ class AuthFacadeServiceTest(
                 }.exceptionType() shouldBe AuthExceptionType.INVALID_REFRESH_TOKEN
             }
         }
+
+        When("kakao oauthAccessToken 이 만료된 경우") {
+            val expiredMember = memberRepository.save(
+                member(
+                    oauthId = 1L,
+                    oauthServerNumber = KAKAO.number,
+                    oauthAccessToken = "expiredOauthAccessToken",
+                    oauthAccessTokenExpiresAt = LocalDateTime.of(2024, 1, 1, 0, 0),
+                    oauthRefreshToken = "oauthRefreshToken",
+                )
+            )
+            val expiredAccessToken = authTokenProvider.createAuthToken(expiredMember, Date(0)).accessToken
+            val refreshToken = authTokenProvider.createAuthToken(expiredMember, Date()).refreshToken
+            refreshTokenRepository.save(
+                RefreshToken(
+                    memberId = expiredMember.id,
+                    token = refreshToken
+                )
+            )
+
+            authFacadeService.extendLogin(expiredAccessToken, refreshToken)
+
+            Then("토큰 정보를 갱신한다") {
+                val updatedMember = memberRepository.findByIdOrThrow(expiredMember.id)
+
+                assertSoftly(updatedMember) {
+                    updatedMember.oauthAccessToken shouldBe "oauthAccessToken"
+                    updatedMember.hasExpiredOauthToken() shouldBe false
+                }
+                verify(exactly = 1) {
+                    oauthService.updateOauthToken(KAKAO, "oauthRefreshToken")
+                }
+            }
+        }
     }
 
     Given("회원을 서비스에서 탈퇴시킬 때") {
