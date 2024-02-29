@@ -1,7 +1,7 @@
 package com.petqua.domain.order
 
 import com.petqua.exception.order.OrderException
-import com.petqua.exception.order.OrderExceptionType.ORDER_PRICE_NOT_MATCH
+import com.petqua.exception.order.OrderExceptionType.PAYMENT_PRICE_NOT_MATCH
 import com.petqua.test.fixture.order
 import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrow
@@ -29,6 +29,6 @@ class OrderTest : StringSpec({
 
         shouldThrow<OrderException> {
             order.validateAmount(ONE)
-        }.exceptionType() shouldBe ORDER_PRICE_NOT_MATCH
+        }.exceptionType() shouldBe PAYMENT_PRICE_NOT_MATCH
     }
 })

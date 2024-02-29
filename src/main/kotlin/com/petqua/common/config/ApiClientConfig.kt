@@ -11,7 +11,7 @@ import org.springframework.web.service.invoker.HttpServiceProxyFactory
 class ApiClientConfig {
 
     @Bean
-    fun tossPaymentsApiClient(): TossPaymentsApiClient {
+    fun TossPaymentsApiClient(): TossPaymentsApiClient {
         return createApiClient(TossPaymentsApiClient::class.java)
     }
 
