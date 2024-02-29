@@ -1,6 +1,7 @@
 package com.petqua.presentation.order.dto
 
 import com.petqua.application.order.dto.OrderProductCommand
+import com.petqua.application.order.dto.PayOrderCommand
 import com.petqua.application.order.dto.SaveOrderCommand
 import com.petqua.domain.delivery.DeliveryMethod
 import com.petqua.domain.product.option.Sex
@@ -50,6 +51,23 @@ data class OrderProductRequest(
             additionalPrice = additionalPrice,
             deliveryFee = deliveryFee,
             deliveryMethod = DeliveryMethod.from(deliveryMethod),
+        )
+    }
+}
+
+data class PayOrderRequest(
+    val paymentType: String,
+    val orderId: String,
+    val paymentKey: String,
+    val amount: BigDecimal,
+) {
+
+    fun toCommand(): PayOrderCommand {
+        return PayOrderCommand.of(
+            paymentType = paymentType,
+            orderId = orderId,
+            paymentKey = paymentKey,
+            amount = amount,
         )
     }
 }

@@ -34,3 +34,9 @@ logging:
     org.hibernate.orm.jdbc.bind: TRACE
     org.apache.coyote.http11: debug
     root: info
+
+payment:
+  toss-payments:
+    secret-key: test-secret-key # for test
+    success-url: ${base-url}/orders/payment/success
+    fail-url: ${base-url}/orders/payment/fail

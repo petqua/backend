@@ -19,5 +19,9 @@ data class OrderNumber(
             val uuid = UUID.randomUUID().toString().replace("-", "").substring(0, 12).uppercase()
             return OrderNumber(createdTime.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")) + uuid)
         }
+
+        fun from(orderNumber: String): OrderNumber {
+            return OrderNumber(orderNumber)
+        }
     }
 }

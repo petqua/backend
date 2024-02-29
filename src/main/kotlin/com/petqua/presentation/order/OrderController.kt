@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
-@Tag(name = "Order", description = "주문 관련 API 명세")
 @SecurityRequirement(name = ACCESS_TOKEN_SECURITY_SCHEME_KEY)
+@Tag(name = "Order", description = "주문 관련 API 명세")
 @RequestMapping("/orders")
 @RestController
 class OrderController(
