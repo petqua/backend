@@ -26,7 +26,7 @@ class PaymentController(
         @RequestBody request: PayOrderRequest,
     ): ResponseEntity<Unit> {
         paymentFacadeService.payOrder(request.toCommand())
-        return ResponseEntity.ok().build()
+        return ResponseEntity.noContent().build()
     }
 
     @PostMapping("/fail")

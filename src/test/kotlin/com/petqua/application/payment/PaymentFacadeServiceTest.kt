@@ -9,7 +9,7 @@ import com.petqua.exception.order.OrderException
 import com.petqua.exception.order.OrderExceptionType.ORDER_NOT_FOUND
 import com.petqua.exception.order.OrderExceptionType.PAYMENT_PRICE_NOT_MATCH
 import com.petqua.exception.payment.PaymentException
-import com.petqua.exception.payment.PaymentExceptionType
+import com.petqua.exception.payment.PaymentExceptionType.UNAUTHORIZED_KEY
 import com.petqua.test.DataCleaner
 import com.petqua.test.fixture.order
 import com.petqua.test.fixture.payOrderCommand
@@ -33,7 +33,7 @@ class PaymentFacadeServiceTest(
     @SpykBean private val tossPaymentsApiClient: TossPaymentsApiClient,
 ) : BehaviorSpec({
 
-    Given("결제를 요청할 때") {
+    Given("주문을 결제할 때") {
         val order = orderRepository.save(
             order(
                 orderNumber = OrderNumber.from("orderNumber"),
@@ -92,7 +92,7 @@ class PaymentFacadeServiceTest(
             }
         }
 
-        When("결제 금액이 다르면") {
+        When("주문의 총가격과 결제 금액이 다르면") {
             val amount = order.totalAmount + ONE
 
             Then("예외를 던진다") {
@@ -126,7 +126,7 @@ class PaymentFacadeServiceTest(
                             amount = order.totalAmount,
                         )
                     )
-                }.exceptionType() shouldBe PaymentExceptionType.UNAUTHORIZED_KEY
+                }.exceptionType() shouldBe UNAUTHORIZED_KEY
             }
         }
     }
