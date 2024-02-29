@@ -15,5 +15,10 @@ enum class OauthServerType(
             return enumValues<OauthServerType>().find { it.name == name.uppercase(ENGLISH) }
                 ?: throw OauthClientException(UNSUPPORTED_OAUTH_SERVER_TYPE)
         }
+
+        fun numberOf(serverNumber: Int): OauthServerType {
+            return enumValues<OauthServerType>().find { it.number == serverNumber }
+                ?: throw OauthClientException(UNSUPPORTED_OAUTH_SERVER_TYPE)
+        }
     }
 }

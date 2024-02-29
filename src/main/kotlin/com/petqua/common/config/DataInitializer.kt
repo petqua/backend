@@ -52,6 +52,7 @@ import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
+import java.time.LocalDateTime
 import kotlin.random.Random
 
 @Component
@@ -93,9 +94,12 @@ class DataInitializer(
     private fun saveMember(): Member {
         return memberRepository.save(
             Member(
-                oauthId = "oauthId",
+                oauthId = 1L,
                 oauthServerNumber = 1,
                 authority = MEMBER,
+                oauthAccessToken = "xxx.yyy.zzz",
+                oauthAccessTokenExpiresAt = LocalDateTime.now().plusSeconds(10000),
+                oauthRefreshToken = "xxx.yyy.zzz",
             )
         )
     }

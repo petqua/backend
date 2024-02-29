@@ -5,8 +5,8 @@ import com.petqua.domain.auth.token.AccessTokenClaims
 import com.petqua.domain.auth.token.AuthTokenProperties
 import com.petqua.domain.auth.token.AuthTokenProvider
 import com.petqua.domain.auth.token.JwtProvider
-import com.petqua.domain.member.Member
 import com.petqua.exception.member.MemberException
+import com.petqua.test.fixture.member
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jws
 import io.kotest.assertions.assertSoftly
@@ -31,7 +31,7 @@ class AuthTokenProviderTest(
     Given("인증 토큰 발급 테스트") {
         val issuedLocalDate = LocalDate.of(3000, 1, 1)
         val issuedDate = Date.from(issuedLocalDate.atStartOfDay(ZoneId.systemDefault()).toInstant())
-        val member = Member(1L, "oauthId", OauthServerType.KAKAO.number, Authority.MEMBER)
+        val member = member(1L, 1L, OauthServerType.KAKAO.number, Authority.MEMBER)
 
         When("인증 토큰을 발급하면") {
             val authToken = authTokenProvider.createAuthToken(member, issuedDate)

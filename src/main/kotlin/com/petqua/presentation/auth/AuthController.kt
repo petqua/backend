@@ -1,8 +1,10 @@
 package com.petqua.presentation.auth
 
-import com.petqua.application.auth.AuthService
+import com.petqua.application.auth.AuthFacadeService
 import com.petqua.application.auth.AuthTokenInfo
+import com.petqua.common.config.ACCESS_TOKEN_SECURITY_SCHEME_KEY
 import com.petqua.domain.auth.Auth
+import com.petqua.domain.auth.LoginMember
 import com.petqua.domain.auth.oauth.OauthServerType
 import com.petqua.domain.auth.token.AuthToken
 import io.swagger.v3.oas.annotations.Operation
@@ -10,23 +12,25 @@ import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.enums.ParameterIn
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.http.HttpHeaders.SET_COOKIE
 import org.springframework.http.ResponseCookie
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
-@Tag(name = "Auth", description = "인증 관련 API 명세(테스트 불가)")
+@Tag(name = "Auth", description = "인증 관련 API 명세")
 @RequestMapping("/auth")
 @RestController
 class AuthController(
-    private val authService: AuthService
+    private val authFacadeService: AuthFacadeService
 ) {
 
     @Operation(summary = "리다이렉트 요청 API", description = "Oauth 로그인 페이지로 리다이렉트하는 URI를 조회합니다")
@@ -36,13 +40,13 @@ class AuthController(
         @Schema(description = "Oauth 서버", example = "KAKAO")
         @PathVariable oauthServerType: OauthServerType,
     ): ResponseEntity<RedirectUriResponse> {
-        val redirectUri = authService.getAuthCodeRequestUrl(oauthServerType)
+        val redirectUri = authFacadeService.getAuthCodeRequestUrl(oauthServerType)
         return ResponseEntity
             .ok()
             .body(RedirectUriResponse(redirectUri.toString()))
     }
 
-    @Operation(summary = "소셜 로그인 API", description = "소셜 로그인을 합니다")
+    @Operation(summary = "소셜 로그인 API(테스트 불가)", description = "소셜 로그인을 합니다")
     @ApiResponse(responseCode = "200", description = "로그인 성공")
     @GetMapping("/login/{oauthServerType}")
     fun login(
@@ -52,7 +56,7 @@ class AuthController(
         @Schema(description = "auth code")
         @RequestParam("code") code: String,
     ): ResponseEntity<Unit> {
-        val authTokenInfo = authService.login(oauthServerType, code)
+        val authTokenInfo = authFacadeService.login(oauthServerType, code)
         val refreshTokenCookie = createRefreshTokenCookie(authTokenInfo)
         val headers = HttpHeaders().apply {
             set(AUTHORIZATION, authTokenInfo.accessToken)
@@ -65,7 +69,7 @@ class AuthController(
     }
 
     @Operation(
-        summary = "로그인 유지 API",
+        summary = "로그인 유지 API(테스트 불가)",
         description = "refresh token으로 access token을 재발급 받습니다",
         parameters = [
             Parameter(
@@ -89,7 +93,7 @@ class AuthController(
     fun extendLogin(
         @Parameter(hidden = true) @Auth authToken: AuthToken,
     ): ResponseEntity<Unit> {
-        val authTokenInfo = authService.extendLogin(authToken.accessToken, authToken.refreshToken)
+        val authTokenInfo = authFacadeService.extendLogin(authToken.accessToken, authToken.refreshToken)
         val refreshTokenCookie = createRefreshTokenCookie(authTokenInfo)
         val headers = HttpHeaders().apply {
             set(AUTHORIZATION, authTokenInfo.accessToken)
@@ -107,5 +111,16 @@ class AuthController(
             .secure(true)
             .httpOnly(true)
             .build()
+    }
+
+    @Operation(summary = "회원 탈퇴 API", description = "회원 탈퇴를 합니다")
+    @ApiResponse(responseCode = "204", description = "회원 탈퇴 성공")
+    @SecurityRequirement(name = ACCESS_TOKEN_SECURITY_SCHEME_KEY)
+    @DeleteMapping("/members")
+    fun delete(
+        @Auth loginMember: LoginMember
+    ): ResponseEntity<Unit> {
+        authFacadeService.deleteBy(loginMember.memberId)
+        return ResponseEntity.noContent().build()
     }
 }

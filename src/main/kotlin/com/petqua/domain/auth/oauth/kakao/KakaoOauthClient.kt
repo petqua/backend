@@ -1,6 +1,7 @@
 package com.petqua.domain.auth.oauth.kakao
 
 import com.petqua.domain.auth.oauth.OauthClient
+import com.petqua.domain.auth.oauth.OauthIdInfo
 import com.petqua.domain.auth.oauth.OauthServerType
 import com.petqua.domain.auth.oauth.OauthServerType.KAKAO
 import com.petqua.domain.auth.oauth.OauthTokenInfo
@@ -8,8 +9,6 @@ import com.petqua.domain.auth.oauth.OauthUserInfo
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.stereotype.Component
-import org.springframework.util.LinkedMultiValueMap
-import org.springframework.util.MultiValueMap
 import org.springframework.web.util.UriComponentsBuilder
 import java.net.URI
 
@@ -40,19 +39,33 @@ class KakaoOauthClient(
         return KAKAO
     }
 
-    override fun requestOauthUserInfo(oauthTokenInfo: OauthTokenInfo): OauthUserInfo {
-        val kakaoOauthUserInfo = kakaoOauthApiClient.fetchUserInfo("Bearer ${oauthTokenInfo.accessToken}")
+    override fun requestOauthUserInfo(accessToken: String): OauthUserInfo {
+        val kakaoOauthUserInfo = kakaoOauthApiClient.fetchUserInfo("Bearer $accessToken")
         return kakaoOauthUserInfo.toOauthUserInfo()
     }
 
     override fun requestToken(code: String): OauthTokenInfo {
-        val tokenRequestBody: MultiValueMap<String, String> = LinkedMultiValueMap()
-        tokenRequestBody.add("grant_type", "authorization_code")
-        tokenRequestBody.add("client_id", kakaoOauthProperties.clientId)
-        tokenRequestBody.add("redirect_uri", kakaoOauthProperties.redirectUri)
-        tokenRequestBody.add("code", code)
-        tokenRequestBody.add("client_secret", kakaoOauthProperties.clientSecret)
+        val tokenRequestBody = HashMap<String, String>()
+        tokenRequestBody["grant_type"] = "authorization_code"
+        tokenRequestBody["client_id"] = kakaoOauthProperties.clientId
+        tokenRequestBody["redirect_uri"] = kakaoOauthProperties.redirectUri
+        tokenRequestBody["code"] = code
+        tokenRequestBody["client_secret"] = kakaoOauthProperties.clientSecret
 
         return kakaoOauthApiClient.fetchToken(tokenRequestBody)
+    }
+
+    override fun updateToken(refreshToken: String): OauthTokenInfo {
+        val tokenRequestBody = HashMap<String, String>()
+        tokenRequestBody["grant_type"] = "refresh_token"
+        tokenRequestBody["client_id"] = kakaoOauthProperties.clientId
+        tokenRequestBody["refresh_token"] = refreshToken
+        tokenRequestBody["client_secret"] = kakaoOauthProperties.clientSecret
+
+        return kakaoOauthApiClient.fetchToken(tokenRequestBody)
+    }
+
+    override fun disconnect(accessToken: String): OauthIdInfo {
+        return kakaoOauthApiClient.disconnect("Bearer $accessToken")
     }
 }

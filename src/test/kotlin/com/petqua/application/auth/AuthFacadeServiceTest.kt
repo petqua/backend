@@ -1,5 +1,7 @@
 package com.petqua.application.auth
 
+import com.ninjasquad.springmockk.SpykBean
+import com.petqua.common.domain.findByIdOrThrow
 import com.petqua.domain.auth.oauth.OauthServerType.KAKAO
 import com.petqua.domain.auth.token.AuthTokenProvider
 import com.petqua.domain.auth.token.JwtProvider
@@ -9,6 +11,7 @@ import com.petqua.domain.member.MemberRepository
 import com.petqua.exception.auth.AuthException
 import com.petqua.exception.auth.AuthExceptionType
 import com.petqua.exception.member.MemberException
+import com.petqua.exception.member.MemberExceptionType.NOT_FOUND_MEMBER
 import com.petqua.test.DataCleaner
 import com.petqua.test.config.OauthTestConfig
 import com.petqua.test.fixture.member
@@ -17,27 +20,31 @@ import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.verify
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE
 import org.springframework.context.annotation.Import
 import java.lang.System.currentTimeMillis
-import java.util.Date
+import java.time.LocalDateTime
+import java.util.*
 
 @SpringBootTest(webEnvironment = NONE)
 @Import(OauthTestConfig::class)
-class AuthServiceTest(
-    private var authService: AuthService,
+class AuthFacadeServiceTest(
+    private val authFacadeService: AuthFacadeService,
     private val refreshTokenRepository: RefreshTokenRepository,
     private val authTokenProvider: AuthTokenProvider,
     private val jwtProvider: JwtProvider,
     private val memberRepository: MemberRepository,
     private val dataCleaner: DataCleaner,
+
+    @SpykBean private val oauthService: OauthService,
 ) : BehaviorSpec({
 
     Given("카카오 소셜 로그인을") {
 
         When("요청하면") {
-            val authTokenInfo = authService.login(KAKAO, "accessCode")
+            val authTokenInfo = authFacadeService.login(KAKAO, "accessCode")
 
             Then("멤버의 인증 토큰을 발급한다") {
                 assertSoftly(authTokenInfo) {
@@ -68,7 +75,7 @@ class AuthServiceTest(
         )
 
         When("요청하면") {
-            val authTokenInfo = authService.extendLogin(expiredAccessToken, refreshToken)
+            val authTokenInfo = authFacadeService.extendLogin(expiredAccessToken, refreshToken)
 
             Then("멤버의 인증 토큰을 발급한다") {
                 assertSoftly(authTokenInfo) {
@@ -101,7 +108,7 @@ class AuthServiceTest(
 
             Then("예외가 발생한다") {
                 shouldThrow<AuthException> {
-                    authService.extendLogin(authToken.accessToken, authToken.refreshToken)
+                    authFacadeService.extendLogin(authToken.accessToken, authToken.refreshToken)
                 }.exceptionType() shouldBe AuthExceptionType.NOT_RENEWABLE_ACCESS_TOKEN
             }
         }
@@ -117,7 +124,7 @@ class AuthServiceTest(
 
             Then("예외가 발생한다") {
                 shouldThrow<AuthException> {
-                    authService.extendLogin(expiredAuthToken.accessToken, expiredAuthToken.refreshToken)
+                    authFacadeService.extendLogin(expiredAuthToken.accessToken, expiredAuthToken.refreshToken)
                 }.exceptionType() shouldBe AuthExceptionType.EXPIRED_REFRESH_TOKEN
             }
         }
@@ -128,7 +135,7 @@ class AuthServiceTest(
 
             Then("예외가 발생한다") {
                 shouldThrow<AuthException> {
-                    authService.extendLogin(expiredAccessToken, unsavedRefreshToken)
+                    authFacadeService.extendLogin(expiredAccessToken, unsavedRefreshToken)
                 }.exceptionType() shouldBe AuthExceptionType.INVALID_REFRESH_TOKEN
             }
         }
@@ -147,8 +154,103 @@ class AuthServiceTest(
 
             Then("예외가 발생한다") {
                 shouldThrow<AuthException> {
-                    authService.extendLogin(expiredAccessToken, unsavedRefreshToken)
+                    authFacadeService.extendLogin(expiredAccessToken, unsavedRefreshToken)
                 }.exceptionType() shouldBe AuthExceptionType.INVALID_REFRESH_TOKEN
+            }
+        }
+
+        When("kakao oauthAccessToken 이 만료된 경우") {
+            val expiredMember = memberRepository.save(
+                member(
+                    oauthId = 1L,
+                    oauthServerNumber = KAKAO.number,
+                    oauthAccessToken = "expiredOauthAccessToken",
+                    oauthAccessTokenExpiresAt = LocalDateTime.of(2024, 1, 1, 0, 0),
+                    oauthRefreshToken = "oauthRefreshToken",
+                )
+            )
+            val expiredAccessToken = authTokenProvider.createAuthToken(expiredMember, Date(0)).accessToken
+            val refreshToken = authTokenProvider.createAuthToken(expiredMember, Date()).refreshToken
+            refreshTokenRepository.save(
+                RefreshToken(
+                    memberId = expiredMember.id,
+                    token = refreshToken
+                )
+            )
+
+            authFacadeService.extendLogin(expiredAccessToken, refreshToken)
+
+            Then("토큰 정보를 갱신한다") {
+                val updatedMember = memberRepository.findByIdOrThrow(expiredMember.id)
+
+                assertSoftly(updatedMember) {
+                    updatedMember.oauthAccessToken shouldBe "oauthAccessToken"
+                    updatedMember.hasExpiredOauthToken() shouldBe false
+                }
+                verify(exactly = 1) {
+                    oauthService.updateOauthToken(KAKAO, "oauthRefreshToken")
+                }
+            }
+        }
+    }
+
+    Given("회원을 서비스에서 탈퇴시킬 때") {
+        val member = memberRepository.save(
+            member(
+                oauthId = 1L,
+                oauthServerNumber = KAKAO.number,
+                oauthAccessToken = "oauthAccessToken",
+                oauthAccessTokenExpiresAt = LocalDateTime.now().plusSeconds(21599),
+                oauthRefreshToken = "oauthAccessToken",
+            )
+        )
+
+        When("회원의 id를 입력하면") {
+            authFacadeService.deleteBy(member.id)
+
+            Then("입력한 회원의 정보를 삭제한다") {
+                val deletedMember = memberRepository.findByIdOrThrow(member.id)
+
+                assertSoftly(deletedMember) {
+                    it.isDeleted shouldBe true
+
+                    it.oauthId shouldBe -1L
+                    it.nickname shouldBe ""
+                    it.profileImageUrl shouldBe null
+                    it.oauthAccessToken shouldBe ""
+                    it.oauthAccessTokenExpiresAt shouldBe null
+                    it.oauthRefreshToken shouldBe ""
+                }
+            }
+        }
+
+        When("존재하지 않는 회원의 id를 입력하면") {
+            val memberId = Long.MIN_VALUE
+
+            Then("입력한 회원의 정보를 삭제한다") {
+                shouldThrow<MemberException> {
+                    authFacadeService.deleteBy(memberId)
+                }.exceptionType() shouldBe NOT_FOUND_MEMBER
+            }
+        }
+
+        When("회원의 oauth 토큰이 만료되었으면") {
+            val expiredMember = memberRepository.save(
+                member(
+                    oauthId = 1L,
+                    oauthServerNumber = KAKAO.number,
+                    oauthAccessToken = "expiredOauthAccessToken",
+                    oauthAccessTokenExpiresAt = LocalDateTime.of(2024, 1, 1, 0, 0),
+                    oauthRefreshToken = "oauthRefreshToken",
+                )
+            )
+
+            authFacadeService.deleteBy(expiredMember.id)
+
+            Then("토큰 정보를 갱신한다") {
+                verify(exactly = 1) {
+                    oauthService.updateOauthToken(KAKAO, "oauthRefreshToken")
+                }
             }
         }
     }

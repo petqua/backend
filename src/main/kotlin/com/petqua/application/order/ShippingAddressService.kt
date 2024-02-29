@@ -19,7 +19,9 @@ class ShippingAddressService(
 ) {
 
     fun save(command: SaveShippingAddressCommand): SaveShippingAddressResponse {
-        memberRepository.existByIdOrThrow(command.memberId, MemberException(NOT_FOUND_MEMBER))
+        memberRepository.existByIdOrThrow(command.memberId) {
+            MemberException(NOT_FOUND_MEMBER)
+        }
         if (command.isDefaultAddress) {
             shippingAddressRepository.deleteByMemberIdAndIsDefaultAddress(command.memberId)
         }
