@@ -1,4 +1,4 @@
-package com.petqua.application.order.payment
+package com.petqua.application.payment
 
 import com.petqua.domain.order.OrderName
 import com.petqua.domain.order.OrderNumber
@@ -30,7 +30,7 @@ data class PaymentResponseFromPG(
     val approvedAt: String,
     val useEscrow: Boolean,
     val lastTransactionKey: String?,
-    val suppliedAmount: String,
+    val suppliedAmount: BigDecimal,
     val vat: BigDecimal,
     val cultureExpense: Boolean,
     val taxFreeAmount: BigDecimal,
@@ -104,7 +104,7 @@ data class VirtualAccountResponseFromPG(
     val refundStatus: String,
     val expired: Boolean,
     val settlementStatus: String,
-    val refundReceiveAccount: RefundReceiveAccountResponseFromPG?, // 결제창 띄운 시점부터 30분 동안만 조회 가능, 결제 승인 직후 응답 저장 필요 -> 고객의 계좌 정보를 저장해야 해?
+    val refundReceiveAccount: RefundReceiveAccountResponseFromPG?, // 결제창 띄운 시점부터 30분 동안만 조회 가능
 )
 
 data class RefundReceiveAccountResponseFromPG(
@@ -116,7 +116,7 @@ data class RefundReceiveAccountResponseFromPG(
 data class MobilePhoneResponseFromPG(
     val customerMobilePhone: String,
     val settlementStatus: String,
-    val receiptUrl: String
+    val receiptUrl: String,
 )
 
 data class GiftCertificateResponseFromPG(
@@ -171,7 +171,7 @@ data class CashReceiptHistoryResponseFromPG(
     val issueStatus: String,
     val failure: FailureResponseFromPG,
     val customerIdentityNumber: String,
-    val requestedAt: String
+    val requestedAt: String,
 )
 
 data class DiscountResponseFromPG(

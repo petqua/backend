@@ -1,5 +1,7 @@
-package com.petqua.application.order.payment
+package com.petqua.application.payment.infra
 
+import com.petqua.application.payment.PaymentConfirmRequestToPG
+import com.petqua.application.payment.PaymentResponseFromPG
 import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.web.bind.annotation.RequestBody

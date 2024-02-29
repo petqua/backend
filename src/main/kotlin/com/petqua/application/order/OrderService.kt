@@ -1,9 +1,8 @@
 package com.petqua.application.order
 
-import com.petqua.application.order.dto.PayOrderCommand
 import com.petqua.application.order.dto.SaveOrderCommand
 import com.petqua.application.order.dto.SaveOrderResponse
-import com.petqua.application.order.payment.PaymentGatewayClient
+import com.petqua.application.payment.infra.PaymentGatewayClient
 import com.petqua.common.domain.findByIdOrThrow
 import com.petqua.common.util.throwExceptionWhen
 import com.petqua.domain.order.Order
@@ -14,13 +13,10 @@ import com.petqua.domain.order.OrderShippingAddress
 import com.petqua.domain.order.OrderStatus.ORDER_CREATED
 import com.petqua.domain.order.ShippingAddressRepository
 import com.petqua.domain.order.ShippingNumber
-import com.petqua.domain.order.findByOrderNumberOrThrow
-import com.petqua.domain.payment.tosspayment.TossPaymentRepository
 import com.petqua.domain.product.ProductRepository
 import com.petqua.domain.product.option.ProductOptionRepository
 import com.petqua.domain.store.StoreRepository
 import com.petqua.exception.order.OrderException
-import com.petqua.exception.order.OrderExceptionType.ORDER_NOT_FOUND
 import com.petqua.exception.order.OrderExceptionType.ORDER_PRICE_NOT_MATCH
 import com.petqua.exception.order.OrderExceptionType.PRODUCT_NOT_FOUND
 import com.petqua.exception.order.ShippingAddressException
@@ -38,7 +34,6 @@ class OrderService(
     private val productOptionRepository: ProductOptionRepository,
     private val shippingAddressRepository: ShippingAddressRepository,
     private val storeRepository: StoreRepository,
-    private val paymentRepository: TossPaymentRepository,
     private val paymentGatewayClient: PaymentGatewayClient,
 ) {
 
@@ -137,18 +132,5 @@ class OrderService(
             successUrl = paymentGatewayClient.successUrl(),
             failUrl = paymentGatewayClient.failUrl(),
         )
-    }
-
-    fun payOrder(command: PayOrderCommand) {
-        // 총가격 검증, orderName 으로 찾기
-        val order = orderRepository.findByOrderNumberOrThrow(command.orderNumber) {
-            OrderException(ORDER_NOT_FOUND)
-        }
-
-        order.validateAmount(command.amount)
-
-        // api 승인 요청
-        val paymentResponse = paymentGatewayClient.confirmPayment(command.toPaymentConfirmRequest())
-        paymentRepository.save(paymentResponse.toPayment())
     }
 }

@@ -1,6 +1,6 @@
 package com.petqua.common.config
 
-import com.petqua.application.order.payment.TossPaymentsApiClient
+import com.petqua.application.payment.infra.TossPaymentsApiClient
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.reactive.function.client.WebClient

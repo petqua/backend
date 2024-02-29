@@ -1,12 +1,23 @@
-package com.petqua.application.order.payment
+package com.petqua.application.payment.infra
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.petqua.application.payment.PaymentConfirmRequestToPG
+import com.petqua.application.payment.PaymentErrorResponseFromPG
+import com.petqua.application.payment.PaymentResponseFromPG
 import com.petqua.common.util.BasicAuthUtils
 import com.petqua.exception.payment.PaymentException
 import com.petqua.exception.payment.PaymentExceptionType
+import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestClientResponseException
+
+@ConfigurationProperties(prefix = "payment.toss-payments")
+data class PaymentProperties(
+    val secretKey: String,
+    val successUrl: String,
+    val failUrl: String,
+)
 
 @EnableConfigurationProperties(PaymentProperties::class)
 @Component

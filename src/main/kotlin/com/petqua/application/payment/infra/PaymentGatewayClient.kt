@@ -1,4 +1,7 @@
-package com.petqua.application.order.payment
+package com.petqua.application.payment.infra
+
+import com.petqua.application.payment.PaymentConfirmRequestToPG
+import com.petqua.application.payment.PaymentResponseFromPG
 
 interface PaymentGatewayClient {
 

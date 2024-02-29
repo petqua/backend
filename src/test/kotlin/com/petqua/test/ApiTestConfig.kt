@@ -1,7 +1,7 @@
 package com.petqua.test
 
 import com.petqua.presentation.auth.AuthExtractor
-import com.petqua.test.config.OauthTestConfig
+import com.petqua.test.config.ApiClientTestConfig
 import io.kotest.core.spec.style.BehaviorSpec
 import io.restassured.RestAssured
 import io.restassured.module.kotlin.extensions.Extract
@@ -20,7 +20,7 @@ data class AuthResponse(
     val accessToken: String,
 )
 
-@Import(OauthTestConfig::class)
+@Import(ApiClientTestConfig::class)
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 abstract class ApiTestConfig() : BehaviorSpec() {
 

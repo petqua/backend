@@ -1,6 +1,6 @@
 package com.petqua.application.order.dto
 
-import com.petqua.application.order.payment.PaymentConfirmRequestToPG
+import com.petqua.application.payment.PaymentConfirmRequestToPG
 import com.petqua.domain.delivery.DeliveryMethod
 import com.petqua.domain.order.OrderNumber
 import com.petqua.domain.order.OrderProduct
@@ -91,7 +91,7 @@ data class PayOrderCommand(
             paymentType: String,
             orderId: String,
             paymentKey: String,
-            amount: BigDecimal
+            amount: BigDecimal,
         ): PayOrderCommand {
             return PayOrderCommand(
                 paymentType = TossPaymentType.from(paymentType),
