@@ -9,20 +9,17 @@ import com.petqua.domain.auth.token.RefreshToken
 import com.petqua.domain.auth.token.RefreshTokenRepository
 import com.petqua.domain.member.MemberRepository
 import com.petqua.test.ApiTestConfig
-import com.petqua.test.config.ApiClientTestConfig
 import com.petqua.test.fixture.member
 import io.kotest.assertions.assertSoftly
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.verify
-import org.springframework.context.annotation.Import
 import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.http.HttpHeaders.SET_COOKIE
 import org.springframework.http.HttpStatus.NO_CONTENT
 import org.springframework.http.HttpStatus.OK
 import java.util.Date
 
-@Import(ApiClientTestConfig::class)
 class AuthControllerTest(
     private val memberRepository: MemberRepository,
     private val refreshTokenRepository: RefreshTokenRepository,

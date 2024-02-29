@@ -20,9 +20,10 @@ import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE
 import kotlin.Long.Companion.MIN_VALUE
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
+@SpringBootTest(webEnvironment = NONE)
 class ShippingAddressServiceTest(
     private val shippingAddressService: ShippingAddressService,
     private val shippingAddressRepository: ShippingAddressRepository,

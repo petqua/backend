@@ -168,7 +168,7 @@ class WishProductServiceTest(
 
 private fun saveProducts(
     productRepository: ProductRepository,
-    store: Store
+    store: Store,
 ): Triple<Product, Product, Product> {
     val product1 = productRepository.save(
         product(

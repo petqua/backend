@@ -4,10 +4,12 @@ import com.petqua.application.payment.infra.TossPaymentsApiClient
 import com.petqua.domain.auth.oauth.kakao.KakaoOauthApiClient
 import com.petqua.test.fake.FakeKakaoOauthApiClient
 import com.petqua.test.fake.FakeTossPaymentsApiClient
-import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Profile
 
-@TestConfiguration
+@Configuration
+@Profile("test")
 class ApiClientTestConfig {
 
     @Bean
