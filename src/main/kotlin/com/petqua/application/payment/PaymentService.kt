@@ -6,7 +6,7 @@ import com.petqua.domain.order.findByOrderNumberOrThrow
 import com.petqua.domain.payment.tosspayment.TossPayment
 import com.petqua.domain.payment.tosspayment.TossPaymentRepository
 import com.petqua.exception.order.OrderException
-import com.petqua.exception.order.OrderExceptionType
+import com.petqua.exception.order.OrderExceptionType.ORDER_NOT_FOUND
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -20,9 +20,9 @@ class PaymentService(
     @Transactional(readOnly = true)
     fun validateAmount(command: PayOrderCommand) {
         val order = orderRepository.findByOrderNumberOrThrow(command.orderNumber) {
-            OrderException(OrderExceptionType.ORDER_NOT_FOUND)
+            OrderException(ORDER_NOT_FOUND)
         }
-        order.validateAmount(command.amount)
+        order.validateAmount(command.amount.setScale(2))
     }
 
     fun save(tossPayment: TossPayment): TossPayment {

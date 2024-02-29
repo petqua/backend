@@ -14,6 +14,7 @@ enum class OrderExceptionType(
 
     ORDER_NOT_FOUND(BAD_REQUEST, "O11", "존재하지 않는 주문입니다."),
     ORDER_PRICE_NOT_MATCH(BAD_REQUEST, "O10", "주문한 상품의 가격이 일치하지 않습니다."),
+    PAYMENT_PRICE_NOT_MATCH(BAD_REQUEST, "P51", "주문한 상품 가격과 결제 금액이 일치하지 않습니다."),
 
     INVALID_PAYMENT_TYPE(BAD_REQUEST, "O20", "유효하지 않은 결제 방식입니다."),
     ;

@@ -3,7 +3,7 @@ package com.petqua.domain.order
 import com.petqua.common.domain.BaseEntity
 import com.petqua.common.util.throwExceptionWhen
 import com.petqua.exception.order.OrderException
-import com.petqua.exception.order.OrderExceptionType.ORDER_PRICE_NOT_MATCH
+import com.petqua.exception.order.OrderExceptionType.PAYMENT_PRICE_NOT_MATCH
 import jakarta.persistence.AttributeOverride
 import jakarta.persistence.Column
 import jakarta.persistence.Embedded
@@ -52,7 +52,7 @@ class Order(
 
     fun validateAmount(amount: BigDecimal) {
         throwExceptionWhen(totalAmount != amount) {
-            throw OrderException(ORDER_PRICE_NOT_MATCH)
+            throw OrderException(PAYMENT_PRICE_NOT_MATCH)
         }
     }
 }
