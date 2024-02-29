@@ -10,8 +10,9 @@ data class PayOrderRequest(
     val amount: BigDecimal,
 ) {
 
-    fun toCommand(): PayOrderCommand {
+    fun toCommand(memberId: Long): PayOrderCommand {
         return PayOrderCommand.of(
+            memberId = memberId,
             paymentType = paymentType,
             orderId = orderId,
             paymentKey = paymentKey,

@@ -73,6 +73,7 @@ data class SaveOrderResponse(
 )
 
 data class PayOrderCommand(
+    val memberId: Long,
     val paymentType: TossPaymentType,
     val orderNumber: OrderNumber,
     val paymentKey: String,
@@ -88,12 +89,14 @@ data class PayOrderCommand(
 
     companion object {
         fun of(
+            memberId: Long,
             paymentType: String,
             orderId: String,
             paymentKey: String,
             amount: BigDecimal,
         ): PayOrderCommand {
             return PayOrderCommand(
+                memberId = memberId,
                 paymentType = TossPaymentType.from(paymentType),
                 orderNumber = OrderNumber.from(orderId),
                 paymentKey = paymentKey,

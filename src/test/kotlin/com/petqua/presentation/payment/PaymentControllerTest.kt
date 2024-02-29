@@ -7,6 +7,7 @@ import com.petqua.common.exception.ExceptionResponse
 import com.petqua.domain.order.OrderNumber
 import com.petqua.domain.order.OrderRepository
 import com.petqua.domain.payment.tosspayment.TossPaymentRepository
+import com.petqua.exception.order.OrderExceptionType.FORBIDDEN_ORDER
 import com.petqua.exception.order.OrderExceptionType.ORDER_NOT_FOUND
 import com.petqua.exception.order.OrderExceptionType.PAYMENT_PRICE_NOT_MATCH
 import com.petqua.exception.payment.PaymentExceptionType.UNAUTHORIZED_KEY
@@ -17,6 +18,7 @@ import io.kotest.assertions.assertSoftly
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import org.springframework.http.HttpStatus.BAD_REQUEST
+import org.springframework.http.HttpStatus.FORBIDDEN
 import org.springframework.http.HttpStatus.NO_CONTENT
 import org.springframework.http.HttpStatus.UNAUTHORIZED
 import org.springframework.web.reactive.function.client.WebClientResponseException
@@ -85,6 +87,27 @@ class PaymentControllerTest(
                     assertSoftly(response) {
                         statusCode shouldBe BAD_REQUEST.value()
                         errorResponse.message shouldBe ORDER_NOT_FOUND.errorMessage()
+                    }
+                }
+            }
+
+            When("권한이 없는 회원의 요청이면") {
+                val otherAccessToken = signInAsMember().accessToken
+
+                val response = requestPayOrder(
+                    accessToken = otherAccessToken,
+                    payOrderRequest = payOrderRequest(
+                        orderId = order.orderNumber.value,
+                        amount = order.totalAmount
+                    )
+                )
+
+                Then("예외를 응답한다") {
+                    val errorResponse = response.`as`(ExceptionResponse::class.java)
+
+                    assertSoftly(response) {
+                        statusCode shouldBe FORBIDDEN.value()
+                        errorResponse.message shouldBe FORBIDDEN_ORDER.errorMessage()
                     }
                 }
             }

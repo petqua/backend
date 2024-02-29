@@ -2,15 +2,18 @@ package com.petqua.application.payment
 
 import com.ninjasquad.springmockk.SpykBean
 import com.petqua.application.payment.infra.TossPaymentsApiClient
+import com.petqua.domain.member.MemberRepository
 import com.petqua.domain.order.OrderNumber
 import com.petqua.domain.order.OrderRepository
 import com.petqua.domain.payment.tosspayment.TossPaymentRepository
 import com.petqua.exception.order.OrderException
+import com.petqua.exception.order.OrderExceptionType
 import com.petqua.exception.order.OrderExceptionType.ORDER_NOT_FOUND
 import com.petqua.exception.order.OrderExceptionType.PAYMENT_PRICE_NOT_MATCH
 import com.petqua.exception.payment.PaymentException
 import com.petqua.exception.payment.PaymentExceptionType.UNAUTHORIZED_KEY
 import com.petqua.test.DataCleaner
+import com.petqua.test.fixture.member
 import com.petqua.test.fixture.order
 import com.petqua.test.fixture.payOrderCommand
 import io.kotest.assertions.assertSoftly
@@ -27,6 +30,7 @@ import java.math.BigDecimal.ONE
 @SpringBootTest(webEnvironment = NONE)
 class PaymentFacadeServiceTest(
     private val paymentFacadeService: PaymentFacadeService,
+    private val memberRepository: MemberRepository,
     private val orderRepository: OrderRepository,
     private val paymentRepository: TossPaymentRepository,
     private val dataCleaner: DataCleaner,
@@ -34,8 +38,10 @@ class PaymentFacadeServiceTest(
 ) : BehaviorSpec({
 
     Given("주문을 결제할 때") {
+        val member = memberRepository.save(member())
         val order = orderRepository.save(
             order(
+                memberId = member.id,
                 orderNumber = OrderNumber.from("orderNumber"),
                 totalAmount = ONE
             )
@@ -44,6 +50,7 @@ class PaymentFacadeServiceTest(
         When("유효한 요쳥이면") {
             paymentFacadeService.payOrder(
                 command = payOrderCommand(
+                    memberId = order.memberId,
                     orderNumber = order.orderNumber,
                     amount = order.totalAmount,
                 )
@@ -59,6 +66,7 @@ class PaymentFacadeServiceTest(
         When("결제 승인에 성공하면") {
             paymentFacadeService.payOrder(
                 command = payOrderCommand(
+                    memberId = order.memberId,
                     orderNumber = order.orderNumber,
                     amount = order.totalAmount,
                 )
@@ -84,11 +92,28 @@ class PaymentFacadeServiceTest(
                 shouldThrow<OrderException> {
                     paymentFacadeService.payOrder(
                         command = payOrderCommand(
+                            memberId = order.memberId,
                             orderNumber = orderNumber,
                             amount = order.totalAmount,
                         )
                     )
                 }.exceptionType() shouldBe ORDER_NOT_FOUND
+            }
+        }
+
+        When("권한이 없는 회원이면") {
+            val memberId = Long.MIN_VALUE
+
+            Then("예외를 던진다") {
+                shouldThrow<OrderException> {
+                    paymentFacadeService.payOrder(
+                        command = payOrderCommand(
+                            memberId = memberId,
+                            orderNumber = order.orderNumber,
+                            amount = order.totalAmount,
+                        )
+                    )
+                }.exceptionType() shouldBe OrderExceptionType.FORBIDDEN_ORDER
             }
         }
 
@@ -99,6 +124,7 @@ class PaymentFacadeServiceTest(
                 shouldThrow<OrderException> {
                     paymentFacadeService.payOrder(
                         command = payOrderCommand(
+                            memberId = order.memberId,
                             orderNumber = order.orderNumber,
                             amount = amount,
                         )
@@ -122,6 +148,7 @@ class PaymentFacadeServiceTest(
                 shouldThrow<PaymentException> {
                     paymentFacadeService.payOrder(
                         command = payOrderCommand(
+                            memberId = order.memberId,
                             orderNumber = order.orderNumber,
                             amount = order.totalAmount,
                         )

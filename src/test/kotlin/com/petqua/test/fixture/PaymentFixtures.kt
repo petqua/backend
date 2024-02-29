@@ -10,12 +10,14 @@ import java.math.BigDecimal.ONE
 import java.math.BigDecimal.ZERO
 
 fun payOrderCommand(
+    memberId: Long = 0L,
     paymentType: TossPaymentType = NORMAL,
     orderNumber: OrderNumber = OrderNumber.from("OrderNumber"),
     paymentKey: String = "paymentKey",
     amount: BigDecimal = ZERO,
 ): PayOrderCommand {
     return PayOrderCommand(
+        memberId = memberId,
         paymentType = paymentType,
         orderNumber = orderNumber,
         paymentKey = paymentKey,

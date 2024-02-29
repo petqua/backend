@@ -25,7 +25,7 @@ class PaymentController(
         @Auth loginMember: LoginMember,
         @RequestBody request: PayOrderRequest,
     ): ResponseEntity<Unit> {
-        paymentFacadeService.payOrder(request.toCommand())
+        paymentFacadeService.payOrder(request.toCommand(loginMember.memberId))
         return ResponseEntity.noContent().build()
     }
 

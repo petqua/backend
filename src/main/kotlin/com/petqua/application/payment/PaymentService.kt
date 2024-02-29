@@ -22,6 +22,7 @@ class PaymentService(
         val order = orderRepository.findByOrderNumberOrThrow(command.orderNumber) {
             OrderException(ORDER_NOT_FOUND)
         }
+        order.validateOwner(command.memberId)
         order.validateAmount(command.amount.setScale(2))
     }
 
