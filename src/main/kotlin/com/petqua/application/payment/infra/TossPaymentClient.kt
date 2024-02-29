@@ -10,7 +10,7 @@ import com.petqua.exception.payment.PaymentExceptionType
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.stereotype.Component
-import org.springframework.web.client.RestClientResponseException
+import org.springframework.web.reactive.function.client.WebClientResponseException
 
 @ConfigurationProperties(prefix = "payment.toss-payments")
 data class PaymentProperties(
@@ -31,7 +31,7 @@ class TossPaymentClient(
         val credentials = BasicAuthUtils.encodeCredentialsWithColon(paymentProperties.secretKey)
         try {
             return tossPaymentsApiClient.confirmPayment(credentials, paymentConfirmRequestToPG)
-        } catch (e: RestClientResponseException) {
+        } catch (e: WebClientResponseException) {
             val errorResponse = objectMapper.readValue(e.responseBodyAsString, PaymentErrorResponseFromPG::class.java)
             throw PaymentException(PaymentExceptionType.from(errorResponse.code))
         }
