@@ -2,17 +2,26 @@ package com.petqua.application.payment
 
 import com.ninjasquad.springmockk.SpykBean
 import com.petqua.application.payment.infra.TossPaymentsApiClient
+import com.petqua.common.domain.findByIdOrThrow
 import com.petqua.domain.member.MemberRepository
 import com.petqua.domain.order.OrderNumber
 import com.petqua.domain.order.OrderRepository
+import com.petqua.domain.order.OrderStatus.CANCELED
+import com.petqua.domain.order.OrderStatus.ORDER_CREATED
 import com.petqua.domain.payment.tosspayment.TossPaymentRepository
 import com.petqua.exception.order.OrderException
-import com.petqua.exception.order.OrderExceptionType
+import com.petqua.exception.order.OrderExceptionType.FORBIDDEN_ORDER
 import com.petqua.exception.order.OrderExceptionType.ORDER_NOT_FOUND
 import com.petqua.exception.order.OrderExceptionType.PAYMENT_PRICE_NOT_MATCH
+import com.petqua.exception.payment.FailPaymentCode.PAY_PROCESS_ABORTED
+import com.petqua.exception.payment.FailPaymentCode.PAY_PROCESS_CANCELED
+import com.petqua.exception.payment.FailPaymentException
+import com.petqua.exception.payment.FailPaymentExceptionType.INVALID_CODE
+import com.petqua.exception.payment.FailPaymentExceptionType.INVALID_ORDER_ID
 import com.petqua.exception.payment.PaymentException
 import com.petqua.exception.payment.PaymentExceptionType.UNAUTHORIZED_KEY
 import com.petqua.test.DataCleaner
+import com.petqua.test.fixture.failPaymentCommand
 import com.petqua.test.fixture.member
 import com.petqua.test.fixture.order
 import com.petqua.test.fixture.payOrderCommand
@@ -26,6 +35,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import java.math.BigDecimal.ONE
+import kotlin.Long.Companion.MIN_VALUE
 
 @SpringBootTest(webEnvironment = NONE)
 class PaymentFacadeServiceTest(
@@ -102,7 +112,7 @@ class PaymentFacadeServiceTest(
         }
 
         When("권한이 없는 회원이면") {
-            val memberId = Long.MIN_VALUE
+            val memberId = MIN_VALUE
 
             Then("예외를 던진다") {
                 shouldThrow<OrderException> {
@@ -113,7 +123,7 @@ class PaymentFacadeServiceTest(
                             amount = order.totalAmount,
                         )
                     )
-                }.exceptionType() shouldBe OrderExceptionType.FORBIDDEN_ORDER
+                }.exceptionType() shouldBe FORBIDDEN_ORDER
             }
         }
 
@@ -154,6 +164,144 @@ class PaymentFacadeServiceTest(
                         )
                     )
                 }.exceptionType() shouldBe UNAUTHORIZED_KEY
+            }
+        }
+    }
+
+    Given("사용자가 취소한 결제 실패를 처리할 때") {
+        val member = memberRepository.save(member())
+        val order = orderRepository.save(
+            order(
+                memberId = member.id,
+                orderNumber = OrderNumber.from("orderNumber"),
+                totalAmount = ONE
+            )
+        )
+
+        When("유효한 실패 내역이 입력되면") {
+            val response = paymentFacadeService.failPayment(
+                failPaymentCommand(
+                    memberId = member.id,
+                    code = PAY_PROCESS_CANCELED.name,
+                    message = "사용자가 결제를 취소했습니다.",
+                    orderNumber = null
+                )
+            )
+
+            Then("실패 내역을 응답한다") {
+                response shouldBe FailPaymentResponse(
+                    code = PAY_PROCESS_CANCELED,
+                    message = "사용자가 결제를 취소했습니다.",
+                )
+            }
+
+            Then("주문을 취소하지 않는다") {
+                val updatedOrder = orderRepository.findByIdOrThrow(order.id)
+
+                updatedOrder.status shouldBe ORDER_CREATED
+            }
+        }
+
+        When("유효하지 않은 실패 코드가 입력되면") {
+            val code = "INVALID_CODE"
+
+            Then("예외를 던진다") {
+                shouldThrow<FailPaymentException> {
+                    paymentFacadeService.failPayment(
+                        failPaymentCommand(
+                            memberId = member.id,
+                            code = code,
+                            message = "사용자가 결제를 취소했습니다.",
+                            orderNumber = null
+                        )
+                    )
+                }.exceptionType() shouldBe INVALID_CODE
+            }
+        }
+    }
+
+    Given("사용자가 취소하지 않은 결제 실패를 처리할 때") {
+        val member = memberRepository.save(member())
+        val order = orderRepository.save(
+            order(
+                memberId = member.id,
+                orderNumber = OrderNumber.from("orderNumber"),
+                totalAmount = ONE
+            )
+        )
+
+        When("유효한 실패 내역이 입력되면") {
+            val response = paymentFacadeService.failPayment(
+                failPaymentCommand(
+                    memberId = member.id,
+                    code = PAY_PROCESS_ABORTED.name,
+                    message = "시스템 오류로 결제가 실패했습니다.",
+                    orderNumber = order.orderNumber.value,
+                )
+            )
+
+            Then("해당 내용을 응답한다") {
+                response shouldBe FailPaymentResponse(
+                    code = PAY_PROCESS_ABORTED,
+                    message = "시스템 오류로 결제가 실패했습니다.",
+                )
+            }
+
+            Then("주문을 취소한다") {
+                val updatedOrder = orderRepository.findByIdOrThrow(order.id)
+
+                updatedOrder.status shouldBe CANCELED
+            }
+        }
+
+        When("주문번호가 입력되지 않으면") {
+            val orderNumber = null
+
+            Then("예외를 던진다") {
+                shouldThrow<FailPaymentException> {
+                    paymentFacadeService.failPayment(
+                        failPaymentCommand(
+                            memberId = member.id,
+                            code = PAY_PROCESS_ABORTED.name,
+                            message = "시스템 오류로 결제가 실패했습니다.",
+                            orderNumber = orderNumber,
+                        )
+                    )
+                }.exceptionType() shouldBe INVALID_ORDER_ID
+            }
+        }
+
+        When("주문에 대한 권한이 없다면") {
+            val memberId = MIN_VALUE
+
+            Then("예외를 던진다") {
+                shouldThrow<OrderException> {
+                    paymentFacadeService.failPayment(
+                        failPaymentCommand(
+                            memberId = memberId,
+                            code = PAY_PROCESS_ABORTED.name,
+                            message = "시스템 오류로 결제가 실패했습니다.",
+                            orderNumber = order.orderNumber.value,
+                        )
+                    )
+                }.exceptionType() shouldBe FORBIDDEN_ORDER
+            }
+        }
+
+        When("존재하지 않는 주문이면") {
+            val orderNumber = "wrongOrderNumber"
+
+            Then("예외를 던진다") {
+                shouldThrow<OrderException> {
+                    paymentFacadeService.failPayment(
+                        failPaymentCommand(
+                            memberId = member.id,
+                            code = PAY_PROCESS_ABORTED.name,
+                            message = "시스템 오류로 결제가 실패했습니다.",
+                            orderNumber = orderNumber,
+                        )
+                    )
+                }.exceptionType() shouldBe ORDER_NOT_FOUND
             }
         }
     }

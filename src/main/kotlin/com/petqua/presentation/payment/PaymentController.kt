@@ -1,5 +1,6 @@
 package com.petqua.presentation.payment
 
+import com.petqua.application.payment.FailPaymentResponse
 import com.petqua.application.payment.PaymentFacadeService
 import com.petqua.common.config.ACCESS_TOKEN_SECURITY_SCHEME_KEY
 import com.petqua.domain.auth.Auth
@@ -8,7 +9,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
@@ -23,16 +23,18 @@ class PaymentController(
     @PostMapping("/success")
     fun payOrder(
         @Auth loginMember: LoginMember,
-        @RequestBody request: PayOrderRequest,
+        request: PayOrderRequest,
     ): ResponseEntity<Unit> {
         paymentFacadeService.payOrder(request.toCommand(loginMember.memberId))
         return ResponseEntity.noContent().build()
     }
 
     @PostMapping("/fail")
-    fun cancelOrderPayment(
+    fun failPayment(
         @Auth loginMember: LoginMember,
-    ): ResponseEntity<Unit> {
-        return ResponseEntity.ok().build()
+        request: FailPaymentRequest,
+    ): ResponseEntity<FailPaymentResponse> {
+        val response = paymentFacadeService.failPayment(request.toCommand(loginMember.memberId))
+        return ResponseEntity.ok(response)
     }
 }

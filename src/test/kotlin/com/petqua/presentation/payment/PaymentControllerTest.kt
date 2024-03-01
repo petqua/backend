@@ -1,6 +1,7 @@
 package com.petqua.presentation.payment
 
 import com.ninjasquad.springmockk.SpykBean
+import com.petqua.application.payment.FailPaymentResponse
 import com.petqua.application.payment.PaymentConfirmRequestToPG
 import com.petqua.application.payment.infra.TossPaymentsApiClient
 import com.petqua.common.exception.ExceptionResponse
@@ -10,16 +11,23 @@ import com.petqua.domain.payment.tosspayment.TossPaymentRepository
 import com.petqua.exception.order.OrderExceptionType.FORBIDDEN_ORDER
 import com.petqua.exception.order.OrderExceptionType.ORDER_NOT_FOUND
 import com.petqua.exception.order.OrderExceptionType.PAYMENT_PRICE_NOT_MATCH
+import com.petqua.exception.payment.FailPaymentCode.PAY_PROCESS_ABORTED
+import com.petqua.exception.payment.FailPaymentCode.PAY_PROCESS_CANCELED
+import com.petqua.exception.payment.FailPaymentExceptionType.INVALID_CODE
+import com.petqua.exception.payment.FailPaymentExceptionType.INVALID_ORDER_ID
 import com.petqua.exception.payment.PaymentExceptionType.UNAUTHORIZED_KEY
 import com.petqua.test.ApiTestConfig
 import com.petqua.test.fixture.order
 import com.petqua.test.fixture.payOrderRequest
 import io.kotest.assertions.assertSoftly
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.mockk.every
 import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.FORBIDDEN
+import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.http.HttpStatus.NO_CONTENT
+import org.springframework.http.HttpStatus.OK
 import org.springframework.http.HttpStatus.UNAUTHORIZED
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import java.math.BigDecimal.ONE
@@ -85,7 +93,7 @@ class PaymentControllerTest(
                     val errorResponse = response.`as`(ExceptionResponse::class.java)
 
                     assertSoftly(response) {
-                        statusCode shouldBe BAD_REQUEST.value()
+                        statusCode shouldBe NOT_FOUND.value()
                         errorResponse.message shouldBe ORDER_NOT_FOUND.errorMessage()
                     }
                 }
@@ -158,6 +166,160 @@ class PaymentControllerTest(
                     assertSoftly(response) {
                         statusCode shouldBe UNAUTHORIZED.value()
                         errorResponse.message shouldBe UNAUTHORIZED_KEY.errorMessage()
+                    }
+                }
+            }
+        }
+
+        Given("사용자가 취소한 결제 실패를 처리할 때") {
+            val accessToken = signInAsMember().accessToken
+            val memberId = getMemberIdByAccessToken(accessToken)
+
+            orderRepository.save(
+                order(
+                    memberId = memberId,
+                    orderNumber = OrderNumber.from("orderNumber"),
+                    totalAmount = ONE
+                )
+            )
+
+            When("유효한 실패 내역이 입력되면") {
+                val response = requestFailPayment(
+                    accessToken = accessToken,
+                    failPaymentRequest = FailPaymentRequest(
+                        code = PAY_PROCESS_CANCELED.name,
+                        message = "사용자가 결제를 취소했습니다.",
+                        orderId = null
+                    )
+                )
+
+                Then("해당 내용을 응답한다") {
+                    val failPaymentResponse = response.`as`(FailPaymentResponse::class.java)
+
+                    assertSoftly(failPaymentResponse) {
+                        response.statusCode shouldBe OK.value()
+                        code shouldBe PAY_PROCESS_CANCELED
+                        message shouldNotBe null
+                    }
+                }
+            }
+
+            When("유효하지 않은 실패 코드가 입력되면") {
+                val response = requestFailPayment(
+                    accessToken = accessToken,
+                    failPaymentRequest = FailPaymentRequest(
+                        code = "INVALID_CODE",
+                        message = "사용자가 결제를 취소했습니다.",
+                        orderId = null
+                    )
+                )
+
+                Then("예외를 응답한다") {
+                    val exceptionResponse = response.`as`(ExceptionResponse::class.java)
+
+                    assertSoftly(exceptionResponse) {
+                        response.statusCode shouldBe BAD_REQUEST.value()
+                        exceptionResponse.message shouldBe INVALID_CODE.errorMessage()
+                    }
+                }
+            }
+        }
+
+        Given("사용자가 취소하지 않은 결제 실패를 처리할 때") {
+            val accessToken = signInAsMember().accessToken
+            val memberId = getMemberIdByAccessToken(accessToken)
+
+            val order = orderRepository.save(
+                order(
+                    memberId = memberId,
+                    orderNumber = OrderNumber.from("orderNumber"),
+                    totalAmount = ONE
+                )
+            )
+
+            When("유효한 실패 내역이 입력되면") {
+                val response = requestFailPayment(
+                    accessToken = accessToken,
+                    failPaymentRequest = FailPaymentRequest(
+                        code = PAY_PROCESS_ABORTED.name,
+                        message = "시스템 오류로 결제가 실패했습니다.",
+                        orderId = order.orderNumber.value,
+                    )
+                )
+
+                Then("해당 내용을 응답한다") {
+                    val failPaymentResponse = response.`as`(FailPaymentResponse::class.java)
+
+                    assertSoftly(failPaymentResponse) {
+                        response.statusCode shouldBe OK.value()
+                        code shouldBe PAY_PROCESS_ABORTED
+                        message shouldNotBe null
+                    }
+                }
+            }
+
+            When("주문번호가 입력되지 않으면") {
+                val orderId = null
+
+                val response = requestFailPayment(
+                    accessToken = accessToken,
+                    failPaymentRequest = FailPaymentRequest(
+                        code = PAY_PROCESS_ABORTED.name,
+                        message = "시스템 오류로 결제가 실패했습니다.",
+                        orderId = orderId,
+                    )
+                )
+
+                Then("예외를 응답한다") {
+                    val exceptionResponse = response.`as`(ExceptionResponse::class.java)
+
+                    assertSoftly(exceptionResponse) {
+                        response.statusCode shouldBe BAD_REQUEST.value()
+                        exceptionResponse.message shouldBe INVALID_ORDER_ID.errorMessage()
+                    }
+                }
+            }
+
+            When("주문에 대한 권한이 없다면") {
+                val otherAccessToken = signInAsMember().accessToken
+
+                val response = requestFailPayment(
+                    accessToken = otherAccessToken,
+                    failPaymentRequest = FailPaymentRequest(
+                        code = PAY_PROCESS_ABORTED.name,
+                        message = "시스템 오류로 결제가 실패했습니다.",
+                        orderId = order.orderNumber.value,
+                    )
+                )
+
+                Then("예외를 응답한다") {
+                    val exceptionResponse = response.`as`(ExceptionResponse::class.java)
+
+                    assertSoftly(exceptionResponse) {
+                        response.statusCode shouldBe FORBIDDEN.value()
+                        exceptionResponse.message shouldBe FORBIDDEN_ORDER.errorMessage()
+                    }
+                }
+            }
+
+            When("존재하지 않는 주문이면") {
+                val orderId = "wrongOrderId"
+
+                val response = requestFailPayment(
+                    accessToken = accessToken,
+                    failPaymentRequest = FailPaymentRequest(
+                        code = PAY_PROCESS_ABORTED.name,
+                        message = "시스템 오류로 결제가 실패했습니다.",
+                        orderId = orderId,
+                    )
+                )
+
+                Then("예외를 응답한다") {
+                    val exceptionResponse = response.`as`(ExceptionResponse::class.java)
+
+                    assertSoftly(exceptionResponse) {
+                        response.statusCode shouldBe NOT_FOUND.value()
+                        exceptionResponse.message shouldBe ORDER_NOT_FOUND.errorMessage()
                     }
                 }
             }

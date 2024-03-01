@@ -1,6 +1,7 @@
 package com.petqua.test.fixture
 
-import com.petqua.application.order.dto.PayOrderCommand
+import com.petqua.application.payment.FailPaymentCommand
+import com.petqua.application.payment.PayOrderCommand
 import com.petqua.domain.order.OrderNumber
 import com.petqua.domain.payment.tosspayment.TossPaymentType
 import com.petqua.domain.payment.tosspayment.TossPaymentType.NORMAL
@@ -36,5 +37,19 @@ fun payOrderRequest(
         orderId = orderId,
         paymentKey = paymentKey,
         amount = amount,
+    )
+}
+
+fun failPaymentCommand(
+    memberId: Long,
+    code: String,
+    message: String,
+    orderNumber: String?,
+): FailPaymentCommand {
+    return FailPaymentCommand.of(
+        memberId = memberId,
+        code = code,
+        message = message,
+        orderId = orderNumber,
     )
 }

@@ -1,6 +1,6 @@
 package com.petqua.application.payment
 
-import com.petqua.application.order.dto.PayOrderCommand
+import com.petqua.domain.order.OrderNumber
 import com.petqua.domain.order.OrderRepository
 import com.petqua.domain.order.findByOrderNumberOrThrow
 import com.petqua.domain.payment.tosspayment.TossPayment
@@ -28,5 +28,13 @@ class PaymentService(
 
     fun save(tossPayment: TossPayment): TossPayment {
         return paymentRepository.save(tossPayment)
+    }
+
+    fun cancelOrder(memberId: Long, orderNumber: OrderNumber) {
+        val order = orderRepository.findByOrderNumberOrThrow(orderNumber) {
+            OrderException(ORDER_NOT_FOUND)
+        }
+        order.validateOwner(memberId)
+        order.cancel()
     }
 }

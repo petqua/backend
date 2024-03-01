@@ -1,11 +1,8 @@
 package com.petqua.application.order.dto
 
-import com.petqua.application.payment.PaymentConfirmRequestToPG
 import com.petqua.domain.delivery.DeliveryMethod
-import com.petqua.domain.order.OrderNumber
 import com.petqua.domain.order.OrderProduct
 import com.petqua.domain.order.ShippingNumber
-import com.petqua.domain.payment.tosspayment.TossPaymentType
 import com.petqua.domain.product.Product
 import com.petqua.domain.product.option.ProductOption
 import com.petqua.domain.product.option.Sex
@@ -70,37 +67,3 @@ data class SaveOrderResponse(
     val successUrl: String,
     val failUrl: String,
 )
-
-data class PayOrderCommand(
-    val memberId: Long,
-    val paymentType: TossPaymentType,
-    val orderNumber: OrderNumber,
-    val paymentKey: String,
-    val amount: BigDecimal,
-) {
-    fun toPaymentConfirmRequest(): PaymentConfirmRequestToPG {
-        return PaymentConfirmRequestToPG(
-            orderNumber = orderNumber,
-            paymentKey = paymentKey,
-            amount = amount
-        )
-    }
-
-    companion object {
-        fun of(
-            memberId: Long,
-            paymentType: String,
-            orderId: String,
-            paymentKey: String,
-            amount: BigDecimal,
-        ): PayOrderCommand {
-            return PayOrderCommand(
-                memberId = memberId,
-                paymentType = TossPaymentType.from(paymentType),
-                orderNumber = OrderNumber.from(orderId),
-                paymentKey = paymentKey,
-                amount = amount,
-            )
-        }
-    }
-}

@@ -5,7 +5,6 @@ import io.restassured.module.kotlin.extensions.Given
 import io.restassured.module.kotlin.extensions.Then
 import io.restassured.module.kotlin.extensions.When
 import io.restassured.response.Response
-import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 
 fun requestPayOrder(
     accessToken: String,
@@ -14,10 +13,37 @@ fun requestPayOrder(
     return Given {
         log().all()
         auth().preemptive().oauth2(accessToken)
-        contentType(APPLICATION_JSON_VALUE)
-        body(payOrderRequest)
+        params(
+            "paymentType", payOrderRequest.paymentType,
+            "orderId", payOrderRequest.orderId,
+            "paymentKey", payOrderRequest.paymentKey,
+            "amount", payOrderRequest.amount
+        )
     } When {
         post("/orders/payment/success")
+    } Then {
+        log().all()
+    } Extract {
+        response()
+    }
+}
+
+fun requestFailPayment(
+    accessToken: String,
+    failPaymentRequest: FailPaymentRequest,
+): Response {
+    val paramMap = mutableMapOf<String, Any?>().apply {
+        put("code", failPaymentRequest.code)
+        put("message", failPaymentRequest.message)
+        put("orderId", failPaymentRequest.orderId)
+    }.filterValues { it != null }
+
+    return Given {
+        log().all()
+        auth().preemptive().oauth2(accessToken)
+        params(paramMap)
+    } When {
+        post("/orders/payment/fail")
     } Then {
         log().all()
     } Extract {

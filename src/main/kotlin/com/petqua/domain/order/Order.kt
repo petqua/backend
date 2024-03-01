@@ -45,7 +45,7 @@ class Order(
 
     @Enumerated(STRING)
     @Column(nullable = false)
-    val status: OrderStatus,
+    var status: OrderStatus,
 
     @Column(nullable = false)
     val totalAmount: BigDecimal,
@@ -61,5 +61,13 @@ class Order(
         throwExceptionWhen(this.memberId != memberId) {
             throw OrderException(FORBIDDEN_ORDER)
         }
+    }
+
+    fun cancel() {
+        // TODO isAbleToCancel 사용
+        // throwExceptionWhen(!isAbleToCancel) {
+        //     OrderException(ORDER_NOT_FOUND)
+        // }
+        status = OrderStatus.CANCELED
     }
 }

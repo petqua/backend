@@ -1,6 +1,7 @@
 package com.petqua.presentation.payment
 
-import com.petqua.application.order.dto.PayOrderCommand
+import com.petqua.application.payment.FailPaymentCommand
+import com.petqua.application.payment.PayOrderCommand
 import java.math.BigDecimal
 
 data class PayOrderRequest(
@@ -17,6 +18,22 @@ data class PayOrderRequest(
             orderId = orderId,
             paymentKey = paymentKey,
             amount = amount,
+        )
+    }
+}
+
+data class FailPaymentRequest(
+    val code: String,
+    val message: String,
+    val orderId: String?,
+) {
+
+    fun toCommand(memberId: Long): FailPaymentCommand {
+        return FailPaymentCommand.of(
+            memberId = memberId,
+            code = code,
+            message = message,
+            orderId = orderId,
         )
     }
 }
