@@ -6,18 +6,18 @@ import io.restassured.module.kotlin.extensions.Then
 import io.restassured.module.kotlin.extensions.When
 import io.restassured.response.Response
 
-fun requestPayOrder(
+fun requestSucceedPayment(
     accessToken: String,
-    payOrderRequest: PayOrderRequest,
+    succeedPaymentRequest: SucceedPaymentRequest,
 ): Response {
     return Given {
         log().all()
         auth().preemptive().oauth2(accessToken)
         params(
-            "paymentType", payOrderRequest.paymentType,
-            "orderId", payOrderRequest.orderId,
-            "paymentKey", payOrderRequest.paymentKey,
-            "amount", payOrderRequest.amount
+            "paymentType", succeedPaymentRequest.paymentType,
+            "orderId", succeedPaymentRequest.orderId,
+            "paymentKey", succeedPaymentRequest.paymentKey,
+            "amount", succeedPaymentRequest.amount
         )
     } When {
         post("/orders/payment/success")

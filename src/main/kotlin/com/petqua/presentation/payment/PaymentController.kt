@@ -21,11 +21,11 @@ class PaymentController(
 ) {
 
     @PostMapping("/success")
-    fun payOrder(
+    fun succeedPayment(
         @Auth loginMember: LoginMember,
-        request: PayOrderRequest,
+        request: SucceedPaymentRequest,
     ): ResponseEntity<Unit> {
-        paymentFacadeService.payOrder(request.toCommand(loginMember.memberId))
+        paymentFacadeService.succeedPayment(request.toCommand(loginMember.memberId))
         return ResponseEntity.noContent().build()
     }
 

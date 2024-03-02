@@ -24,7 +24,7 @@ import com.petqua.test.DataCleaner
 import com.petqua.test.fixture.failPaymentCommand
 import com.petqua.test.fixture.member
 import com.petqua.test.fixture.order
-import com.petqua.test.fixture.payOrderCommand
+import com.petqua.test.fixture.succeedPaymentCommand
 import io.kotest.assertions.assertSoftly
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
@@ -47,7 +47,7 @@ class PaymentFacadeServiceTest(
     @SpykBean private val tossPaymentsApiClient: TossPaymentsApiClient,
 ) : BehaviorSpec({
 
-    Given("주문을 결제할 때") {
+    Given("결제 성공을 처리할 때") {
         val member = memberRepository.save(member())
         val order = orderRepository.save(
             order(
@@ -58,8 +58,8 @@ class PaymentFacadeServiceTest(
         )
 
         When("유효한 요쳥이면") {
-            paymentFacadeService.payOrder(
-                command = payOrderCommand(
+            paymentFacadeService.succeedPayment(
+                command = succeedPaymentCommand(
                     memberId = order.memberId,
                     orderNumber = order.orderNumber,
                     amount = order.totalAmount,
@@ -74,8 +74,8 @@ class PaymentFacadeServiceTest(
         }
 
         When("결제 승인에 성공하면") {
-            paymentFacadeService.payOrder(
-                command = payOrderCommand(
+            paymentFacadeService.succeedPayment(
+                command = succeedPaymentCommand(
                     memberId = order.memberId,
                     orderNumber = order.orderNumber,
                     amount = order.totalAmount,
@@ -100,8 +100,8 @@ class PaymentFacadeServiceTest(
 
             Then("예외를 던진다") {
                 shouldThrow<OrderException> {
-                    paymentFacadeService.payOrder(
-                        command = payOrderCommand(
+                    paymentFacadeService.succeedPayment(
+                        command = succeedPaymentCommand(
                             memberId = order.memberId,
                             orderNumber = orderNumber,
                             amount = order.totalAmount,
@@ -116,8 +116,8 @@ class PaymentFacadeServiceTest(
 
             Then("예외를 던진다") {
                 shouldThrow<OrderException> {
-                    paymentFacadeService.payOrder(
-                        command = payOrderCommand(
+                    paymentFacadeService.succeedPayment(
+                        command = succeedPaymentCommand(
                             memberId = memberId,
                             orderNumber = order.orderNumber,
                             amount = order.totalAmount,
@@ -132,8 +132,8 @@ class PaymentFacadeServiceTest(
 
             Then("예외를 던진다") {
                 shouldThrow<OrderException> {
-                    paymentFacadeService.payOrder(
-                        command = payOrderCommand(
+                    paymentFacadeService.succeedPayment(
+                        command = succeedPaymentCommand(
                             memberId = order.memberId,
                             orderNumber = order.orderNumber,
                             amount = amount,
@@ -156,8 +156,8 @@ class PaymentFacadeServiceTest(
 
             Then("예외를 던진다") {
                 shouldThrow<PaymentException> {
-                    paymentFacadeService.payOrder(
-                        command = payOrderCommand(
+                    paymentFacadeService.succeedPayment(
+                        command = succeedPaymentCommand(
                             memberId = order.memberId,
                             orderNumber = order.orderNumber,
                             amount = order.totalAmount,

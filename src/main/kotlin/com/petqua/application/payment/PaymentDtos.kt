@@ -7,7 +7,7 @@ import com.petqua.exception.payment.FailPaymentException
 import com.petqua.exception.payment.FailPaymentExceptionType.INVALID_ORDER_ID
 import java.math.BigDecimal
 
-data class PayOrderCommand(
+data class SucceedPaymentCommand(
     val memberId: Long,
     val paymentType: TossPaymentType,
     val orderNumber: OrderNumber,
@@ -29,8 +29,8 @@ data class PayOrderCommand(
             orderId: String,
             paymentKey: String,
             amount: BigDecimal,
-        ): PayOrderCommand {
-            return PayOrderCommand(
+        ): SucceedPaymentCommand {
+            return SucceedPaymentCommand(
                 memberId = memberId,
                 paymentType = TossPaymentType.from(paymentType),
                 orderNumber = OrderNumber.from(orderId),

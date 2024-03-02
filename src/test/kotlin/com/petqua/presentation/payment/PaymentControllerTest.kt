@@ -18,7 +18,7 @@ import com.petqua.exception.payment.FailPaymentExceptionType.INVALID_ORDER_ID
 import com.petqua.exception.payment.PaymentExceptionType.UNAUTHORIZED_KEY
 import com.petqua.test.ApiTestConfig
 import com.petqua.test.fixture.order
-import com.petqua.test.fixture.payOrderRequest
+import com.petqua.test.fixture.succeedPaymentRequest
 import io.kotest.assertions.assertSoftly
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -40,7 +40,7 @@ class PaymentControllerTest(
 
     init {
 
-        Given("주문을 결제할 때") {
+        Given("결제 성공을 처리할 때") {
             val accessToken = signInAsMember().accessToken
             val memberId = getMemberIdByAccessToken(accessToken)
 
@@ -53,9 +53,9 @@ class PaymentControllerTest(
             )
 
             When("유효한 요청이면") {
-                val response = requestPayOrder(
+                val response = requestSucceedPayment(
                     accessToken = accessToken,
-                    payOrderRequest = payOrderRequest(
+                    succeedPaymentRequest = succeedPaymentRequest(
                         orderId = order.orderNumber.value,
                         amount = order.totalAmount
                     )
@@ -81,9 +81,9 @@ class PaymentControllerTest(
             When("존재하지 않는 주문이면") {
                 val orderNumber = "wrongOrderNumber"
 
-                val response = requestPayOrder(
+                val response = requestSucceedPayment(
                     accessToken = accessToken,
-                    payOrderRequest = payOrderRequest(
+                    succeedPaymentRequest = succeedPaymentRequest(
                         orderId = orderNumber,
                         amount = order.totalAmount
                     )
@@ -102,9 +102,9 @@ class PaymentControllerTest(
             When("권한이 없는 회원의 요청이면") {
                 val otherAccessToken = signInAsMember().accessToken
 
-                val response = requestPayOrder(
+                val response = requestSucceedPayment(
                     accessToken = otherAccessToken,
-                    payOrderRequest = payOrderRequest(
+                    succeedPaymentRequest = succeedPaymentRequest(
                         orderId = order.orderNumber.value,
                         amount = order.totalAmount
                     )
@@ -123,9 +123,9 @@ class PaymentControllerTest(
             When("주문의 총가격과 결제 금액이 다르면") {
                 val wrongAmount = order.totalAmount + ONE
 
-                val response = requestPayOrder(
+                val response = requestSucceedPayment(
                     accessToken = accessToken,
-                    payOrderRequest = payOrderRequest(
+                    succeedPaymentRequest = succeedPaymentRequest(
                         orderId = order.orderNumber.value,
                         amount = wrongAmount
                     )
@@ -152,9 +152,9 @@ class PaymentControllerTest(
                     null
                 )
 
-                val response = requestPayOrder(
+                val response = requestSucceedPayment(
                     accessToken = accessToken,
-                    payOrderRequest = payOrderRequest(
+                    succeedPaymentRequest = succeedPaymentRequest(
                         orderId = order.orderNumber.value,
                         amount = order.totalAmount
                     )

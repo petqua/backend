@@ -18,7 +18,7 @@ class PaymentService(
 ) {
 
     @Transactional(readOnly = true)
-    fun validateAmount(command: PayOrderCommand) {
+    fun validateAmount(command: SucceedPaymentCommand) {
         val order = orderRepository.findByOrderNumberOrThrow(command.orderNumber) {
             OrderException(ORDER_NOT_FOUND)
         }
