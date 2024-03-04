@@ -13,7 +13,7 @@ import java.math.BigDecimal.ZERO
 fun succeedPaymentCommand(
     memberId: Long = 0L,
     paymentType: TossPaymentType = NORMAL,
-    orderNumber: OrderNumber = OrderNumber.from("OrderNumber"),
+    orderNumber: OrderNumber = OrderNumber.from("202402211607020ORDERNUMBER"),
     paymentKey: String = "paymentKey",
     amount: BigDecimal = ZERO,
 ): SucceedPaymentCommand {

@@ -52,7 +52,7 @@ class PaymentFacadeServiceTest(
         val order = orderRepository.save(
             order(
                 memberId = member.id,
-                orderNumber = OrderNumber.from("orderNumber"),
+                orderNumber = OrderNumber.from("202402211607020ORDERNUMBER"),
                 totalAmount = ONE
             )
         )
@@ -96,7 +96,7 @@ class PaymentFacadeServiceTest(
         }
 
         When("존재하지 않는 주문이면") {
-            val orderNumber = OrderNumber.from("wrongOrderNumber")
+            val orderNumber = OrderNumber.from("20240221160702ORDERNUMBER0")
 
             Then("예외를 던진다") {
                 shouldThrow<OrderException> {
@@ -173,7 +173,7 @@ class PaymentFacadeServiceTest(
         val order = orderRepository.save(
             order(
                 memberId = member.id,
-                orderNumber = OrderNumber.from("orderNumber"),
+                orderNumber = OrderNumber.from("202402211607020ORDERNUMBER"),
                 totalAmount = ONE
             )
         )
@@ -225,7 +225,7 @@ class PaymentFacadeServiceTest(
         val order = orderRepository.save(
             order(
                 memberId = member.id,
-                orderNumber = OrderNumber.from("orderNumber"),
+                orderNumber = OrderNumber.from("202402211607020ORDERNUMBER"),
                 totalAmount = ONE
             )
         )

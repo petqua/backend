@@ -47,7 +47,7 @@ class PaymentControllerTest(
             val order = orderRepository.save(
                 order(
                     memberId = memberId,
-                    orderNumber = OrderNumber.from("orderNumber"),
+                    orderNumber = OrderNumber.from("202402211607020ORDERNUMBER"),
                     totalAmount = ONE
                 )
             )
@@ -178,7 +178,7 @@ class PaymentControllerTest(
             orderRepository.save(
                 order(
                     memberId = memberId,
-                    orderNumber = OrderNumber.from("orderNumber"),
+                    orderNumber = OrderNumber.from("202402211607020ORDERNUMBER"),
                     totalAmount = ONE
                 )
             )
@@ -232,7 +232,7 @@ class PaymentControllerTest(
             val order = orderRepository.save(
                 order(
                     memberId = memberId,
-                    orderNumber = OrderNumber.from("orderNumber"),
+                    orderNumber = OrderNumber.from("202402211607020ORDERNUMBER"),
                     totalAmount = ONE
                 )
             )

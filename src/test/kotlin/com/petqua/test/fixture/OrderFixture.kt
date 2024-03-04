@@ -24,7 +24,7 @@ private const val DEFAULT_SCALE = 2
 fun order(
     id: Long = 0L,
     memberId: Long = 0L,
-    orderNumber: OrderNumber = OrderNumber.from("202402211607026029E90DB030"),
+    orderNumber: OrderNumber = OrderNumber.from("202402211607020ORDERNUMBER"),
     orderName: OrderName = OrderName("상품1"),
     receiver: String = "receiver",
     phoneNumber: String = "010-1234-5678",
