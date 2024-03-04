@@ -3,10 +3,10 @@ package com.petqua.test.config
 import io.kotest.core.config.AbstractProjectConfig
 import io.kotest.core.spec.IsolationMode
 import io.kotest.extensions.spring.SpringExtension
-import org.springframework.context.annotation.Configuration
+import org.springframework.boot.test.context.TestConfiguration
 import org.testcontainers.containers.GenericContainer
 
-@Configuration
+@TestConfiguration
 class TestConfig : AbstractProjectConfig() {
     override val isolationMode = IsolationMode.InstancePerLeaf
 
