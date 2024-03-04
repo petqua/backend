@@ -101,6 +101,10 @@ class ProductCustomRepositoryImpl(
         )
     }
 
+    @Cacheable(
+        key = "'countByReadCondition' + #condition.hashCode()",
+        value = ["productCountByReadCondition"]
+    )
     override fun countByReadCondition(condition: ProductReadCondition): Int {
         val query = jpql(ProductDynamicJpqlGenerator) {
             select(
@@ -152,8 +156,8 @@ class ProductCustomRepositoryImpl(
     }
 
     @Cacheable(
-        key = "'countByReadCondition' + #condition.hashCode()",
-        value = ["productCountByReadCondition"]
+        key = "'countBySearchCondition' + #condition.hashCode()",
+        value = ["productCountBySearchCondition"]
     )
     override fun countBySearchCondition(condition: ProductSearchCondition): Int {
         val query = jpql(ProductDynamicJpqlGenerator) {
@@ -208,7 +212,7 @@ class ProductCustomRepositoryImpl(
 
     @Cacheable(
         key = "'countByKeywordSearchCondition' + #condition.hashCode()",
-        value = ["productCountBySearchCondition"]
+        value = ["productCountByKeywordSearchCondition"]
     )
     override fun countByKeywordSearchCondition(condition: ProductSearchCondition): Int {
         val query = jpql(ProductDynamicJpqlGenerator) {
