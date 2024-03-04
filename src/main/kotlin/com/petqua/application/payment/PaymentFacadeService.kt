@@ -21,14 +21,14 @@ class PaymentFacadeService(
     }
 
     fun failPayment(command: FailPaymentCommand): FailPaymentResponse {
-        log(command)
+        logFailPayment(command)
         if (command.code != PAY_PROCESS_CANCELED) {
             paymentService.cancelOrder(command.memberId, command.toOrderNumber())
         }
         return FailPaymentResponse(command.code, command.message)
     }
 
-    private fun log(command: FailPaymentCommand) {
+    private fun logFailPayment(command: FailPaymentCommand) {
         when (command.code) {
             PAY_PROCESS_ABORTED -> log.error("PG사에서 결제를 중단했습니다. message: ${command.message}, OrderNumber: ${command.orderNumber}, MemberId: ${command.memberId}")
             PAY_PROCESS_CANCELED -> log.warn("사용자가 결제를 중단했습니다. message: ${command.message}, OrderNumber: ${command.orderNumber}, MemberId: ${command.memberId}")
