@@ -14,7 +14,7 @@ import com.petqua.exception.order.OrderExceptionType.PAYMENT_PRICE_NOT_MATCH
 import com.petqua.exception.payment.FailPaymentCode.PAY_PROCESS_ABORTED
 import com.petqua.exception.payment.FailPaymentCode.PAY_PROCESS_CANCELED
 import com.petqua.exception.payment.FailPaymentExceptionType.INVALID_CODE
-import com.petqua.exception.payment.FailPaymentExceptionType.INVALID_ORDER_ID
+import com.petqua.exception.payment.FailPaymentExceptionType.ORDER_NUMBER_MISSING_EXCEPTION
 import com.petqua.exception.payment.PaymentExceptionType.UNAUTHORIZED_KEY
 import com.petqua.test.ApiTestConfig
 import com.petqua.test.fixture.order
@@ -275,7 +275,7 @@ class PaymentControllerTest(
 
                     assertSoftly(exceptionResponse) {
                         response.statusCode shouldBe BAD_REQUEST.value()
-                        exceptionResponse.message shouldBe INVALID_ORDER_ID.errorMessage()
+                        exceptionResponse.message shouldBe ORDER_NUMBER_MISSING_EXCEPTION.errorMessage()
                     }
                 }
             }

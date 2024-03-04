@@ -4,7 +4,7 @@ import com.petqua.domain.order.OrderNumber
 import com.petqua.domain.payment.tosspayment.TossPaymentType
 import com.petqua.exception.payment.FailPaymentCode
 import com.petqua.exception.payment.FailPaymentException
-import com.petqua.exception.payment.FailPaymentExceptionType.INVALID_ORDER_ID
+import com.petqua.exception.payment.FailPaymentExceptionType.ORDER_NUMBER_MISSING_EXCEPTION
 import java.math.BigDecimal
 
 data class SucceedPaymentCommand(
@@ -49,7 +49,7 @@ data class FailPaymentCommand(
 ) {
 
     fun toOrderNumber(): OrderNumber {
-        return orderNumber?.let { OrderNumber.from(it) } ?: throw FailPaymentException(INVALID_ORDER_ID)
+        return orderNumber?.let { OrderNumber.from(it) } ?: throw FailPaymentException(ORDER_NUMBER_MISSING_EXCEPTION)
     }
 
     companion object {

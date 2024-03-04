@@ -17,7 +17,7 @@ import com.petqua.exception.payment.FailPaymentCode.PAY_PROCESS_ABORTED
 import com.petqua.exception.payment.FailPaymentCode.PAY_PROCESS_CANCELED
 import com.petqua.exception.payment.FailPaymentException
 import com.petqua.exception.payment.FailPaymentExceptionType.INVALID_CODE
-import com.petqua.exception.payment.FailPaymentExceptionType.INVALID_ORDER_ID
+import com.petqua.exception.payment.FailPaymentExceptionType.ORDER_NUMBER_MISSING_EXCEPTION
 import com.petqua.exception.payment.PaymentException
 import com.petqua.exception.payment.PaymentExceptionType.UNAUTHORIZED_KEY
 import com.petqua.test.DataCleaner
@@ -267,7 +267,7 @@ class PaymentFacadeServiceTest(
                             orderNumber = orderNumber,
                         )
                     )
-                }.exceptionType() shouldBe INVALID_ORDER_ID
+                }.exceptionType() shouldBe ORDER_NUMBER_MISSING_EXCEPTION
             }
         }
 

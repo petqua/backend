@@ -11,8 +11,7 @@ enum class FailPaymentExceptionType(
 ) : BaseExceptionType {
 
     INVALID_CODE(BAD_REQUEST, "PF01", "지원하지 않는 결제 실패 코드입니다."),
-
-    INVALID_ORDER_ID(BAD_REQUEST, "PF01", "지원하지 않는 결제 실패 코드입니다."),
+    ORDER_NUMBER_MISSING_EXCEPTION(BAD_REQUEST, "PF02", "주문번호가 입력되지 않았습니다."),
     ;
 
     override fun httpStatus(): HttpStatus {
