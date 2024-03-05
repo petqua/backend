@@ -21,6 +21,7 @@ import com.petqua.domain.product.dto.ProductSearchCondition
 import com.petqua.domain.product.dto.ProductWithInfoResponse
 import com.petqua.domain.store.Store
 import jakarta.persistence.EntityManager
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Repository
 
 private const val ESCAPE_LETTER = '\\'
@@ -97,6 +98,10 @@ class ProductCustomRepositoryImpl(
         )
     }
 
+    @Cacheable(
+        key = "'countByReadCondition' + #condition.hashCode()",
+        value = ["productCountByReadCondition"]
+    )
     override fun countByReadCondition(condition: ProductReadCondition): Int {
         val query = jpql(ProductDynamicJpqlGenerator) {
             select(
@@ -147,6 +152,10 @@ class ProductCustomRepositoryImpl(
         )
     }
 
+    @Cacheable(
+        key = "'countBySearchCondition' + #condition.hashCode()",
+        value = ["productCountBySearchCondition"]
+    )
     override fun countBySearchCondition(condition: ProductSearchCondition): Int {
         val query = jpql(ProductDynamicJpqlGenerator) {
             select(
@@ -198,6 +207,10 @@ class ProductCustomRepositoryImpl(
         )
     }
 
+    @Cacheable(
+        key = "'countByKeywordSearchCondition' + #condition.hashCode()",
+        value = ["productCountByKeywordSearchCondition"]
+    )
     override fun countByKeywordSearchCondition(condition: ProductSearchCondition): Int {
         val query = jpql(ProductDynamicJpqlGenerator) {
             select(

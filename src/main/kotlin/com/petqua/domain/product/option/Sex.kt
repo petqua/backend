@@ -13,10 +13,6 @@ enum class Sex(
     HERMAPHRODITE("자웅동체"),
     ;
 
-    fun isLogical(other: Sex): Boolean {
-        return this != HERMAPHRODITE
-    }
-
     companion object {
         fun from(name: String): Sex {
             return enumValues<Sex>().find { it.name == name.uppercase(Locale.ENGLISH) }

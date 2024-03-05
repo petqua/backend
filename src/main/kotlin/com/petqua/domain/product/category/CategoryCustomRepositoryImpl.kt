@@ -12,6 +12,7 @@ import com.petqua.domain.product.Sorter.ENROLLMENT_DATE_DESC
 import com.petqua.domain.product.dto.ProductResponse
 import com.petqua.domain.store.Store
 import jakarta.persistence.EntityManager
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Repository
 
 @Repository
@@ -53,6 +54,10 @@ class CategoryCustomRepositoryImpl(
         )
     }
 
+    @Cacheable(
+        key = "'countProductsByCategoryCondition' + #condition.hashCode()",
+        value = ["categoryCountProductsByCategoryCondition"]
+    )
     override fun countProductsByCategoryCondition(condition: CategoryProductReadCondition): Int {
         val query = jpql(ProductDynamicJpqlGenerator) {
             select(
