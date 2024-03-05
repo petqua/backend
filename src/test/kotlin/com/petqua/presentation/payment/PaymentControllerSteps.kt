@@ -32,11 +32,11 @@ fun requestFailPayment(
     accessToken: String,
     failPaymentRequest: FailPaymentRequest,
 ): Response {
-    val paramMap = mutableMapOf<String, Any?>().apply {
-        put("code", failPaymentRequest.code)
-        put("message", failPaymentRequest.message)
-        put("orderId", failPaymentRequest.orderId)
-    }.filterValues { it != null }
+    val paramMap = mapOf(
+        "code" to failPaymentRequest.code,
+        "message" to failPaymentRequest.message,
+        "orderId" to failPaymentRequest.orderId,
+    ).filterValues { it != null }
 
     return Given {
         log().all()
