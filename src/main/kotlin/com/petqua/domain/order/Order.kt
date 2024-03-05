@@ -4,6 +4,7 @@ import com.petqua.common.domain.BaseEntity
 import com.petqua.common.util.throwExceptionWhen
 import com.petqua.exception.order.OrderException
 import com.petqua.exception.order.OrderExceptionType.FORBIDDEN_ORDER
+import com.petqua.exception.order.OrderExceptionType.ORDER_CAN_NOT_PAY
 import com.petqua.exception.order.OrderExceptionType.PAYMENT_PRICE_NOT_MATCH
 import jakarta.persistence.AttributeOverride
 import jakarta.persistence.Column
@@ -69,5 +70,12 @@ class Order(
         //     OrderException(ORDER_NOT_FOUND)
         // }
         status = OrderStatus.CANCELED
+    }
+
+    fun pay() {
+        throwExceptionWhen(!status.isAbleToPay()) {
+            throw OrderException(ORDER_CAN_NOT_PAY)
+        }
+        status = OrderStatus.PAYMENT_CONFIRMED
     }
 }

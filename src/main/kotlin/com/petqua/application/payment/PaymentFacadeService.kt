@@ -17,7 +17,7 @@ class PaymentFacadeService(
     fun succeedPayment(command: SucceedPaymentCommand) {
         paymentService.validateAmount(command)
         val paymentResponse = paymentGatewayService.confirmPayment(command.toPaymentConfirmRequest())
-        paymentService.save(paymentResponse.toPayment())
+        paymentService.processPayment(paymentResponse.toPayment())
     }
 
     fun failPayment(command: FailPaymentCommand): FailPaymentResponse {

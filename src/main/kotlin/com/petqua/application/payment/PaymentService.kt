@@ -1,6 +1,8 @@
 package com.petqua.application.payment
 
 import com.petqua.domain.order.OrderNumber
+import com.petqua.domain.order.OrderPayment
+import com.petqua.domain.order.OrderPaymentRepository
 import com.petqua.domain.order.OrderRepository
 import com.petqua.domain.order.findByOrderNumberOrThrow
 import com.petqua.domain.payment.tosspayment.TossPayment
@@ -14,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 class PaymentService(
     private val orderRepository: OrderRepository,
+    private val orderPaymentRepository: OrderPaymentRepository,
     private val paymentRepository: TossPaymentRepository,
 ) {
 
@@ -26,8 +29,19 @@ class PaymentService(
         order.validateAmount(command.amount.setScale(2))
     }
 
-    fun save(tossPayment: TossPayment): TossPayment {
-        return paymentRepository.save(tossPayment)
+    fun processPayment(tossPayment: TossPayment): OrderPayment {
+        val order = orderRepository.findByOrderNumberOrThrow(tossPayment.orderNumber) {
+            OrderException(ORDER_NOT_FOUND)
+        }
+        order.pay()
+
+        val payment = paymentRepository.save(tossPayment)
+        return orderPaymentRepository.save(
+            OrderPayment(
+                orderId = order.id,
+                tossPaymentId = payment.id
+            )
+        )
     }
 
     fun cancelOrder(memberId: Long, orderNumber: OrderNumber) {

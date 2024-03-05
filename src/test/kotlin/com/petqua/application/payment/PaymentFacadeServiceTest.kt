@@ -5,12 +5,15 @@ import com.petqua.application.payment.infra.TossPaymentsApiClient
 import com.petqua.common.domain.findByIdOrThrow
 import com.petqua.domain.member.MemberRepository
 import com.petqua.domain.order.OrderNumber
+import com.petqua.domain.order.OrderPaymentRepository
 import com.petqua.domain.order.OrderRepository
 import com.petqua.domain.order.OrderStatus.CANCELED
 import com.petqua.domain.order.OrderStatus.ORDER_CREATED
+import com.petqua.domain.order.OrderStatus.PAYMENT_CONFIRMED
 import com.petqua.domain.payment.tosspayment.TossPaymentRepository
 import com.petqua.exception.order.OrderException
 import com.petqua.exception.order.OrderExceptionType.FORBIDDEN_ORDER
+import com.petqua.exception.order.OrderExceptionType.ORDER_CAN_NOT_PAY
 import com.petqua.exception.order.OrderExceptionType.ORDER_NOT_FOUND
 import com.petqua.exception.order.OrderExceptionType.PAYMENT_PRICE_NOT_MATCH
 import com.petqua.exception.payment.FailPaymentCode.PAY_PROCESS_ABORTED
@@ -43,6 +46,7 @@ class PaymentFacadeServiceTest(
     private val memberRepository: MemberRepository,
     private val orderRepository: OrderRepository,
     private val paymentRepository: TossPaymentRepository,
+    private val orderPaymentRepository: OrderPaymentRepository,
     private val dataCleaner: DataCleaner,
     @SpykBean private val tossPaymentsApiClient: TossPaymentsApiClient,
 ) : BehaviorSpec({
@@ -82,7 +86,7 @@ class PaymentFacadeServiceTest(
                 )
             )
 
-            Then("Payment 객체를 생성한다") {
+            Then("TossPayment 객체를 생성한다") {
                 val payments = paymentRepository.findAll()
 
                 assertSoftly {
@@ -91,6 +95,26 @@ class PaymentFacadeServiceTest(
 
                     payment.orderNumber shouldBe order.orderNumber
                     payment.totalAmount shouldBe order.totalAmount.setScale(2)
+                }
+            }
+
+            Then("Order의 상태를 변경한다") {
+                val updatedOrder = orderRepository.findByIdOrThrow(order.id)
+
+                assertSoftly {
+                    updatedOrder.status shouldBe PAYMENT_CONFIRMED
+                }
+            }
+
+            Then("OrderPayment 객체를 생성한다") {
+                val orderPayments = orderPaymentRepository.findAll()
+
+                assertSoftly {
+                    orderPayments.size shouldBe 1
+                    val orderPayment = orderPayments[0]
+
+                    orderPayment.orderId shouldBe order.id
+                    orderPayment.tossPaymentId shouldBe paymentRepository.findAll()[0].id
                 }
             }
         }
@@ -108,6 +132,29 @@ class PaymentFacadeServiceTest(
                         )
                     )
                 }.exceptionType() shouldBe ORDER_NOT_FOUND
+            }
+        }
+
+        When("결제할 수 없는 주문이면") {
+            val invalidOrder = orderRepository.save(
+                order(
+                    memberId = member.id,
+                    orderNumber = OrderNumber.from("202402211607021ORDERNUMBER"),
+                    totalAmount = ONE,
+                    status = PAYMENT_CONFIRMED,
+                )
+            )
+
+            Then("예외를 던진다") {
+                shouldThrow<OrderException> {
+                    paymentFacadeService.succeedPayment(
+                        command = succeedPaymentCommand(
+                            memberId = invalidOrder.memberId,
+                            orderNumber = invalidOrder.orderNumber,
+                            amount = invalidOrder.totalAmount,
+                        )
+                    )
+                }.exceptionType() shouldBe ORDER_CAN_NOT_PAY
             }
         }
 
