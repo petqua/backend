@@ -30,9 +30,9 @@ class PaymentFacadeService(
 
     private fun logFailPayment(command: FailPaymentCommand) {
         when (command.code) {
-            PAY_PROCESS_ABORTED -> log.error("PG사에서 결제를 중단했습니다. message: ${command.message}, OrderNumber: ${command.orderNumber}, MemberId: ${command.memberId}")
+            PAY_PROCESS_ABORTED -> log.error("PG사 혹은 원천사에서 결제를 중단했습니다. message: ${command.message}, OrderNumber: ${command.orderNumber}, MemberId: ${command.memberId}")
             PAY_PROCESS_CANCELED -> log.warn("사용자가 결제를 중단했습니다. message: ${command.message}, OrderNumber: ${command.orderNumber}, MemberId: ${command.memberId}")
-            REJECT_CARD_COMPANY -> log.warn("카드사에서 결제를 거절했습니다.. message: ${command.message}, OrderNumber: ${command.orderNumber}, MemberId: ${command.memberId}")
+            REJECT_CARD_COMPANY -> log.warn("카드사에서 결제를 거절했습니다. message: ${command.message}, OrderNumber: ${command.orderNumber}, MemberId: ${command.memberId}")
         }
     }
 }
