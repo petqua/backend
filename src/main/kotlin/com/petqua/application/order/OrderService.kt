@@ -17,6 +17,7 @@ import com.petqua.domain.order.OrderStatus.ORDER_CREATED
 import com.petqua.domain.order.ShippingAddressRepository
 import com.petqua.domain.order.ShippingNumber
 import com.petqua.domain.product.ProductRepository
+import com.petqua.domain.product.ProductSnapshotRepository
 import com.petqua.domain.product.option.ProductOptionRepository
 import com.petqua.domain.store.StoreRepository
 import com.petqua.exception.order.OrderException
@@ -26,6 +27,8 @@ import com.petqua.exception.order.ShippingAddressException
 import com.petqua.exception.order.ShippingAddressExceptionType.NOT_FOUND_SHIPPING_ADDRESS
 import com.petqua.exception.product.ProductException
 import com.petqua.exception.product.ProductExceptionType.INVALID_PRODUCT_OPTION
+import com.petqua.exception.product.ProductSnapshotException
+import com.petqua.exception.product.ProductSnapshotExceptionType
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -36,6 +39,7 @@ class OrderService(
     private val orderPaymentRepository: OrderPaymentRepository,
     private val productRepository: ProductRepository,
     private val productOptionRepository: ProductOptionRepository,
+    private val productSnapshotRepository: ProductSnapshotRepository,
     private val shippingAddressRepository: ShippingAddressRepository,
     private val storeRepository: StoreRepository,
     private val paymentGatewayClient: PaymentGatewayClient,
@@ -103,6 +107,15 @@ class OrderService(
             )
         }
 
+        // TODO 스냅샷 검증
+        val productSnapshotsById =
+            productSnapshotRepository.findAllByProductIdIn(productIds).associateBy { it.productId }
+        products.forEach { product ->
+            productSnapshotsById[product.id]?.takeIf { it.isFrom(product) }
+                ?: throw ProductSnapshotException(ProductSnapshotExceptionType.NOT_FOUND_PRODUCT_SNAPSHOT)
+        }
+
+
         // TODO: TODO 재고 검증
 
         val storesById = storeRepository.findByIdIn(products.map { it.storeId }).associateBy { it.id }
@@ -110,7 +123,7 @@ class OrderService(
         val orderName = OrderName.from(products)
         // TODO 주문 저장 로직
         val orders = command.orderProductCommands.map { productCommand ->
-            val product = productById[productCommand.productId]
+            val productSnapshot = productSnapshotsById[productCommand.productId]
                 ?: throw OrderException(PRODUCT_NOT_FOUND)
 
             Order(
@@ -119,9 +132,13 @@ class OrderService(
                 orderName = orderName,
                 orderShippingAddress = OrderShippingAddress.from(shippingAddress, command.shippingRequest),
                 orderProduct = productCommand.toOrderProduct(
-                    shippingNumber = ShippingNumber.of(product.storeId, productCommand.deliveryMethod, orderNumber),
-                    product = product,
-                    storeName = storesById[product.storeId]?.name ?: throw OrderException(PRODUCT_NOT_FOUND),
+                    shippingNumber = ShippingNumber.of(
+                        productSnapshot.storeId,
+                        productCommand.deliveryMethod,
+                        orderNumber
+                    ),
+                    productSnapshot = productSnapshot,
+                    storeName = storesById[productSnapshot.storeId]?.name ?: throw OrderException(PRODUCT_NOT_FOUND),
                 ),
                 isAbleToCancel = true,
                 status = ORDER_CREATED,
