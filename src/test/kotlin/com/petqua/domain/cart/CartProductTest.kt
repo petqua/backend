@@ -1,5 +1,6 @@
 package com.petqua.domain.cart
 
+import com.petqua.common.domain.Money
 import com.petqua.domain.delivery.DeliveryMethod
 import com.petqua.domain.product.option.Sex.FEMALE
 import com.petqua.domain.product.option.Sex.MALE
@@ -18,14 +19,14 @@ class CartProductTest : StringSpec({
             quantity = CartProductQuantity(5),
             sex = FEMALE,
             deliveryMethod = DeliveryMethod.COMMON,
-            deliveryFee = 3000.toBigDecimal(),
+            deliveryFee = Money.from(3000L),
         )
 
         cartProduct.updateOptions(
             quantity = CartProductQuantity(10),
             sex = MALE,
             deliveryMethod = DeliveryMethod.COMMON,
-            deliveryFee = 3000.toBigDecimal(),
+            deliveryFee = Money.from(3000L),
         )
 
         assertSoftly(cartProduct) {
@@ -42,7 +43,7 @@ class CartProductTest : StringSpec({
             quantity = CartProductQuantity(5),
             sex = MALE,
             deliveryMethod = DeliveryMethod.COMMON,
-            deliveryFee = 3000.toBigDecimal(),
+            deliveryFee = Money.from(3000L),
         )
 
         shouldThrow<CartProductException> {

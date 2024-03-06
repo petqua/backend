@@ -2,6 +2,7 @@ package com.petqua.presentation.order.dto
 
 import com.petqua.application.order.dto.OrderProductCommand
 import com.petqua.application.order.dto.SaveOrderCommand
+import com.petqua.common.domain.Money
 import com.petqua.domain.delivery.DeliveryMethod
 import com.petqua.domain.product.option.Sex
 import java.math.BigDecimal
@@ -10,7 +11,7 @@ data class SaveOrderRequest(
     val shippingAddressId: Long,
     val shippingRequest: String?,
     val orderProductRequests: List<OrderProductRequest>,
-    val totalAmount: BigDecimal,
+    val totalAmount: Money,
 ) {
 
     fun toCommand(memberId: Long): SaveOrderCommand {
@@ -28,13 +29,13 @@ data class OrderProductRequest(
     val productId: Long,
     val storeId: Long,
     val quantity: Int,
-    val originalPrice: BigDecimal,
+    val originalPrice: Money,
     val discountRate: Int,
-    val discountPrice: BigDecimal,
-    val orderPrice: BigDecimal,
+    val discountPrice: Money,
+    val orderPrice: Money,
     val sex: String,
-    val additionalPrice: BigDecimal,
-    val deliveryFee: BigDecimal,
+    val additionalPrice: Money,
+    val deliveryFee: Money,
     val deliveryMethod: String,
 ) {
 

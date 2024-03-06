@@ -2,13 +2,13 @@ package com.petqua.presentation.payment
 
 import com.petqua.application.payment.FailPaymentCommand
 import com.petqua.application.payment.SucceedPaymentCommand
-import java.math.BigDecimal
+import com.petqua.common.domain.Money
 
 data class SucceedPaymentRequest(
     val paymentType: String,
     val orderId: String,
     val paymentKey: String,
-    val amount: BigDecimal,
+    val amount: Money,
 ) {
 
     fun toCommand(memberId: Long): SucceedPaymentCommand {

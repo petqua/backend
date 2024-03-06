@@ -1,5 +1,6 @@
 package com.petqua.application.product.dto
 
+import com.petqua.common.domain.Money
 import com.petqua.common.domain.dto.CursorBasedPaging
 import com.petqua.common.domain.dto.DEFAULT_LAST_VIEWED_ID
 import com.petqua.common.domain.dto.PADDING_FOR_HAS_NEXT_PAGE
@@ -15,7 +16,6 @@ import com.petqua.domain.product.dto.ProductSearchCondition
 import com.petqua.domain.product.dto.ProductWithInfoResponse
 import com.petqua.domain.product.review.ProductReviewRecommendation
 import io.swagger.v3.oas.annotations.media.Schema
-import java.math.BigDecimal
 
 data class ProductDetailResponse(
     @Schema(
@@ -46,7 +46,7 @@ data class ProductDetailResponse(
         description = "상품 가격",
         example = "30000"
     )
-    val price: Int,
+    val price: Money,
 
     @Schema(
         description = "상품 판매점",
@@ -64,7 +64,7 @@ data class ProductDetailResponse(
         description = "할인 가격(판매 가격)",
         example = "21000"
     )
-    val discountPrice: Int,
+    val discountPrice: Money,
 
     @Schema(
         description = "찜 개수",
@@ -112,31 +112,31 @@ data class ProductDetailResponse(
         description = "안전 배송 가격",
         example = "5000"
     )
-    val safeDeliveryFee: BigDecimal?,
+    val safeDeliveryFee: Money?,
 
     @Schema(
         description = "일반 배송 가격",
         example = "3000"
     )
-    val commonDeliveryFee: BigDecimal?,
+    val commonDeliveryFee: Money?,
 
     @Schema(
         description = "픽업 배송 가격",
         example = "0"
     )
-    val pickUpDeliveryFee: BigDecimal?,
+    val pickUpDeliveryFee: Money?,
 
     @Schema(
         description = "수컷 추가 가격 (null인 경우 지원 X)",
         example = "0"
     )
-    val maleAdditionalPrice: BigDecimal?,
+    val maleAdditionalPrice: Money?,
 
     @Schema(
         description = "암컷 추가 가격 (null인 경우 지원 X)",
         example = "2000"
     )
-    val femaleAdditionalPrice: BigDecimal?,
+    val femaleAdditionalPrice: Money?,
 
     @Schema(
         description = "사육 온도 최소",
@@ -179,8 +179,8 @@ data class ProductDetailResponse(
         imageUrls: List<String>,
         descriptionImageUrls: List<String>,
         isWished: Boolean,
-        maleAdditionalPrice: BigDecimal?,
-        femaleAdditionalPrice: BigDecimal?,
+        maleAdditionalPrice: Money?,
+        femaleAdditionalPrice: Money?,
     ) : this(
         id = productWithInfoResponse.id,
         name = productWithInfoResponse.name,

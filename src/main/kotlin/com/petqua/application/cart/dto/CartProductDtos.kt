@@ -1,5 +1,6 @@
 package com.petqua.application.cart.dto
 
+import com.petqua.common.domain.Money
 import com.petqua.domain.cart.CartProduct
 import com.petqua.domain.cart.CartProductQuantity
 import com.petqua.domain.delivery.DeliveryMethod
@@ -14,7 +15,7 @@ data class SaveCartProductCommand(
     val quantity: Int,
     val sex: Sex,
     val deliveryMethod: DeliveryMethod,
-    val deliveryFee: BigDecimal,
+    val deliveryFee: Money,
 ) {
     fun toCartProduct(): CartProduct {
         return CartProduct(
@@ -23,7 +24,7 @@ data class SaveCartProductCommand(
             quantity = CartProductQuantity(quantity),
             sex = sex,
             deliveryMethod = deliveryMethod,
-            deliveryFee = deliveryFee.setScale(2),
+            deliveryFee = deliveryFee,
         )
     }
 }
@@ -35,7 +36,7 @@ data class UpdateCartProductOptionCommand(
     val quantity: CartProductQuantity,
     val sex: Sex,
     val deliveryMethod: DeliveryMethod,
-    val deliveryFee: BigDecimal,
+    val deliveryFee: Money,
 )
 
 data class DeleteCartProductCommand(
@@ -78,7 +79,7 @@ data class CartProductWithSupportedOptionResponse(
         description = "상품 가격",
         example = "30000"
     )
-    val productPrice: Int,
+    val productPrice: Money,
 
     @Schema(
         description = "가격 할인율",
@@ -90,7 +91,7 @@ data class CartProductWithSupportedOptionResponse(
         description = "할인 가격(판매 가격)",
         example = "21000"
     )
-    val productDiscountPrice: Int,
+    val productDiscountPrice: Money,
 
     @Schema(
         description = "봉달(장바구니) 수량",
@@ -116,7 +117,7 @@ data class CartProductWithSupportedOptionResponse(
         description = "배송비",
         example = "3000"
     )
-    val deliveryFee: BigDecimal,
+    val deliveryFee: Money,
 
     @Schema(
         description = "판매 여부(품절 및 삭제 확인)",
@@ -129,37 +130,37 @@ data class CartProductWithSupportedOptionResponse(
         description = "안전 배송 가격 (null인 경우 지원 X)",
         example = "5000"
     )
-    val safeDeliveryFee: BigDecimal?,
+    val safeDeliveryFee: Money?,
 
     @Schema(
         description = "일반 배송 가격 (null인 경우 지원 X)",
         example = "3000"
     )
-    val commonDeliveryFee: BigDecimal?,
+    val commonDeliveryFee: Money?,
 
     @Schema(
         description = "픽업 배송 가격 (null인 경우 지원 X)",
         example = "0"
     )
-    val pickUpDeliveryFee: BigDecimal?,
+    val pickUpDeliveryFee: Money?,
 
     @Schema(
         description = "수컷 추가 가격 (null인 경우 지원 X)",
         example = "1000"
     )
-    val maleAdditionalPrice: BigDecimal?,
+    val maleAdditionalPrice: Money?,
 
     @Schema(
         description = "암컷 추가 가격 (null인 경우 지원 X)",
         example = "1000"
     )
-    val femaleAdditionalPrice: BigDecimal?,
+    val femaleAdditionalPrice: Money?,
 ) {
 
     constructor(
         cartProductResponse: CartProductResponse,
-        maleAdditionalPrice: BigDecimal?,
-        femaleAdditionalPrice: BigDecimal?,
+        maleAdditionalPrice: Money?,
+        femaleAdditionalPrice: Money?,
     ) : this(
         id = cartProductResponse.id,
         storeName = cartProductResponse.storeName,
@@ -188,17 +189,17 @@ data class CartProductResponse(
     val productId: Long,
     val productName: String,
     val productThumbnailUrl: String,
-    val productPrice: Int,
+    val productPrice: Money,
     val productDiscountRate: Int,
-    val productDiscountPrice: Int,
+    val productDiscountPrice: Money,
     val quantity: Int,
     val sex: Sex,
     val deliveryMethod: String,
-    val deliveryFee: BigDecimal,
+    val deliveryFee: Money,
     val isOnSale: Boolean,
-    val safeDeliveryFee: BigDecimal?,
-    val commonDeliveryFee: BigDecimal?,
-    val pickUpDeliveryFee: BigDecimal?,
+    val safeDeliveryFee: Money?,
+    val commonDeliveryFee: Money?,
+    val pickUpDeliveryFee: Money?,
 ) {
 
     constructor(
@@ -211,9 +212,9 @@ data class CartProductResponse(
         productId = product?.id ?: 0L,
         productName = product?.name ?: "",
         productThumbnailUrl = product?.thumbnailUrl ?: "",
-        productPrice = product?.price?.intValueExact() ?: 0,
+        productPrice = product?.price ?: Money.from(BigDecimal.ZERO),
         productDiscountRate = product?.discountRate ?: 0,
-        productDiscountPrice = product?.discountPrice?.intValueExact() ?: 0,
+        productDiscountPrice = product?.discountPrice ?: Money.from(BigDecimal.ZERO),
         quantity = cartProduct.quantity.value,
         sex = cartProduct.sex,
         deliveryMethod = cartProduct.deliveryMethod.name,
