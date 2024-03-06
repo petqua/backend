@@ -4,11 +4,15 @@ import com.petqua.domain.order.OrderNumber
 import com.petqua.domain.order.OrderPayment
 import com.petqua.domain.order.OrderPaymentRepository
 import com.petqua.domain.order.OrderRepository
+import com.petqua.domain.order.findByOrderIdOrderByIdDescOrThrow
 import com.petqua.domain.order.findByOrderNumberOrThrow
+import com.petqua.domain.order.saveOrThrow
 import com.petqua.domain.payment.tosspayment.TossPayment
 import com.petqua.domain.payment.tosspayment.TossPaymentRepository
 import com.petqua.exception.order.OrderException
 import com.petqua.exception.order.OrderExceptionType.ORDER_NOT_FOUND
+import com.petqua.exception.order.OrderPaymentException
+import com.petqua.exception.order.OrderPaymentExceptionType
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -33,15 +37,14 @@ class PaymentService(
         val order = orderRepository.findByOrderNumberOrThrow(tossPayment.orderNumber) {
             OrderException(ORDER_NOT_FOUND)
         }
-        order.pay()
-
         val payment = paymentRepository.save(tossPayment)
-        return orderPaymentRepository.save(
-            OrderPayment(
-                orderId = order.id,
-                tossPaymentId = payment.id
-            )
-        )
+        order.pay() // TODO OrderPayment로 status 관리가 넘어가면 삭제
+        val orderPayment = orderPaymentRepository.findByOrderIdOrderByIdDescOrThrow(order.id) {
+            OrderPaymentException(OrderPaymentExceptionType.ORDER_PAYMENT_NOT_FOUND)
+        }
+        return orderPaymentRepository.saveOrThrow(orderPayment.pay(payment.id)) {
+            OrderPaymentException(OrderPaymentExceptionType.FAIL_SAVE)
+        }
     }
 
     fun cancelOrder(memberId: Long, orderNumber: OrderNumber) {
@@ -49,6 +52,12 @@ class PaymentService(
             OrderException(ORDER_NOT_FOUND)
         }
         order.validateOwner(memberId)
-        order.cancel()
+        order.cancel() // TODO OrderPayment로 status 관리가 넘어가면 삭제
+        val orderPayment = orderPaymentRepository.findByOrderIdOrderByIdDescOrThrow(order.id) {
+            OrderPaymentException(OrderPaymentExceptionType.ORDER_PAYMENT_NOT_FOUND)
+        }
+        orderPaymentRepository.saveOrThrow(orderPayment.cancel()) {
+            OrderPaymentException(OrderPaymentExceptionType.FAIL_SAVE)
+        }
     }
 }

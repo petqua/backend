@@ -5,6 +5,7 @@ import com.petqua.application.payment.infra.TossPaymentsApiClient
 import com.petqua.common.domain.findByIdOrThrow
 import com.petqua.domain.member.MemberRepository
 import com.petqua.domain.order.OrderNumber
+import com.petqua.domain.order.OrderPayment
 import com.petqua.domain.order.OrderPaymentRepository
 import com.petqua.domain.order.OrderRepository
 import com.petqua.domain.order.OrderStatus.CANCELED
@@ -60,6 +61,7 @@ class PaymentFacadeServiceTest(
                 totalAmount = ONE
             )
         )
+        orderPaymentRepository.save(OrderPayment.from(order))
 
         When("유효한 요쳥이면") {
             paymentFacadeService.succeedPayment(
@@ -110,8 +112,8 @@ class PaymentFacadeServiceTest(
                 val orderPayments = orderPaymentRepository.findAll()
 
                 assertSoftly {
-                    orderPayments.size shouldBe 1
-                    val orderPayment = orderPayments[0]
+                    orderPayments.size shouldBe 2
+                    val orderPayment = orderPayments[1]
 
                     orderPayment.orderId shouldBe order.id
                     orderPayment.tossPaymentId shouldBe paymentRepository.findAll()[0].id
@@ -276,6 +278,7 @@ class PaymentFacadeServiceTest(
                 totalAmount = ONE
             )
         )
+        orderPaymentRepository.save(OrderPayment.from(order))
 
         When("유효한 실패 내역이 입력되면") {
             val response = paymentFacadeService.failPayment(

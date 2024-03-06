@@ -1,5 +1,31 @@
 package com.petqua.domain.order
 
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Query
 
-interface OrderPaymentRepository : JpaRepository<OrderPayment, Long>
+fun OrderPaymentRepository.findByOrderIdOrderByIdDescOrThrow(
+    orderId: Long,
+    exceptionSupplier: () -> Exception = { IllegalArgumentException("${OrderPayment::class.java.name} entity 를 찾을 수 없습니다.") }
+): OrderPayment {
+    return findByOrderIdOrderByIdDesc(orderId) ?: throw exceptionSupplier()
+}
+
+fun OrderPaymentRepository.saveOrThrow(
+    orderPayment: OrderPayment,
+    exceptionSupplier: () -> Exception = { IllegalArgumentException("${OrderPayment::class.java.name} entity 를 저장할 수 없습니다.") }
+): OrderPayment {
+    try {
+        return save(orderPayment)
+    } catch (e: DataIntegrityViolationException) {
+        throw exceptionSupplier()
+    }
+}
+
+interface OrderPaymentRepository : JpaRepository<OrderPayment, Long> {
+
+    fun findByOrderIdOrderByIdDesc(orderId: Long): OrderPayment?
+
+    @Query("SELECT op.id FROM OrderPayment op WHERE op.orderId = ?1 ORDER BY op.id DESC")
+    fun getPrevIdByOrderId(orderId: Long): Long?
+}

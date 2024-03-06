@@ -7,6 +7,7 @@ import com.petqua.application.payment.infra.TossPaymentsApiClient
 import com.petqua.common.domain.findByIdOrThrow
 import com.petqua.common.exception.ExceptionResponse
 import com.petqua.domain.order.OrderNumber
+import com.petqua.domain.order.OrderPayment
 import com.petqua.domain.order.OrderPaymentRepository
 import com.petqua.domain.order.OrderRepository
 import com.petqua.domain.order.OrderStatus
@@ -56,6 +57,7 @@ class PaymentControllerTest(
                     totalAmount = ONE
                 )
             )
+            orderPaymentRepository.save(OrderPayment.from(order))
 
             When("유효한 요청이면") {
                 val response = requestSucceedPayment(
@@ -94,8 +96,8 @@ class PaymentControllerTest(
                     val orderPayments = orderPaymentRepository.findAll()
 
                     assertSoftly {
-                        orderPayments.size shouldBe 1
-                        val payment = orderPayments[0]
+                        orderPayments.size shouldBe 2
+                        val payment = orderPayments[1]
 
                         payment.orderId shouldBe order.id
                         payment.tossPaymentId shouldBe paymentRepository.findAll()[0].id
@@ -289,6 +291,7 @@ class PaymentControllerTest(
                     totalAmount = ONE
                 )
             )
+            orderPaymentRepository.save(OrderPayment.from(order))
 
             When("유효한 실패 내역이 입력되면") {
                 val response = requestFailPayment(

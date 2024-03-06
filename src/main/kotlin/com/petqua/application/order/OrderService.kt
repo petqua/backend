@@ -9,6 +9,8 @@ import com.petqua.common.util.throwExceptionWhen
 import com.petqua.domain.order.Order
 import com.petqua.domain.order.OrderName
 import com.petqua.domain.order.OrderNumber
+import com.petqua.domain.order.OrderPayment
+import com.petqua.domain.order.OrderPaymentRepository
 import com.petqua.domain.order.OrderRepository
 import com.petqua.domain.order.OrderShippingAddress
 import com.petqua.domain.order.OrderStatus.ORDER_CREATED
@@ -31,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 class OrderService(
     private val orderRepository: OrderRepository,
+    private val orderPaymentRepository: OrderPaymentRepository,
     private val productRepository: ProductRepository,
     private val productOptionRepository: ProductOptionRepository,
     private val shippingAddressRepository: ShippingAddressRepository,
@@ -126,6 +129,9 @@ class OrderService(
             )
         }
         orderRepository.saveAll(orders)
+
+        // TODO 주문 결제 내역 저장 - for 주문 상태 관리를 OrderPayment로 옮기기 위해
+        orderPaymentRepository.saveAll(orders.map { OrderPayment.from(it) })
 
         return SaveOrderResponse(
             orderId = orders.first().orderNumber.value,
