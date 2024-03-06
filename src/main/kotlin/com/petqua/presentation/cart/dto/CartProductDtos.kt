@@ -2,6 +2,7 @@ package com.petqua.presentation.cart.dto
 
 import com.petqua.application.cart.dto.SaveCartProductCommand
 import com.petqua.application.cart.dto.UpdateCartProductOptionCommand
+import com.petqua.common.domain.Money
 import com.petqua.domain.cart.CartProductQuantity
 import com.petqua.domain.delivery.DeliveryMethod
 import com.petqua.domain.product.option.Sex
@@ -39,7 +40,7 @@ data class SaveCartProductRequest(
         description = "배송비",
         example = "3000"
     )
-    val deliveryFee: BigDecimal,
+    val deliveryFee: Money,
 ) {
 
     fun toCommand(memberId: Long): SaveCartProductCommand {
@@ -79,7 +80,7 @@ data class UpdateCartProductOptionRequest(
         description = "배송비",
         example = "3000"
     )
-    val deliveryFee: BigDecimal,
+    val deliveryFee: Money,
 ) {
 
     fun toCommand(memberId: Long, cartProductId: Long): UpdateCartProductOptionCommand {

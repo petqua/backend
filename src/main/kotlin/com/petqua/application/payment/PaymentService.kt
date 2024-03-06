@@ -26,7 +26,7 @@ class PaymentService(
             OrderException(ORDER_NOT_FOUND)
         }
         order.validateOwner(command.memberId)
-        order.validateAmount(command.amount.setScale(2))
+        order.validateAmount(command.amount)
     }
 
     fun processPayment(tossPayment: TossPayment): OrderPayment {

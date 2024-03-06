@@ -1,18 +1,18 @@
 package com.petqua.application.payment
 
+import com.petqua.common.domain.Money
 import com.petqua.domain.order.OrderNumber
 import com.petqua.domain.payment.tosspayment.TossPaymentType
 import com.petqua.exception.payment.FailPaymentCode
 import com.petqua.exception.payment.FailPaymentException
 import com.petqua.exception.payment.FailPaymentExceptionType.ORDER_NUMBER_MISSING_EXCEPTION
-import java.math.BigDecimal
 
 data class SucceedPaymentCommand(
     val memberId: Long,
     val paymentType: TossPaymentType,
     val orderNumber: OrderNumber,
     val paymentKey: String,
-    val amount: BigDecimal,
+    val amount: Money,
 ) {
     fun toPaymentConfirmRequest(): PaymentConfirmRequestToPG {
         return PaymentConfirmRequestToPG(
@@ -28,7 +28,7 @@ data class SucceedPaymentCommand(
             paymentType: String,
             orderId: String,
             paymentKey: String,
-            amount: BigDecimal,
+            amount: Money,
         ): SucceedPaymentCommand {
             return SucceedPaymentCommand(
                 memberId = memberId,

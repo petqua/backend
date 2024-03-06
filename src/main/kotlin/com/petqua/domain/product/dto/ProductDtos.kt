@@ -1,5 +1,6 @@
 package com.petqua.domain.product.dto
 
+import com.petqua.common.domain.Money
 import com.petqua.common.util.throwExceptionWhen
 import com.petqua.domain.delivery.DeliveryMethod
 import com.petqua.domain.product.Product
@@ -10,7 +11,6 @@ import com.petqua.domain.product.detail.info.ProductInfo
 import com.petqua.exception.product.ProductException
 import com.petqua.exception.product.ProductExceptionType
 import io.swagger.v3.oas.annotations.media.Schema
-import java.math.BigDecimal
 
 data class ProductReadCondition(
     val canDeliverSafely: Boolean? = null,
@@ -63,19 +63,19 @@ data class ProductWithInfoResponse(
     val name: String,
     val family: String,
     val species: String,
-    val price: Int,
+    val price: Money,
     val storeName: String,
     val discountRate: Int,
-    val discountPrice: Int,
+    val discountPrice: Money,
     val wishCount: Int,
     val reviewCount: Int,
     val reviewAverageScore: Double,
     val thumbnailUrl: String,
     val descriptionTitle: String,
     val descriptionContent: String,
-    val safeDeliveryFee: BigDecimal?,
-    val commonDeliveryFee: BigDecimal?,
-    val pickUpDeliveryFee: BigDecimal?,
+    val safeDeliveryFee: Money?,
+    val commonDeliveryFee: Money?,
+    val pickUpDeliveryFee: Money?,
     val optimalTemperatureMin: Int,
     val optimalTemperatureMax: Int,
     val difficultyLevel: String,
@@ -93,10 +93,10 @@ data class ProductWithInfoResponse(
         name = product.name,
         family = category.family.name,
         species = category.species.name,
-        price = product.price.intValueExact(),
+        price = product.price,
         storeName = storeName,
         discountRate = product.discountRate,
-        discountPrice = product.discountPrice.intValueExact(),
+        discountPrice = product.discountPrice,
         wishCount = product.wishCount.value,
         reviewCount = product.reviewCount,
         reviewAverageScore = product.averageReviewScore(),
@@ -142,7 +142,7 @@ data class ProductResponse(
         description = "상품 가격",
         example = "30000"
     )
-    val price: Int,
+    val price: Money,
 
     @Schema(
         description = "상품 판매점",
@@ -160,7 +160,7 @@ data class ProductResponse(
         description = "할인 가격(판매 가격)",
         example = "21000"
     )
-    val discountPrice: Int,
+    val discountPrice: Money,
 
     @Schema(
         description = "찜 개수",
@@ -190,19 +190,19 @@ data class ProductResponse(
         description = "안전 배송 가격",
         example = "5000"
     )
-    val safeDeliveryFee: BigDecimal?,
+    val safeDeliveryFee: Money?,
 
     @Schema(
         description = "일반 배송 가격",
         example = "3000"
     )
-    val commonDeliveryFee: BigDecimal?,
+    val commonDeliveryFee: Money?,
 
     @Schema(
         description = "픽업 배송 가격",
         example = "0"
     )
-    val pickUpDeliveryFee: BigDecimal?,
+    val pickUpDeliveryFee: Money?,
 
     @Schema(
         description = "찜 여부",
@@ -214,10 +214,10 @@ data class ProductResponse(
         product.id,
         product.name,
         product.categoryId,
-        product.price.intValueExact(),
+        product.price,
         storeName,
         product.discountRate,
-        product.discountPrice.intValueExact(),
+        product.discountPrice,
         product.wishCount.value,
         product.reviewCount,
         product.averageReviewScore(),

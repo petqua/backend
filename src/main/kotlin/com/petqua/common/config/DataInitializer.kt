@@ -1,5 +1,6 @@
 package com.petqua.common.config
 
+import com.petqua.common.domain.Money
 import com.petqua.domain.announcement.Announcement
 import com.petqua.domain.announcement.AnnouncementRepository
 import com.petqua.domain.auth.Authority.MEMBER
@@ -180,15 +181,15 @@ class DataInitializer(
                 else -> category2.id
             }
             val safeDeliveryFee = when {
-                (it % 4) == 0 -> 5000.toBigDecimal()
+                (it % 4) == 0 -> Money.from(5000L)
                 else -> null
             }
             val commonDeliveryFee = when {
-                (it % 5) == 0 -> 3000.toBigDecimal()
+                (it % 5) == 0 -> Money.from(3000L)
                 else -> null
             }
             val pickUpDeliveryFee = when {
-                (it % 2) == 0 -> BigDecimal.ZERO
+                (it % 2) == 0 -> Money.from(0L)
                 else -> null
             }
             val reviewCount = (1..5).random()
@@ -217,10 +218,10 @@ class DataInitializer(
             Product(
                 name = "상품$it",
                 categoryId = categoryId,
-                price = BigDecimal.valueOf(80000L).setScale(2),
+                price = Money.from(80000L),
                 storeId = store.id,
                 discountRate = 50,
-                discountPrice = BigDecimal(40000L).setScale(2),
+                discountPrice = Money.from(40000L),
                 wishCount = WishCount(100),
                 reviewCount = reviewCount,
                 reviewTotalScore = (1..reviewCount).sum(),
@@ -244,7 +245,7 @@ class DataInitializer(
             ProductOption(
                 productId = it.id,
                 sex = sex,
-                additionalPrice = BigDecimal.ZERO,
+                additionalPrice = Money.from(0L),
             )
         }
         productOptionRepository.saveAll(productOptions)

@@ -66,7 +66,7 @@ class PaymentFacadeServiceTest(
                 command = succeedPaymentCommand(
                     memberId = order.memberId,
                     orderNumber = order.orderNumber,
-                    amount = order.totalAmount,
+                    amount = order.totalAmount.value,
                 )
             )
 
@@ -82,7 +82,7 @@ class PaymentFacadeServiceTest(
                 command = succeedPaymentCommand(
                     memberId = order.memberId,
                     orderNumber = order.orderNumber,
-                    amount = order.totalAmount,
+                    amount = order.totalAmount.value,
                 )
             )
 
@@ -94,7 +94,7 @@ class PaymentFacadeServiceTest(
                     val payment = payments[0]
 
                     payment.orderNumber shouldBe order.orderNumber
-                    payment.totalAmount shouldBe order.totalAmount.setScale(2)
+                    payment.totalAmount shouldBe order.totalAmount
                 }
             }
 
@@ -128,7 +128,7 @@ class PaymentFacadeServiceTest(
                         command = succeedPaymentCommand(
                             memberId = order.memberId,
                             orderNumber = orderNumber,
-                            amount = order.totalAmount,
+                            amount = order.totalAmount.value,
                         )
                     )
                 }.exceptionType() shouldBe ORDER_NOT_FOUND
@@ -151,7 +151,7 @@ class PaymentFacadeServiceTest(
                         command = succeedPaymentCommand(
                             memberId = invalidOrder.memberId,
                             orderNumber = invalidOrder.orderNumber,
-                            amount = invalidOrder.totalAmount,
+                            amount = invalidOrder.totalAmount.value,
                         )
                     )
                 }.exceptionType() shouldBe ORDER_CAN_NOT_PAY
@@ -167,7 +167,7 @@ class PaymentFacadeServiceTest(
                         command = succeedPaymentCommand(
                             memberId = memberId,
                             orderNumber = order.orderNumber,
-                            amount = order.totalAmount,
+                            amount = order.totalAmount.value,
                         )
                     )
                 }.exceptionType() shouldBe FORBIDDEN_ORDER
@@ -183,7 +183,7 @@ class PaymentFacadeServiceTest(
                         command = succeedPaymentCommand(
                             memberId = order.memberId,
                             orderNumber = order.orderNumber,
-                            amount = amount,
+                            amount = amount.value,
                         )
                     )
                 }.exceptionType() shouldBe PAYMENT_PRICE_NOT_MATCH
@@ -207,7 +207,7 @@ class PaymentFacadeServiceTest(
                         command = succeedPaymentCommand(
                             memberId = order.memberId,
                             orderNumber = order.orderNumber,
-                            amount = order.totalAmount,
+                            amount = order.totalAmount.value,
                         )
                     )
                 }.exceptionType() shouldBe UNAUTHORIZED_KEY
