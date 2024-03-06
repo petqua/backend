@@ -9,6 +9,8 @@ import com.petqua.domain.keyword.ProductKeyword
 import com.petqua.domain.keyword.ProductKeywordRepository
 import com.petqua.domain.member.Member
 import com.petqua.domain.member.MemberRepository
+import com.petqua.domain.order.ShippingAddress
+import com.petqua.domain.order.ShippingAddressRepository
 import com.petqua.domain.product.Product
 import com.petqua.domain.product.ProductRepository
 import com.petqua.domain.product.WishCount
@@ -73,6 +75,7 @@ class DataInitializer(
     private val wishProductRepository: WishProductRepository,
     private val productKeywordRepository: ProductKeywordRepository,
     private val productDescriptionRepository: ProductDescriptionRepository,
+    private val shippingAddressRepository: ShippingAddressRepository,
 ) {
 
     @EventListener(ApplicationReadyEvent::class)
@@ -86,6 +89,20 @@ class DataInitializer(
 
         // banner
         saveBanners()
+
+        val shippingAddress = shippingAddressRepository.save(
+            ShippingAddress(
+                memberId = member.id,
+                name = "집",
+                receiver = "홍길동",
+                phoneNumber = "010-1234-5678",
+                zipCode = 12345,
+                address = "서울시 강남구 역삼동 99번길",
+                detailAddress = "101동 101호",
+                isDefaultAddress = true,
+            )
+        )
+
 
         // others
         saveCommerceData(member.id)

@@ -14,7 +14,7 @@ import io.restassured.response.Response
 
 fun requestReadProductById(
     productId: Long,
-    accessToken: String? = null
+    accessToken: String? = null,
 ): Response {
     return Given {
         log().all()
@@ -59,10 +59,10 @@ fun requestReadProductKeyword(
     limit: Int = PAGING_LIMIT_CEILING,
 ): Response {
     return Given {
-        val paramMap = mutableMapOf<String, Any?>().apply {
-            put("word", word)
-            put("limit", limit)
-        }.filterValues { it != null }
+        val paramMap = mapOf(
+            "word" to word,
+            "limit" to limit,
+        ).filterValues { it != null }
 
         log().all()
         params(paramMap)
@@ -81,15 +81,15 @@ fun requestReadProductBySearch(
     sorter: String = Sorter.NONE.name,
     lastViewedId: Long = DEFAULT_LAST_VIEWED_ID,
     limit: Int = PAGING_LIMIT_CEILING,
-    accessToken: String? = null
+    accessToken: String? = null,
 ): Response {
-    val paramMap = mutableMapOf<String, Any?>().apply {
-        put("word", word)
-        put("deliveryMethod", deliveryMethod.name)
-        put("sorter", sorter)
-        put("lastViewedId", lastViewedId)
-        put("limit", limit)
-    }.filterValues { it != null }
+    val paramMap = mapOf(
+        "word" to word,
+        "deliveryMethod" to deliveryMethod.name,
+        "sorter" to sorter,
+        "lastViewedId" to lastViewedId,
+        "limit" to limit,
+    ).filterValues { it != null }
 
     return Given {
         log().all()

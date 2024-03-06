@@ -44,12 +44,12 @@ data class OrderProductCommand(
     ): OrderProduct {
         return OrderProduct(
             quantity = quantity,
-            originalPrice = originalPrice,
+            originalPrice = originalPrice.setScale(2),
             discountRate = discountRate,
-            discountPrice = discountPrice,
-            deliveryFee = deliveryFee,
+            discountPrice = discountPrice.setScale(2),
+            deliveryFee = deliveryFee.setScale(2),
             shippingNumber = shippingNumber,
-            orderPrice = orderPrice,
+            orderPrice = orderPrice.setScale(2),
             productId = productId,
             productName = product.name,
             thumbnailUrl = product.thumbnailUrl,

@@ -18,4 +18,9 @@ enum class OrderStatus(
     EXCHANGE_COMPLETED("교환 완료"),
     REFUND_REQUESTED("환불 요청"),
     REFUND_COMPLETED("환불 완료"),
+    ;
+
+    fun isAbleToPay(): Boolean {
+        return this == ORDER_CREATED
+    }
 }

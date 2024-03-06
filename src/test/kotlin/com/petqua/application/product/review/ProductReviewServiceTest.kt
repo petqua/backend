@@ -29,9 +29,9 @@ import io.kotest.matchers.collections.shouldBeSortedWith
 import io.kotest.matchers.ints.shouldBeGreaterThanOrEqual
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
-import java.math.BigDecimal
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE
+import java.math.BigDecimal
 
 @SpringBootTest(webEnvironment = NONE)
 class ProductReviewServiceTest(

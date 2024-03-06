@@ -12,9 +12,9 @@ import io.restassured.response.Response
 fun requestReadSpecies(
     family: String? = null,
 ): Response {
-    val paramMap = mutableMapOf<String, Any?>().apply {
-        put("family", family)
-    }.filterValues { it != null }
+    val paramMap = mapOf(
+        "family" to family
+    ).filterValues { it != null }
 
     return Given {
         log().all()
@@ -37,14 +37,14 @@ fun requestReadProducts(
     limit: Int? = null,
     accessToken: String? = null,
 ): Response {
-    val paramMap = mutableMapOf<String, Any?>().apply {
-        put("family", family)
-        put("species", species.takeIf { it.isNotEmpty() })
-        put("deliveryMethod", deliveryMethod.name)
-        put("sorter", sorter)
-        put("lastViewedId", lastViewedId)
-        put("limit", limit)
-    }.filterValues { it != null }
+    val paramMap = mapOf(
+        "family" to family,
+        "species" to species.takeIf { it.isNotEmpty() },
+        "deliveryMethod" to deliveryMethod.name,
+        "sorter" to sorter,
+        "lastViewedId" to lastViewedId,
+        "limit" to limit,
+    ).filterValues { it != null }
 
     return Given {
         log().all()

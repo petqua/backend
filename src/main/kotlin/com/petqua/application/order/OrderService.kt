@@ -2,6 +2,7 @@ package com.petqua.application.order
 
 import com.petqua.application.order.dto.SaveOrderCommand
 import com.petqua.application.order.dto.SaveOrderResponse
+import com.petqua.application.payment.infra.PaymentGatewayClient
 import com.petqua.common.domain.findByIdOrThrow
 import com.petqua.common.util.throwExceptionWhen
 import com.petqua.domain.order.Order
@@ -33,6 +34,7 @@ class OrderService(
     private val productOptionRepository: ProductOptionRepository,
     private val shippingAddressRepository: ShippingAddressRepository,
     private val storeRepository: StoreRepository,
+    private val paymentGatewayClient: PaymentGatewayClient,
 ) {
 
     fun save(command: SaveOrderCommand): SaveOrderResponse {
@@ -68,8 +70,8 @@ class OrderService(
                 ?: throw ProductException(INVALID_PRODUCT_OPTION)
 
             throwExceptionWhen(
-                productCommand.orderPrice != (product.discountPrice + productOption.additionalPrice) * productCommand.quantity.toBigDecimal()
-                        || productCommand.deliveryFee != product.getDeliveryFee(productCommand.deliveryMethod)
+                productCommand.orderPrice.setScale(2) != (product.discountPrice + productOption.additionalPrice) * productCommand.quantity.toBigDecimal()
+                        || productCommand.deliveryFee.setScale(2) != product.getDeliveryFee(productCommand.deliveryMethod)
             ) {
                 OrderException(
                     ORDER_PRICE_NOT_MATCH
@@ -127,8 +129,8 @@ class OrderService(
         return SaveOrderResponse(
             orderId = orders.first().orderNumber.value,
             orderName = orders.first().orderName.value,
-            successUrl = "successUrl",
-            failUrl = "failUrl",
+            successUrl = paymentGatewayClient.successUrl(),
+            failUrl = paymentGatewayClient.failUrl(),
         )
     }
 }

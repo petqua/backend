@@ -73,7 +73,7 @@ class WishProductServiceTest(
     }
 
     Given("찜 상품 수정시") {
-        val product = productRepository.save(product())
+        productRepository.save(product())
         val member = memberRepository.save(member())
 
         When("상품이 존재하지 않으면") {
@@ -168,7 +168,7 @@ class WishProductServiceTest(
 
 private fun saveProducts(
     productRepository: ProductRepository,
-    store: Store
+    store: Store,
 ): Triple<Product, Product, Product> {
     val product1 = productRepository.save(
         product(

@@ -1,6 +1,11 @@
 package com.petqua.domain.order
 
 import com.petqua.common.domain.BaseEntity
+import com.petqua.common.util.throwExceptionWhen
+import com.petqua.exception.order.OrderException
+import com.petqua.exception.order.OrderExceptionType.FORBIDDEN_ORDER
+import com.petqua.exception.order.OrderExceptionType.ORDER_CAN_NOT_PAY
+import com.petqua.exception.order.OrderExceptionType.PAYMENT_PRICE_NOT_MATCH
 import jakarta.persistence.AttributeOverride
 import jakarta.persistence.Column
 import jakarta.persistence.Embedded
@@ -41,8 +46,36 @@ class Order(
 
     @Enumerated(STRING)
     @Column(nullable = false)
-    val status: OrderStatus,
+    var status: OrderStatus,
 
     @Column(nullable = false)
     val totalAmount: BigDecimal,
-) : BaseEntity()
+) : BaseEntity() {
+
+    fun validateAmount(amount: BigDecimal) {
+        throwExceptionWhen(totalAmount != amount) {
+            throw OrderException(PAYMENT_PRICE_NOT_MATCH)
+        }
+    }
+
+    fun validateOwner(memberId: Long) {
+        throwExceptionWhen(this.memberId != memberId) {
+            throw OrderException(FORBIDDEN_ORDER)
+        }
+    }
+
+    fun cancel() {
+        // TODO isAbleToCancel 사용
+        // throwExceptionWhen(!isAbleToCancel) {
+        //     OrderException(ORDER_NOT_FOUND)
+        // }
+        status = OrderStatus.CANCELED
+    }
+
+    fun pay() {
+        throwExceptionWhen(!status.isAbleToPay()) {
+            throw OrderException(ORDER_CAN_NOT_PAY)
+        }
+        status = OrderStatus.PAYMENT_CONFIRMED
+    }
+}

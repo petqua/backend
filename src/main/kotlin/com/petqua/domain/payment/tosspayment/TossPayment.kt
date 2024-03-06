@@ -11,8 +11,8 @@ import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType.IDENTITY
 import jakarta.persistence.Id
+import java.math.BigDecimal
 
-// FIXME: 레퍼런스 첨부  https://docs.tosspayments.com/reference#%EA%B2%B0%EC%A0%9C
 @Entity
 class TossPayment(
     @Id @GeneratedValue(strategy = IDENTITY)
@@ -34,7 +34,7 @@ class TossPayment(
     val method: TossPaymentMethod,
 
     @Column(nullable = false)
-    val totalAmount: String,
+    val totalAmount: BigDecimal,
 
     @Enumerated(STRING)
     @Column(nullable = false)
@@ -47,7 +47,7 @@ class TossPayment(
     val approvedAt: String,
 
     @Column(nullable = false)
-    val useEscrow: String, // FIXME: 레퍼런스 첨부 https://docs.tosspayments.com/resources/glossary/escrow
+    val useEscrow: Boolean,
 
     @Enumerated(STRING)
     @Column(nullable = false)

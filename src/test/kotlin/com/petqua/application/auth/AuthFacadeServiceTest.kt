@@ -13,7 +13,6 @@ import com.petqua.exception.auth.AuthExceptionType
 import com.petqua.exception.member.MemberException
 import com.petqua.exception.member.MemberExceptionType.NOT_FOUND_MEMBER
 import com.petqua.test.DataCleaner
-import com.petqua.test.config.OauthTestConfig
 import com.petqua.test.fixture.member
 import io.kotest.assertions.assertSoftly
 import io.kotest.assertions.throwables.shouldNotThrow
@@ -23,14 +22,12 @@ import io.kotest.matchers.shouldBe
 import io.mockk.verify
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE
-import org.springframework.context.annotation.Import
 import java.lang.System.currentTimeMillis
 import java.time.LocalDateTime
-import java.util.*
+import java.util.Date
 
 @SpringBootTest(webEnvironment = NONE)
-@Import(OauthTestConfig::class)
-class AuthFacadeServiceTest(
+class AuthServiceTest(
     private val authFacadeService: AuthFacadeService,
     private val refreshTokenRepository: RefreshTokenRepository,
     private val authTokenProvider: AuthTokenProvider,
