@@ -127,7 +127,7 @@ class OrderServiceTest(
 
         When("존재 하지 않는 배송 정보를 입력 하면") {
             val memberId = memberRepository.save(member()).id
-            val productA = productRepository.save(product())
+            val productA = productRepository.save(product(commonDeliveryFee = 3000.toBigDecimal()))
             productSnapshotRepository.save(ProductSnapshot.from(productA))
             val productOptionA = productOptionRepository.save(
                 productOption(
@@ -141,6 +141,7 @@ class OrderServiceTest(
                     productId = productA.id,
                     sex = productOptionA.sex,
                     additionalPrice = productOptionA.additionalPrice.value,
+                    orderPrice = 2.toBigDecimal()
                 ),
             )
 
@@ -148,6 +149,7 @@ class OrderServiceTest(
                 memberId = memberId,
                 orderProductCommands = orderProductCommands,
                 shippingAddressId = Long.MIN_VALUE,
+                totalAmount = 3002.toBigDecimal()
             )
 
             Then("예외가 발생 한다") {
@@ -480,7 +482,7 @@ class OrderServiceTest(
                 memberId = memberId,
                 orderProductCommands = orderProductCommands,
                 shippingAddressId = shippingAddress.id,
-                totalAmount = 11003.toBigDecimal(),
+                totalAmount = 8003.toBigDecimal(),
             )
 
             Then("예외가 발생 한다") {

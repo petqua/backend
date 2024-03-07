@@ -1,6 +1,6 @@
 package com.petqua.domain.order
 
-import com.petqua.domain.product.Product
+import com.petqua.domain.product.ProductSnapshot
 import jakarta.persistence.Column
 import jakarta.persistence.Embeddable
 
@@ -11,8 +11,8 @@ data class OrderName(
 ) {
 
     companion object {
-        fun from(products: List<Product>): OrderName {
-            return OrderName("${products.first().name} 외 ${products.size - 1}건")
+        fun from(productSnapshots: List<ProductSnapshot>): OrderName {
+            return OrderName("${productSnapshots.first().name} 외 ${productSnapshots.size - 1}건")
         }
     }
 }
