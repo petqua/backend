@@ -3,10 +3,14 @@ package com.petqua.application.notification
 import com.petqua.application.notification.dto.ReadAllNotificationQuery
 import com.petqua.domain.member.MemberRepository
 import com.petqua.domain.notification.NotificationRepository
+import com.petqua.exception.notification.NotificationException
+import com.petqua.exception.notification.NotificationExceptionType.FORBIDDEN_NOTIFICATION
+import com.petqua.exception.notification.NotificationExceptionType.NOTIFICATION_NOT_FOUND
 import com.petqua.test.DataCleaner
 import com.petqua.test.fixture.member
 import com.petqua.test.fixture.notification
 import io.kotest.assertions.assertSoftly
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import org.springframework.boot.test.context.SpringBootTest
@@ -76,6 +80,50 @@ class NotificationServiceTest(
 
             Then("읽지 않은 알림의 개수가 조회 된다.") {
                 count shouldBe 3
+            }
+        }
+    }
+
+    Given("회원을 기준으로 알림을 확인 할 수 있다.") {
+        val memberId = memberRepository.save(member()).id
+
+        When("알림을 확인 하면") {
+            val notificationId = notificationRepository.save(notification(memberId = memberId)).id
+            notificationService.checkNotification(memberId, notificationId)
+
+            Then("알림이 읽음 처리 된다.") {
+                val notification = notificationRepository.findById(notificationId).get()
+                notification.isRead shouldBe true
+            }
+        }
+
+        When("알림이 읽음 처리 되면") {
+            val notificationId = notificationRepository.save(notification(memberId = memberId)).id
+            val previousUnreadNotificationCount = notificationService.countUnreadNotifications(memberId)
+            notificationService.checkNotification(memberId, notificationId)
+
+            Then("읽지 않은 알림의 개수가 갱신 된다.") {
+                val count = notificationService.countUnreadNotifications(memberId)
+                count shouldBe 0
+            }
+        }
+
+        When("존재 하지 않는 알림을 확인 하면") {
+            Then("알림을 확인 할 수 없다.") {
+                shouldThrow<NotificationException> {
+                    notificationService.checkNotification(memberId, Long.MIN_VALUE)
+                }.exceptionType() shouldBe NOTIFICATION_NOT_FOUND
+            }
+        }
+
+        When("다른 사람의 알림을 확인 하면") {
+            val notificationId = notificationRepository.save(notification(memberId = memberId)).id
+            val otherMemberId = memberRepository.save(member()).id
+
+            Then("알림을 확인 할 수 없다.") {
+                shouldThrow<NotificationException> {
+                    notificationService.checkNotification(otherMemberId, notificationId)
+                }.exceptionType() shouldBe FORBIDDEN_NOTIFICATION
             }
         }
     }

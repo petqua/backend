@@ -1,6 +1,9 @@
 package com.petqua.domain.notification
 
 import com.petqua.common.domain.BaseEntity
+import com.petqua.common.util.throwExceptionWhen
+import com.petqua.exception.notification.NotificationException
+import com.petqua.exception.notification.NotificationExceptionType.FORBIDDEN_NOTIFICATION
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
@@ -22,5 +25,14 @@ class Notification(
     val content: String,
 
     @Column(nullable = false)
-    val isRead: Boolean,
-) : BaseEntity()
+    var isRead: Boolean,
+) : BaseEntity() {
+
+    fun validateOwner(accessMemberId: Long) {
+        throwExceptionWhen(accessMemberId != this.memberId) { NotificationException(FORBIDDEN_NOTIFICATION) }
+    }
+
+    fun markAsRead() {
+        this.isRead = true
+    }
+}
