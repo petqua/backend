@@ -64,5 +64,30 @@ class NotificationControllerTest(
                 }
             }
         }
+
+        Given("회원에게 등록 된 읽지 않은 알림의 개수를") {
+            val accessToken = signInAsMember().accessToken
+            val memberId = getMemberIdByAccessToken(accessToken)
+
+            notificationRepository.saveAll(
+                listOf(
+                    notification(memberId = memberId, title = "알림1", isRead = false),
+                    notification(memberId = memberId, title = "알림2", isRead = false),
+                    notification(memberId = memberId, title = "알림3", isRead = false),
+                    notification(memberId = memberId, title = "알림4", isRead = true),
+                    notification(memberId = memberId, title = "알림5", isRead = true),
+                )
+            )
+
+            When("조회 할 수 있다") {
+                val response = requestCountUnreadNotification(
+                    accessToken = accessToken,
+                )
+
+                Then("읽지 않은 알림의 개수가 조회 된다") {
+                    response.`as`(Int::class.java) shouldBe 3
+                }
+            }
+        }
     }
 }

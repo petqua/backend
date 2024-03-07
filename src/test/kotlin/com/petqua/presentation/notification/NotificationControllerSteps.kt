@@ -26,3 +26,18 @@ fun requestReadAllNotification(
         response()
     }
 }
+
+fun requestCountUnreadNotification(
+    accessToken: String,
+): Response {
+    return Given {
+        log().all()
+        auth().preemptive().oauth2(accessToken)
+    } When {
+        get("/notifications/unread/count")
+    } Then {
+        log().all()
+    } Extract {
+        response()
+    }
+}
