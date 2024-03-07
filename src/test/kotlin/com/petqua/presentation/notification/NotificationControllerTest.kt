@@ -7,6 +7,8 @@ import com.petqua.test.ApiTestConfig
 import com.petqua.test.fixture.notification
 import io.kotest.assertions.assertSoftly
 import io.kotest.matchers.shouldBe
+import org.springframework.http.HttpStatus.BAD_REQUEST
+import org.springframework.http.HttpStatus.FORBIDDEN
 
 class NotificationControllerTest(
     private val notificationRepository: NotificationRepository,
@@ -89,5 +91,62 @@ class NotificationControllerTest(
                 }
             }
         }
+
+        Given("알림을 읽음 처리 할 수 있다") {
+            val accessToken = signInAsMember().accessToken
+            val memberId = getMemberIdByAccessToken(accessToken)
+
+            val notification = notificationRepository.save(
+                notification(memberId = memberId, title = "알림1", isRead = false)
+            )
+
+            When("알림을 읽음 처리 하면") {
+                requestCheckNotification(
+                    accessToken = accessToken,
+                    notificationId = notification.id,
+                )
+
+                Then("알림이 읽음 처리 된다") {
+                    val findNotification = notificationRepository.findById(notification.id).get()
+                    findNotification.isRead shouldBe true
+                }
+            }
+
+            When("읽지 않은 알림의 개수가 갱신 된다") {
+                val previousUnreadNotificationCount = requestCountUnreadNotification(accessToken).`as`(Int::class.java)
+                requestCheckNotification(
+                    accessToken = accessToken,
+                    notificationId = notification.id,
+                )
+
+                Then("읽지 않은 알림의 개수가 갱신 된다") {
+                    val count = requestCountUnreadNotification(accessToken).`as`(Int::class.java)
+                    count shouldBe previousUnreadNotificationCount - 1
+                }
+            }
+
+            When("존재 하지 않는 알림을 확인 하면") {
+                Then("알림을 확인 할 수 없다") {
+                    val response = requestCheckNotification(
+                        accessToken = accessToken,
+                        notificationId = Long.MIN_VALUE,
+                    )
+                    response.statusCode shouldBe BAD_REQUEST.value()
+                }
+            }
+
+            When("다른 회원의 알림을 확인 하면") {
+                Then("알림을 확인 할 수 없다") {
+                    val otherMemberAccessToken = signInAsMember().accessToken
+                    val response = requestCheckNotification(
+                        accessToken = otherMemberAccessToken,
+                        notificationId = notification.id,
+                    )
+                    response.statusCode shouldBe FORBIDDEN.value()
+                }
+            }
+        }
+
+
     }
 }

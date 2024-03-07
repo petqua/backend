@@ -41,3 +41,20 @@ fun requestCountUnreadNotification(
         response()
     }
 }
+
+fun requestCheckNotification(
+    accessToken: String,
+    notificationId: Long,
+): Response {
+    return Given {
+        log().all()
+            .pathParam("notificationId", notificationId)
+        auth().preemptive().oauth2(accessToken)
+    } When {
+        patch("/notifications/{notificationId}/check")
+    } Then {
+        log().all()
+    } Extract {
+        response()
+    }
+}
