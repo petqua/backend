@@ -58,6 +58,28 @@ class NotificationServiceTest(
         }
     }
 
+    Given("회원을 기준으로 읽지 않은 알림의 개수를 조회 할 수 있다.") {
+        val memberId = memberRepository.save(member()).id
+
+        notificationRepository.saveAll(
+            listOf(
+                notification(memberId = memberId, title = "알림1", isRead = false),
+                notification(memberId = memberId, title = "알림2", isRead = false),
+                notification(memberId = memberId, title = "알림3", isRead = false),
+                notification(memberId = memberId, title = "알림4", isRead = true),
+                notification(memberId = memberId, title = "알림5", isRead = true),
+            )
+        )
+
+        When("읽지 않은 알림의 개수를 조회 하면") {
+            val count = notificationService.countUnreadNotifications(memberId)
+
+            Then("읽지 않은 알림의 개수가 조회 된다.") {
+                count shouldBe 3
+            }
+        }
+    }
+
     afterContainer {
         dataCleaner.clean()
     }
