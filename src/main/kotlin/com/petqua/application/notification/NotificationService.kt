@@ -31,7 +31,7 @@ class NotificationService(
     )
     @Transactional(readOnly = true)
     fun countUnreadNotifications(memberId: Long): Int {
-        return notificationRepository.countByMemberIdAndIsReadIsFalse(memberId)
+        return notificationRepository.countByMemberIdAndIsReadFalse(memberId)
     }
 
     @CacheEvict(
