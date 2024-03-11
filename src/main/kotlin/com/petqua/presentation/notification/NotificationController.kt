@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @SecurityRequirement(name = ACCESS_TOKEN_SECURITY_SCHEME_KEY)
-@RequestMapping("/notifications")
 @Tag(name = "Notification", description = "알림 관련 API 명세")
+@RequestMapping("/notifications")
 @RestController
 class NotificationController(
     private val notificationService: NotificationService,
