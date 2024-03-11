@@ -34,7 +34,7 @@ class AuthService(
     fun findOrCreateMemberBy(
         oauthServerType: OauthServerType,
         oauthTokenInfo: OauthTokenInfo,
-        oauthUserInfo: OauthUserInfo
+        oauthUserInfo: OauthUserInfo,
     ): Member {
         val member = findOrSaveMemberBy(oauthServerType, oauthUserInfo)
         member.updateOauthToken(
@@ -47,7 +47,7 @@ class AuthService(
 
     private fun findOrSaveMemberBy(
         oauthServerType: OauthServerType,
-        oauthUserInfo: OauthUserInfo
+        oauthUserInfo: OauthUserInfo,
     ): Member {
         return memberRepository.findByOauthIdAndOauthServerNumberAndIsDeletedFalse(
             oauthId = oauthUserInfo.oauthId,
@@ -55,7 +55,6 @@ class AuthService(
         ) ?: memberRepository.save(
             Member(
                 oauthId = oauthUserInfo.oauthId,
-                profileImageUrl = oauthUserInfo.imageUrl,
                 oauthServerNumber = oauthServerType.number,
                 authority = MEMBER,
             )
