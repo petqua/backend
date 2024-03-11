@@ -15,6 +15,8 @@ enum class MemberExceptionType(
     NOT_FOUND_MEMBER(NOT_FOUND, "M01", "존재하지 않는 회원입니다."),
 
     INVALID_MEMBER_FISH_TANK_NAME(BAD_REQUEST, "M10", "유효하지 않은 수조 이름입니다."),
+    INVALID_MEMBER_FISH_LIFE_YEAR(BAD_REQUEST, "M11", "유효하지 않은 물생활 경력입니다."),
+
 
     INVALID_MEMBER_STATE(INTERNAL_SERVER_ERROR, "M90", "유효하지 않은 회원 상태입니다."),
     ;
