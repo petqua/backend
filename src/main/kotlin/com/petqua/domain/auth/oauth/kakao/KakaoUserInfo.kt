@@ -16,19 +16,15 @@ class KakaoUserInfo(
     fun toOauthUserInfo(): OauthUserInfo {
         return OauthUserInfo(
             nickname = kakaoAccount.profile.nickname,
-            imageUrl = kakaoAccount.profile.imageUrl,
             oauthId = oauthId
         )
     }
 }
 
 data class KakaoAccount(
-    val profile: Profile
+    val profile: Profile,
 )
 
 data class Profile(
     val nickname: String,
-
-    @JsonProperty("profile_image_url")
-    val imageUrl: String
 )
