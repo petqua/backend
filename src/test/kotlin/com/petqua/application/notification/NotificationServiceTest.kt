@@ -13,6 +13,7 @@ import io.kotest.assertions.assertSoftly
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE
 
@@ -103,8 +104,11 @@ class NotificationServiceTest(
             notificationService.checkNotification(memberId, notificationId)
 
             Then("읽지 않은 알림의 개수가 갱신 된다.") {
-                val count = notificationService.countUnreadNotifications(memberId)
-                count shouldBe 0
+                val unreadNotificationCount = notificationService.countUnreadNotifications(memberId)
+                assertSoftly {
+                    previousUnreadNotificationCount shouldNotBe unreadNotificationCount
+                    unreadNotificationCount shouldBe 0
+                }
             }
         }
 
