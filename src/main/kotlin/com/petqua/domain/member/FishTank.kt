@@ -15,7 +15,7 @@ class FishTank(
     val id: Long = 0L,
 
     @Column(nullable = false)
-    val memberId: Long,
+    val memberDetailId: Long,
 
     @Embedded
     val name: TankName,

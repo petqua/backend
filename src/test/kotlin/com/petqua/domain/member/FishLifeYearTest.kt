@@ -13,7 +13,7 @@ class FishLifeYearTest : StringSpec({
         val year = 3
 
         shouldNotThrow<MemberException> {
-            FishLifeYear(year)
+            FishLifeYear.from(year)
         }
     }
 
@@ -21,7 +21,7 @@ class FishLifeYearTest : StringSpec({
         val year = -1
 
         shouldThrow<MemberException> {
-            FishLifeYear(year)
+            FishLifeYear.from(year)
         }.exceptionType() shouldBe INVALID_MEMBER_FISH_LIFE_YEAR
     }
 
@@ -29,7 +29,7 @@ class FishLifeYearTest : StringSpec({
         val year = 100
 
         shouldThrow<MemberException> {
-            FishLifeYear(year)
+            FishLifeYear.from(year)
         }.exceptionType() shouldBe INVALID_MEMBER_FISH_LIFE_YEAR
     }
 })
