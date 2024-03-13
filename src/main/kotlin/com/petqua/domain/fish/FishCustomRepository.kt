@@ -1,8 +1,6 @@
 package com.petqua.domain.fish
 
-import com.petqua.domain.fish.dto.SpeciesSearchResponse
-
 interface FishCustomRepository {
 
-    fun findBySpeciesSearch(species: Species, limit: Int): List<SpeciesSearchResponse>
+    fun findBySpeciesName(speciesName: String, limit: Int): List<Fish>
 }

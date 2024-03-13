@@ -7,7 +7,7 @@ import jakarta.persistence.Column
 import jakarta.persistence.Embeddable
 
 @Embeddable
-class Species(
+data class Species(
     @Column(nullable = false, name = "species")
     val name: String,
 ) {
