@@ -15,6 +15,7 @@ class FishService(
     @Transactional(readOnly = true)
     fun readAutoCompleteSpecies(query: SpeciesSearchQuery): List<SpeciesSearchResponse> {
         val species = query.toSpecies()
-        return fishRepository.findBySpeciesSearch(species, query.limit)
+        val fishes = fishRepository.findBySpeciesName(species.name, query.limit)
+        return fishes.map { SpeciesSearchResponse.from(it) }
     }
 }

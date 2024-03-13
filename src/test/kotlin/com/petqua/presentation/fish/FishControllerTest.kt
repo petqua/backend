@@ -34,10 +34,10 @@ class FishControllerTest(
                     assertSoftly {
                         response.statusCode shouldBe OK.value()
                         speciesSearchResponses shouldBe listOf(
-                            SpeciesSearchResponse(fishA.species.name),
-                            SpeciesSearchResponse(fishD.species.name),
-                            SpeciesSearchResponse(fishB.species.name),
-                            SpeciesSearchResponse(fishC.species.name),
+                            SpeciesSearchResponse(fishA.id, fishA.species.name),
+                            SpeciesSearchResponse(fishD.id, fishD.species.name),
+                            SpeciesSearchResponse(fishB.id, fishB.species.name),
+                            SpeciesSearchResponse(fishC.id, fishC.species.name),
                         )
                     }
                 }
@@ -52,8 +52,8 @@ class FishControllerTest(
                     assertSoftly {
                         response.statusCode shouldBe OK.value()
                         speciesSearchResponses shouldBe listOf(
-                            SpeciesSearchResponse(fishA.species.name),
-                            SpeciesSearchResponse(fishD.species.name),
+                            SpeciesSearchResponse(fishA.id, fishA.species.name),
+                            SpeciesSearchResponse(fishD.id, fishD.species.name),
                         )
                     }
                 }
