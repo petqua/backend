@@ -10,6 +10,8 @@ import com.petqua.domain.keyword.ProductKeyword
 import com.petqua.domain.keyword.ProductKeywordRepository
 import com.petqua.domain.member.Member
 import com.petqua.domain.member.MemberRepository
+import com.petqua.domain.notification.Notification
+import com.petqua.domain.notification.NotificationRepository
 import com.petqua.domain.order.ShippingAddress
 import com.petqua.domain.order.ShippingAddressRepository
 import com.petqua.domain.product.Product
@@ -49,14 +51,14 @@ import com.petqua.domain.recommendation.ProductRecommendation
 import com.petqua.domain.recommendation.ProductRecommendationRepository
 import com.petqua.domain.store.Store
 import com.petqua.domain.store.StoreRepository
+import java.math.BigDecimal
+import java.time.LocalDateTime
+import kotlin.random.Random
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.annotation.Profile
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
-import java.math.BigDecimal
-import java.time.LocalDateTime
-import kotlin.random.Random
 
 @Component
 @Profile("local", "prod")
@@ -77,6 +79,7 @@ class DataInitializer(
     private val productKeywordRepository: ProductKeywordRepository,
     private val productDescriptionRepository: ProductDescriptionRepository,
     private val shippingAddressRepository: ShippingAddressRepository,
+    private val notificationRepository: NotificationRepository,
 ) {
 
     @EventListener(ApplicationReadyEvent::class)
@@ -328,5 +331,17 @@ class DataInitializer(
             )
         }
         productReviewImageRepository.saveAll(productReviewImages)
+
+        // notification
+        notificationRepository.saveAll(
+            (1..10).map {
+                Notification(
+                    memberId = memberId,
+                    title = "알림$it",
+                    content = "알림$it 내용",
+                    isRead = it % 2 == 0,
+                )
+            }
+        )
     }
 }
