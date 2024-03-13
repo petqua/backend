@@ -1,5 +1,6 @@
 package com.petqua.domain.order
 
+import com.petqua.common.domain.Money
 import com.petqua.domain.order.OrderStatus.CANCELED
 import com.petqua.domain.order.OrderStatus.ORDER_CREATED
 import com.petqua.exception.order.OrderException
@@ -23,7 +24,7 @@ class OrderTest : StringSpec({
         )
 
         shouldNotThrow<OrderException> {
-            order.validateAmount(TEN)
+            order.validateAmount(Money.from(TEN))
         }
     }
 
@@ -33,7 +34,7 @@ class OrderTest : StringSpec({
         )
 
         shouldThrow<OrderException> {
-            order.validateAmount(ONE)
+            order.validateAmount(Money.from(ONE))
         }.exceptionType() shouldBe PAYMENT_PRICE_NOT_MATCH
     }
 

@@ -4,6 +4,7 @@ import com.petqua.application.payment.CardResponseFromPG
 import com.petqua.application.payment.PaymentConfirmRequestToPG
 import com.petqua.application.payment.PaymentResponseFromPG
 import com.petqua.application.payment.infra.TossPaymentsApiClient
+import com.petqua.common.domain.Money
 import com.petqua.domain.payment.tosspayment.TossPaymentMethod
 import com.petqua.domain.payment.tosspayment.TossPaymentStatus
 import com.petqua.domain.payment.tosspayment.TossPaymentType
@@ -32,10 +33,10 @@ class FakeTossPaymentsApiClient : TossPaymentsApiClient {
             useEscrow = false,
             lastTransactionKey = null,
             suppliedAmount = paymentConfirmRequestToPG.amount,
-            vat = BigDecimal.ZERO,
+            vat = Money.from(0L),
             cultureExpense = false,
-            taxFreeAmount = BigDecimal.ZERO,
-            taxExemptionAmount = BigDecimal.ZERO,
+            taxFreeAmount = Money.from(0L),
+            taxExemptionAmount = Money.from(0L),
             cancels = null,
             isPartialCancelable = true,
             card = CardResponseFromPG(

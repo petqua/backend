@@ -160,10 +160,10 @@ data class WishProductResponse(
         product.id,
         product.name,
         product.categoryId,
-        product.price.intValueExact(),
+        product.price.value.intValueExact(), // TODO int로 바꾼 이유가 있나?
         storeName,
         product.discountRate,
-        product.discountPrice.intValueExact(),
+        product.discountPrice.value.intValueExact(),
         product.wishCount.value,
         product.reviewCount,
         product.averageReviewScore(),

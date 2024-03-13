@@ -1,6 +1,7 @@
 package com.petqua.test.fixture
 
 import com.petqua.application.product.dto.ProductDetailResponse
+import com.petqua.common.domain.Money
 import com.petqua.common.util.setDefaultScale
 import com.petqua.domain.keyword.ProductKeyword
 import com.petqua.domain.product.Product
@@ -21,7 +22,7 @@ import com.petqua.domain.product.option.ProductOption
 import com.petqua.domain.product.option.Sex
 import java.math.BigDecimal
 
-fun product(
+fun product( // TODO Money로?
     id: Long = 0L,
     name: String = "name",
     categoryId: Long = 0,
@@ -44,18 +45,18 @@ fun product(
         id = id,
         name = name,
         categoryId = categoryId,
-        price = price.setDefaultScale(),
+        price = Money.from(price.setDefaultScale()),
         storeId = storeId,
         discountRate = discountRate,
-        discountPrice = discountPrice.setDefaultScale(),
+        discountPrice = Money.from(discountPrice.setDefaultScale()),
         wishCount = WishCount(wishCount),
         reviewCount = reviewCount,
         reviewTotalScore = reviewTotalScore,
         thumbnailUrl = thumbnailUrl,
         isDeleted = isDeleted,
-        safeDeliveryFee = safeDeliveryFee?.setDefaultScale(),
-        commonDeliveryFee = commonDeliveryFee?.setDefaultScale(),
-        pickUpDeliveryFee = pickUpDeliveryFee?.setDefaultScale(),
+        safeDeliveryFee = safeDeliveryFee?.let { Money.from(it) },
+        commonDeliveryFee = commonDeliveryFee?.let { Money.from(it) },
+        pickUpDeliveryFee = pickUpDeliveryFee?.let { Money.from(it) },
         productDescriptionId = productDescriptionId,
         productInfoId = productInfoId
     )
@@ -115,7 +116,7 @@ fun productOption(
         id = id,
         productId = productId,
         sex = sex,
-        additionalPrice = additionalPrice,
+        additionalPrice = Money.from(additionalPrice),
     )
 }
 
@@ -148,10 +149,10 @@ fun productDetailResponse(
         name = product.name,
         family = category.family.name,
         species = category.species.name,
-        price = product.price.intValueExact(),
+        price = product.price,
         storeName = storeName,
         discountRate = product.discountRate,
-        discountPrice = product.discountPrice.intValueExact(),
+        discountPrice = product.discountPrice,
         wishCount = product.wishCount.value,
         reviewCount = product.reviewCount,
         reviewAverageScore = product.averageReviewScore(),
@@ -162,8 +163,8 @@ fun productDetailResponse(
         safeDeliveryFee = product.safeDeliveryFee,
         commonDeliveryFee = product.commonDeliveryFee,
         pickUpDeliveryFee = product.pickUpDeliveryFee,
-        maleAdditionalPrice = maleAdditionalPrice?.setScale(2),
-        femaleAdditionalPrice = femaleAdditionalPrice?.setScale(2),
+        maleAdditionalPrice = maleAdditionalPrice?.let { Money.from(it) },
+        femaleAdditionalPrice = femaleAdditionalPrice?.let { Money.from(it) },
         optimalTemperatureMin = productInfo.optimalTemperature.optimalTemperatureMin,
         optimalTemperatureMax = productInfo.optimalTemperature.optimalTemperatureMax,
         difficultyLevel = productInfo.difficultyLevel.description,
@@ -182,10 +183,10 @@ fun productResponse(
         id = product.id,
         name = product.name,
         categoryId = product.categoryId,
-        price = product.price.intValueExact(),
+        price = product.price,
         storeName = storeName,
         discountRate = product.discountRate,
-        discountPrice = product.discountPrice.intValueExact(),
+        discountPrice = product.discountPrice,
         wishCount = product.wishCount.value,
         reviewCount = product.reviewCount,
         reviewAverageScore = product.averageReviewScore(),

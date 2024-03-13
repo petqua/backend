@@ -1,5 +1,6 @@
 package com.petqua.domain.payment.tosspayment
 
+import com.petqua.common.domain.Money
 import com.petqua.domain.order.OrderName
 import com.petqua.domain.order.OrderNumber
 import jakarta.persistence.AttributeOverride
@@ -11,7 +12,6 @@ import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType.IDENTITY
 import jakarta.persistence.Id
-import java.math.BigDecimal
 
 @Entity
 class TossPayment(
@@ -33,8 +33,9 @@ class TossPayment(
     @Column(nullable = false)
     val method: TossPaymentMethod,
 
-    @Column(nullable = false)
-    val totalAmount: BigDecimal,
+    @Embedded
+    @AttributeOverride(name = "value", column = Column(name = "total_amount", nullable = false))
+    val totalAmount: Money,
 
     @Enumerated(STRING)
     @Column(nullable = false)

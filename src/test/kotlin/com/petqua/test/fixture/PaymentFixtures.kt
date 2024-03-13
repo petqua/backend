@@ -2,6 +2,7 @@ package com.petqua.test.fixture
 
 import com.petqua.application.payment.FailPaymentCommand
 import com.petqua.application.payment.SucceedPaymentCommand
+import com.petqua.common.domain.Money
 import com.petqua.domain.order.OrderNumber
 import com.petqua.domain.payment.tosspayment.TossPaymentType
 import com.petqua.domain.payment.tosspayment.TossPaymentType.NORMAL
@@ -22,7 +23,7 @@ fun succeedPaymentCommand(
         paymentType = paymentType,
         orderNumber = orderNumber,
         paymentKey = paymentKey,
-        amount = amount,
+        amount = Money.from(amount),
     )
 }
 
@@ -36,7 +37,7 @@ fun succeedPaymentRequest(
         paymentType = paymentType,
         orderId = orderId,
         paymentKey = paymentKey,
-        amount = amount,
+        amount = Money.from(amount),
     )
 }
 

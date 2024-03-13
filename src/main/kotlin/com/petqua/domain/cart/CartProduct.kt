@@ -1,6 +1,7 @@
 package com.petqua.domain.cart
 
 import com.petqua.common.domain.BaseEntity
+import com.petqua.common.domain.Money
 import com.petqua.common.util.throwExceptionWhen
 import com.petqua.domain.delivery.DeliveryMethod
 import com.petqua.domain.product.option.Sex
@@ -39,8 +40,9 @@ class CartProduct(
     @Column(nullable = false)
     var deliveryMethod: DeliveryMethod,
 
-    @Column(nullable = false)
-    var deliveryFee: BigDecimal,
+    @Embedded
+    @AttributeOverride(name = "value", column = Column(name = "delivery_fee", nullable = false))
+    var deliveryFee: Money,
 ) : BaseEntity() {
 
     fun validateOwner(accessMemberId: Long) {
@@ -51,7 +53,7 @@ class CartProduct(
         quantity: CartProductQuantity,
         sex: Sex,
         deliveryMethod: DeliveryMethod,
-        deliveryFee: BigDecimal,
+        deliveryFee: Money,
     ) {
         this.quantity = quantity
         this.sex = sex

@@ -1,6 +1,7 @@
 package com.petqua.domain.product
 
 import com.petqua.common.domain.BaseEntity
+import com.petqua.common.domain.Money
 import com.petqua.common.domain.SoftDeleteEntity
 import com.petqua.domain.delivery.DeliveryMethod
 import com.petqua.domain.product.review.ProductReviewStatistics
@@ -14,7 +15,6 @@ import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
-import java.math.BigDecimal
 
 @Entity
 class Product(
@@ -27,8 +27,9 @@ class Product(
     @Column(nullable = false)
     val categoryId: Long,
 
-    @Column(nullable = false)
-    val price: BigDecimal,
+    @Embedded
+    @AttributeOverride(name = "value", column = Column(name = "price", nullable = false))
+    val price: Money,
 
     @Column(nullable = false)
     val storeId: Long,
@@ -36,8 +37,9 @@ class Product(
     @Column(nullable = false)
     val discountRate: Int = 0,
 
-    @Column(nullable = false)
-    val discountPrice: BigDecimal = price,
+    @Embedded
+    @AttributeOverride(name = "value", column = Column(name = "discount_price", nullable = false))
+    val discountPrice: Money = price,
 
     @Embedded
     @AttributeOverride(name = "value", column = Column(name = "wish_count", nullable = false))
@@ -55,11 +57,17 @@ class Product(
     @Column(nullable = false)
     var isDeleted: Boolean = false,
 
-    val safeDeliveryFee: BigDecimal?,
+    @Embedded
+    @AttributeOverride(name = "value", column = Column(name = "safe_delivery_fee"))
+    val safeDeliveryFee: Money?,
 
-    val commonDeliveryFee: BigDecimal?,
+    @Embedded
+    @AttributeOverride(name = "value", column = Column(name = "common_delivery_fee"))
+    val commonDeliveryFee: Money?,
 
-    val pickUpDeliveryFee: BigDecimal?,
+    @Embedded
+    @AttributeOverride(name = "value", column = Column(name = "pick_up_delivery_fee"))
+    val pickUpDeliveryFee: Money?,
 
     val productDescriptionId: Long?,
 
@@ -79,7 +87,7 @@ class Product(
         wishCount = wishCount.decrease()
     }
 
-    fun getDeliveryFee(deliveryMethod: DeliveryMethod): BigDecimal {
+    fun getDeliveryFee(deliveryMethod: DeliveryMethod): Money {
         return when (deliveryMethod) {
             DeliveryMethod.SAFETY -> safeDeliveryFee ?: throw ProductException(INVALID_DELIVERY_METHOD)
             DeliveryMethod.COMMON -> commonDeliveryFee ?: throw ProductException(INVALID_DELIVERY_METHOD)

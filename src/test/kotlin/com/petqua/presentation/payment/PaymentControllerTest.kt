@@ -7,6 +7,7 @@ import com.petqua.application.payment.infra.TossPaymentsApiClient
 import com.petqua.common.domain.findByIdOrThrow
 import com.petqua.common.exception.ExceptionResponse
 import com.petqua.domain.order.OrderNumber
+import com.petqua.domain.order.OrderPayment
 import com.petqua.domain.order.OrderPaymentRepository
 import com.petqua.domain.order.OrderRepository
 import com.petqua.domain.order.OrderStatus
@@ -56,13 +57,14 @@ class PaymentControllerTest(
                     totalAmount = ONE
                 )
             )
+            orderPaymentRepository.save(OrderPayment.from(order))
 
             When("유효한 요청이면") {
                 val response = requestSucceedPayment(
                     accessToken = accessToken,
                     succeedPaymentRequest = succeedPaymentRequest(
                         orderId = order.orderNumber.value,
-                        amount = order.totalAmount
+                        amount = order.totalAmount.value
                     )
                 )
 
@@ -78,7 +80,7 @@ class PaymentControllerTest(
                         val payment = payments[0]
 
                         payment.orderNumber shouldBe order.orderNumber
-                        payment.totalAmount shouldBe order.totalAmount.setScale(2)
+                        payment.totalAmount shouldBe order.totalAmount
                     }
                 }
 
@@ -94,8 +96,8 @@ class PaymentControllerTest(
                     val orderPayments = orderPaymentRepository.findAll()
 
                     assertSoftly {
-                        orderPayments.size shouldBe 1
-                        val payment = orderPayments[0]
+                        orderPayments.size shouldBe 2
+                        val payment = orderPayments[1]
 
                         payment.orderId shouldBe order.id
                         payment.tossPaymentId shouldBe paymentRepository.findAll()[0].id
@@ -110,7 +112,7 @@ class PaymentControllerTest(
                     accessToken = accessToken,
                     succeedPaymentRequest = succeedPaymentRequest(
                         orderId = orderNumber,
-                        amount = order.totalAmount
+                        amount = order.totalAmount.value
                     )
                 )
 
@@ -138,7 +140,7 @@ class PaymentControllerTest(
                     accessToken = accessToken,
                     succeedPaymentRequest = succeedPaymentRequest(
                         orderId = invalidOrder.orderNumber.value,
-                        amount = invalidOrder.totalAmount
+                        amount = invalidOrder.totalAmount.value
                     )
                 )
 
@@ -159,7 +161,7 @@ class PaymentControllerTest(
                     accessToken = otherAccessToken,
                     succeedPaymentRequest = succeedPaymentRequest(
                         orderId = order.orderNumber.value,
-                        amount = order.totalAmount
+                        amount = order.totalAmount.value
                     )
                 )
 
@@ -180,7 +182,7 @@ class PaymentControllerTest(
                     accessToken = accessToken,
                     succeedPaymentRequest = succeedPaymentRequest(
                         orderId = order.orderNumber.value,
-                        amount = wrongAmount
+                        amount = wrongAmount.value
                     )
                 )
 
@@ -209,7 +211,7 @@ class PaymentControllerTest(
                     accessToken = accessToken,
                     succeedPaymentRequest = succeedPaymentRequest(
                         orderId = order.orderNumber.value,
-                        amount = order.totalAmount
+                        amount = order.totalAmount.value
                     )
                 )
 
@@ -289,6 +291,7 @@ class PaymentControllerTest(
                     totalAmount = ONE
                 )
             )
+            orderPaymentRepository.save(OrderPayment.from(order))
 
             When("유효한 실패 내역이 입력되면") {
                 val response = requestFailPayment(

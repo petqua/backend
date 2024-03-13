@@ -1,6 +1,7 @@
 package com.petqua.domain.order
 
 import com.petqua.common.domain.BaseEntity
+import com.petqua.common.domain.Money
 import com.petqua.common.util.throwExceptionWhen
 import com.petqua.exception.order.OrderException
 import com.petqua.exception.order.OrderExceptionType.FORBIDDEN_ORDER
@@ -48,11 +49,12 @@ class Order(
     @Column(nullable = false)
     var status: OrderStatus,
 
-    @Column(nullable = false)
-    val totalAmount: BigDecimal,
+    @Embedded
+    @AttributeOverride(name = "value", column = Column(name = "total_amount"))
+    val totalAmount: Money,
 ) : BaseEntity() {
 
-    fun validateAmount(amount: BigDecimal) {
+    fun validateAmount(amount: Money) {
         throwExceptionWhen(totalAmount != amount) {
             throw OrderException(PAYMENT_PRICE_NOT_MATCH)
         }

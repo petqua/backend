@@ -5,6 +5,7 @@ import com.petqua.application.payment.infra.TossPaymentsApiClient
 import com.petqua.common.domain.findByIdOrThrow
 import com.petqua.domain.member.MemberRepository
 import com.petqua.domain.order.OrderNumber
+import com.petqua.domain.order.OrderPayment
 import com.petqua.domain.order.OrderPaymentRepository
 import com.petqua.domain.order.OrderRepository
 import com.petqua.domain.order.OrderStatus.CANCELED
@@ -60,13 +61,14 @@ class PaymentFacadeServiceTest(
                 totalAmount = ONE
             )
         )
+        orderPaymentRepository.save(OrderPayment.from(order))
 
         When("유효한 요쳥이면") {
             paymentFacadeService.succeedPayment(
                 command = succeedPaymentCommand(
                     memberId = order.memberId,
                     orderNumber = order.orderNumber,
-                    amount = order.totalAmount,
+                    amount = order.totalAmount.value,
                 )
             )
 
@@ -82,7 +84,7 @@ class PaymentFacadeServiceTest(
                 command = succeedPaymentCommand(
                     memberId = order.memberId,
                     orderNumber = order.orderNumber,
-                    amount = order.totalAmount,
+                    amount = order.totalAmount.value,
                 )
             )
 
@@ -94,7 +96,7 @@ class PaymentFacadeServiceTest(
                     val payment = payments[0]
 
                     payment.orderNumber shouldBe order.orderNumber
-                    payment.totalAmount shouldBe order.totalAmount.setScale(2)
+                    payment.totalAmount shouldBe order.totalAmount
                 }
             }
 
@@ -110,8 +112,8 @@ class PaymentFacadeServiceTest(
                 val orderPayments = orderPaymentRepository.findAll()
 
                 assertSoftly {
-                    orderPayments.size shouldBe 1
-                    val orderPayment = orderPayments[0]
+                    orderPayments.size shouldBe 2
+                    val orderPayment = orderPayments[1]
 
                     orderPayment.orderId shouldBe order.id
                     orderPayment.tossPaymentId shouldBe paymentRepository.findAll()[0].id
@@ -128,7 +130,7 @@ class PaymentFacadeServiceTest(
                         command = succeedPaymentCommand(
                             memberId = order.memberId,
                             orderNumber = orderNumber,
-                            amount = order.totalAmount,
+                            amount = order.totalAmount.value,
                         )
                     )
                 }.exceptionType() shouldBe ORDER_NOT_FOUND
@@ -151,7 +153,7 @@ class PaymentFacadeServiceTest(
                         command = succeedPaymentCommand(
                             memberId = invalidOrder.memberId,
                             orderNumber = invalidOrder.orderNumber,
-                            amount = invalidOrder.totalAmount,
+                            amount = invalidOrder.totalAmount.value,
                         )
                     )
                 }.exceptionType() shouldBe ORDER_CAN_NOT_PAY
@@ -167,7 +169,7 @@ class PaymentFacadeServiceTest(
                         command = succeedPaymentCommand(
                             memberId = memberId,
                             orderNumber = order.orderNumber,
-                            amount = order.totalAmount,
+                            amount = order.totalAmount.value,
                         )
                     )
                 }.exceptionType() shouldBe FORBIDDEN_ORDER
@@ -183,7 +185,7 @@ class PaymentFacadeServiceTest(
                         command = succeedPaymentCommand(
                             memberId = order.memberId,
                             orderNumber = order.orderNumber,
-                            amount = amount,
+                            amount = amount.value,
                         )
                     )
                 }.exceptionType() shouldBe PAYMENT_PRICE_NOT_MATCH
@@ -207,7 +209,7 @@ class PaymentFacadeServiceTest(
                         command = succeedPaymentCommand(
                             memberId = order.memberId,
                             orderNumber = order.orderNumber,
-                            amount = order.totalAmount,
+                            amount = order.totalAmount.value,
                         )
                     )
                 }.exceptionType() shouldBe UNAUTHORIZED_KEY
@@ -276,6 +278,7 @@ class PaymentFacadeServiceTest(
                 totalAmount = ONE
             )
         )
+        orderPaymentRepository.save(OrderPayment.from(order))
 
         When("유효한 실패 내역이 입력되면") {
             val response = paymentFacadeService.failPayment(

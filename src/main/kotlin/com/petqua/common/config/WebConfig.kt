@@ -20,6 +20,7 @@ class WebConfig(
 
     override fun addFormatters(registry: FormatterRegistry) {
         registry.addConverter(OauthServerTypeConverter())
+        registry.addConverter(StringToMoneyConverter())
     }
 
     override fun addArgumentResolvers(resolvers: MutableList<HandlerMethodArgumentResolver?>) {

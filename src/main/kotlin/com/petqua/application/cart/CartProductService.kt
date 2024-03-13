@@ -4,6 +4,7 @@ import com.petqua.application.cart.dto.CartProductWithSupportedOptionResponse
 import com.petqua.application.cart.dto.DeleteCartProductCommand
 import com.petqua.application.cart.dto.SaveCartProductCommand
 import com.petqua.application.cart.dto.UpdateCartProductOptionCommand
+import com.petqua.common.domain.Money
 import com.petqua.common.domain.existByIdOrThrow
 import com.petqua.common.domain.findByIdOrThrow
 import com.petqua.common.util.throwExceptionWhen
@@ -27,7 +28,6 @@ import com.petqua.exception.product.ProductException
 import com.petqua.exception.product.ProductExceptionType.NOT_FOUND_PRODUCT
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.math.BigDecimal
 
 @Transactional
 @Service
@@ -86,7 +86,7 @@ class CartProductService(
         )
     }
 
-    private fun validateDeliveryFee(product: Product, deliveryMethod: DeliveryMethod, deliveryFee: BigDecimal) {
+    private fun validateDeliveryFee(product: Product, deliveryMethod: DeliveryMethod, deliveryFee: Money) {
         product.getDeliveryFee(deliveryMethod)
             .also { throwExceptionWhen(it != deliveryFee) { CartProductException(DIFFERENT_DELIVERY_FEE) } }
     }

@@ -1,5 +1,6 @@
 package com.petqua.domain.order
 
+import com.petqua.common.domain.Money
 import com.petqua.domain.delivery.DeliveryMethod
 import com.petqua.domain.product.option.Sex
 import jakarta.persistence.AttributeOverride
@@ -15,24 +16,29 @@ data class OrderProduct(
     @Column(nullable = false)
     val quantity: Int,
 
-    @Column(nullable = false)
-    val originalPrice: BigDecimal,
+    @Embedded
+    @AttributeOverride(name = "value", column = Column(name = "original_price", nullable = false))
+    val originalPrice: Money,
 
     @Column(nullable = false)
     val discountRate: Int,
 
+    @Embedded
+    @AttributeOverride(name = "value", column = Column(name = "discount_price", nullable = false))
     @Column(nullable = false)
-    val discountPrice: BigDecimal,
+    val discountPrice: Money,
 
-    @Column(nullable = false)
-    val deliveryFee: BigDecimal,
+    @Embedded
+    @AttributeOverride(name = "value", column = Column(name = "delivery_fee", nullable = false))
+    val deliveryFee: Money,
 
     @Embedded
     @AttributeOverride(name = "value", column = Column(name = "shippingNumber"))
     var shippingNumber: ShippingNumber,
 
-    @Column(nullable = false)
-    val orderPrice: BigDecimal,
+    @Embedded
+    @AttributeOverride(name = "value", column = Column(name = "order_price", nullable = false))
+    val orderPrice: Money,
 
     @Column(nullable = false)
     val productId: Long = 0,

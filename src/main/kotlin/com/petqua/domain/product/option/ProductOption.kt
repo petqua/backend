@@ -1,14 +1,16 @@
 package com.petqua.domain.product.option
 
 import com.petqua.common.domain.BaseEntity
+import com.petqua.common.domain.Money
+import jakarta.persistence.AttributeOverride
 import jakarta.persistence.Column
+import jakarta.persistence.Embedded
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType.STRING
 import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
-import java.math.BigDecimal
 
 @Entity
 class ProductOption(
@@ -22,8 +24,9 @@ class ProductOption(
     @Enumerated(STRING)
     val sex: Sex,
 
-    @Column(nullable = false)
-    val additionalPrice: BigDecimal,
+    @Embedded
+    @AttributeOverride(name = "value", column = Column(name = "additional_price", nullable = false))
+    val additionalPrice: Money,
 ) : BaseEntity() {
 
     fun hasDistinctSex(): Boolean {
