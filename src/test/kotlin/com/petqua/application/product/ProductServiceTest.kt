@@ -46,10 +46,10 @@ import com.petqua.test.fixture.wishProduct
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import java.math.BigDecimal.ZERO
-import kotlin.Long.Companion.MIN_VALUE
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment
+import java.math.BigDecimal.ZERO
+import kotlin.Long.Companion.MIN_VALUE
 
 @SpringBootTest(webEnvironment = WebEnvironment.NONE)
 class ProductServiceTest(
