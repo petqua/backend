@@ -27,10 +27,10 @@ class Member(
     var profileImageUrl: String? = null,
 
     @Column(nullable = false)
-    val fishTankCount: Int = 0,
+    var fishTankCount: Int = 0,
 
     @Column(nullable = false)
-    val fishLifeYear: FishLifeYear = FishLifeYear.forAnonymous(),
+    var fishLifeYear: FishLifeYear = FishLifeYear.forAnonymous(),
 
     @Column(nullable = false)
     var isAnonymous: Boolean = true,
@@ -50,6 +50,18 @@ class Member(
         nickname = ""
         profileImageUrl = null
         hasAgreedToMarketingNotification = false
+    }
+
+    fun updateFishLifeYear(fishLifeYear: FishLifeYear) {
+        this.fishLifeYear = fishLifeYear;
+    }
+
+    fun updateIsAnonymous(isAnonymous: Boolean) {
+        this.isAnonymous = isAnonymous;
+    }
+
+    fun increaseFishTankCount() {
+        this.fishTankCount++;
     }
 
     companion object {
