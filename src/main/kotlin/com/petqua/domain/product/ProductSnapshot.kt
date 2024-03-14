@@ -81,7 +81,7 @@ class ProductSnapshot(
         }
     }
 
-    fun isFrom(product: Product): Boolean {
+    fun isProductDetailsMatching(product: Product): Boolean {
         return product.id == productId && product.name == name && product.categoryId == categoryId && product.price == price &&
                 product.storeId == storeId && product.discountRate == discountRate && product.discountPrice == discountPrice &&
                 product.thumbnailUrl == thumbnailUrl && product.safeDeliveryFee == safeDeliveryFee && product.commonDeliveryFee == commonDeliveryFee &&
