@@ -20,8 +20,7 @@ import com.petqua.exception.order.ShippingAddressException
 import com.petqua.exception.order.ShippingAddressExceptionType.NOT_FOUND_SHIPPING_ADDRESS
 import com.petqua.exception.product.ProductException
 import com.petqua.exception.product.ProductExceptionType.INVALID_PRODUCT_OPTION
-import com.petqua.exception.product.ProductSnapshotException
-import com.petqua.exception.product.ProductSnapshotExceptionType.NOT_FOUND_PRODUCT_SNAPSHOT
+import com.petqua.exception.product.ProductExceptionType.NOT_FOUND_PRODUCT
 import com.petqua.test.DataCleaner
 import com.petqua.test.fixture.member
 import com.petqua.test.fixture.orderProductCommand
@@ -486,9 +485,9 @@ class OrderServiceTest(
             )
 
             Then("예외가 발생 한다") {
-                shouldThrow<ProductSnapshotException> {
+                shouldThrow<ProductException> {
                     orderService.save(command)
-                }.exceptionType() shouldBe (NOT_FOUND_PRODUCT_SNAPSHOT)
+                }.exceptionType() shouldBe (NOT_FOUND_PRODUCT)
             }
         }
     }

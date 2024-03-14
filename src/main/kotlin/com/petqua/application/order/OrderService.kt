@@ -34,8 +34,7 @@ import com.petqua.exception.order.ShippingAddressException
 import com.petqua.exception.order.ShippingAddressExceptionType.NOT_FOUND_SHIPPING_ADDRESS
 import com.petqua.exception.product.ProductException
 import com.petqua.exception.product.ProductExceptionType.INVALID_PRODUCT_OPTION
-import com.petqua.exception.product.ProductSnapshotException
-import com.petqua.exception.product.ProductSnapshotExceptionType
+import com.petqua.exception.product.ProductExceptionType.NOT_FOUND_PRODUCT
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -92,8 +91,8 @@ class OrderService(
 
     private fun validateProductSnapshots(orderProducts: OrderProducts, productSnapshots: Map<Long, ProductSnapshot>) {
         orderProducts.products.forEach { product ->
-            productSnapshots[product.id]?.takeIf { it.isFrom(product) }
-                ?: throw ProductSnapshotException(ProductSnapshotExceptionType.NOT_FOUND_PRODUCT_SNAPSHOT)
+            productSnapshots[product.id]?.takeIf { it.isProductDetailsMatching(product) }
+                ?: throw ProductException(NOT_FOUND_PRODUCT)
         }
     }
 
