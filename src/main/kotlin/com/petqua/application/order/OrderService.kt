@@ -7,7 +7,8 @@ import com.petqua.application.payment.infra.PaymentGatewayClient
 import com.petqua.common.domain.Money
 import com.petqua.common.domain.findByIdOrThrow
 import com.petqua.common.util.throwExceptionWhen
-import com.petqua.domain.delivery.DeliveryMethod
+import com.petqua.domain.delivery.DeliveryMethod.PICK_UP
+import com.petqua.domain.order.DeliveryGroupKey
 import com.petqua.domain.order.Order
 import com.petqua.domain.order.OrderName
 import com.petqua.domain.order.OrderNumber
@@ -147,7 +148,7 @@ class OrderProducts(
 
     fun getTotalDeliveryFee(command: SaveOrderCommand): Int {
         return products.groupBy { it.deliveryGroupKey(command) }
-            .map { it.key.calculateDeliveryGroupFee(it.value) }
+            .map { it.value.first().getDeliveryFee(it.key.deliveryMethod).value.toInt() }
             .sum()
     }
 
@@ -188,14 +189,10 @@ class OrderProducts(
         }
     }
 
-    private fun Product.deliveryGroupKey(command: SaveOrderCommand): Pair<Long, DeliveryMethod> {
-        return Pair(
+    private fun Product.deliveryGroupKey(command: SaveOrderCommand): DeliveryGroupKey {
+        return DeliveryGroupKey(
             storeId, command.orderProductCommands.find { it.productId == id }?.deliveryMethod
                 ?: throw OrderException(PRODUCT_NOT_FOUND)
         )
-    }
-
-    private fun Pair<Long, DeliveryMethod>.calculateDeliveryGroupFee(products: List<Product>): Int {
-        return products.first().getDeliveryFee(second).value.toInt()
     }
 }
