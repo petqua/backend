@@ -40,11 +40,11 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import org.springframework.boot.test.context.SpringBootTest
 import java.math.BigDecimal.ONE
 import java.math.BigDecimal.TEN
 import java.math.BigDecimal.ZERO
 import kotlin.Long.Companion.MIN_VALUE
-import org.springframework.boot.test.context.SpringBootTest
 
 @SpringBootTest
 class ProductCustomRepositoryImplTest(
@@ -135,7 +135,7 @@ class ProductCustomRepositoryImplTest(
             Then("입력한 Id의 상품과 상세정보가 반환된다") {
                 productWithInfoResponse shouldBe ProductWithInfoResponse(
                     product = product1,
-                    storeName = store.name,
+                    store = store,
                     productDescription = ProductDescriptionResponse(
                         title = productDescription1.title.value,
                         content = productDescription1.content.value
@@ -154,7 +154,7 @@ class ProductCustomRepositoryImplTest(
             Then("상세 설명이 없이 입력한 Id의 상품과 상세정보가 반환된다") {
                 productWithInfoResponse shouldBe ProductWithInfoResponse(
                     product = product2,
-                    storeName = store.name,
+                    store = store,
                     productDescription = ProductDescriptionResponse(
                         title = "",
                         content = ""

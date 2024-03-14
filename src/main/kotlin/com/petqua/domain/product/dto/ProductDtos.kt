@@ -8,6 +8,7 @@ import com.petqua.domain.product.ProductSourceType
 import com.petqua.domain.product.Sorter
 import com.petqua.domain.product.category.Category
 import com.petqua.domain.product.detail.info.ProductInfo
+import com.petqua.domain.store.Store
 import com.petqua.exception.product.ProductException
 import com.petqua.exception.product.ProductExceptionType
 import io.swagger.v3.oas.annotations.media.Schema
@@ -64,6 +65,7 @@ data class ProductWithInfoResponse(
     val family: String,
     val species: String,
     val price: Money,
+    val storeId: Long,
     val storeName: String,
     val discountRate: Int,
     val discountPrice: Money,
@@ -84,7 +86,7 @@ data class ProductWithInfoResponse(
 ) {
     constructor(
         product: Product,
-        storeName: String,
+        store: Store,
         productDescription: ProductDescriptionResponse,
         productInfo: ProductInfo,
         category: Category,
@@ -94,7 +96,8 @@ data class ProductWithInfoResponse(
         family = category.family.name,
         species = category.species.name,
         price = product.price,
-        storeName = storeName,
+        storeId = store.id,
+        storeName = store.name,
         discountRate = product.discountRate,
         discountPrice = product.discountPrice,
         wishCount = product.wishCount.value,

@@ -49,6 +49,12 @@ data class ProductDetailResponse(
     val price: Money,
 
     @Schema(
+        description = "상품 판매점 id",
+        example = "1"
+    )
+    val storeId: Long,
+
+    @Schema(
         description = "상품 판매점",
         example = "S아쿠아"
     )
@@ -187,6 +193,7 @@ data class ProductDetailResponse(
         family = productWithInfoResponse.family,
         species = productWithInfoResponse.species,
         price = productWithInfoResponse.price,
+        storeId = productWithInfoResponse.storeId,
         storeName = productWithInfoResponse.storeName,
         discountRate = productWithInfoResponse.discountRate,
         discountPrice = productWithInfoResponse.discountPrice,

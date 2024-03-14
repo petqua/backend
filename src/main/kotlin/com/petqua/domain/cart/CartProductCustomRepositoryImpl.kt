@@ -22,7 +22,7 @@ class CartProductCustomRepositoryImpl(
             selectNew<CartProductResponse>(
                 entity(CartProduct::class),
                 entity(Product::class),
-                path(Store::name)
+                entity(Store::class)
             ).from(
                 entity(CartProduct::class),
                 leftJoin(Product::class).on(path(CartProduct::productId).eq(path(Product::id))),
