@@ -2,7 +2,7 @@ package com.petqua.test.fixture
 
 import com.petqua.application.order.dto.OrderProductCommand
 import com.petqua.application.order.dto.SaveOrderCommand
-import com.petqua.common.util.setDefaultScale
+import com.petqua.common.domain.Money
 import com.petqua.domain.delivery.DeliveryMethod
 import com.petqua.domain.delivery.DeliveryMethod.COMMON
 import com.petqua.domain.delivery.DeliveryMethod.SAFETY
@@ -81,7 +81,7 @@ fun order(
         ),
         isAbleToCancel = isAbleToCancel,
         status = status,
-        totalAmount = totalAmount,
+        totalAmount = Money.from(totalAmount),
     )
 }
 
@@ -121,12 +121,12 @@ fun orderProduct(
 ): OrderProduct {
     return OrderProduct(
         quantity = quantity,
-        originalPrice = originalPrice,
+        originalPrice = Money.from(originalPrice),
         discountRate = discountRate,
-        discountPrice = discountPrice,
-        deliveryFee = deliveryFee,
+        discountPrice = Money.from(discountPrice),
+        deliveryFee = Money.from(deliveryFee),
         shippingNumber = shippingNumber,
-        orderPrice = orderPrice,
+        orderPrice = Money.from(orderPrice),
         productId = productId,
         productName = productName,
         thumbnailUrl = thumbnailUrl,
@@ -149,7 +149,7 @@ fun saveOrderCommand(
         shippingAddressId = shippingAddressId,
         shippingRequest = shippingRequest,
         orderProductCommands = orderProductCommands,
-        totalAmount = totalAmount.setDefaultScale(),
+        totalAmount = Money.from(totalAmount),
     )
 }
 
@@ -168,13 +168,13 @@ fun orderProductCommand(
     return OrderProductCommand(
         productId = productId,
         quantity = quantity,
-        originalPrice = originalPrice.setDefaultScale(),
+        originalPrice = Money.from(originalPrice),
         discountRate = discountRate,
-        discountPrice = discountPrice.setDefaultScale(),
-        orderPrice = orderPrice.setDefaultScale(),
+        discountPrice = Money.from(discountPrice),
+        orderPrice = Money.from(orderPrice),
         sex = sex,
-        additionalPrice = additionalPrice.setDefaultScale(),
-        deliveryFee = deliveryFee.setDefaultScale(),
+        additionalPrice = Money.from(additionalPrice),
+        deliveryFee = Money.from(deliveryFee),
         deliveryMethod = deliveryMethod,
     )
 }

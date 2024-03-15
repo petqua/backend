@@ -62,7 +62,7 @@ class PaymentControllerTest(
                     accessToken = accessToken,
                     succeedPaymentRequest = succeedPaymentRequest(
                         orderId = order.orderNumber.value,
-                        amount = order.totalAmount
+                        amount = order.totalAmount.value
                     )
                 )
 
@@ -78,7 +78,7 @@ class PaymentControllerTest(
                         val payment = payments[0]
 
                         payment.orderNumber shouldBe order.orderNumber
-                        payment.totalAmount shouldBe order.totalAmount.setScale(2)
+                        payment.totalAmount shouldBe order.totalAmount
                     }
                 }
 
@@ -110,7 +110,7 @@ class PaymentControllerTest(
                     accessToken = accessToken,
                     succeedPaymentRequest = succeedPaymentRequest(
                         orderId = orderNumber,
-                        amount = order.totalAmount
+                        amount = order.totalAmount.value
                     )
                 )
 
@@ -138,7 +138,7 @@ class PaymentControllerTest(
                     accessToken = accessToken,
                     succeedPaymentRequest = succeedPaymentRequest(
                         orderId = invalidOrder.orderNumber.value,
-                        amount = invalidOrder.totalAmount
+                        amount = invalidOrder.totalAmount.value
                     )
                 )
 
@@ -159,7 +159,7 @@ class PaymentControllerTest(
                     accessToken = otherAccessToken,
                     succeedPaymentRequest = succeedPaymentRequest(
                         orderId = order.orderNumber.value,
-                        amount = order.totalAmount
+                        amount = order.totalAmount.value
                     )
                 )
 
@@ -180,7 +180,7 @@ class PaymentControllerTest(
                     accessToken = accessToken,
                     succeedPaymentRequest = succeedPaymentRequest(
                         orderId = order.orderNumber.value,
-                        amount = wrongAmount
+                        amount = wrongAmount.value
                     )
                 )
 
@@ -209,7 +209,7 @@ class PaymentControllerTest(
                     accessToken = accessToken,
                     succeedPaymentRequest = succeedPaymentRequest(
                         orderId = order.orderNumber.value,
-                        amount = order.totalAmount
+                        amount = order.totalAmount.value
                     )
                 )
 

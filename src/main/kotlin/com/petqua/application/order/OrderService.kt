@@ -3,6 +3,7 @@ package com.petqua.application.order
 import com.petqua.application.order.dto.SaveOrderCommand
 import com.petqua.application.order.dto.SaveOrderResponse
 import com.petqua.application.payment.infra.PaymentGatewayClient
+import com.petqua.common.domain.Money
 import com.petqua.common.domain.findByIdOrThrow
 import com.petqua.common.util.throwExceptionWhen
 import com.petqua.domain.order.Order
@@ -70,8 +71,8 @@ class OrderService(
                 ?: throw ProductException(INVALID_PRODUCT_OPTION)
 
             throwExceptionWhen(
-                productCommand.orderPrice.setScale(2) != (product.discountPrice + productOption.additionalPrice) * productCommand.quantity.toBigDecimal()
-                        || productCommand.deliveryFee.setScale(2) != product.getDeliveryFee(productCommand.deliveryMethod)
+                productCommand.orderPrice != (product.discountPrice + productOption.additionalPrice) * productCommand.quantity.toBigDecimal()
+                        || productCommand.deliveryFee != product.getDeliveryFee(productCommand.deliveryMethod)
             ) {
                 OrderException(
                     ORDER_PRICE_NOT_MATCH
@@ -89,11 +90,11 @@ class OrderService(
         }
         val orderDeliveryFee = groupBy.map { (storeDeliveryMethod, products) ->
             val deliveryMethod = storeDeliveryMethod.second
-            products.first().getDeliveryFee(deliveryMethod).toInt()
+            products.first().getDeliveryFee(deliveryMethod).value.toInt() // TODO int로 바꾼 이유?
         }.sum()
 
         // 4. 총 결제 금액 검증
-        throwExceptionWhen(command.totalAmount != orderDeliveryFee.toBigDecimal() + command.orderProductCommands.sumOf { it.orderPrice }) {
+        throwExceptionWhen(command.totalAmount != Money.from(orderDeliveryFee.toBigDecimal() + command.orderProductCommands.sumOf { it.orderPrice.value })) {
             OrderException(
                 ORDER_PRICE_NOT_MATCH
             )
