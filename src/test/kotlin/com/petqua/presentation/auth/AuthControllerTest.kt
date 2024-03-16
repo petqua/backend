@@ -9,6 +9,7 @@ import com.petqua.domain.auth.token.AuthTokenProvider
 import com.petqua.domain.auth.token.RefreshToken
 import com.petqua.domain.auth.token.RefreshTokenRepository
 import com.petqua.domain.member.MemberRepository
+import com.petqua.domain.member.nickname.Nickname
 import com.petqua.test.ApiTestConfig
 import com.petqua.test.fixture.authMember
 import com.petqua.test.fixture.member
@@ -104,7 +105,7 @@ class AuthControllerTest(
                     val deletedMember = memberRepository.findByIdOrThrow(memberId)
 
                     assertSoftly(deletedMember) {
-                        it.nickname shouldBe ""
+                        it.nickname shouldBe Nickname.emptyNickname()
                         it.profileImageUrl shouldBe null
                         it.isDeleted shouldBe true
                     }

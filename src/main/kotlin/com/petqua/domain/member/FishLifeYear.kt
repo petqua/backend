@@ -8,7 +8,7 @@ import jakarta.persistence.Embeddable
 
 private const val FISH_LIFE_YEAR_MIN = 0
 private const val FISH_LIFE_YEAR_MAX = 99
-private const val FISH_LIFE_YEAR_FOR_ANONYMOUS = -1
+private const val EMPTY_YEAR = -1
 
 @Embeddable
 class FishLifeYear private constructor(
@@ -17,10 +17,10 @@ class FishLifeYear private constructor(
 ) {
 
     companion object {
-        private val FOR_ANONYMOUS = FishLifeYear(FISH_LIFE_YEAR_FOR_ANONYMOUS)
+        private val EMPTY_FISH_LIFE_YEAR = FishLifeYear(EMPTY_YEAR)
 
-        fun forAnonymous(): FishLifeYear {
-            return FOR_ANONYMOUS
+        fun emptyFishLifeYear(): FishLifeYear {
+            return EMPTY_FISH_LIFE_YEAR
         }
 
         fun from(value: Int): FishLifeYear {

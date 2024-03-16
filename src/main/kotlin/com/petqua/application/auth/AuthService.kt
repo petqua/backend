@@ -49,7 +49,7 @@ class AuthService(
 
     fun findOrCreateMemberBy(authMember: AuthMember): Member {
         return memberRepository.findByAuthMemberId(authMember.id) ?: memberRepository.save(
-            Member.anonymousMemberFrom(
+            Member.emptyProfileMemberFrom(
                 authMemberId = authMember.id
             )
         )
