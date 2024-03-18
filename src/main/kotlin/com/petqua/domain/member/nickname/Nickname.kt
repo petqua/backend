@@ -15,6 +15,9 @@ class Nickname private constructor(
     @Column(nullable = false, name = "nickname")
     val value: String,
 ) {
+    fun isEmpty(): Boolean {
+        return this == EMPTY_NICKNAME
+    }
 
     companion object {
         private val wordPattern = Pattern.compile("^[a-zA-Z0-9가-힣 ]{2,12}\$")

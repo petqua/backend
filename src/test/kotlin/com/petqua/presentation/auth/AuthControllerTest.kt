@@ -6,6 +6,7 @@ import com.petqua.common.domain.findByIdOrThrow
 import com.petqua.common.exception.ExceptionResponse
 import com.petqua.domain.auth.AuthMemberRepository
 import com.petqua.domain.auth.oauth.OauthServerType
+import com.petqua.domain.auth.oauth.OauthUserInfo
 import com.petqua.domain.auth.token.AuthTokenProvider
 import com.petqua.domain.auth.token.RefreshToken
 import com.petqua.domain.auth.token.RefreshTokenRepository
@@ -18,10 +19,13 @@ import com.petqua.test.fixture.member
 import io.kotest.assertions.assertSoftly
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
+import io.mockk.every
 import io.mockk.verify
 import java.util.Date
 import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.http.HttpHeaders.SET_COOKIE
+import org.springframework.http.HttpStatus.CREATED
 import org.springframework.http.HttpStatus.NO_CONTENT
 import org.springframework.http.HttpStatus.OK
 import org.springframework.http.HttpStatus.UNAUTHORIZED
@@ -37,15 +41,36 @@ class AuthControllerTest(
     init {
         Given("소셜 로그인을 할 때") {
 
-            When("카카오 로그인을 시도하면") {
+            val oauthId = 1L
+            val authMember = authMemberRepository.save(authMember(oauthId = oauthId))
+            memberRepository.save(member(authMemberId = authMember.id))
+
+            When("회원이 카카오 로그인을 시도하면") {
+                every { oauthService.requestOauthUserInfo(any(), any()) } returns OauthUserInfo(
+                    nickname = "signedUpMember",
+                    oauthId = oauthId
+                )
+
                 val response = requestLogin(code = "accessCode")
 
                 Then("인증토큰이 반환된다.") {
                     val headers = response.headers()
 
                     response.statusCode shouldBe OK.value()
-                    headers.get(AUTHORIZATION).shouldNotBeNull()
-                    headers.get(SET_COOKIE).shouldNotBeNull()
+                    headers.get(AUTHORIZATION) shouldNotBe null
+                    headers.get(SET_COOKIE) shouldNotBe null
+                }
+            }
+
+            When("비회원이 카카오 로그인을 시도하면") {
+                val response = requestLogin(code = "accessCode")
+
+                Then("인증토큰이 반환된다.") {
+                    val headers = response.headers()
+
+                    response.statusCode shouldBe CREATED.value()
+                    headers.get(AUTHORIZATION) shouldNotBe null
+                    headers.get(SET_COOKIE) shouldBe null
                 }
             }
         }

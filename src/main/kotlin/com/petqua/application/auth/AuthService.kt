@@ -66,7 +66,7 @@ class AuthService(
                 token = authToken.refreshToken
             )
         )
-        return AuthTokenInfo.from(authToken)
+        return AuthTokenInfo.from(authToken, member.isSignUpNeeded())
     }
 
     fun validateTokenExpiredStatusForExtendLogin(accessToken: String, refreshToken: String) {

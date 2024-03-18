@@ -12,11 +12,13 @@ import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.enums.ParameterIn
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.http.HttpHeaders.SET_COOKIE
+import org.springframework.http.HttpStatus.CREATED
 import org.springframework.http.ResponseCookie
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -48,7 +50,18 @@ class AuthController(
     }
 
     @Operation(summary = "소셜 로그인 API(테스트 불가)", description = "소셜 로그인을 합니다")
-    @ApiResponse(responseCode = "200", description = "로그인 성공")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "로그인 성공, 회원가입이 필요 없는 경우"
+            ),
+            ApiResponse(
+                responseCode = "201",
+                description = "로그인 성공, 회원가입이 필요한 경우"
+            )
+        ]
+    )
     @GetMapping("/login/{oauthServerType}")
     fun login(
         @Schema(description = "Oauth 서버", example = "KAKAO")
@@ -58,6 +71,14 @@ class AuthController(
         @RequestParam("code") code: String,
     ): ResponseEntity<Unit> {
         val authTokenInfo = authFacadeService.login(oauthServerType, code)
+
+        if (authTokenInfo.isSignUpNeeded) {
+            val headers = HttpHeaders().apply {
+                set(AUTHORIZATION, authTokenInfo.accessToken)
+            }
+            return ResponseEntity.status(CREATED).headers(headers).build()
+        }
+
         val refreshTokenCookie = createRefreshTokenCookie(authTokenInfo)
         val headers = HttpHeaders().apply {
             set(AUTHORIZATION, authTokenInfo.accessToken)
