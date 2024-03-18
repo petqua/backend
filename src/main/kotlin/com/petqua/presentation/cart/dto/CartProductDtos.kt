@@ -7,7 +7,6 @@ import com.petqua.domain.cart.CartProductQuantity
 import com.petqua.domain.delivery.DeliveryMethod
 import com.petqua.domain.product.option.Sex
 import io.swagger.v3.oas.annotations.media.Schema
-import java.math.BigDecimal
 
 data class SaveCartProductRequest(
     @Schema(
@@ -47,7 +46,7 @@ data class SaveCartProductRequest(
         return SaveCartProductCommand(
             memberId = memberId,
             productId = productId,
-            quantity = quantity,
+            quantity = CartProductQuantity(quantity),
             sex = sex,
             deliveryMethod = DeliveryMethod.from(deliveryMethod),
             deliveryFee = deliveryFee,

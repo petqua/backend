@@ -8,6 +8,7 @@ import com.petqua.common.domain.Money
 import com.petqua.common.domain.existByIdOrThrow
 import com.petqua.common.domain.findByIdOrThrow
 import com.petqua.common.util.throwExceptionWhen
+import com.petqua.domain.cart.CartProductQuantity
 import com.petqua.domain.cart.CartProductRepository
 import com.petqua.domain.delivery.DeliveryMethod
 import com.petqua.domain.member.MemberRepository
@@ -49,7 +50,8 @@ class CartProductService(
             memberId = command.memberId,
             productId = command.productId,
             sex = command.sex,
-            deliveryMethod = command.deliveryMethod
+            deliveryMethod = command.deliveryMethod,
+            quantity = command.quantity,
         )
         validateSupportedOption(command.productId, command.sex)
         validateDeliveryFee(product, command.deliveryMethod, command.deliveryFee)
@@ -71,7 +73,8 @@ class CartProductService(
             memberId = command.memberId,
             productId = cartProduct.productId,
             sex = command.sex,
-            deliveryMethod = command.deliveryMethod
+            deliveryMethod = command.deliveryMethod,
+            quantity = command.quantity,
         )
         val product = productRepository.findByIdOrThrow(cartProduct.productId) {
             ProductException(NOT_FOUND_PRODUCT)
@@ -95,14 +98,15 @@ class CartProductService(
         memberId: Long,
         productId: Long,
         sex: Sex,
-        deliveryMethod: DeliveryMethod
+        deliveryMethod: DeliveryMethod,
+        quantity: CartProductQuantity,
     ) {
         cartProductRepository.findByMemberIdAndProductIdAndSexAndDeliveryMethod(
             memberId = memberId,
             productId = productId,
             sex = sex,
             deliveryMethod = deliveryMethod
-        )?.also { throw CartProductException(DUPLICATED_PRODUCT) }
+        )?.also { throwExceptionWhen(it.quantity == quantity) { throw CartProductException(DUPLICATED_PRODUCT) } }
     }
 
     fun delete(command: DeleteCartProductCommand) {

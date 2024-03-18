@@ -3,7 +3,6 @@ package com.petqua.test.fixture
 import com.petqua.application.cart.dto.SaveCartProductCommand
 import com.petqua.application.cart.dto.UpdateCartProductOptionCommand
 import com.petqua.common.domain.Money
-import com.petqua.common.util.setDefaultScale
 import com.petqua.domain.cart.CartProduct
 import com.petqua.domain.cart.CartProductQuantity
 import com.petqua.domain.delivery.DeliveryMethod
@@ -46,7 +45,7 @@ fun saveCartProductCommand(
     return SaveCartProductCommand(
         memberId = memberId,
         productId = productId,
-        quantity = quantity,
+        quantity = CartProductQuantity(quantity),
         sex = sex,
         deliveryMethod = deliveryMethod,
         deliveryFee = Money.from(deliveryFee),
