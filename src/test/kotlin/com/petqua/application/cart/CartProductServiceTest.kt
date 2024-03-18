@@ -234,7 +234,6 @@ class CartProductServiceTest(
             val command = updateCartProductOptionCommand(
                 cartProductId = cartProduct.id,
                 memberId = memberId,
-                quantity = 3,
                 sex = FEMALE,
                 deliveryMethod = SAFETY,
                 deliveryFee = 5000.toBigDecimal(),

@@ -12,7 +12,7 @@ import java.math.BigDecimal
 data class SaveCartProductCommand(
     val memberId: Long,
     val productId: Long,
-    val quantity: Int,
+    val quantity: CartProductQuantity,
     val sex: Sex,
     val deliveryMethod: DeliveryMethod,
     val deliveryFee: Money,
@@ -21,7 +21,7 @@ data class SaveCartProductCommand(
         return CartProduct(
             memberId = memberId,
             productId = productId,
-            quantity = CartProductQuantity(quantity),
+            quantity = quantity,
             sex = sex,
             deliveryMethod = deliveryMethod,
             deliveryFee = deliveryFee,
