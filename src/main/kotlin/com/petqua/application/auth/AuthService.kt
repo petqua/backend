@@ -64,7 +64,7 @@ class AuthService(
                 token = authToken.refreshToken
             )
         )
-        return AuthTokenInfo.from(authToken)
+        return AuthTokenInfo.from(authToken, member.isSignUpNeeded())
     }
 
     @Transactional(readOnly = true)
