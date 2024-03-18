@@ -223,6 +223,25 @@ class CartProductControllerTest(
                     response.statusCode shouldBe NO_CONTENT.value()
                 }
             }
+
+            When("수량만 변경 요청을 하면") {
+                val request = updateCartProductOptionRequest(
+                    quantity = 2,
+                    sex = MALE,
+                    deliveryMethod = "COMMON",
+                    deliveryFee = 3000.toBigDecimal(),
+                )
+
+                val response = requestUpdateCartProductOption(
+                    cartProductId,
+                    request,
+                    memberAuthResponse.accessToken
+                )
+
+                Then("중복 오류 없이 봉달 상품의 옵션이 수정된다") {
+                    response.statusCode shouldBe NO_CONTENT.value()
+                }
+            }
         }
 
         Given("봉달 상품의 옵션 수정시") {
@@ -344,7 +363,7 @@ class CartProductControllerTest(
                     memberAuthResponse.accessToken
                 )
                 val duplicationProductOptionRequest = updateCartProductOptionRequest(
-                    quantity = 2,
+                    quantity = 1,
                     sex = MALE,
                     deliveryMethod = "SAFETY",
                     deliveryFee = 5000.toBigDecimal(),
