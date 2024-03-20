@@ -4,6 +4,10 @@ import com.ninjasquad.springmockk.SpykBean
 import com.petqua.common.domain.findByIdOrThrow
 import com.petqua.domain.auth.AuthMemberRepository
 import com.petqua.domain.auth.oauth.OauthServerType.KAKAO
+import com.petqua.domain.auth.oauth.kakao.KakaoAccount
+import com.petqua.domain.auth.oauth.kakao.KakaoOauthApiClient
+import com.petqua.domain.auth.oauth.kakao.KakaoUserInfo
+import com.petqua.domain.auth.oauth.kakao.Profile
 import com.petqua.domain.auth.token.AuthTokenProvider
 import com.petqua.domain.auth.token.JwtProvider
 import com.petqua.domain.auth.token.RefreshToken
@@ -22,6 +26,7 @@ import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.every
 import io.mockk.verify
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE
@@ -30,7 +35,7 @@ import java.time.LocalDateTime
 import java.util.Date
 
 @SpringBootTest(webEnvironment = NONE)
-class AuthServiceTest(
+class AuthFacadeServiceTest(
     private val authFacadeService: AuthFacadeService,
     private val refreshTokenRepository: RefreshTokenRepository,
     private val authTokenProvider: AuthTokenProvider,
@@ -39,15 +44,26 @@ class AuthServiceTest(
     private val memberRepository: MemberRepository,
     private val dataCleaner: DataCleaner,
 
+    @SpykBean private val kakaoOauthApiClient: KakaoOauthApiClient,
     @SpykBean private val oauthService: OauthService,
 ) : BehaviorSpec({
 
     Given("카카오 소셜 로그인을") {
 
-        When("요청하면") {
+        When("회원이 요청하면") {
+            val authMember = authMemberRepository.save(authMember(oauthId = 1L))
+            memberRepository.save(member(authMemberId = authMember.id))
+
+            every {
+                kakaoOauthApiClient.fetchUserInfo(any(String::class))
+            } returns KakaoUserInfo(
+                kakaoAccount = KakaoAccount(Profile(nickname = "nickname")),
+                oauthId = authMember.oauthId
+            )
+
             val authTokenInfo = authFacadeService.login(KAKAO, "accessCode")
 
-            Then("멤버의 인증 토큰을 발급한다") {
+            Then("회원의 인증 토큰을 발급한다") {
                 assertSoftly(authTokenInfo) {
                     shouldNotThrow<MemberException> {
                         jwtProvider.parseToken(accessToken)
@@ -60,6 +76,20 @@ class AuthServiceTest(
 
             Then("발급한 refreshToken을 저장한다") {
                 refreshTokenRepository.existsByToken(authTokenInfo.refreshToken) shouldBe true
+            }
+        }
+
+        When("비회원이 요청하면") {
+            val authTokenInfo = authFacadeService.login(KAKAO, "accessCode")
+
+            Then("임시 토큰을 발급한다") {
+                assertSoftly(authTokenInfo) {
+                    isSignUpNeeded() shouldBe true
+                    shouldNotThrow<MemberException> {
+                        jwtProvider.parseToken(accessToken)
+                    }
+                    refreshToken.isEmpty() shouldBe true
+                }
             }
         }
     }

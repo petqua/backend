@@ -9,3 +9,11 @@ data class RedirectUriResponse(
     )
     val uri: String,
 )
+
+data class SignUpTokenResponse(
+    @Schema(
+        description = "회원가입 api 전용 임시 토큰",
+        example = "xxx.yyy.zzz"
+    )
+    val signUpToken: String,
+)

@@ -24,11 +24,11 @@ class TokenArgumentResolver(
         parameter: MethodParameter,
         mavContainer: ModelAndViewContainer?,
         webRequest: NativeWebRequest,
-        binderFactory: WebDataBinderFactory?
+        binderFactory: WebDataBinderFactory?,
     ): AuthToken {
         val request = webRequest.getHttpServletRequestOrThrow()
         val accessToken = authExtractor.extractAccessToken(request)
         val refreshToken = authExtractor.extractRefreshToken(request)
-        return AuthToken(accessToken, refreshToken)
+        return AuthToken.of(accessToken, refreshToken)
     }
 }
