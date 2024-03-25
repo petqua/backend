@@ -1,11 +1,8 @@
 package com.petqua.domain.member
 
-import com.petqua.common.util.throwExceptionWhen
 import com.petqua.domain.auth.Authority
 import com.petqua.domain.auth.Authority.MEMBER
 import com.petqua.domain.member.nickname.Nickname
-import com.petqua.exception.member.MemberException
-import com.petqua.exception.member.MemberExceptionType.SIGN_UP_NEEDED_MEMBER
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
@@ -77,27 +74,21 @@ class Member(
         this.fishTankCount++;
     }
 
-    fun validateHasSignedUp() {
-        throwExceptionWhen(!isSignUpNeeded()) {
-            MemberException(SIGN_UP_NEEDED_MEMBER)
-        }
-    }
-
-    private fun isSignUpNeeded(): Boolean {
-        return nickname.isEmpty()
-    }
-
     companion object {
-        fun emptyProfileMemberFrom(authMemberId: Long): Member {
+        fun emptyProfileMemberOf(
+            authMemberId: Long,
+            nickname: Nickname,
+            hasAgreedToMarketingNotification: Boolean,
+        ): Member {
             return Member(
                 authority = MEMBER,
                 authMemberId = authMemberId,
-                nickname = Nickname.emptyNickname(),
+                nickname = nickname,
                 profileImageUrl = null,
                 fishTankCount = 0,
                 fishLifeYear = FishLifeYear.emptyFishLifeYear(),
                 hasProfile = false,
-                hasAgreedToMarketingNotification = false,
+                hasAgreedToMarketingNotification = hasAgreedToMarketingNotification,
             )
         }
     }

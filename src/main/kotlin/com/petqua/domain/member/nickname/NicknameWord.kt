@@ -7,11 +7,11 @@ import jakarta.persistence.GenerationType.IDENTITY
 import jakarta.persistence.Id
 
 @Entity
-class NicknameWord(
+data class NicknameWord(
     @Id @GeneratedValue(strategy = IDENTITY)
     val id: Long = 0L,
 
     @Column(nullable = false)
-    val value: String,
+    val word: String,
 ) {
 }

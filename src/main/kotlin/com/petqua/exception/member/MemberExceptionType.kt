@@ -13,7 +13,7 @@ enum class MemberExceptionType(
 ) : BaseExceptionType {
 
     NOT_FOUND_MEMBER(NOT_FOUND, "M01", "존재하지 않는 회원입니다."),
-    SIGN_UP_NEEDED_MEMBER(NOT_FOUND, "M02", "회원가입이 필요한 회원입니다."),
+    HAS_SIGNED_UP_MEMBER(BAD_REQUEST, "M03", "이미 가입된 회원입니다."),
 
     INVALID_MEMBER_FISH_TANK_NAME(BAD_REQUEST, "M10", "유효하지 않은 수조 이름입니다."),
     INVALID_MEMBER_FISH_LIFE_YEAR(BAD_REQUEST, "M11", "유효하지 않은 물생활 경력입니다."),

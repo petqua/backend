@@ -13,7 +13,7 @@ class RandomNicknameGenerator() : NicknameGenerator {
     override fun generate(nicknameWords: List<NicknameWord>): Nickname {
         // 정책 세부정보 문의 및 반영
         // 숫자는 몇 자리?
-        val selectedWords = nicknameWords.shuffled().take(RANDOM_WORD_COUNT).map { it.value }
+        val selectedWords = nicknameWords.shuffled().take(RANDOM_WORD_COUNT).map { it.word }
         val wordsNickname = selectedWords.joinToString(SEPARATOR)
         val randomNumber = (START_NUMBER..END_NUMBER).random()
         return Nickname.from("${wordsNickname}$randomNumber")
