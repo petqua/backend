@@ -1,9 +1,10 @@
 package com.petqua.domain.member.nickname
 
+import com.petqua.domain.member.nickname.Nickname.Companion.MAX_NICKNAME_LENGTH
 import org.springframework.stereotype.Component
+import kotlin.math.pow
 
-private const val START_NUMBER = 1
-private const val END_NUMBER = 9999
+private const val MIN_NUMBER = 1
 private const val RANDOM_WORD_COUNT = 2
 private const val SEPARATOR = " "
 
@@ -11,11 +12,17 @@ private const val SEPARATOR = " "
 class RandomNicknameGenerator() : NicknameGenerator {
 
     override fun generate(nicknameWords: List<NicknameWord>): Nickname {
-        // 정책 세부정보 문의 및 반영
-        // 숫자는 몇 자리?
         val selectedWords = nicknameWords.shuffled().take(RANDOM_WORD_COUNT).map { it.word }
         val wordsNickname = selectedWords.joinToString(SEPARATOR)
-        val randomNumber = (START_NUMBER..END_NUMBER).random()
+        val wordsLength = wordsNickname.length
+
+        val maxNumberLength = MAX_NICKNAME_LENGTH - wordsLength
+        if (maxNumberLength > 0) {
+            return Nickname.from(wordsNickname)
+        }
+
+        val maxNumber = (10.toDouble().pow(maxNumberLength) - 1).toInt() // 10^n - 1
+        val randomNumber = (MIN_NUMBER..maxNumber).random()
         return Nickname.from("${wordsNickname}$randomNumber")
     }
 }
