@@ -14,11 +14,11 @@ import io.kotest.assertions.assertSoftly
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.verify
+import java.util.Date
 import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.http.HttpHeaders.SET_COOKIE
 import org.springframework.http.HttpStatus.NO_CONTENT
 import org.springframework.http.HttpStatus.OK
-import java.util.Date
 
 class AuthControllerTest(
     private val memberRepository: MemberRepository,
@@ -96,6 +96,36 @@ class AuthControllerTest(
                 Then("oauth 서버에 회원 정보 삭제를 요청한다") {
                     verify(exactly = 1) {
                         oauthService.disconnectBy(any(OauthServerType::class), any(String::class))
+                    }
+                }
+            }
+        }
+
+        Given("로그아웃 요청을 할 때") {
+            val member = memberRepository.save(member())
+            val createAuthToken = authTokenProvider.createAuthToken(member, Date())
+            val accessToken = createAuthToken.accessToken
+            val refreshToken = createAuthToken.refreshToken
+            refreshTokenRepository.save(
+                RefreshToken(
+                    memberId = member.id,
+                    token = refreshToken
+                )
+            )
+
+            When("회원의 인증 정보를 입력 하면") {
+                val response = requestSignOut(accessToken, refreshToken)
+                val signOutMember = memberRepository.findByIdOrThrow(member.id)
+
+                Then("멤버의 토큰 정보와 RefreshToken이 초기화 된다") {
+                    response.statusCode shouldBe NO_CONTENT.value()
+
+                    assertSoftly(signOutMember) {
+                        refreshTokenRepository.findByToken(refreshToken) shouldBe null
+
+                        it.oauthAccessToken shouldBe ""
+                        it.oauthAccessTokenExpiresAt shouldBe null
+                        it.oauthRefreshToken shouldBe ""
                     }
                 }
             }

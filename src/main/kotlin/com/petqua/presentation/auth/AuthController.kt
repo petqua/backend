@@ -21,6 +21,7 @@ import org.springframework.http.ResponseCookie
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -121,6 +122,17 @@ class AuthController(
         @Auth loginMember: LoginMember
     ): ResponseEntity<Unit> {
         authFacadeService.deleteBy(loginMember.memberId)
+        return ResponseEntity.noContent().build()
+    }
+
+    @Operation(summary = "로그아웃 API", description = "로그아웃 합니다")
+    @ApiResponse(responseCode = "204", description = "로그아웃 성공")
+    @SecurityRequirement(name = ACCESS_TOKEN_SECURITY_SCHEME_KEY)
+    @PatchMapping("/members/sign-out")
+    fun signOut(
+        @Parameter(hidden = true) @Auth authToken: AuthToken,
+    ): ResponseEntity<Unit> {
+        authFacadeService.signOut(authToken.accessToken, authToken.refreshToken)
         return ResponseEntity.noContent().build()
     }
 }
