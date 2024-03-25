@@ -1,4 +1,4 @@
-package com.petqua.domain.member.nickname
+package com.petqua.domain.policy.bannedword
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
@@ -12,7 +12,7 @@ class BannedWord(
     val id: Long = 0L,
 
     @Column(nullable = false)
-    val value: String,
+    val word: String,
 ) {
 }
 
