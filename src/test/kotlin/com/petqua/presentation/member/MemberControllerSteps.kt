@@ -27,6 +27,21 @@ fun requestSignUp(
     }
 }
 
+fun requestValidateContainingBannedWord(
+    name: String,
+): Response {
+    return Given {
+        log().all()
+        param("name", name)
+    } When {
+        get("/members/validation/banned-word")
+    } Then {
+        log().all()
+    } Extract {
+        response()
+    }
+}
+
 fun requestAddProfile(
     request: MemberAddProfileRequest,
     accessToken: String,

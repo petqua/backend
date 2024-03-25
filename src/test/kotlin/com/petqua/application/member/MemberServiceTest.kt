@@ -19,6 +19,7 @@ import com.petqua.domain.member.nickname.NicknameWordRepository
 import com.petqua.domain.policy.bannedword.BannedWord
 import com.petqua.domain.policy.bannedword.BannedWordRepository
 import com.petqua.exception.member.MemberException
+import com.petqua.exception.member.MemberExceptionType.CONTAINING_BANNED_WORD_NAME
 import com.petqua.exception.member.MemberExceptionType.HAS_SIGNED_UP_MEMBER
 import com.petqua.exception.member.MemberExceptionType.INVALID_MEMBER_FISH_LIFE_YEAR
 import com.petqua.exception.member.MemberExceptionType.INVALID_MEMBER_FISH_SEX
@@ -32,6 +33,7 @@ import com.petqua.test.fixture.fish
 import com.petqua.test.fixture.member
 import com.petqua.test.fixture.memberAddProfileCommand
 import io.kotest.assertions.assertSoftly
+import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -149,6 +151,37 @@ class MemberServiceTest(
             Then("닉네임을 여러 번 생성한다") {
                 verify(atLeast = 2) {
                     nicknameGenerator.generate(nicknameWordRepository.findAll())
+                }
+            }
+        }
+    }
+
+    Given("이름에 금지 단어가 포함되는지 여부를 검증할 때") {
+        bannedWordRepository.saveAll(
+            listOf(
+                BannedWord(word = "금지"),
+                BannedWord(word = "단어")
+            )
+        )
+
+        When("금지 단어가 포함된 이름을 입력하면") {
+            val name = "금지 단어 포함 이름"
+
+            Then("예외를 던진다") {
+
+                shouldThrow<MemberException> {
+                    memberService.validateContainingBannedWord(name)
+                }.exceptionType() shouldBe CONTAINING_BANNED_WORD_NAME
+            }
+        }
+
+        When("금지 단어가 포함되지 않은 이름을 입력하면") {
+            val name = "포함되지 않은 이름"
+
+            Then("예외를 던지지 않는다") {
+
+                shouldNotThrow<MemberException> {
+                    memberService.validateContainingBannedWord(name)
                 }
             }
         }

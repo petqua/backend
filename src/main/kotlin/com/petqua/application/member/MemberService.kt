@@ -67,19 +67,22 @@ class MemberService(
     }
 
     fun addProfile(command: MemberAddProfileCommand) {
-        val bannedWords = BannedWords(bannedWordRepository.findAll())
-        bannedWords.validateContainingBannedWord(command.fishTankName)
-
         val member = memberRepository.findActiveByIdOrThrow(command.memberId) {
             MemberException(NOT_FOUND_MEMBER)
         }
         member.updateFishLifeYear(FishLifeYear.from(command.fishLifeYear))
         member.increaseFishTankCount()
 
+        validateContainingBannedWord(command.fishTankName)
         val fishTank = fishTankRepository.save(command.toFishTank(command.memberId))
         val petFishes = command.toPetFishes(command.memberId, fishTank.id)
         val countOfFishes = fishRepository.countsByIds(petFishes.ids())
         petFishes.validateFishesByCount(countOfFishes)
         petFishRepository.saveAll(petFishes.values)
+    }
+
+    fun validateContainingBannedWord(name: String) {
+        val bannedWords = BannedWords(bannedWordRepository.findAll())
+        bannedWords.validateContainingBannedWord(name)
     }
 }
