@@ -34,9 +34,6 @@ class Member(
     var fishLifeYear: FishLifeYear,
 
     @Column(nullable = false)
-    var hasProfile: Boolean,
-
-    @Column(nullable = false)
     var hasAgreedToMarketingNotification: Boolean,
 
     @Column(nullable = false)
@@ -50,7 +47,6 @@ class Member(
     private fun anonymize() {
         nickname = Nickname.emptyNickname()
         profileImageUrl = null
-        hasProfile = false
         hasAgreedToMarketingNotification = false
     }
 
@@ -59,19 +55,11 @@ class Member(
     }
 
     fun updateFishLifeYear(fishLifeYear: FishLifeYear) {
-        this.fishLifeYear = fishLifeYear;
-    }
-
-    fun updateHasProfile(hasProfile: Boolean) {
-        this.hasProfile = hasProfile;
-    }
-
-    fun updateHasAgreedToMarketingNotification(hasAgreedToMarketingNotification: Boolean) {
-        this.hasAgreedToMarketingNotification = hasAgreedToMarketingNotification;
+        this.fishLifeYear = fishLifeYear
     }
 
     fun increaseFishTankCount() {
-        this.fishTankCount++;
+        this.fishTankCount++
     }
 
     companion object {
@@ -87,7 +75,6 @@ class Member(
                 profileImageUrl = null,
                 fishTankCount = 0,
                 fishLifeYear = FishLifeYear.emptyFishLifeYear(),
-                hasProfile = false,
                 hasAgreedToMarketingNotification = hasAgreedToMarketingNotification,
             )
         }

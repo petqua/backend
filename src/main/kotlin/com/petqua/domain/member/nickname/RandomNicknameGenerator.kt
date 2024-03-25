@@ -17,7 +17,7 @@ class RandomNicknameGenerator() : NicknameGenerator {
         val wordsLength = wordsNickname.length
 
         val maxNumberLength = MAX_NICKNAME_LENGTH - wordsLength
-        if (maxNumberLength > 0) {
+        if (maxNumberLength <= 0) {
             return Nickname.from(wordsNickname)
         }
 

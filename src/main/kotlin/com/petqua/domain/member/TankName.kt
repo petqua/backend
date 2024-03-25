@@ -12,7 +12,7 @@ private const val WHITESPACE = " "
 @Embeddable
 data class TankName(
     @Column(nullable = false, name = "name")
-    private val value: String,
+    val value: String,
 ) {
 
     init {
