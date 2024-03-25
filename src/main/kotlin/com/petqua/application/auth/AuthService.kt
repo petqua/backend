@@ -16,9 +16,9 @@ import com.petqua.exception.auth.AuthException
 import com.petqua.exception.auth.AuthExceptionType.INVALID_REFRESH_TOKEN
 import com.petqua.exception.member.MemberException
 import com.petqua.exception.member.MemberExceptionType.NOT_FOUND_MEMBER
+import java.util.Date
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.util.Date
 
 @Transactional
 @Service
@@ -72,9 +72,12 @@ class AuthService(
         return AuthTokenInfo.from(authToken)
     }
 
+    fun validateTokenExpiredStatusForExtendLogin(accessToken: String, refreshToken: String) {
+        authTokenProvider.validateTokenExpiredStatusForExtendLogin(accessToken, refreshToken)
+    }
+
     @Transactional(readOnly = true)
     fun findMemberBy(accessToken: String, refreshToken: String): Member {
-        authTokenProvider.validateTokenExpiredStatusForExtendLogin(accessToken, refreshToken)
         val savedRefreshToken = refreshTokenRepository.findByTokenOrThrow(refreshToken) {
             AuthException(INVALID_REFRESH_TOKEN)
         }
@@ -105,6 +108,13 @@ class AuthService(
         memberRepository.save(member)
 
         cartProductRepository.deleteByMemberId(member.id)
+        refreshTokenRepository.deleteByMemberId(member.id)
+    }
+
+    fun signOut(member: Member) {
+        member.signOut()
+        memberRepository.save(member)
+        
         refreshTokenRepository.deleteByMemberId(member.id)
     }
 }
