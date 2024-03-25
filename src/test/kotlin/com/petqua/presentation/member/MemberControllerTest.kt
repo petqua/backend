@@ -16,6 +16,7 @@ import com.petqua.domain.member.nickname.NicknameWordRepository
 import com.petqua.domain.policy.bannedword.BannedWord
 import com.petqua.domain.policy.bannedword.BannedWordRepository
 import com.petqua.exception.member.MemberExceptionType
+import com.petqua.exception.member.MemberExceptionType.CONTAINING_BANNED_WORD_NAME
 import com.petqua.exception.member.MemberExceptionType.HAS_SIGNED_UP_MEMBER
 import com.petqua.presentation.member.dto.MemberAddProfileRequest
 import com.petqua.presentation.member.dto.MemberSignUpRequest
@@ -29,7 +30,7 @@ import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldContain
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpHeaders.AUTHORIZATION
-import org.springframework.http.HttpStatus
+import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.NO_CONTENT
 import org.springframework.http.HttpStatus.OK
 import java.time.LocalDate
@@ -99,9 +100,40 @@ class MemberControllerTest(
                 Then("예외를 응답한다") {
                     val errorResponse = response.`as`(ExceptionResponse::class.java)
                     assertSoftly(response) {
-                        statusCode shouldBe HttpStatus.BAD_REQUEST.value()
+                        statusCode shouldBe BAD_REQUEST.value()
                         errorResponse.message shouldBe HAS_SIGNED_UP_MEMBER.errorMessage()
                     }
+                }
+            }
+        }
+
+        Given("이름에 금지 단어가 포함되는지 여부를 검증할 때") {
+            bannedWordRepository.saveAll(
+                listOf(
+                    BannedWord(word = "금지"),
+                    BannedWord(word = "단어")
+                )
+            )
+
+            When("금지 단어가 포함된 이름을 입력하면") {
+                val name = "금지 단어 포함 이름"
+                val response = requestValidateContainingBannedWord(name)
+
+                Then("예외를 던진다") {
+                    val errorResponse = response.`as`(ExceptionResponse::class.java)
+                    assertSoftly(response) {
+                        statusCode shouldBe BAD_REQUEST.value()
+                        errorResponse.message shouldBe CONTAINING_BANNED_WORD_NAME.errorMessage()
+                    }
+                }
+            }
+
+            When("금지 단어가 포함되지 않은 이름을 입력하면") {
+                val name = "포함되지 않은 이름"
+                val response = requestValidateContainingBannedWord(name)
+
+                Then("예외를 던지지 않는다") {
+                    response.statusCode shouldBe OK.value()
                 }
             }
         }
@@ -172,7 +204,7 @@ class MemberControllerTest(
                 Then("예외를 응답한다") {
                     val errorResponse = response.`as`(ExceptionResponse::class.java)
                     assertSoftly(response) {
-                        statusCode shouldBe HttpStatus.BAD_REQUEST.value()
+                        statusCode shouldBe BAD_REQUEST.value()
                         errorResponse.message shouldBe MemberExceptionType.INVALID_MEMBER_FISH_TANK_NAME.errorMessage()
                     }
                 }
@@ -185,7 +217,7 @@ class MemberControllerTest(
                 Then("예외를 응답한다") {
                     val errorResponse = response.`as`(ExceptionResponse::class.java)
                     assertSoftly(response) {
-                        statusCode shouldBe HttpStatus.BAD_REQUEST.value()
+                        statusCode shouldBe BAD_REQUEST.value()
                         errorResponse.message shouldBe MemberExceptionType.INVALID_MEMBER_FISH_LIFE_YEAR.errorMessage()
                     }
                 }
@@ -198,7 +230,7 @@ class MemberControllerTest(
                 Then("예외를 응답한다") {
                     val errorResponse = response.`as`(ExceptionResponse::class.java)
                     assertSoftly(response) {
-                        statusCode shouldBe HttpStatus.BAD_REQUEST.value()
+                        statusCode shouldBe BAD_REQUEST.value()
                         errorResponse.message shouldBe MemberExceptionType.INVALID_MEMBER_FISH_TANK_NAME.errorMessage()
                     }
                 }
@@ -211,7 +243,7 @@ class MemberControllerTest(
                 Then("예외를 응답한다") {
                     val errorResponse = response.`as`(ExceptionResponse::class.java)
                     assertSoftly(response) {
-                        statusCode shouldBe HttpStatus.BAD_REQUEST.value()
+                        statusCode shouldBe BAD_REQUEST.value()
                         errorResponse.message shouldBe MemberExceptionType.INVALID_MEMBER_FISH_TANK_SIZE.errorMessage()
                     }
                 }
@@ -232,7 +264,7 @@ class MemberControllerTest(
                 Then("예외를 응답한다") {
                     val errorResponse = response.`as`(ExceptionResponse::class.java)
                     assertSoftly(response) {
-                        statusCode shouldBe HttpStatus.BAD_REQUEST.value()
+                        statusCode shouldBe BAD_REQUEST.value()
                         errorResponse.message shouldBe MemberExceptionType.INVALID_MEMBER_PET_FISH.errorMessage()
                     }
                 }
@@ -253,7 +285,7 @@ class MemberControllerTest(
                 Then("예외를 응답한다") {
                     val errorResponse = response.`as`(ExceptionResponse::class.java)
                     assertSoftly(response) {
-                        statusCode shouldBe HttpStatus.BAD_REQUEST.value()
+                        statusCode shouldBe BAD_REQUEST.value()
                         errorResponse.message shouldBe MemberExceptionType.INVALID_MEMBER_FISH_SEX.errorMessage()
                     }
                 }
@@ -274,7 +306,7 @@ class MemberControllerTest(
                 Then("예외를 응답한다") {
                     val errorResponse = response.`as`(ExceptionResponse::class.java)
                     assertSoftly(response) {
-                        statusCode shouldBe HttpStatus.BAD_REQUEST.value()
+                        statusCode shouldBe BAD_REQUEST.value()
                         errorResponse.message shouldBe MemberExceptionType.INVALID_MEMBER_PET_FISH_COUNT.errorMessage()
                     }
                 }

@@ -23,6 +23,8 @@ enum class MemberExceptionType(
     INVALID_MEMBER_PET_FISH(BAD_REQUEST, "M15", "유효하지 않은 반려어입니다."),
     INVALID_MEMBER_NICKNAME(BAD_REQUEST, "M16", "유효하지 않은 회원 닉네임입니다."),
 
+    CONTAINING_BANNED_WORD_NAME(BAD_REQUEST, "M20", "이름에 금지 단어를 포함할 수 없습니다."),
+
     INVALID_MEMBER_STATE(INTERNAL_SERVER_ERROR, "M90", "유효하지 않은 회원 상태입니다."),
     ;
 

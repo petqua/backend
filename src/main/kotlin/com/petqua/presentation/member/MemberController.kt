@@ -16,9 +16,11 @@ import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.http.HttpHeaders.SET_COOKIE
 import org.springframework.http.ResponseCookie
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @SecurityRequirement(name = ACCESS_TOKEN_SECURITY_SCHEME_KEY)
@@ -53,6 +55,16 @@ class MemberController(
             .secure(true)
             .httpOnly(true)
             .build()
+    }
+
+    @Operation(summary = "이름 검증 API", description = "회원의 닉네임, 수조 이름이 금지 단어를 포함하는지 검증합니다")
+    @ApiResponse(responseCode = "200", description = "이름 검증 성공")
+    @GetMapping("/validation/banned-word")
+    fun validateContainingBannedWord(
+        @RequestParam name: String,
+    ): ResponseEntity<Unit> {
+        memberService.validateContainingBannedWord(name)
+        return ResponseEntity.ok().build()
     }
 
     @Operation(summary = "회원 물생활 프로필 입력 API", description = "회원의 추가적인 물생활 정보를 입력합니다")
