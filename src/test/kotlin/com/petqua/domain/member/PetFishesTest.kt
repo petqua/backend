@@ -21,7 +21,7 @@ class PetFishesTest : StringSpec({
         )
 
         shouldNotThrow<MemberException> {
-            petFishes.validateFishes(fishIds.size)
+            petFishes.validateFishesByCount(fishIds.size)
         }
     }
 
@@ -36,7 +36,7 @@ class PetFishesTest : StringSpec({
         )
 
         shouldThrow<MemberException> {
-            petFishes.validateFishes(fishIds.size + 1)
+            petFishes.validateFishesByCount(fishIds.size + 1)
         }.exceptionType() shouldBe INVALID_MEMBER_PET_FISH
     }
 })

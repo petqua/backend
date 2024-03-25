@@ -138,7 +138,6 @@ class DataInitializer(
                 profileImageUrl = null,
                 fishTankCount = 1,
                 fishLifeYear = FishLifeYear.from(1),
-                hasProfile = false,
                 hasAgreedToMarketingNotification = true,
                 isDeleted = false,
             )
