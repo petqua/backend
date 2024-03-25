@@ -20,7 +20,9 @@ class Nickname private constructor(
     }
 
     companion object {
-        private val wordPattern = Pattern.compile("^[a-zA-Z0-9가-힣 ]{2,12}\$")
+        private const val MIN_NICKNAME_LENGTH = 2
+        const val MAX_NICKNAME_LENGTH = 12
+        private val wordPattern = Pattern.compile("^[a-zA-Z0-9가-힣 ]{$MIN_NICKNAME_LENGTH,$MAX_NICKNAME_LENGTH}\$")
         private val whitespacePattern = Pattern.compile("$WHITESPACE{2,}")
         private val EMPTY_NICKNAME = Nickname(EMPTY)
 
