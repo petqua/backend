@@ -4,6 +4,7 @@ import com.ninjasquad.springmockk.SpykBean
 import com.petqua.common.domain.findByIdOrThrow
 import com.petqua.domain.auth.oauth.OauthServerType.KAKAO
 import com.petqua.domain.auth.token.AuthTokenProvider
+import com.petqua.domain.auth.token.BlackListTokenCacheStorage
 import com.petqua.domain.auth.token.JwtProvider
 import com.petqua.domain.auth.token.RefreshToken
 import com.petqua.domain.auth.token.RefreshTokenRepository
@@ -33,6 +34,7 @@ class AuthFacadeServiceTest(
     private val authTokenProvider: AuthTokenProvider,
     private val jwtProvider: JwtProvider,
     private val memberRepository: MemberRepository,
+    private val blackListTokenCacheStorage: BlackListTokenCacheStorage,
     private val dataCleaner: DataCleaner,
 
     @SpykBean private val oauthService: OauthService,
@@ -275,6 +277,10 @@ class AuthFacadeServiceTest(
                     it.oauthAccessTokenExpiresAt shouldBe null
                     it.oauthRefreshToken shouldBe ""
                 }
+            }
+
+            Then("로그아웃한 회원의 토큰 정보를 블랙리스트에 추가한다") {
+                blackListTokenCacheStorage.isBlackListed(member.id, accessToken) shouldBe true
             }
         }
     }

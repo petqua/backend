@@ -51,7 +51,6 @@ class AuthFacadeService(
 
     fun signOut(accessToken: String, refreshToken: String) {
         val member = authService.findMemberBy(accessToken = accessToken, refreshToken = refreshToken)
-        // TODO: 블랙 리스트 추가
-        authService.signOut(member)
+        authService.signOut(member, accessToken)
     }
 }

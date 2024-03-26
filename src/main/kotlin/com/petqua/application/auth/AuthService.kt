@@ -6,6 +6,7 @@ import com.petqua.domain.auth.oauth.OauthServerType
 import com.petqua.domain.auth.oauth.OauthTokenInfo
 import com.petqua.domain.auth.oauth.OauthUserInfo
 import com.petqua.domain.auth.token.AuthTokenProvider
+import com.petqua.domain.auth.token.BlackListTokenCacheStorage
 import com.petqua.domain.auth.token.RefreshToken
 import com.petqua.domain.auth.token.RefreshTokenRepository
 import com.petqua.domain.auth.token.findByTokenOrThrow
@@ -27,6 +28,7 @@ class AuthService(
     private val authTokenProvider: AuthTokenProvider,
     private val cartProductRepository: CartProductRepository,
     private val refreshTokenRepository: RefreshTokenRepository,
+    private val blackListTokenCacheStorage: BlackListTokenCacheStorage,
 ) {
 
     fun findOrCreateMemberBy(
@@ -111,10 +113,11 @@ class AuthService(
         refreshTokenRepository.deleteByMemberId(member.id)
     }
 
-    fun signOut(member: Member) {
+    fun signOut(member: Member, accessToken: String) {
         member.signOut()
         memberRepository.save(member)
-        
+
         refreshTokenRepository.deleteByMemberId(member.id)
+        blackListTokenCacheStorage.save(member.id, accessToken)
     }
 }
