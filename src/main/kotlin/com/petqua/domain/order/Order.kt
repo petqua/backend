@@ -17,7 +17,6 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType.IDENTITY
 import jakarta.persistence.Id
 import jakarta.persistence.Table
-import java.math.BigDecimal
 
 @Table(name = "orders")
 @Entity
@@ -37,7 +36,7 @@ class Order(
     val orderName: OrderName,
 
     @Embedded
-    val orderShippingAddress: OrderShippingAddress,
+    val orderShippingAddress: OrderShippingAddress?,
 
     @Embedded
     val orderProduct: OrderProduct,

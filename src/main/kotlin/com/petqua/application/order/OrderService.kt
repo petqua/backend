@@ -28,8 +28,10 @@ import com.petqua.domain.product.option.ProductOption
 import com.petqua.domain.product.option.ProductOptionRepository
 import com.petqua.domain.store.StoreRepository
 import com.petqua.exception.order.OrderException
+import com.petqua.exception.order.OrderExceptionType.EMPTY_SHIPPING_ADDRESS
 import com.petqua.exception.order.OrderExceptionType.ORDER_PRICE_NOT_MATCH
 import com.petqua.exception.order.OrderExceptionType.PRODUCT_NOT_FOUND
+import com.petqua.exception.order.OrderExceptionType.STORE_NOT_FOUND
 import com.petqua.exception.order.ShippingAddressException
 import com.petqua.exception.order.ShippingAddressExceptionType.NOT_FOUND_SHIPPING_ADDRESS
 import com.petqua.exception.product.ProductException
@@ -56,9 +58,7 @@ class OrderService(
         orderProducts.validate(command)
         validateTotalAmount(command, orderProducts.getTotalDeliveryFee(command))
 
-        val shippingAddress = shippingAddressRepository.findByIdOrThrow(command.shippingAddressId) {
-            ShippingAddressException(NOT_FOUND_SHIPPING_ADDRESS)
-        }
+        val shippingAddress = findValidateShippingAddress(command.shippingAddressId, command.orderProductCommands)
         val productSnapshots =
             productSnapshotRepository.findAllByProductIdIn(orderProducts.productIds).associateBy { it.productId }
         validateProductSnapshots(orderProducts, productSnapshots)
@@ -72,6 +72,25 @@ class OrderService(
             successUrl = paymentGatewayClient.successUrl(),
             failUrl = paymentGatewayClient.failUrl(),
         )
+    }
+
+    private fun findValidateShippingAddress(
+        shippingAddressId: Long?,
+        orderProductCommands: List<OrderProductCommand>
+    ): ShippingAddress? {
+        // TODO 배송&픽업 전략이 확정되면 변경 필요
+        shippingAddressId ?: run {
+            orderProductCommands.find { it.deliveryMethod != PICK_UP }
+                ?: throw OrderException(EMPTY_SHIPPING_ADDRESS)
+        }
+
+        if (shippingAddressId == null) {
+            return null
+        }
+
+        return shippingAddressRepository.findByIdOrThrow(shippingAddressId) {
+            ShippingAddressException(NOT_FOUND_SHIPPING_ADDRESS)
+        }
     }
 
     private fun getOrderProductsFrom(command: SaveOrderCommand): OrderProducts {
@@ -99,7 +118,7 @@ class OrderService(
     private fun saveOrders(
         command: SaveOrderCommand,
         productSnapshotsById: Map<Long, ProductSnapshot>,
-        shippingAddress: ShippingAddress
+        shippingAddress: ShippingAddress?
     ): List<Order> {
         val productSnapshots = productSnapshotsById.values.toList()
         val storesById = storeRepository.findByIdIn(productSnapshots.map { it.storeId }).associateBy { it.id }
@@ -108,12 +127,12 @@ class OrderService(
         val orders = command.orderProductCommands.map { productCommand ->
             val productSnapshot = productSnapshotsById[productCommand.productId]
                 ?: throw OrderException(PRODUCT_NOT_FOUND)
-
+            val orderShippingAddress = shippingAddress?.let { OrderShippingAddress.from(it, command.shippingRequest) }
             Order(
                 memberId = command.memberId,
                 orderNumber = orderNumber,
                 orderName = orderName,
-                orderShippingAddress = OrderShippingAddress.from(shippingAddress, command.shippingRequest),
+                orderShippingAddress = orderShippingAddress,
                 orderProduct = productCommand.toOrderProduct(
                     shippingNumber = ShippingNumber.of(
                         productSnapshot.storeId,
@@ -121,7 +140,7 @@ class OrderService(
                         orderNumber
                     ),
                     productSnapshot = productSnapshot,
-                    storeName = storesById[productSnapshot.storeId]?.name ?: throw OrderException(PRODUCT_NOT_FOUND),
+                    storeName = storesById[productSnapshot.storeId]?.name ?: throw OrderException(STORE_NOT_FOUND),
                 ),
                 isAbleToCancel = true,
                 status = ORDER_CREATED,

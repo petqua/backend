@@ -10,7 +10,7 @@ import com.petqua.domain.product.option.Sex
 
 data class SaveOrderCommand(
     val memberId: Long,
-    val shippingAddressId: Long,
+    val shippingAddressId: Long?,
     val shippingRequest: String?,
     val orderProductCommands: List<OrderProductCommand>,
     val totalAmount: Money,

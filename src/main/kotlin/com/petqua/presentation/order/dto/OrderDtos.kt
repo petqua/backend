@@ -12,7 +12,7 @@ data class SaveOrderRequest(
         description = "운송지 id",
         example = "1"
     )
-    val shippingAddressId: Long,
+    val shippingAddressId: Long?,
 
     @Schema(
         description = "운송지 요청 사항",
