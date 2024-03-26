@@ -4,11 +4,8 @@ import com.petqua.application.order.dto.OrderProductCommand
 import com.petqua.application.order.dto.SaveOrderCommand
 import com.petqua.application.order.dto.SaveOrderResponse
 import com.petqua.application.payment.infra.PaymentGatewayClient
-import com.petqua.common.domain.Money
 import com.petqua.common.domain.findByIdOrThrow
-import com.petqua.common.util.throwExceptionWhen
 import com.petqua.domain.delivery.DeliveryMethod.PICK_UP
-import com.petqua.domain.order.DeliveryGroupKey
 import com.petqua.domain.order.Order
 import com.petqua.domain.order.OrderName
 import com.petqua.domain.order.OrderNumber
@@ -24,18 +21,15 @@ import com.petqua.domain.product.Product
 import com.petqua.domain.product.ProductRepository
 import com.petqua.domain.product.ProductSnapshot
 import com.petqua.domain.product.ProductSnapshotRepository
-import com.petqua.domain.product.option.ProductOption
 import com.petqua.domain.product.option.ProductOptionRepository
 import com.petqua.domain.store.StoreRepository
 import com.petqua.exception.order.OrderException
 import com.petqua.exception.order.OrderExceptionType.EMPTY_SHIPPING_ADDRESS
-import com.petqua.exception.order.OrderExceptionType.ORDER_PRICE_NOT_MATCH
 import com.petqua.exception.order.OrderExceptionType.PRODUCT_NOT_FOUND
 import com.petqua.exception.order.OrderExceptionType.STORE_NOT_FOUND
 import com.petqua.exception.order.ShippingAddressException
 import com.petqua.exception.order.ShippingAddressExceptionType.NOT_FOUND_SHIPPING_ADDRESS
 import com.petqua.exception.product.ProductException
-import com.petqua.exception.product.ProductExceptionType.INVALID_PRODUCT_OPTION
 import com.petqua.exception.product.ProductExceptionType.NOT_FOUND_PRODUCT
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -54,14 +48,12 @@ class OrderService(
 ) {
 
     fun save(command: SaveOrderCommand): SaveOrderResponse {
-        val orderProducts = getOrderProductsFrom(command)
-        orderProducts.validate(command)
-        validateTotalAmount(command, orderProducts.getTotalDeliveryFee(command))
+        val productIds = command.orderProductCommands.map { it.productId }
+        val productById = productRepository.findAllByIsDeletedFalseAndIdIn(productIds).associateBy { it.id }
 
+        validateOrderProducts(command, productById)
         val shippingAddress = findValidateShippingAddress(command.shippingAddressId, command.orderProductCommands)
-        val productSnapshots =
-            productSnapshotRepository.findAllByProductIdIn(orderProducts.productIds).associateBy { it.productId }
-        validateProductSnapshots(orderProducts, productSnapshots)
+        val productSnapshots = findValidateProductSnapshots(productById)
 
         // TODO: TODO 재고 검증
         val orders = saveOrders(command, productSnapshots, shippingAddress)
@@ -72,6 +64,16 @@ class OrderService(
             successUrl = paymentGatewayClient.successUrl(),
             failUrl = paymentGatewayClient.failUrl(),
         )
+    }
+
+    private fun validateOrderProducts(command: SaveOrderCommand, productById: Map<Long, Product>) {
+        val productOptions = productOptionRepository.findByProductIdIn(productById.keys.toList())
+        val orderProductsValidator = OrderProductsValidator(productById, productOptions.toSet())
+
+        orderProductsValidator.validateProductsIsExist(command.orderProductCommands)
+        orderProductsValidator.validateProductOptionsIsExist(command.orderProductCommands)
+        orderProductsValidator.validateOrderProductPrices(command.orderProductCommands)
+        orderProductsValidator.validateTotalAmount(command.totalAmount, command.orderProductCommands)
     }
 
     private fun findValidateShippingAddress(
@@ -93,26 +95,15 @@ class OrderService(
         }
     }
 
-    private fun getOrderProductsFrom(command: SaveOrderCommand): OrderProducts {
-        val productIds = command.orderProductCommands.map { it.productId }
-        val productById = productRepository.findAllByIsDeletedFalseAndIdIn(productIds).associateBy { it.id }
-        val productOptions = productOptionRepository.findByProductIdIn(productIds)
-        return OrderProducts(productById, productOptions.toSet())
-    }
-
-    private fun validateTotalAmount(command: SaveOrderCommand, totalDeliveryFee: Int) {
-        throwExceptionWhen(command.totalAmount != Money.from(totalDeliveryFee.toBigDecimal() + command.orderProductCommands.sumOf { it.orderPrice.value })) {
-            OrderException(
-                ORDER_PRICE_NOT_MATCH
-            )
-        }
-    }
-
-    private fun validateProductSnapshots(orderProducts: OrderProducts, productSnapshots: Map<Long, ProductSnapshot>) {
-        orderProducts.products.forEach { product ->
+    private fun findValidateProductSnapshots(productById: Map<Long, Product>): Map<Long, ProductSnapshot> {
+        val productIds = productById.keys.toList()
+        val products = productById.values.toList()
+        val productSnapshots = productSnapshotRepository.findAllByProductIdIn(productIds).associateBy { it.productId }
+        products.forEach { product ->
             productSnapshots[product.id]?.takeIf { it.isProductDetailsMatching(product) }
                 ?: throw ProductException(NOT_FOUND_PRODUCT)
         }
+        return productSnapshots
     }
 
     private fun saveOrders(
@@ -148,69 +139,5 @@ class OrderService(
             )
         }
         return orderRepository.saveAll(orders)
-    }
-}
-
-class OrderProducts(
-    val productById: Map<Long, Product>,
-    val productOptions: Set<ProductOption>,
-) {
-    val productIds = productById.keys.toList()
-    val products = productById.values.toList()
-
-    fun validate(command: SaveOrderCommand) {
-        validateProducts(command)
-        validateProductOptions(command)
-        validateOrderPrices(command)
-    }
-
-    fun getTotalDeliveryFee(command: SaveOrderCommand): Int {
-        return products.groupBy { it.deliveryGroupKey(command) }
-            .map { it.value.first().getDeliveryFee(it.key.deliveryMethod).value.toInt() }
-            .sum()
-    }
-
-    private fun validateProducts(command: SaveOrderCommand) {
-        val productIds = command.orderProductCommands.map { it.productId }
-        throwExceptionWhen(products.size != productIds.size) { OrderException(PRODUCT_NOT_FOUND) }
-    }
-
-    private fun validateProductOptions(command: SaveOrderCommand) {
-        command.orderProductCommands.forEach { orderProductCommand ->
-            productOptions.find { it.productId == orderProductCommand.productId }?.let {
-                throwExceptionWhen(!it.isSame(orderProductCommand.toProductOption())) {
-                    ProductException(INVALID_PRODUCT_OPTION)
-                }
-            } ?: throw ProductException(INVALID_PRODUCT_OPTION)
-        }
-    }
-
-    private fun validateOrderPrices(command: SaveOrderCommand) {
-        command.orderProductCommands.forEach { orderProductCommand ->
-            val product = productById[orderProductCommand.productId]
-                ?: throw OrderException(PRODUCT_NOT_FOUND)
-            val productOption = productOptions.findOptionBy(orderProductCommand.productId)
-            product.validatePrice(productOption, orderProductCommand)
-        }
-    }
-
-    private fun Set<ProductOption>.findOptionBy(productId: Long): ProductOption {
-        return find { it.productId == productId }
-            ?: throw ProductException(INVALID_PRODUCT_OPTION)
-    }
-
-    private fun Product.validatePrice(option: ProductOption, command: OrderProductCommand) {
-        val expectedOrderPrice = (discountPrice + option.additionalPrice) * command.quantity.toBigDecimal()
-        val expectedDeliveryFee = getDeliveryFee(command.deliveryMethod)
-        if (command.orderPrice != expectedOrderPrice || command.deliveryFee != expectedDeliveryFee) {
-            throw OrderException(ORDER_PRICE_NOT_MATCH)
-        }
-    }
-
-    private fun Product.deliveryGroupKey(command: SaveOrderCommand): DeliveryGroupKey {
-        return DeliveryGroupKey(
-            storeId, command.orderProductCommands.find { it.productId == id }?.deliveryMethod
-                ?: throw OrderException(PRODUCT_NOT_FOUND)
-        )
     }
 }
