@@ -1,14 +1,14 @@
 package com.petqua.domain.policy.bannedword
 
 import com.petqua.exception.member.MemberException
-import com.petqua.exception.member.MemberExceptionType.INVALID_MEMBER_FISH_TANK_NAME
+import com.petqua.exception.member.MemberExceptionType.CONTAINING_BANNED_WORD_NAME
 import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 
 class BannedWordsTest : StringSpec({
-    
+
     "금지 단어를 포함하는지 검증한다" {
         val bannedWords = BannedWords(
             listOf(
@@ -32,6 +32,6 @@ class BannedWordsTest : StringSpec({
 
         shouldThrow<MemberException> {
             bannedWords.validateContainingBannedWord("포함(금지)하는이름")
-        }.exceptionType() shouldBe INVALID_MEMBER_FISH_TANK_NAME
+        }.exceptionType() shouldBe CONTAINING_BANNED_WORD_NAME
     }
 })
