@@ -264,7 +264,7 @@ class MemberServiceTest(
             Then("예외가 발생한다") {
                 shouldThrow<MemberException> {
                     memberService.addProfile(command)
-                }.exceptionType() shouldBe INVALID_MEMBER_FISH_TANK_NAME
+                }.exceptionType() shouldBe CONTAINING_BANNED_WORD_NAME
             }
         }
 

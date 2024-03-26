@@ -205,7 +205,7 @@ class MemberControllerTest(
                     val errorResponse = response.`as`(ExceptionResponse::class.java)
                     assertSoftly(response) {
                         statusCode shouldBe BAD_REQUEST.value()
-                        errorResponse.message shouldBe MemberExceptionType.INVALID_MEMBER_FISH_TANK_NAME.errorMessage()
+                        errorResponse.message shouldBe CONTAINING_BANNED_WORD_NAME.errorMessage()
                     }
                 }
             }
