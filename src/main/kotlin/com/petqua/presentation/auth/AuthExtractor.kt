@@ -45,21 +45,22 @@ class AuthExtractor(
 
     fun extractAccessToken(request: HttpServletRequest): String {
         val header = request.getHeaderOrThrow(AUTHORIZATION) { AuthException(INVALID_AUTH_HEADER) }
-        return parse(header)
+        return parseAuthorization(header)
+    }
+
+    private fun parseAuthorization(header: String): String {
+        validateAuthorizationHeader(header)
+        return header.removePrefix(AUTHORIZATION_PREFIX)
+    }
+
+    private fun validateAuthorizationHeader(header: String) {
+        throwExceptionWhen(header.isBlank() || !header.startsWith(AUTHORIZATION_PREFIX)) {
+            AuthException(INVALID_AUTH_HEADER)
+        }
     }
 
     fun extractSignUpToken(request: HttpServletRequest): String {
         return request.getHeaderOrThrow(SIGN_UP_AUTHORIZATION) { AuthException(INVALID_SIGN_UP_AUTH_HEADER) }
-    }
-
-    private fun parse(header: String): String {
-        validateHeader(header)
-        return header.removePrefix(AUTHORIZATION_PREFIX)
-    }
-
-    private fun validateHeader(header: String) {
-        throwExceptionWhen(header.isBlank() || !header.startsWith(AUTHORIZATION_PREFIX))
-        { AuthException(INVALID_AUTH_HEADER) }
     }
 
     fun extractRefreshToken(request: HttpServletRequest): String {
