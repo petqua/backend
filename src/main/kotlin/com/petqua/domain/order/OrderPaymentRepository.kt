@@ -11,7 +11,7 @@ fun OrderPaymentRepository.findByOrderIdOrderByIdDescOrThrow(
     return findByOrderIdOrderByIdDesc(orderId) ?: throw exceptionSupplier()
 }
 
-fun OrderPaymentRepository.saveOrThrow(
+fun OrderPaymentRepository.save(
     orderPayment: OrderPayment,
     exceptionSupplier: () -> Exception = { IllegalArgumentException("${OrderPayment::class.java.name} entity 를 저장할 수 없습니다.") }
 ): OrderPayment {

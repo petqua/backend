@@ -6,7 +6,7 @@ import com.petqua.domain.order.OrderPaymentRepository
 import com.petqua.domain.order.OrderRepository
 import com.petqua.domain.order.findByOrderIdOrderByIdDescOrThrow
 import com.petqua.domain.order.findByOrderNumberOrThrow
-import com.petqua.domain.order.saveOrThrow
+import com.petqua.domain.order.save
 import com.petqua.domain.payment.tosspayment.TossPayment
 import com.petqua.domain.payment.tosspayment.TossPaymentRepository
 import com.petqua.exception.order.OrderException
@@ -42,7 +42,7 @@ class PaymentService(
         val orderPayment = orderPaymentRepository.findByOrderIdOrderByIdDescOrThrow(order.id) { // TODO OrderPayment 테스트 추가
             OrderPaymentException(OrderPaymentExceptionType.ORDER_PAYMENT_NOT_FOUND)
         }
-        return orderPaymentRepository.saveOrThrow(orderPayment.pay(payment.id)) {
+        return orderPaymentRepository.save(orderPayment.pay(payment.id)) {
             OrderPaymentException(OrderPaymentExceptionType.FAIL_SAVE)
         }
     }
@@ -56,7 +56,7 @@ class PaymentService(
         val orderPayment = orderPaymentRepository.findByOrderIdOrderByIdDescOrThrow(order.id) { // TODO OrderPayment 테스트 추가
             OrderPaymentException(OrderPaymentExceptionType.ORDER_PAYMENT_NOT_FOUND)
         }
-        orderPaymentRepository.saveOrThrow(orderPayment.cancel()) {
+        orderPaymentRepository.save(orderPayment.cancel()) {
             OrderPaymentException(OrderPaymentExceptionType.FAIL_SAVE)
         }
     }
