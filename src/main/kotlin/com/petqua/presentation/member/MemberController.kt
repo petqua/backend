@@ -2,6 +2,7 @@ package com.petqua.presentation.member
 
 import com.petqua.application.member.MemberService
 import com.petqua.common.config.ACCESS_TOKEN_SECURITY_SCHEME_KEY
+import com.petqua.common.config.SIGN_UP_TOKEN_SECURITY_SCHEME_KEY
 import com.petqua.domain.auth.Auth
 import com.petqua.domain.auth.LoginMember
 import com.petqua.domain.auth.SignUpGuest
@@ -23,7 +24,6 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
-@SecurityRequirement(name = ACCESS_TOKEN_SECURITY_SCHEME_KEY)
 @Tag(name = "Member", description = "회원 관련 API 명세")
 @RequestMapping("/members")
 @RestController
@@ -33,6 +33,7 @@ class MemberController(
 
     @Operation(summary = "회원가입 API", description = "약관 정보를 입력해 회원가입을 합니다")
     @ApiResponse(responseCode = "200", description = "회원가입 성공")
+    @SecurityRequirement(name = SIGN_UP_TOKEN_SECURITY_SCHEME_KEY)
     @PostMapping("/sign-up")
     fun signUp(
         @Auth signUpGuest: SignUpGuest,
@@ -69,6 +70,7 @@ class MemberController(
 
     @Operation(summary = "회원 물생활 프로필 입력 API", description = "회원의 추가적인 물생활 정보를 입력합니다")
     @ApiResponse(responseCode = "204", description = "회원 물생활 프로필 입력 성공")
+    @SecurityRequirement(name = ACCESS_TOKEN_SECURITY_SCHEME_KEY)
     @PostMapping("/profiles")
     fun addProfile(
         @Auth loginMember: LoginMember,

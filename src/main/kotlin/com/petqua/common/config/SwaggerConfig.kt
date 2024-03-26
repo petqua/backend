@@ -4,12 +4,14 @@ import io.swagger.v3.oas.models.Components
 import io.swagger.v3.oas.models.OpenAPI
 import io.swagger.v3.oas.models.info.Info
 import io.swagger.v3.oas.models.security.SecurityScheme
+import io.swagger.v3.oas.models.security.SecurityScheme.Type.APIKEY
 import io.swagger.v3.oas.models.security.SecurityScheme.Type.HTTP
 import io.swagger.v3.oas.models.servers.Server
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 const val ACCESS_TOKEN_SECURITY_SCHEME_KEY = "AccessToken(Bearer)"
+const val SIGN_UP_TOKEN_SECURITY_SCHEME_KEY = "Sign-Up-Authorization"
 
 @Configuration
 class SwaggerConfig {
@@ -27,7 +29,9 @@ class SwaggerConfig {
     }
 
     private fun authComponents(): Components {
-        return Components().addSecuritySchemes(ACCESS_TOKEN_SECURITY_SCHEME_KEY, accessTokenSecurityScheme())
+        return Components()
+            .addSecuritySchemes(ACCESS_TOKEN_SECURITY_SCHEME_KEY, accessTokenSecurityScheme())
+            .addSecuritySchemes(SIGN_UP_TOKEN_SECURITY_SCHEME_KEY, signUpTokenSecurityScheme())
     }
 
     private fun accessTokenSecurityScheme(): SecurityScheme {
@@ -37,6 +41,16 @@ class SwaggerConfig {
             .scheme("bearer")
             .bearerFormat("JWT")
             .description("https://api.petqua.co.kr/auth/Kakao 로그인 후 발급받은 토큰을 입력하세요")
+    }
+
+    private fun signUpTokenSecurityScheme(): SecurityScheme {
+        return SecurityScheme()
+            .name(SIGN_UP_TOKEN_SECURITY_SCHEME_KEY)
+            .type(APIKEY)
+            .`in`(SecurityScheme.In.HEADER)
+            .scheme("bearer")
+            .bearerFormat("JWT")
+            .description("https://api.petqua.co.kr/auth/Kakao 최초 로그인 후 발급받은 회원가입 전용 토큰을 입력하세요")
     }
 
     private fun info(): Info {
