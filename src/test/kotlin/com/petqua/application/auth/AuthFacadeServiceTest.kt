@@ -266,7 +266,7 @@ class AuthFacadeServiceTest(
         )
 
         When("회원의 인증 정보를 입력 하면") {
-            authFacadeService.signOut(accessToken, refreshToken)
+            authFacadeService.logOut(accessToken, refreshToken)
 
             Then("멤버의 토큰 정보와 RefreshToken이 초기화 된다") {
                 val signedOutMember = memberRepository.findByIdOrThrow(member.id)

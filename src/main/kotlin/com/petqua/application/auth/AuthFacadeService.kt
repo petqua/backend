@@ -49,8 +49,8 @@ class AuthFacadeService(
         authService.delete(member)
     }
 
-    fun signOut(accessToken: String, refreshToken: String) {
+    fun logOut(accessToken: String, refreshToken: String) {
         val member = authService.findMemberBy(accessToken = accessToken, refreshToken = refreshToken)
-        authService.signOut(member, accessToken)
+        authService.logOut(member, accessToken)
     }
 }

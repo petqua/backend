@@ -113,7 +113,7 @@ class AuthService(
         refreshTokenRepository.deleteByMemberId(member.id)
     }
 
-    fun signOut(member: Member, accessToken: String) {
+    fun logOut(member: Member, accessToken: String) {
         member.signOut()
         memberRepository.save(member)
 

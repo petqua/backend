@@ -129,10 +129,10 @@ class AuthController(
     @ApiResponse(responseCode = "204", description = "로그아웃 성공")
     @SecurityRequirement(name = ACCESS_TOKEN_SECURITY_SCHEME_KEY)
     @PatchMapping("/members/sign-out")
-    fun signOut(
+    fun logOut(
         @Parameter(hidden = true) @Auth authToken: AuthToken,
     ): ResponseEntity<Unit> {
-        authFacadeService.signOut(authToken.accessToken, authToken.refreshToken)
+        authFacadeService.logOut(authToken.accessToken, authToken.refreshToken)
         return ResponseEntity.noContent().build()
     }
 }
