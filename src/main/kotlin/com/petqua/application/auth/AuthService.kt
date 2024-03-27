@@ -84,7 +84,7 @@ class AuthService(
         authMember.delete()
         authMemberRepository.save(authMember)
 
-        cartProductRepository.deleteByMemberId(authMember.id)
-        refreshTokenRepository.deleteByMemberId(authMember.id)
+        cartProductRepository.deleteByMemberId(member.id)
+        refreshTokenRepository.deleteByMemberId(member.id)
     }
 }
