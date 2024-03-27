@@ -316,7 +316,7 @@ class AuthFacadeServiceTest(
                 val deletedMember = memberRepository.findByIdOrThrow(member.id)
 
                 assertSoftly(deletedMember) {
-                    it.nickname shouldBe Nickname.emptyNickname()
+                    it.nickname.value shouldBe Nickname.emptyNickname().value
                     it.profileImageUrl shouldBe null
                     it.isDeleted shouldBe true
                 }
