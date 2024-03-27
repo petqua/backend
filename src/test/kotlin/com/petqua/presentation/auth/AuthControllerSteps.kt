@@ -52,3 +52,20 @@ fun requestDeleteMember(
         response()
     }
 }
+
+fun requestSignOut(
+    accessToken: String,
+    refreshToken: String
+): Response {
+    return Given {
+        log().all()
+        auth().preemptive().oauth2(accessToken)
+        cookie("refresh-token", refreshToken)
+    } When {
+        patch("/auth/members/sign-out")
+    } Then {
+        log().all()
+    } Extract {
+        response()
+    }
+}

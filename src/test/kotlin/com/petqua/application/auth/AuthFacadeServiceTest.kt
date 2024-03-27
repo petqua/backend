@@ -4,6 +4,7 @@ import com.ninjasquad.springmockk.SpykBean
 import com.petqua.common.domain.findByIdOrThrow
 import com.petqua.domain.auth.oauth.OauthServerType.KAKAO
 import com.petqua.domain.auth.token.AuthTokenProvider
+import com.petqua.domain.auth.token.BlackListTokenCacheStorage
 import com.petqua.domain.auth.token.JwtProvider
 import com.petqua.domain.auth.token.RefreshToken
 import com.petqua.domain.auth.token.RefreshTokenRepository
@@ -20,19 +21,20 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.verify
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE
 import java.lang.System.currentTimeMillis
 import java.time.LocalDateTime
 import java.util.Date
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE
 
 @SpringBootTest(webEnvironment = NONE)
-class AuthServiceTest(
+class AuthFacadeServiceTest(
     private val authFacadeService: AuthFacadeService,
     private val refreshTokenRepository: RefreshTokenRepository,
     private val authTokenProvider: AuthTokenProvider,
     private val jwtProvider: JwtProvider,
     private val memberRepository: MemberRepository,
+    private val blackListTokenCacheStorage: BlackListTokenCacheStorage,
     private val dataCleaner: DataCleaner,
 
     @SpykBean private val oauthService: OauthService,
@@ -248,6 +250,37 @@ class AuthServiceTest(
                 verify(exactly = 1) {
                     oauthService.updateOauthToken(KAKAO, "oauthRefreshToken")
                 }
+            }
+        }
+    }
+
+    Given("로그아웃을 요청 시") {
+        val member = memberRepository.save(member())
+        val accessToken = authTokenProvider.createAuthToken(member, Date()).accessToken
+        val refreshToken = authTokenProvider.createAuthToken(member, Date()).refreshToken
+        refreshTokenRepository.save(
+            RefreshToken(
+                memberId = member.id,
+                token = refreshToken
+            )
+        )
+
+        When("회원의 인증 정보를 입력 하면") {
+            authFacadeService.logOut(accessToken, refreshToken)
+
+            Then("멤버의 토큰 정보와 RefreshToken이 초기화 된다") {
+                val signedOutMember = memberRepository.findByIdOrThrow(member.id)
+
+                assertSoftly(signedOutMember) {
+                    refreshTokenRepository.existsByToken(refreshToken) shouldBe false
+                    it.oauthAccessToken shouldBe ""
+                    it.oauthAccessTokenExpiresAt shouldBe null
+                    it.oauthRefreshToken shouldBe ""
+                }
+            }
+
+            Then("로그아웃한 회원의 토큰 정보를 블랙리스트에 추가한다") {
+                blackListTokenCacheStorage.isBlackListed(member.id, accessToken) shouldBe true
             }
         }
     }
