@@ -60,6 +60,6 @@ class DataCleaner(
     }
 
     private fun clearRedis() {
-        redisTemplate.keys("*").forEach { redisTemplate.delete(it) }
+        redisTemplate.execute { connection -> connection.commands().flushDb() }
     }
 }
