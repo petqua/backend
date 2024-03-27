@@ -1,0 +1,48 @@
+package com.petqua.application.auth
+
+import com.petqua.application.token.AuthTokenInfo
+import com.petqua.application.token.TokenService
+import com.petqua.domain.auth.Authority
+import com.petqua.domain.auth.token.AuthTokenProvider
+import com.petqua.domain.auth.token.RefreshToken
+import com.petqua.domain.auth.token.RefreshTokenRepository
+import com.petqua.domain.member.MemberRepository
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+import java.util.Date
+
+@Transactional
+@Service
+class AuthTokenService(
+    private val authTokenProvider: AuthTokenProvider,
+    private val refreshTokenRepository: RefreshTokenRepository,
+    private val memberRepository: MemberRepository,
+) : TokenService {
+
+    override fun createAuthOrSignUpToken(authMemberId: Long): AuthTokenInfo {
+        val member = memberRepository.findByAuthMemberId(authMemberId)
+        return member?.let {
+            createAuthToken(
+                memberId = member.id,
+                authority = member.authority
+            )
+        } ?: createSignUpToken(authMemberId)
+    }
+
+    override fun createAuthToken(memberId: Long, authority: Authority): AuthTokenInfo {
+        val authToken = authTokenProvider.createAuthToken(memberId, authority, Date())
+        refreshTokenRepository.deleteByMemberId(memberId)
+        refreshTokenRepository.save(
+            RefreshToken(
+                memberId = memberId,
+                token = authToken.refreshToken
+            )
+        )
+        return AuthTokenInfo.from(authToken)
+    }
+
+    private fun createSignUpToken(authMemberId: Long): AuthTokenInfo {
+        val authToken = authTokenProvider.createSignUpAuthToken(authMemberId, Date())
+        return AuthTokenInfo.signUpTokenOf(authToken)
+    }
+}

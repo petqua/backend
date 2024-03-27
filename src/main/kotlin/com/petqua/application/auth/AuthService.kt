@@ -6,20 +6,17 @@ import com.petqua.domain.auth.AuthMemberRepository
 import com.petqua.domain.auth.oauth.OauthServerType
 import com.petqua.domain.auth.oauth.OauthTokenInfo
 import com.petqua.domain.auth.token.AuthTokenProvider
-import com.petqua.domain.auth.token.RefreshToken
 import com.petqua.domain.auth.token.RefreshTokenRepository
 import com.petqua.domain.auth.token.findByTokenOrThrow
 import com.petqua.domain.cart.CartProductRepository
 import com.petqua.domain.member.Member
 import com.petqua.domain.member.MemberRepository
-import com.petqua.domain.member.findByAuthMemberIdOrThrow
 import com.petqua.exception.auth.AuthException
 import com.petqua.exception.auth.AuthExceptionType.INVALID_REFRESH_TOKEN
 import com.petqua.exception.member.MemberException
 import com.petqua.exception.member.MemberExceptionType.NOT_FOUND_MEMBER
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.util.Date
 
 @Transactional
 @Service
@@ -44,27 +41,6 @@ class AuthService(
                 oauthServerNumber = oauthServerType.number,
             )
         )
-    }
-
-    fun findMemberBy(authMember: AuthMember): Member? {
-        return memberRepository.findByAuthMemberId(authMember.id)
-    }
-
-    fun createAuthToken(member: Member): AuthTokenInfo {
-        val authToken = authTokenProvider.createAuthToken(member, Date())
-        refreshTokenRepository.deleteByMemberId(member.id)
-        refreshTokenRepository.save(
-            RefreshToken(
-                memberId = member.id,
-                token = authToken.refreshToken
-            )
-        )
-        return AuthTokenInfo.from(authToken)
-    }
-
-    fun createSignUpAuthToken(authMember: AuthMember): AuthTokenInfo {
-        val authToken = authTokenProvider.createSignUpAuthToken(authMember, Date())
-        return AuthTokenInfo.signUpTokenOf(authToken)
     }
 
     @Transactional(readOnly = true)
@@ -110,12 +86,5 @@ class AuthService(
 
         cartProductRepository.deleteByMemberId(authMember.id)
         refreshTokenRepository.deleteByMemberId(authMember.id)
-    }
-
-    @Transactional(readOnly = true)
-    fun findMemberByAuthMemberId(authMemberId: Long): Member {
-        return memberRepository.findByAuthMemberIdOrThrow(authMemberId) {
-            MemberException(NOT_FOUND_MEMBER)
-        }
     }
 }
