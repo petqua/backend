@@ -79,7 +79,7 @@ class AuthService(
     }
 
     @Transactional(readOnly = true)
-    fun findMemberBy(accessToken: String, refreshToken: String): Member {
+    fun findMemberBy(refreshToken: String): Member {
         val savedRefreshToken = refreshTokenRepository.findByTokenOrThrow(refreshToken) {
             AuthException(INVALID_REFRESH_TOKEN)
         }
