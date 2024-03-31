@@ -61,12 +61,35 @@ class AuthExtractor(
             memberRepository.existActiveByIdOrThrow(accessTokenClaims.memberId) {
                 MemberException(NOT_FOUND_MEMBER)
             }
-            throwExceptionWhen(blackListTokenCacheStorage.isBlackListed(accessTokenClaims.memberId, token)) {
-                AuthException(UNABLE_ACCESS_TOKEN)
-            }
+            validateBlackListed(accessTokenClaims.memberId, token)
             return accessTokenClaims
         } catch (e: ExpiredJwtException) {
             throw AuthException(EXPIRED_ACCESS_TOKEN)
+        } catch (e: JwtException) {
+            throw AuthException(INVALID_ACCESS_TOKEN)
+        } catch (e: NullPointerException) {
+            throw AuthException(INVALID_ACCESS_TOKEN)
+        }
+    }
+
+    private fun validateBlackListed(memberId: Long, token: String) {
+        throwExceptionWhen(blackListTokenCacheStorage.isBlackListed(memberId, token)) {
+            AuthException(UNABLE_ACCESS_TOKEN)
+        }
+    }
+
+    fun validateBlacklistTokenRegardlessExpiration(token: String) {
+        val accessTokenClaims = getAccessTokenClaimsRegardlessExpiration(token)
+        validateBlackListed(accessTokenClaims.memberId, token)
+    }
+
+    private fun getAccessTokenClaimsRegardlessExpiration(token: String): AccessTokenClaims {
+        return try {
+            AccessTokenClaims.from(jwtProvider.getPayload(token))
+        } catch (e: ExpiredJwtException) {
+            val payload = mutableMapOf<String, String>()
+            e.claims.forEach { payload[it.key] = it.value.toString() }
+            AccessTokenClaims.from(payload)
         } catch (e: JwtException) {
             throw AuthException(INVALID_ACCESS_TOKEN)
         } catch (e: NullPointerException) {
