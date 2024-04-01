@@ -13,7 +13,7 @@ import java.time.LocalDateTime
 class AuthMemberTest : StringSpec({
 
     "회원을 삭제한다" {
-        val authMember = AuthMember(
+        val authCredentials = AuthCredentials(
             id = 1L,
             oauthId = 1L,
             oauthServerNumber = OauthServerType.KAKAO.number,
@@ -23,9 +23,9 @@ class AuthMemberTest : StringSpec({
             oauthRefreshToken = "oauthRefreshToken",
         )
 
-        authMember.delete()
+        authCredentials.delete()
 
-        assertSoftly(authMember) {
+        assertSoftly(authCredentials) {
             it.isDeleted shouldBe true
             it.oauthId shouldBe -1L
             it.oauthAccessToken shouldBe ""
@@ -35,7 +35,7 @@ class AuthMemberTest : StringSpec({
     }
 
     "회원 삭제 여부를 검증한다" {
-        val authMember = AuthMember(
+        val authCredentials = AuthCredentials(
             id = 1L,
             oauthId = 1L,
             oauthServerNumber = OauthServerType.KAKAO.number,
@@ -46,12 +46,12 @@ class AuthMemberTest : StringSpec({
         )
 
         shouldNotThrow<MemberException> {
-            authMember.validateDeleted()
+            authCredentials.validateDeleted()
         }
     }
 
     "삭제된 회원에 대해 삭제 여부를 검증하면 예외를 던진다" {
-        val authMember = AuthMember(
+        val authCredentials = AuthCredentials(
             id = 1L,
             oauthId = 1L,
             oauthServerNumber = OauthServerType.KAKAO.number,
@@ -62,7 +62,7 @@ class AuthMemberTest : StringSpec({
         )
 
         shouldThrow<MemberException> {
-            authMember.validateDeleted()
+            authCredentials.validateDeleted()
         }.exceptionType() shouldBe NOT_FOUND_MEMBER
     }
 

@@ -17,7 +17,7 @@ private const val DELETED_AUTH_FIELD = ""
 private const val DELETED_OAUTH_ID = -1L
 
 @Entity
-class AuthMember(
+class AuthCredentials(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0L,
 
@@ -77,8 +77,8 @@ class AuthMember(
         fun authMemberOf(
             oauthId: Long,
             oauthServerNumber: Int,
-        ): AuthMember {
-            return AuthMember(
+        ): AuthCredentials {
+            return AuthCredentials(
                 oauthId = oauthId,
                 oauthServerNumber = oauthServerNumber,
             )

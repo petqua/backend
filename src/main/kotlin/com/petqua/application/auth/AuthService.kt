@@ -1,7 +1,7 @@
 package com.petqua.application.auth
 
 import com.petqua.common.domain.findActiveByIdOrThrow
-import com.petqua.domain.auth.AuthMember
+import com.petqua.domain.auth.AuthCredentials
 import com.petqua.domain.auth.AuthMemberRepository
 import com.petqua.domain.auth.oauth.OauthServerType
 import com.petqua.domain.auth.oauth.OauthTokenInfo
@@ -36,12 +36,12 @@ class AuthService(
     fun findOrCreateAuthMemberBy(
         oauthServerType: OauthServerType,
         oauthId: Long,
-    ): AuthMember {
+    ): AuthCredentials {
         return authMemberRepository.findByOauthIdAndOauthServerNumberAndIsDeletedFalse(
             oauthId = oauthId,
             oauthServerNumber = oauthServerType.number
         ) ?: authMemberRepository.save(
-            AuthMember.authMemberOf(
+            AuthCredentials.authMemberOf(
                 oauthId = oauthId,
                 oauthServerNumber = oauthServerType.number,
             )
@@ -57,7 +57,7 @@ class AuthService(
     }
 
     @Transactional(readOnly = true)
-    fun findAuthMemberBy(accessToken: String, refreshToken: String): AuthMember {
+    fun findAuthMemberBy(accessToken: String, refreshToken: String): AuthCredentials {
         authTokenProvider.validateTokenExpiredStatusForExtendLogin(accessToken, refreshToken)
         val savedRefreshToken = refreshTokenRepository.findByTokenOrThrow(refreshToken) {
             AuthException(INVALID_REFRESH_TOKEN)
@@ -76,26 +76,26 @@ class AuthService(
     }
 
     @Transactional(readOnly = true)
-    fun findAuthMemberBy(authMemberId: Long): AuthMember {
+    fun findAuthMemberBy(authMemberId: Long): AuthCredentials {
         return authMemberRepository.findActiveByIdOrThrow(authMemberId) {
             MemberException(NOT_FOUND_MEMBER)
         }
     }
 
-    fun updateOauthToken(authMember: AuthMember, oauthTokenInfo: OauthTokenInfo) {
-        authMember.updateOauthToken(
+    fun updateOauthToken(authCredentials: AuthCredentials, oauthTokenInfo: OauthTokenInfo) {
+        authCredentials.updateOauthToken(
             accessToken = oauthTokenInfo.accessToken,
             expiresIn = oauthTokenInfo.expiresIn,
             refreshToken = oauthTokenInfo.refreshToken
         )
-        authMemberRepository.save(authMember)
+        authMemberRepository.save(authCredentials)
     }
 
-    fun delete(member: Member, authMember: AuthMember) {
+    fun delete(member: Member, authCredentials: AuthCredentials) {
         member.delete()
         memberRepository.save(member)
-        authMember.delete()
-        authMemberRepository.save(authMember)
+        authCredentials.delete()
+        authMemberRepository.save(authCredentials)
 
         cartProductRepository.deleteByMemberId(member.id)
         refreshTokenRepository.deleteByMemberId(member.id)

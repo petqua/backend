@@ -2,7 +2,7 @@ package com.petqua.application.auth
 
 import com.petqua.application.token.AuthTokenInfo
 import com.petqua.application.token.TokenService
-import com.petqua.domain.auth.AuthMember
+import com.petqua.domain.auth.AuthCredentials
 import com.petqua.domain.auth.oauth.OauthServerType
 import org.springframework.stereotype.Service
 import java.net.URI
@@ -36,13 +36,13 @@ class AuthFacadeService(
         return tokenService.createAuthOrSignUpToken(authMember.id)
     }
 
-    private fun updateOauthTokenIfExpired(authMember: AuthMember) {
-        if (authMember.hasExpiredOauthToken()) {
+    private fun updateOauthTokenIfExpired(authCredentials: AuthCredentials) {
+        if (authCredentials.hasExpiredOauthToken()) {
             val oauthTokenInfo = oauthService.updateOauthToken(
-                oauthServerType = authMember.oauthServerType,
-                oauthRefreshToken = authMember.oauthRefreshToken
+                oauthServerType = authCredentials.oauthServerType,
+                oauthRefreshToken = authCredentials.oauthRefreshToken
             )
-            authService.updateOauthToken(authMember, oauthTokenInfo)
+            authService.updateOauthToken(authCredentials, oauthTokenInfo)
         }
     }
 

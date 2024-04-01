@@ -3,7 +3,7 @@ package com.petqua.common.config
 import com.petqua.common.domain.Money
 import com.petqua.domain.announcement.Announcement
 import com.petqua.domain.announcement.AnnouncementRepository
-import com.petqua.domain.auth.AuthMember
+import com.petqua.domain.auth.AuthCredentials
 import com.petqua.domain.auth.AuthMemberRepository
 import com.petqua.domain.auth.Authority.MEMBER
 import com.petqua.domain.banner.Banner
@@ -125,9 +125,9 @@ class DataInitializer(
         saveCommerceData(authMember.id)
     }
 
-    private fun saveAuthMember(): AuthMember {
+    private fun saveAuthMember(): AuthCredentials {
         return authMemberRepository.save(
-            AuthMember(
+            AuthCredentials(
                 oauthId = 1L,
                 oauthServerNumber = 1,
                 oauthAccessToken = "xxx.yyy.zzz",
@@ -222,10 +222,10 @@ class DataInitializer(
         )
     }
 
-    private fun saveShippingAddress(authMember: AuthMember) {
+    private fun saveShippingAddress(authCredentials: AuthCredentials) {
         shippingAddressRepository.save(
             ShippingAddress(
-                memberId = authMember.id,
+                memberId = authCredentials.id,
                 name = "집",
                 receiver = "홍길동",
                 phoneNumber = "010-1234-5678",
