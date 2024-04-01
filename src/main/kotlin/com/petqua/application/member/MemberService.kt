@@ -19,6 +19,7 @@ import com.petqua.domain.member.nickname.NicknameWordRepository
 import com.petqua.domain.policy.bannedword.BannedWordRepository
 import com.petqua.domain.policy.bannedword.BannedWords
 import com.petqua.exception.member.MemberException
+import com.petqua.exception.member.MemberExceptionType.FAILED_NICKNAME_GENERATION
 import com.petqua.exception.member.MemberExceptionType.HAS_SIGNED_UP_MEMBER
 import com.petqua.exception.member.MemberExceptionType.NOT_FOUND_MEMBER
 import org.springframework.stereotype.Service
@@ -59,11 +60,13 @@ class MemberService(
     }
 
     private fun generateUniqueNickname(nicknameWords: List<NicknameWord>): Nickname {
-        var nickname = nicknameGenerator.generate(nicknameWords)
-        while (memberRepository.existsMemberByNickname(nickname)) {
-            nickname = nicknameGenerator.generate(nicknameWords)
+        repeat(nicknameGenerator.attemptCount()) {
+            val nickname = nicknameGenerator.generate(nicknameWords)
+            if (!memberRepository.existsMemberByNickname(nickname)) {
+                return nickname
+            }
         }
-        return nickname
+        throw MemberException(FAILED_NICKNAME_GENERATION)
     }
 
     fun addProfile(command: MemberAddProfileCommand) {

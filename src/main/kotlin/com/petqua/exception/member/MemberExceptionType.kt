@@ -26,6 +26,7 @@ enum class MemberExceptionType(
     CONTAINING_BANNED_WORD_NAME(BAD_REQUEST, "M20", "이름에 금지 단어를 포함할 수 없습니다."),
 
     INVALID_MEMBER_STATE(INTERNAL_SERVER_ERROR, "M90", "유효하지 않은 회원 상태입니다."),
+    FAILED_NICKNAME_GENERATION(INTERNAL_SERVER_ERROR, "M91", "서버에서 회원 닉네임을 생성하지 못했습니다.")
     ;
 
     override fun httpStatus(): HttpStatus {

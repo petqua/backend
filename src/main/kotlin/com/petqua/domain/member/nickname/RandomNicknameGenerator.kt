@@ -7,6 +7,7 @@ import kotlin.math.pow
 private const val MIN_NUMBER = 1
 private const val RANDOM_WORD_COUNT = 2
 private const val SEPARATOR = " "
+private const val RANDOM_GENERATION_COUNT = 10
 
 @Component
 class RandomNicknameGenerator() : NicknameGenerator {
@@ -21,8 +22,12 @@ class RandomNicknameGenerator() : NicknameGenerator {
             return Nickname.from(wordsNickname)
         }
 
-        val maxNumber = (10.toDouble().pow(maxNumberLength) - 1).toInt() // 10^n - 1
+        val maxNumber = (RANDOM_GENERATION_COUNT.toDouble().pow(maxNumberLength) - 1).toInt() // 10^n - 1
         val randomNumber = (MIN_NUMBER..maxNumber).random()
         return Nickname.from("${wordsNickname}$randomNumber")
+    }
+
+    override fun attemptCount(): Int {
+        return RANDOM_GENERATION_COUNT
     }
 }

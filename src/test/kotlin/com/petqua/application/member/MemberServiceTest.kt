@@ -20,6 +20,7 @@ import com.petqua.domain.policy.bannedword.BannedWord
 import com.petqua.domain.policy.bannedword.BannedWordRepository
 import com.petqua.exception.member.MemberException
 import com.petqua.exception.member.MemberExceptionType.CONTAINING_BANNED_WORD_NAME
+import com.petqua.exception.member.MemberExceptionType.FAILED_NICKNAME_GENERATION
 import com.petqua.exception.member.MemberExceptionType.HAS_SIGNED_UP_MEMBER
 import com.petqua.exception.member.MemberExceptionType.INVALID_MEMBER_FISH_LIFE_YEAR
 import com.petqua.exception.member.MemberExceptionType.INVALID_MEMBER_FISH_SEX
@@ -150,6 +151,26 @@ class MemberServiceTest(
 
             Then("닉네임을 여러 번 생성한다") {
                 verify(atLeast = 2) {
+                    nicknameGenerator.generate(nicknameWordRepository.findAll())
+                }
+            }
+        }
+
+        When("고유한 닉네임을 생성할 때 일정 횟수 이상 초과해서 생성하면") {
+            memberRepository.save(member(nickname = "펫쿠아 물고기1"))
+            memberRepository.save(member(nickname = "펫쿠아 물고기2"))
+
+            Then("예외가 발생한다") {
+                shouldThrow<MemberException> {
+                    memberService.signUp(
+                        MemberSignUpCommand(
+                            authMemberId = authMember.id,
+                            hasAgreedToMarketingNotification = true
+                        )
+                    )
+                }.exceptionType() shouldBe FAILED_NICKNAME_GENERATION
+
+                verify(atLeast = 10) {
                     nicknameGenerator.generate(nicknameWordRepository.findAll())
                 }
             }
