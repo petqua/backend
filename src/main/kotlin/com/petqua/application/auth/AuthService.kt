@@ -6,6 +6,7 @@ import com.petqua.domain.auth.oauth.OauthServerType
 import com.petqua.domain.auth.oauth.OauthTokenInfo
 import com.petqua.domain.auth.oauth.OauthUserInfo
 import com.petqua.domain.auth.token.AuthTokenProvider
+import com.petqua.domain.auth.token.BlackListTokenCacheStorage
 import com.petqua.domain.auth.token.RefreshToken
 import com.petqua.domain.auth.token.RefreshTokenRepository
 import com.petqua.domain.auth.token.findByTokenOrThrow
@@ -16,9 +17,9 @@ import com.petqua.exception.auth.AuthException
 import com.petqua.exception.auth.AuthExceptionType.INVALID_REFRESH_TOKEN
 import com.petqua.exception.member.MemberException
 import com.petqua.exception.member.MemberExceptionType.NOT_FOUND_MEMBER
+import java.util.Date
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.util.Date
 
 @Transactional
 @Service
@@ -27,6 +28,7 @@ class AuthService(
     private val authTokenProvider: AuthTokenProvider,
     private val cartProductRepository: CartProductRepository,
     private val refreshTokenRepository: RefreshTokenRepository,
+    private val blackListTokenCacheStorage: BlackListTokenCacheStorage,
 ) {
 
     fun findOrCreateMemberBy(
@@ -72,9 +74,12 @@ class AuthService(
         return AuthTokenInfo.from(authToken)
     }
 
-    @Transactional(readOnly = true)
-    fun findMemberBy(accessToken: String, refreshToken: String): Member {
+    fun validateTokenExpiredStatusForExtendLogin(accessToken: String, refreshToken: String) {
         authTokenProvider.validateTokenExpiredStatusForExtendLogin(accessToken, refreshToken)
+    }
+
+    @Transactional(readOnly = true)
+    fun findMemberBy(refreshToken: String): Member {
         val savedRefreshToken = refreshTokenRepository.findByTokenOrThrow(refreshToken) {
             AuthException(INVALID_REFRESH_TOKEN)
         }
@@ -106,5 +111,13 @@ class AuthService(
 
         cartProductRepository.deleteByMemberId(member.id)
         refreshTokenRepository.deleteByMemberId(member.id)
+    }
+
+    fun logOut(member: Member, accessToken: String) {
+        member.signOut()
+        memberRepository.save(member)
+
+        refreshTokenRepository.deleteByMemberId(member.id)
+        blackListTokenCacheStorage.save(member.id, accessToken)
     }
 }

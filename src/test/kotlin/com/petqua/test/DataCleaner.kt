@@ -5,6 +5,7 @@ import jakarta.persistence.PersistenceContext
 import javax.sql.DataSource
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cache.CacheManager
+import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
@@ -24,6 +25,9 @@ class DataCleaner(
 
     @Autowired
     val cacheManager: CacheManager,
+
+    @Autowired
+    val redisTemplate: RedisTemplate<String, Any>,
 ) {
 
     @Transactional
@@ -33,6 +37,7 @@ class DataCleaner(
         }
         truncateAllTables()
         clearCache()
+        clearRedis()
     }
 
     private fun initialize() {
@@ -52,5 +57,9 @@ class DataCleaner(
 
     private fun clearCache() {
         cacheManager.cacheNames.forEach { cacheManager.getCache(it)?.clear() }
+    }
+
+    private fun clearRedis() {
+        redisTemplate.execute { connection -> connection.commands().flushDb() }
     }
 }

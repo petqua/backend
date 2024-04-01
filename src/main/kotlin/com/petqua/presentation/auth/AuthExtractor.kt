@@ -5,6 +5,7 @@ import com.petqua.common.util.getCookieValueOrThrow
 import com.petqua.common.util.getHeaderOrThrow
 import com.petqua.common.util.throwExceptionWhen
 import com.petqua.domain.auth.token.AccessTokenClaims
+import com.petqua.domain.auth.token.BlackListTokenCacheStorage
 import com.petqua.domain.auth.token.JwtProvider
 import com.petqua.domain.member.MemberRepository
 import com.petqua.exception.auth.AuthException
@@ -12,6 +13,7 @@ import com.petqua.exception.auth.AuthExceptionType.EXPIRED_ACCESS_TOKEN
 import com.petqua.exception.auth.AuthExceptionType.INVALID_ACCESS_TOKEN
 import com.petqua.exception.auth.AuthExceptionType.INVALID_AUTH_COOKIE
 import com.petqua.exception.auth.AuthExceptionType.INVALID_AUTH_HEADER
+import com.petqua.exception.auth.AuthExceptionType.UNABLE_ACCESS_TOKEN
 import com.petqua.exception.member.MemberException
 import com.petqua.exception.member.MemberExceptionType.NOT_FOUND_MEMBER
 import io.jsonwebtoken.ExpiredJwtException
@@ -27,6 +29,7 @@ private const val REFRESH_TOKEN = "refresh-token"
 class AuthExtractor(
     private val jwtProvider: JwtProvider,
     private val memberRepository: MemberRepository,
+    private val blackListTokenCacheStorage: BlackListTokenCacheStorage,
 ) {
 
     fun hasAuthorizationHeader(request: HttpServletRequest): Boolean {
@@ -58,9 +61,35 @@ class AuthExtractor(
             memberRepository.existActiveByIdOrThrow(accessTokenClaims.memberId) {
                 MemberException(NOT_FOUND_MEMBER)
             }
+            validateBlackListed(accessTokenClaims.memberId, token)
             return accessTokenClaims
         } catch (e: ExpiredJwtException) {
             throw AuthException(EXPIRED_ACCESS_TOKEN)
+        } catch (e: JwtException) {
+            throw AuthException(INVALID_ACCESS_TOKEN)
+        } catch (e: NullPointerException) {
+            throw AuthException(INVALID_ACCESS_TOKEN)
+        }
+    }
+
+    private fun validateBlackListed(memberId: Long, token: String) {
+        throwExceptionWhen(blackListTokenCacheStorage.isBlackListed(memberId, token)) {
+            AuthException(UNABLE_ACCESS_TOKEN)
+        }
+    }
+
+    fun validateBlacklistTokenRegardlessExpiration(token: String) {
+        val accessTokenClaims = getAccessTokenClaimsRegardlessExpiration(token)
+        validateBlackListed(accessTokenClaims.memberId, token)
+    }
+
+    private fun getAccessTokenClaimsRegardlessExpiration(token: String): AccessTokenClaims {
+        return try {
+            AccessTokenClaims.from(jwtProvider.getPayload(token))
+        } catch (e: ExpiredJwtException) {
+            val payload = mutableMapOf<String, String>()
+            e.claims.forEach { payload[it.key] = it.value.toString() }
+            AccessTokenClaims.from(payload)
         } catch (e: JwtException) {
             throw AuthException(INVALID_ACCESS_TOKEN)
         } catch (e: NullPointerException) {
