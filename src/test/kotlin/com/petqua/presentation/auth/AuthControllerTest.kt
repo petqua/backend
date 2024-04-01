@@ -3,22 +3,25 @@ package com.petqua.presentation.auth
 import com.ninjasquad.springmockk.SpykBean
 import com.petqua.application.auth.OauthService
 import com.petqua.common.domain.findByIdOrThrow
+import com.petqua.common.exception.ExceptionResponse
 import com.petqua.domain.auth.oauth.OauthServerType
 import com.petqua.domain.auth.token.AuthTokenProvider
 import com.petqua.domain.auth.token.RefreshToken
 import com.petqua.domain.auth.token.RefreshTokenRepository
 import com.petqua.domain.member.MemberRepository
+import com.petqua.exception.auth.AuthExceptionType.UNABLE_ACCESS_TOKEN
 import com.petqua.test.ApiTestConfig
 import com.petqua.test.fixture.member
 import io.kotest.assertions.assertSoftly
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.verify
+import java.util.Date
 import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.http.HttpHeaders.SET_COOKIE
 import org.springframework.http.HttpStatus.NO_CONTENT
 import org.springframework.http.HttpStatus.OK
-import java.util.Date
+import org.springframework.http.HttpStatus.UNAUTHORIZED
 
 class AuthControllerTest(
     private val memberRepository: MemberRepository,
@@ -97,6 +100,84 @@ class AuthControllerTest(
                     verify(exactly = 1) {
                         oauthService.disconnectBy(any(OauthServerType::class), any(String::class))
                     }
+                }
+            }
+        }
+
+        Given("로그아웃 요청을 할 때") {
+            val member = memberRepository.save(member())
+            val createAuthToken = authTokenProvider.createAuthToken(member, Date())
+            val accessToken = createAuthToken.accessToken
+            val refreshToken = createAuthToken.refreshToken
+            refreshTokenRepository.save(
+                RefreshToken(
+                    memberId = member.id,
+                    token = refreshToken
+                )
+            )
+
+            When("회원의 인증 정보를 입력 하면") {
+                val response = requestSignOut(accessToken, refreshToken)
+                val signOutMember = memberRepository.findByIdOrThrow(member.id)
+
+                Then("멤버의 토큰 정보와 RefreshToken이 초기화 된다") {
+                    response.statusCode shouldBe NO_CONTENT.value()
+
+                    assertSoftly(signOutMember) {
+                        refreshTokenRepository.findByToken(refreshToken) shouldBe null
+
+                        it.oauthAccessToken shouldBe ""
+                        it.oauthAccessTokenExpiresAt shouldBe null
+                        it.oauthRefreshToken shouldBe ""
+                    }
+                }
+            }
+        }
+
+        Given("로그아웃 된 인증정보로") {
+            When("인증이 필요한 요청에 사용하는 경우") {
+                val member = memberRepository.save(member())
+                val createAuthToken = authTokenProvider.createAuthToken(member, Date())
+                val accessToken = createAuthToken.accessToken
+                val refreshToken = createAuthToken.refreshToken
+                refreshTokenRepository.save(
+                    RefreshToken(
+                        memberId = member.id,
+                        token = refreshToken
+                    )
+                )
+                requestSignOut(accessToken, refreshToken)
+
+                val response = requestDeleteMember(accessToken)
+                Then("사용 할 수 없다") {
+                    val errorResponse = response.`as`(ExceptionResponse::class.java)
+                    assertSoftly(response) {
+                        statusCode shouldBe UNAUTHORIZED.value()
+                        errorResponse.message shouldBe UNABLE_ACCESS_TOKEN.errorMessage()
+                    }.statusCode shouldBe 401
+                }
+            }
+
+            When("로그인 연장 요청시에 사용하는 경우") {
+                val member = memberRepository.save(member())
+                val createAuthToken = authTokenProvider.createAuthToken(member, Date())
+                val accessToken = createAuthToken.accessToken
+                val refreshToken = createAuthToken.refreshToken
+                refreshTokenRepository.save(
+                    RefreshToken(
+                        memberId = member.id,
+                        token = refreshToken
+                    )
+                )
+                requestSignOut(accessToken, refreshToken)
+
+                val response = requestExtendLogin(accessToken, refreshToken)
+                Then("사용 할 수 없다") {
+                    val errorResponse = response.`as`(ExceptionResponse::class.java)
+                    assertSoftly(response) {
+                        statusCode shouldBe UNAUTHORIZED.value()
+                        errorResponse.message shouldBe UNABLE_ACCESS_TOKEN.errorMessage()
+                    }.statusCode shouldBe 401
                 }
             }
         }

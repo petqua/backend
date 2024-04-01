@@ -66,4 +66,25 @@ class MemberTest : StringSpec({
             member.validateDeleted()
         }.exceptionType() shouldBe NOT_FOUND_MEMBER
     }
+
+    "로그아웃 처리를 한다" {
+        val member = Member(
+            id = 1L,
+            oauthId = 1L,
+            oauthServerNumber = OauthServerType.KAKAO.number,
+            authority = Authority.MEMBER,
+            isDeleted = false,
+            oauthAccessToken = "oauthAccessToken",
+            oauthAccessTokenExpiresAt = LocalDateTime.now().plusSeconds(10000),
+            oauthRefreshToken = "oauthRefreshToken",
+        )
+
+        member.signOut()
+
+        assertSoftly(member) {
+            it.oauthAccessToken shouldBe ""
+            it.oauthAccessTokenExpiresAt shouldBe null
+            it.oauthRefreshToken shouldBe ""
+        }
+    }
 })

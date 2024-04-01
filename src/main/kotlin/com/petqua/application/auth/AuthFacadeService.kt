@@ -2,8 +2,8 @@ package com.petqua.application.auth
 
 import com.petqua.domain.auth.oauth.OauthServerType
 import com.petqua.domain.member.Member
-import org.springframework.stereotype.Service
 import java.net.URI
+import org.springframework.stereotype.Service
 
 @Service
 class AuthFacadeService(
@@ -23,7 +23,8 @@ class AuthFacadeService(
     }
 
     fun extendLogin(accessToken: String, refreshToken: String): AuthTokenInfo {
-        val member = authService.findMemberBy(accessToken = accessToken, refreshToken = refreshToken)
+        authService.validateTokenExpiredStatusForExtendLogin(accessToken, refreshToken)
+        val member = authService.findMemberBy(refreshToken = refreshToken)
         updateOauthTokenIfExpired(member)
         return authService.createAuthToken(member)
     }
@@ -46,5 +47,10 @@ class AuthFacadeService(
             oauthAccessToken = member.oauthAccessToken
         )
         authService.delete(member)
+    }
+
+    fun logOut(accessToken: String, refreshToken: String) {
+        val member = authService.findMemberBy(refreshToken = refreshToken)
+        authService.logOut(member, accessToken)
     }
 }
