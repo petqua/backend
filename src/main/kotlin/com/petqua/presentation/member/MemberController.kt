@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.http.HttpHeaders.SET_COOKIE
+import org.springframework.http.HttpStatus.CREATED
 import org.springframework.http.ResponseCookie
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -47,7 +48,7 @@ class MemberController(
             set(AUTHORIZATION, authTokenInfo.accessToken)
             set(SET_COOKIE, refreshTokenCookie.toString())
         }
-        return ResponseEntity.ok().headers(headers).build()
+        return ResponseEntity.status(CREATED).headers(headers).build()
     }
 
     private fun createRefreshTokenCookie(refreshToken: String): ResponseCookie {
@@ -65,7 +66,7 @@ class MemberController(
         @RequestParam name: String,
     ): ResponseEntity<Unit> {
         memberService.validateContainingBannedWord(name)
-        return ResponseEntity.ok().build()
+        return ResponseEntity.noContent().build()
     }
 
     @Operation(summary = "회원 물생활 프로필 입력 API", description = "회원의 추가적인 물생활 정보를 입력합니다")

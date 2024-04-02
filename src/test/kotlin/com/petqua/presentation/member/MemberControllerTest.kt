@@ -1,16 +1,13 @@
 package com.petqua.presentation.member
 
-import com.ninjasquad.springmockk.SpykBean
 import com.petqua.common.domain.findByIdOrThrow
 import com.petqua.common.exception.ExceptionResponse
-import com.petqua.domain.auth.AuthMemberRepository
 import com.petqua.domain.fish.FishRepository
 import com.petqua.domain.member.FishTankRepository
 import com.petqua.domain.member.MemberRepository
 import com.petqua.domain.member.PetFishRepository
 import com.petqua.domain.member.PetFishSex
 import com.petqua.domain.member.TankSize
-import com.petqua.domain.member.nickname.NicknameGenerator
 import com.petqua.domain.member.nickname.NicknameWord
 import com.petqua.domain.member.nickname.NicknameWordRepository
 import com.petqua.domain.policy.bannedword.BannedWord
@@ -31,21 +28,19 @@ import io.kotest.matchers.string.shouldContain
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.http.HttpStatus.BAD_REQUEST
+import org.springframework.http.HttpStatus.CREATED
 import org.springframework.http.HttpStatus.NO_CONTENT
-import org.springframework.http.HttpStatus.OK
 import java.time.LocalDate
 import java.time.YearMonth
 import kotlin.Long.Companion.MIN_VALUE
 
 class MemberControllerTest(
-    private val authMemberRepository: AuthMemberRepository,
     private val nicknameWordRepository: NicknameWordRepository,
     private val memberRepository: MemberRepository,
     private val bannedWordRepository: BannedWordRepository,
     private val fishRepository: FishRepository,
     private val petFishRepository: PetFishRepository,
     private val fishTankRepository: FishTankRepository,
-    @SpykBean private val nicknameGenerator: NicknameGenerator,
 ) : ApiTestConfig() {
 
     init {
@@ -65,8 +60,8 @@ class MemberControllerTest(
                     MemberSignUpRequest(hasAgreedToMarketingNotification = true)
                 )
 
-                Then("200 OK로 응답한다") {
-                    response.statusCode shouldBe OK.value()
+                Then("201 CREATED 로 응답한다") {
+                    response.statusCode shouldBe CREATED.value()
                 }
 
                 Then("회원이 생성된다") {
@@ -133,7 +128,7 @@ class MemberControllerTest(
                 val response = requestValidateContainingBannedWord(name)
 
                 Then("예외를 던지지 않는다") {
-                    response.statusCode shouldBe OK.value()
+                    response.statusCode shouldBe NO_CONTENT.value()
                 }
             }
         }
