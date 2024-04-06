@@ -79,7 +79,7 @@ class MemberService(
         validateContainingBannedWord(command.fishTankName)
         val fishTank = fishTankRepository.save(command.toFishTank(command.memberId))
         val petFishes = command.toPetFishes(command.memberId, fishTank.id)
-        val countOfFishes = fishRepository.countsByIds(petFishes.ids())
+        val countOfFishes = fishRepository.countsByIds(petFishes.uniqueIds())
         petFishes.validateFishesByCount(countOfFishes)
         petFishRepository.saveAll(petFishes.values)
     }

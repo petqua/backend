@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.Query
 interface FishRepository : JpaRepository<Fish, Long>, FishCustomRepository {
 
     @Query("SELECT COUNT(f) FROM Fish f WHERE f.id IN :ids")
-    fun countsByIds(ids: List<Long>): Int
+    fun countsByIds(ids: Set<Long>): Int
 }

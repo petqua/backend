@@ -10,6 +10,7 @@ import com.petqua.domain.member.FishTankRepository
 import com.petqua.domain.member.MemberRepository
 import com.petqua.domain.member.PetFishRepository
 import com.petqua.domain.member.PetFishSex.FEMALE
+import com.petqua.domain.member.PetFishSex.MALE
 import com.petqua.domain.member.TankSize.TANK_1
 import com.petqua.domain.member.findByAuthCredentialsIdOrThrow
 import com.petqua.domain.member.nickname.Nickname
@@ -272,6 +273,53 @@ class MemberServiceTest(
                     petFish.fishTankId shouldBe fishTank.id
                     petFish.sex shouldBe FEMALE
                     petFish.count.value shouldBe 1
+                }
+            }
+        }
+
+        When("같은 반려어를 서로 다른 성별로 정보를 입력하면") {
+            memberService.addProfile(
+                MemberAddProfileCommand(
+                    memberId = member.id,
+                    fishTankName = "펫쿠아 어항",
+                    installationDate = YearMonth.of(2024, 3),
+                    fishTankSize = "TANK_1",
+                    fishLifeYear = 1,
+                    petFishes = listOf(
+                        PetFishAddCommand(
+                            fishId = fish.id,
+                            sex = "FEMALE",
+                            count = 1
+                        ),
+                        PetFishAddCommand(
+                            fishId = fish.id,
+                            sex = "MALE",
+                            count = 1
+                        )
+                    )
+                )
+            )
+
+            Then("입력한 회원의 반려어 정보가 저장된다") {
+                val fishTank = fishTankRepository.findByMemberId(member.id)[0]
+                val petFishes = petFishRepository.findByFishTankId(fishTank.id)
+
+                assertSoftly {
+                    petFishes.size shouldBe 2
+
+                    val femalePetFish = petFishes[0]
+                    femalePetFish.memberId shouldBe member.id
+                    femalePetFish.fishId shouldBe fish.id
+                    femalePetFish.fishTankId shouldBe fishTank.id
+                    femalePetFish.sex shouldBe FEMALE
+                    femalePetFish.count.value shouldBe 1
+
+                    val malePetFish = petFishes[1]
+                    malePetFish.memberId shouldBe member.id
+                    malePetFish.fishId shouldBe fish.id
+                    malePetFish.fishTankId shouldBe fishTank.id
+                    malePetFish.sex shouldBe MALE
+                    malePetFish.count.value shouldBe 1
                 }
             }
         }

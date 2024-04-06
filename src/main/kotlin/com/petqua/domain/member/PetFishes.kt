@@ -15,12 +15,12 @@ class PetFishes(
         }
     }
 
-    fun ids(): List<Long> {
-        return values.map { it.fishId }
+    fun uniqueIds(): Set<Long> {
+        return values.map { it.fishId }.toSet()
     }
 
     fun validateFishesByCount(countOfFishes: Int) {
-        throwExceptionWhen(values.size != countOfFishes) {
+        throwExceptionWhen(uniqueIds().size != countOfFishes) {
             MemberException(INVALID_MEMBER_PET_FISH)
         }
     }
