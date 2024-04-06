@@ -8,6 +8,9 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType.IDENTITY
 import jakarta.persistence.Id
 import java.time.LocalDate
+import java.time.YearMonth
+
+private const val STANDARD_DAY = 1
 
 @Entity
 class FishTank(
@@ -26,4 +29,20 @@ class FishTank(
     @Column(nullable = false)
     val size: TankSize = NONE,
 ) {
+
+    companion object {
+        fun of(
+            memberId: Long,
+            fishTankName: String,
+            installationDate: YearMonth,
+            fishTankSize: String,
+        ): FishTank {
+            return FishTank(
+                memberId = memberId,
+                name = TankName(fishTankName),
+                installationDate = LocalDate.of(installationDate.year, installationDate.month, STANDARD_DAY),
+                size = TankSize.from(fishTankSize)
+            )
+        }
+    }
 }

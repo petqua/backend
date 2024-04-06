@@ -2,6 +2,7 @@ package com.petqua.domain.member
 
 import com.petqua.domain.auth.Authority
 import com.petqua.domain.auth.Authority.MEMBER
+import com.petqua.domain.member.nickname.Nickname
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
@@ -22,7 +23,7 @@ class Member(
     val authority: Authority,
 
     @Column(nullable = false)
-    var nickname: String = "쿠아", // FIXME: 회원 닉네임 정책 추가
+    var nickname: Nickname = Nickname.emptyNickname(),
 
     var profileImageUrl: String? = null,
 
@@ -30,10 +31,10 @@ class Member(
     var fishTankCount: Int = 0,
 
     @Column(nullable = false)
-    var fishLifeYear: FishLifeYear = FishLifeYear.forAnonymous(),
+    var fishLifeYear: FishLifeYear = FishLifeYear.emptyFishLifeYear(),
 
     @Column(nullable = false)
-    var isAnonymous: Boolean = true,
+    var hasProfile: Boolean = true,
 
     @Column(nullable = false)
     var hasAgreedToMarketingNotification: Boolean = false,
@@ -47,17 +48,26 @@ class Member(
     }
 
     private fun anonymize() {
-        nickname = ""
+        nickname = Nickname.emptyNickname()
         profileImageUrl = null
+        hasProfile = false
         hasAgreedToMarketingNotification = false
+    }
+
+    fun updateNickname(nickname: Nickname) {
+        this.nickname = nickname
     }
 
     fun updateFishLifeYear(fishLifeYear: FishLifeYear) {
         this.fishLifeYear = fishLifeYear;
     }
 
-    fun updateIsAnonymous(isAnonymous: Boolean) {
-        this.isAnonymous = isAnonymous;
+    fun updateHasProfile(hasProfile: Boolean) {
+        this.hasProfile = hasProfile;
+    }
+
+    fun updateHasAgreedToMarketingNotification(hasAgreedToMarketingNotification: Boolean) {
+        this.hasAgreedToMarketingNotification = hasAgreedToMarketingNotification;
     }
 
     fun increaseFishTankCount() {
@@ -65,7 +75,7 @@ class Member(
     }
 
     companion object {
-        fun anonymousMemberFrom(authMemberId: Long): Member {
+        fun emptyProfileMemberFrom(authMemberId: Long): Member {
             return Member(
                 authority = MEMBER,
                 authMemberId = authMemberId

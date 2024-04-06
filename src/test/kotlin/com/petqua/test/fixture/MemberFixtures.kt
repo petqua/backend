@@ -3,6 +3,7 @@ package com.petqua.test.fixture
 import com.petqua.domain.auth.Authority
 import com.petqua.domain.member.FishLifeYear
 import com.petqua.domain.member.Member
+import com.petqua.domain.member.nickname.Nickname
 
 fun member(
     id: Long = 0L,
@@ -20,11 +21,11 @@ fun member(
         id = id,
         authMemberId = authMemberId,
         authority = authority,
-        nickname = nickname,
+        nickname = Nickname.from(nickname),
         profileImageUrl = profileImageUrl,
         fishTankCount = fishTankCount,
         fishLifeYear = FishLifeYear.from(fishLifeYear),
-        isAnonymous = isAnonymous,
+        hasProfile = isAnonymous,
         hasAgreedToMarketingNotification = hasAgreedToMarketingNotification,
         isDeleted = isDeleted,
     )

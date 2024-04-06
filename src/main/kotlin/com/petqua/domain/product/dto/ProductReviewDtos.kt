@@ -37,7 +37,7 @@ data class ProductReviewWithMemberResponse(
         hasPhotos = productReview.hasPhotos,
         recommendCount = productReview.recommendCount,
         reviewerId = reviewer.id,
-        reviewerName = reviewer.nickname,
+        reviewerName = reviewer.nickname.value,
         reviewerProfileImageUrl = reviewer.profileImageUrl,
         reviewerFishTankCount = reviewer.fishTankCount,
         reviewerYears = reviewer.fishLifeYear.value,

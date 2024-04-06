@@ -15,6 +15,7 @@ import com.petqua.domain.member.Member
 import com.petqua.domain.member.MemberRepository
 import com.petqua.domain.notification.Notification
 import com.petqua.domain.notification.NotificationRepository
+import com.petqua.domain.member.nickname.Nickname
 import com.petqua.domain.order.ShippingAddress
 import com.petqua.domain.order.ShippingAddressRepository
 import com.petqua.domain.product.Product
@@ -111,7 +112,7 @@ class DataInitializer(
                 isDefaultAddress = true,
             )
         )
-        
+
         // others
         saveCommerceData(authMember.id)
     }
@@ -133,10 +134,10 @@ class DataInitializer(
             Member(
                 authMemberId = authMemberId,
                 authority = MEMBER,
-                nickname = "홍길동",
+                nickname = Nickname.from("홍길동"),
                 fishTankCount = 1,
                 fishLifeYear = FishLifeYear.from(1),
-                isAnonymous = false,
+                hasProfile = false,
                 hasAgreedToMarketingNotification = true,
                 isDeleted = false,
             )
