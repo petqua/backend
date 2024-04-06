@@ -39,13 +39,13 @@ class MemberService(
 ) {
 
     fun signUp(command: MemberSignUpCommand): AuthTokenInfo {
-        validateDuplicateSignUp(command.authMemberId)
+        validateDuplicateSignUp(command.authCredentialsId)
 
         val nicknameWords = nicknameWordRepository.findAll()
         val nickname = generateUniqueNickname(nicknameWords)
         val member = memberRepository.save(
             Member.emptyProfileMemberOf(
-                authMemberId = command.authMemberId,
+                authCredentialsId = command.authCredentialsId,
                 nickname = nickname,
                 hasAgreedToMarketingNotification = command.hasAgreedToMarketingNotification
             )
@@ -53,8 +53,8 @@ class MemberService(
         return tokenService.createAuthToken(member.id, member.authority)
     }
 
-    private fun validateDuplicateSignUp(authMemberId: Long) {
-        throwExceptionWhen(memberRepository.existsMemberByAuthMemberId(authMemberId)) {
+    private fun validateDuplicateSignUp(authCredentialsId: Long) {
+        throwExceptionWhen(memberRepository.existsMemberByAuthCredentialsId(authCredentialsId)) {
             MemberException(HAS_SIGNED_UP_MEMBER)
         }
     }

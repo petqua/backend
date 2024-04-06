@@ -4,14 +4,14 @@ import com.ninjasquad.springmockk.SpykBean
 import com.petqua.application.member.dto.MemberAddProfileCommand
 import com.petqua.application.member.dto.MemberSignUpCommand
 import com.petqua.application.member.dto.PetFishAddCommand
-import com.petqua.domain.auth.AuthMemberRepository
+import com.petqua.domain.auth.AuthCredentialsRepository
 import com.petqua.domain.fish.FishRepository
 import com.petqua.domain.member.FishTankRepository
 import com.petqua.domain.member.MemberRepository
 import com.petqua.domain.member.PetFishRepository
 import com.petqua.domain.member.PetFishSex.FEMALE
 import com.petqua.domain.member.TankSize.TANK_1
-import com.petqua.domain.member.findByAuthMemberIdOrThrow
+import com.petqua.domain.member.findByAuthCredentialsIdOrThrow
 import com.petqua.domain.member.nickname.Nickname
 import com.petqua.domain.member.nickname.NicknameGenerator
 import com.petqua.domain.member.nickname.NicknameWord
@@ -29,7 +29,7 @@ import com.petqua.exception.member.MemberExceptionType.INVALID_MEMBER_FISH_TANK_
 import com.petqua.exception.member.MemberExceptionType.INVALID_MEMBER_PET_FISH
 import com.petqua.exception.member.MemberExceptionType.INVALID_MEMBER_PET_FISH_COUNT
 import com.petqua.exception.member.MemberExceptionType.NOT_FOUND_MEMBER
-import com.petqua.test.fixture.authMember
+import com.petqua.test.fixture.authCredentials
 import com.petqua.test.fixture.fish
 import com.petqua.test.fixture.member
 import com.petqua.test.fixture.memberAddProfileCommand
@@ -49,7 +49,7 @@ import java.time.YearMonth
 @SpringBootTest(webEnvironment = NONE)
 class MemberServiceTest(
     private val memberService: MemberService,
-    private val authMemberRepository: AuthMemberRepository,
+    private val authCredentialsRepository: AuthCredentialsRepository,
     private val nicknameWordRepository: NicknameWordRepository,
     private val memberRepository: MemberRepository,
     private val bannedWordRepository: BannedWordRepository,
@@ -67,18 +67,18 @@ class MemberServiceTest(
                 NicknameWord(word = "물고기"),
             )
         )
-        val authMember = authMemberRepository.save(authMember())
+        val authCredentials = authCredentialsRepository.save(authCredentials())
 
         When("회원 id와 약관 동의 여부를 입력하면") {
             val authTokenInfo = memberService.signUp(
                 MemberSignUpCommand(
-                    authMemberId = authMember.id,
+                    authCredentialsId = authCredentials.id,
                     hasAgreedToMarketingNotification = true
                 )
             )
 
             Then("동의 여부가 반영되고 회원의 닉네임이 생성된다") {
-                val signedUpMember = memberRepository.findByAuthMemberIdOrThrow(authMember.id)
+                val signedUpMember = memberRepository.findByAuthCredentialsIdOrThrow(authCredentials.id)
 
                 signedUpMember.hasAgreedToMarketingNotification shouldBe true
                 signedUpMember.nickname.value shouldContain "펫쿠아"
@@ -92,13 +92,13 @@ class MemberServiceTest(
         }
 
         When("이미 가입한 회원의 id 를 입력하면") {
-            memberRepository.save(member(authMemberId = authMember.id))
+            memberRepository.save(member(authCredentialsId = authCredentials.id))
 
             Then("예외가 발생한다") {
                 shouldThrow<MemberException> {
                     memberService.signUp(
                         MemberSignUpCommand(
-                            authMemberId = authMember.id,
+                            authCredentialsId = authCredentials.id,
                             hasAgreedToMarketingNotification = true
                         )
                     )
@@ -114,7 +114,7 @@ class MemberServiceTest(
                 NicknameWord(word = "물고기"),
             )
         )
-        val authMember = authMemberRepository.save(authMember())
+        val authCredentials = authCredentialsRepository.save(authCredentials())
 
         every {
             nicknameGenerator.generate(nicknameWordRepository.findAll())
@@ -127,7 +127,7 @@ class MemberServiceTest(
         When("생성한 닉네임이 고유하다면") {
             memberService.signUp(
                 MemberSignUpCommand(
-                    authMemberId = authMember.id,
+                    authCredentialsId = authCredentials.id,
                     hasAgreedToMarketingNotification = true
                 )
             )
@@ -144,7 +144,7 @@ class MemberServiceTest(
 
             memberService.signUp(
                 MemberSignUpCommand(
-                    authMemberId = authMember.id,
+                    authCredentialsId = authCredentials.id,
                     hasAgreedToMarketingNotification = true
                 )
             )
@@ -164,7 +164,7 @@ class MemberServiceTest(
                 shouldThrow<MemberException> {
                     memberService.signUp(
                         MemberSignUpCommand(
-                            authMemberId = authMember.id,
+                            authCredentialsId = authCredentials.id,
                             hasAgreedToMarketingNotification = true
                         )
                     )
@@ -217,8 +217,8 @@ class MemberServiceTest(
         )
         val fish = fishRepository.save(fish())
 
-        val authMember = authMemberRepository.save(authMember())
-        val member = memberRepository.save(member(authMemberId = authMember.id))
+        val authCredentials = authCredentialsRepository.save(authCredentials())
+        val member = memberRepository.save(member(authCredentialsId = authCredentials.id))
 
         When("어항과 수조, 반려어 등 정보를 입력하면") {
             memberService.addProfile(

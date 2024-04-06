@@ -12,7 +12,7 @@ import java.time.YearMonth
 
 fun member(
     id: Long = 0L,
-    authMemberId: Long = 0L,
+    authCredentialsId: Long = 0L,
     authority: Authority = Authority.MEMBER,
     nickname: String = "nickname",
     profileImageUrl: String = "imageUrl",
@@ -23,7 +23,7 @@ fun member(
 ): Member {
     return Member(
         id = id,
-        authMemberId = authMemberId,
+        authCredentialsId = authCredentialsId,
         authority = authority,
         nickname = Nickname.from(nickname),
         profileImageUrl = profileImageUrl,

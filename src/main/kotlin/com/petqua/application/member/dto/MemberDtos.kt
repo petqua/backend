@@ -8,7 +8,7 @@ import com.petqua.domain.member.PetFishes
 import java.time.YearMonth
 
 data class MemberSignUpCommand(
-    val authMemberId: Long,
+    val authCredentialsId: Long,
     val hasAgreedToMarketingNotification: Boolean,
 )
 

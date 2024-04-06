@@ -3,8 +3,8 @@ package com.petqua.presentation.auth
 import com.ninjasquad.springmockk.SpykBean
 import com.petqua.application.auth.OauthService
 import com.petqua.common.domain.findByIdOrThrow
+import com.petqua.domain.auth.AuthCredentialsRepository
 import com.petqua.common.exception.ExceptionResponse
-import com.petqua.domain.auth.AuthMemberRepository
 import com.petqua.domain.auth.oauth.OauthServerType
 import com.petqua.domain.auth.oauth.kakao.KakaoAccount
 import com.petqua.domain.auth.oauth.kakao.KakaoOauthApiClient
@@ -17,7 +17,7 @@ import com.petqua.domain.member.MemberRepository
 import com.petqua.domain.member.nickname.Nickname
 import com.petqua.exception.auth.AuthExceptionType.UNABLE_ACCESS_TOKEN
 import com.petqua.test.ApiTestConfig
-import com.petqua.test.fixture.authMember
+import com.petqua.test.fixture.authCredentials
 import com.petqua.test.fixture.member
 import io.kotest.assertions.assertSoftly
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -34,7 +34,7 @@ import org.springframework.http.HttpStatus.OK
 import org.springframework.http.HttpStatus.UNAUTHORIZED
 
 class AuthControllerTest(
-    private val authMemberRepository: AuthMemberRepository,
+    private val authCredentialsRepository: AuthCredentialsRepository,
     private val memberRepository: MemberRepository,
     private val refreshTokenRepository: RefreshTokenRepository,
     private val authTokenProvider: AuthTokenProvider,
@@ -48,14 +48,14 @@ class AuthControllerTest(
 
             When("회원이 카카오 로그인을 시도하면") {
                 val oauthId = 1L
-                val authMember = authMemberRepository.save(authMember(oauthId = oauthId))
-                memberRepository.save(member(authMemberId = authMember.id))
+                val authCredentials = authCredentialsRepository.save(authCredentials(oauthId = oauthId))
+                memberRepository.save(member(authCredentialsId = authCredentials.id))
 
                 every {
                     kakaoOauthApiClient.fetchUserInfo(any(String::class))
                 } returns KakaoUserInfo(
                     kakaoAccount = KakaoAccount(Profile(nickname = "nickname")),
-                    oauthId = authMember.oauthId
+                    oauthId = authCredentials.oauthId
                 )
 
                 val response = requestLogin(code = "accessCode")
@@ -88,10 +88,10 @@ class AuthControllerTest(
         }
 
         Given("로그인 연장을") {
-            val authMember = authMemberRepository.save(authMember())
+            val authCredentials = authCredentialsRepository.save(authCredentials())
             val member = memberRepository.save(
                 member(
-                    authMemberId = authMember.id
+                    authCredentialsId = authCredentials.id
                 )
             )
             val expiredAccessToken = authTokenProvider.createAuthToken(
@@ -136,9 +136,10 @@ class AuthControllerTest(
 
                 Then("회원의 인증 정보가 삭제된다") {
                     val deletedMember = memberRepository.findByIdOrThrow(memberId)
-                    val deletedAuthMember = authMemberRepository.findByIdOrThrow(deletedMember.authMemberId)
+                    val deletedAuthCredentials =
+                        authCredentialsRepository.findByIdOrThrow(deletedMember.authCredentialsId)
 
-                    assertSoftly(deletedAuthMember) {
+                    assertSoftly(deletedAuthCredentials) {
                         response.statusCode shouldBe NO_CONTENT.value()
 
                         it.isDeleted shouldBe true

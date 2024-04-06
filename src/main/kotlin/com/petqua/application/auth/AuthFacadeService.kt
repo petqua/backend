@@ -22,18 +22,18 @@ class AuthFacadeService(
         val oauthTokenInfo = oauthService.requestOauthTokenInfo(oauthServerType, code)
         val oauthUserInfo = oauthService.requestOauthUserInfo(oauthServerType, oauthTokenInfo.accessToken)
 
-        val authMember = authService.findOrCreateAuthMemberBy(oauthServerType, oauthUserInfo.oauthId)
-        authService.updateOauthToken(authMember, oauthTokenInfo)
+        val authCredentials = authService.findOrCreateAuthCredentialsBy(oauthServerType, oauthUserInfo.oauthId)
+        authService.updateOauthToken(authCredentials, oauthTokenInfo)
 
-        return tokenService.createAuthOrSignUpToken(authMember.id)
+        return tokenService.createAuthOrSignUpToken(authCredentials.id)
     }
 
     fun extendLogin(accessToken: String, refreshToken: String): AuthTokenInfo {
         authService.validateTokenExpiredStatusForExtendLogin(accessToken, refreshToken)
-        val authMember = authService.findAuthMemberBy(accessToken = accessToken, refreshToken = refreshToken)
-        updateOauthTokenIfExpired(authMember)
+        val authCredentials = authService.findAuthCredentialsBy(accessToken = accessToken, refreshToken = refreshToken)
+        updateOauthTokenIfExpired(authCredentials)
 
-        return tokenService.createAuthOrSignUpToken(authMember.id)
+        return tokenService.createAuthOrSignUpToken(authCredentials.id)
     }
 
     private fun updateOauthTokenIfExpired(authCredentials: AuthCredentials) {
@@ -48,13 +48,13 @@ class AuthFacadeService(
 
     fun deleteBy(memberId: Long) {
         val member = authService.findMemberBy(memberId)
-        val authMember = authService.findAuthMemberBy(member.authMemberId)
-        updateOauthTokenIfExpired(authMember)
+        val authCredentials = authService.findAuthCredentialsBy(member.authCredentialsId)
+        updateOauthTokenIfExpired(authCredentials)
         oauthService.disconnectBy(
-            oauthServerType = authMember.oauthServerType,
-            oauthAccessToken = authMember.oauthAccessToken
+            oauthServerType = authCredentials.oauthServerType,
+            oauthAccessToken = authCredentials.oauthAccessToken
         )
-        authService.delete(member, authMember)
+        authService.delete(member, authCredentials)
     }
 
     fun logOut(accessToken: String, refreshToken: String) {

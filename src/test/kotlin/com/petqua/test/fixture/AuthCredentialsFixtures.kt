@@ -4,7 +4,7 @@ import com.petqua.domain.auth.AuthCredentials
 import com.petqua.domain.auth.oauth.OauthServerType.KAKAO
 import java.time.LocalDateTime
 
-fun authMember(
+fun authCredentials(
     id: Long = 0L,
     oauthId: Long = 1L,
     oauthServerNumber: Int = KAKAO.number,

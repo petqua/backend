@@ -17,7 +17,7 @@ class Member(
     val id: Long = 0L,
 
     @Column(nullable = false)
-    val authMemberId: Long,
+    val authCredentialsId: Long,
 
     @Enumerated(EnumType.STRING)
     val authority: Authority,
@@ -64,13 +64,13 @@ class Member(
 
     companion object {
         fun emptyProfileMemberOf(
-            authMemberId: Long,
+            authCredentialsId: Long,
             nickname: Nickname,
             hasAgreedToMarketingNotification: Boolean,
         ): Member {
             return Member(
                 authority = MEMBER,
-                authMemberId = authMemberId,
+                authCredentialsId = authCredentialsId,
                 nickname = nickname,
                 profileImageUrl = null,
                 fishTankCount = 0,

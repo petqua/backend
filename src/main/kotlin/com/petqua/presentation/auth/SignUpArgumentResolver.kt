@@ -29,6 +29,6 @@ class SignUpArgumentResolver(
         val request = webRequest.getHttpServletRequestOrThrow()
         val token = authExtractor.extractSignUpToken(request)
         val signUpTokenClaims = authExtractor.getSignUpTokenClaimsOrThrow(token)
-        return SignUpGuest(signUpTokenClaims.authMemberId)
+        return SignUpGuest(signUpTokenClaims.authCredentialsId)
     }
 }

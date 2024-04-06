@@ -19,14 +19,14 @@ class AuthTokenService(
     private val memberRepository: MemberRepository,
 ) : TokenService {
 
-    override fun createAuthOrSignUpToken(authMemberId: Long): AuthTokenInfo {
-        val member = memberRepository.findByAuthMemberId(authMemberId)
+    override fun createAuthOrSignUpToken(authCredentialsId: Long): AuthTokenInfo {
+        val member = memberRepository.findByAuthCredentialsId(authCredentialsId)
         return member?.let {
             createAuthToken(
                 memberId = member.id,
                 authority = member.authority
             )
-        } ?: createSignUpToken(authMemberId)
+        } ?: createSignUpToken(authCredentialsId)
     }
 
     override fun createAuthToken(memberId: Long, authority: Authority): AuthTokenInfo {
@@ -41,8 +41,8 @@ class AuthTokenService(
         return AuthTokenInfo.from(authToken)
     }
 
-    private fun createSignUpToken(authMemberId: Long): AuthTokenInfo {
-        val authToken = authTokenProvider.createSignUpAuthToken(authMemberId, Date())
+    private fun createSignUpToken(authCredentialsId: Long): AuthTokenInfo {
+        val authToken = authTokenProvider.createSignUpAuthToken(authCredentialsId, Date())
         return AuthTokenInfo.signUpTokenOf(authToken)
     }
 }

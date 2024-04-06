@@ -35,8 +35,8 @@ class AuthTokenProvider(
         )
     }
 
-    fun createSignUpAuthToken(authMemberId: Long, issuedDate: Date): AuthToken {
-        val signUpTokenClaims = SignUpTokenClaims(authMemberId = authMemberId)
+    fun createSignUpAuthToken(authCredentialsId: Long, issuedDate: Date): AuthToken {
+        val signUpTokenClaims = SignUpTokenClaims(authCredentialsId = authCredentialsId)
         val token = jwtProvider.createToken(
             claims = signUpTokenClaims.getClaims(),
             tokenLiveTime = properties.accessTokenLiveTime,

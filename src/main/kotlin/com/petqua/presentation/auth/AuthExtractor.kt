@@ -4,7 +4,7 @@ import com.petqua.common.domain.existActiveByIdOrThrow
 import com.petqua.common.util.getCookieValueOrThrow
 import com.petqua.common.util.getHeaderOrThrow
 import com.petqua.common.util.throwExceptionWhen
-import com.petqua.domain.auth.AuthMemberRepository
+import com.petqua.domain.auth.AuthCredentialsRepository
 import com.petqua.domain.auth.token.AccessTokenClaims
 import com.petqua.domain.auth.token.BlackListTokenCacheStorage
 import com.petqua.domain.auth.token.JwtProvider
@@ -35,7 +35,7 @@ private const val SIGN_UP_AUTHORIZATION = "Sign-Up-Authorization"
 class AuthExtractor(
     private val jwtProvider: JwtProvider,
     private val memberRepository: MemberRepository,
-    private val authMemberRepository: AuthMemberRepository,
+    private val authCredentialsRepository: AuthCredentialsRepository,
     private val blackListTokenCacheStorage: BlackListTokenCacheStorage,
 ) {
 
@@ -93,7 +93,7 @@ class AuthExtractor(
     fun getSignUpTokenClaimsOrThrow(token: String): SignUpTokenClaims {
         try {
             val signUpTokenClaims = SignUpTokenClaims.from(jwtProvider.getPayload(token))
-            authMemberRepository.existActiveByIdOrThrow(signUpTokenClaims.authMemberId) {
+            authCredentialsRepository.existActiveByIdOrThrow(signUpTokenClaims.authCredentialsId) {
                 AuthException(INVALID_SIGN_UP_TOKEN)
             }
             return signUpTokenClaims

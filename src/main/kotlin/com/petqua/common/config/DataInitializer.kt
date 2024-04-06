@@ -4,7 +4,7 @@ import com.petqua.common.domain.Money
 import com.petqua.domain.announcement.Announcement
 import com.petqua.domain.announcement.AnnouncementRepository
 import com.petqua.domain.auth.AuthCredentials
-import com.petqua.domain.auth.AuthMemberRepository
+import com.petqua.domain.auth.AuthCredentialsRepository
 import com.petqua.domain.auth.Authority.MEMBER
 import com.petqua.domain.banner.Banner
 import com.petqua.domain.banner.BannerRepository
@@ -78,7 +78,7 @@ class DataInitializer(
     private val productRepository: ProductRepository,
     private val recommendationRepository: ProductRecommendationRepository,
     private val storeRepository: StoreRepository,
-    private val authMemberRepository: AuthMemberRepository,
+    private val authCredentialsRepository: AuthCredentialsRepository,
     private val memberRepository: MemberRepository,
     private val categoryRepository: CategoryRepository,
     private val productReviewRepository: ProductReviewRepository,
@@ -100,8 +100,8 @@ class DataInitializer(
     @Transactional
     fun setUpData() {
         // member
-        val authMember = saveAuthMember()
-        saveMember(authMember.id)
+        val authCredentials = saveAuthCredentials()
+        saveMember(authCredentials.id)
 
         // fish
         saveFishes()
@@ -119,14 +119,14 @@ class DataInitializer(
         saveBanners()
 
         // shippingAddress
-        saveShippingAddress(authMember)
+        saveShippingAddress(authCredentials)
 
         // others
-        saveCommerceData(authMember.id)
+        saveCommerceData(authCredentials.id)
     }
 
-    private fun saveAuthMember(): AuthCredentials {
-        return authMemberRepository.save(
+    private fun saveAuthCredentials(): AuthCredentials {
+        return authCredentialsRepository.save(
             AuthCredentials(
                 oauthId = 1L,
                 oauthServerNumber = 1,
@@ -137,10 +137,10 @@ class DataInitializer(
         )
     }
 
-    private fun saveMember(authMemberId: Long) {
+    private fun saveMember(authCredentialsId: Long) {
         memberRepository.save(
             Member(
-                authMemberId = authMemberId,
+                authCredentialsId = authCredentialsId,
                 authority = MEMBER,
                 nickname = Nickname.from("홍길동"),
                 profileImageUrl = null,

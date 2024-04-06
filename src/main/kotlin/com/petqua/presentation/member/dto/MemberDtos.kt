@@ -14,9 +14,9 @@ data class MemberSignUpRequest(
     val hasAgreedToMarketingNotification: Boolean,
 ) {
 
-    fun toCommand(authMemberId: Long): MemberSignUpCommand {
+    fun toCommand(authCredentialsId: Long): MemberSignUpCommand {
         return MemberSignUpCommand(
-            authMemberId = authMemberId,
+            authCredentialsId = authCredentialsId,
             hasAgreedToMarketingNotification = hasAgreedToMarketingNotification,
         )
     }

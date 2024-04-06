@@ -74,7 +74,7 @@ class AuthCredentials(
     }
 
     companion object {
-        fun authMemberOf(
+        fun of(
             oauthId: Long,
             oauthServerNumber: Int,
         ): AuthCredentials {

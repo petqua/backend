@@ -40,7 +40,7 @@ class MemberController(
         @Auth signUpGuest: SignUpGuest,
         @RequestBody request: MemberSignUpRequest,
     ): ResponseEntity<Unit> {
-        val command = request.toCommand(signUpGuest.authMemberId)
+        val command = request.toCommand(signUpGuest.authCredentialsId)
         val authTokenInfo = memberService.signUp(command)
 
         val refreshTokenCookie = createRefreshTokenCookie(authTokenInfo.refreshToken)

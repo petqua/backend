@@ -2,7 +2,7 @@ package com.petqua.application.auth
 
 import com.petqua.common.domain.findActiveByIdOrThrow
 import com.petqua.domain.auth.AuthCredentials
-import com.petqua.domain.auth.AuthMemberRepository
+import com.petqua.domain.auth.AuthCredentialsRepository
 import com.petqua.domain.auth.oauth.OauthServerType
 import com.petqua.domain.auth.oauth.OauthTokenInfo
 import com.petqua.domain.auth.token.AuthTokenProvider
@@ -25,7 +25,7 @@ import java.util.Date
 @Transactional
 @Service
 class AuthService(
-    private val authMemberRepository: AuthMemberRepository,
+    private val authCredentialsRepository: AuthCredentialsRepository,
     private val authTokenProvider: AuthTokenProvider,
     private val cartProductRepository: CartProductRepository,
     private val refreshTokenRepository: RefreshTokenRepository,
@@ -33,15 +33,15 @@ class AuthService(
     private val blackListTokenCacheStorage: BlackListTokenCacheStorage,
 ) {
 
-    fun findOrCreateAuthMemberBy(
+    fun findOrCreateAuthCredentialsBy(
         oauthServerType: OauthServerType,
         oauthId: Long,
     ): AuthCredentials {
-        return authMemberRepository.findByOauthIdAndOauthServerNumberAndIsDeletedFalse(
+        return authCredentialsRepository.findByOauthIdAndOauthServerNumberAndIsDeletedFalse(
             oauthId = oauthId,
             oauthServerNumber = oauthServerType.number
-        ) ?: authMemberRepository.save(
-            AuthCredentials.authMemberOf(
+        ) ?: authCredentialsRepository.save(
+            AuthCredentials.of(
                 oauthId = oauthId,
                 oauthServerNumber = oauthServerType.number,
             )
@@ -57,13 +57,13 @@ class AuthService(
     }
 
     @Transactional(readOnly = true)
-    fun findAuthMemberBy(accessToken: String, refreshToken: String): AuthCredentials {
+    fun findAuthCredentialsBy(accessToken: String, refreshToken: String): AuthCredentials {
         authTokenProvider.validateTokenExpiredStatusForExtendLogin(accessToken, refreshToken)
         val savedRefreshToken = refreshTokenRepository.findByTokenOrThrow(refreshToken) {
             AuthException(INVALID_REFRESH_TOKEN)
         }
         savedRefreshToken.validateTokenValue(refreshToken)
-        return authMemberRepository.findActiveByIdOrThrow(savedRefreshToken.memberId) {
+        return authCredentialsRepository.findActiveByIdOrThrow(savedRefreshToken.memberId) {
             MemberException(NOT_FOUND_MEMBER)
         }
     }
@@ -76,8 +76,8 @@ class AuthService(
     }
 
     @Transactional(readOnly = true)
-    fun findAuthMemberBy(authMemberId: Long): AuthCredentials {
-        return authMemberRepository.findActiveByIdOrThrow(authMemberId) {
+    fun findAuthCredentialsBy(authCredentialsId: Long): AuthCredentials {
+        return authCredentialsRepository.findActiveByIdOrThrow(authCredentialsId) {
             MemberException(NOT_FOUND_MEMBER)
         }
     }
@@ -88,14 +88,14 @@ class AuthService(
             expiresIn = oauthTokenInfo.expiresIn,
             refreshToken = oauthTokenInfo.refreshToken
         )
-        authMemberRepository.save(authCredentials)
+        authCredentialsRepository.save(authCredentials)
     }
 
     fun delete(member: Member, authCredentials: AuthCredentials) {
         member.delete()
         memberRepository.save(member)
         authCredentials.delete()
-        authMemberRepository.save(authCredentials)
+        authCredentialsRepository.save(authCredentials)
 
         cartProductRepository.deleteByMemberId(member.id)
         refreshTokenRepository.deleteByMemberId(member.id)

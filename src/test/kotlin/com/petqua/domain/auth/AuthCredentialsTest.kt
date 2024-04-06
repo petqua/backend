@@ -10,7 +10,7 @@ import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import java.time.LocalDateTime
 
-class AuthMemberTest : StringSpec({
+class AuthCredentialsTest : StringSpec({
 
     "회원을 삭제한다" {
         val authCredentials = AuthCredentials(

@@ -2,7 +2,7 @@ package com.petqua.application.cart
 
 import com.petqua.application.cart.dto.DeleteCartProductCommand
 import com.petqua.common.domain.findByIdOrThrow
-import com.petqua.domain.auth.AuthMemberRepository
+import com.petqua.domain.auth.AuthCredentialsRepository
 import com.petqua.domain.cart.CartProductQuantity
 import com.petqua.domain.cart.CartProductRepository
 import com.petqua.domain.delivery.DeliveryMethod.COMMON
@@ -44,7 +44,7 @@ class CartProductServiceTest(
     private val cartProductRepository: CartProductRepository,
     private val productRepository: ProductRepository,
     private val productOptionRepository: ProductOptionRepository,
-    private val authMemberRepository: AuthMemberRepository,
+    private val authCredentialsRepository: AuthCredentialsRepository,
     private val memberRepository: MemberRepository,
     private val storeRepository: StoreRepository,
     private val dataCleaner: DataCleaner,
