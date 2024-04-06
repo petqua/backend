@@ -1,12 +1,13 @@
 package com.petqua.test.fixture
 
 import com.petqua.domain.auth.AuthMember
+import com.petqua.domain.auth.oauth.OauthServerType.KAKAO
 import java.time.LocalDateTime
 
 fun authMember(
     id: Long = 0L,
     oauthId: Long = 1L,
-    oauthServerNumber: Int = 1,
+    oauthServerNumber: Int = KAKAO.number,
     oauthAccessToken: String = "oauthAccessToken",
     oauthAccessTokenExpiresAt: LocalDateTime = LocalDateTime.now().plusSeconds(21599),
     oauthRefreshToken: String = "oauthRefreshToken",

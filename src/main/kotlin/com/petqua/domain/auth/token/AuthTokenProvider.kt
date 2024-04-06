@@ -1,5 +1,6 @@
 package com.petqua.domain.auth.token
 
+import com.petqua.domain.auth.AuthMember
 import com.petqua.domain.member.Member
 import com.petqua.exception.auth.AuthException
 import com.petqua.exception.auth.AuthExceptionType.EXPIRED_REFRESH_TOKEN
@@ -29,10 +30,20 @@ class AuthTokenProvider(
 
     fun createAuthToken(member: Member, issuedDate: Date): AuthToken {
         val accessToken = AccessTokenClaims(member.id, member.authority)
-        return AuthToken(
+        return AuthToken.of(
             accessToken = jwtProvider.createToken(accessToken.getClaims(), properties.accessTokenLiveTime, issuedDate),
             refreshToken = jwtProvider.createToken(EMPTY_SUBJECT, properties.refreshTokenLiveTime, issuedDate)
         )
+    }
+
+    fun createSignUpAuthToken(authMember: AuthMember, issuedDate: Date): AuthToken {
+        val signUpTokenClaims = SignUpTokenClaims(authMemberId = authMember.id)
+        val token = jwtProvider.createToken(
+            claims = signUpTokenClaims.getClaims(),
+            tokenLiveTime = properties.accessTokenLiveTime,
+            issuedDate = issuedDate
+        )
+        return AuthToken.signUpTokenOf(token)
     }
 
     fun validateTokenExpiredStatusForExtendLogin(accessToken: String, refreshToken: String) {

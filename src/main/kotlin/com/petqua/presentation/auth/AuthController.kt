@@ -1,7 +1,6 @@
 package com.petqua.presentation.auth
 
 import com.petqua.application.auth.AuthFacadeService
-import com.petqua.application.auth.AuthTokenInfo
 import com.petqua.common.config.ACCESS_TOKEN_SECURITY_SCHEME_KEY
 import com.petqua.domain.auth.Auth
 import com.petqua.domain.auth.LoginMember
@@ -69,17 +68,14 @@ class AuthController(
 
         @Schema(description = "auth code")
         @RequestParam("code") code: String,
-    ): ResponseEntity<Unit> {
+    ): ResponseEntity<Any> {
         val authTokenInfo = authFacadeService.login(oauthServerType, code)
 
-        if (authTokenInfo.isSignUpNeeded) {
-            val headers = HttpHeaders().apply {
-                set(AUTHORIZATION, authTokenInfo.accessToken)
-            }
-            return ResponseEntity.status(CREATED).headers(headers).build()
+        if (authTokenInfo.isSignUpNeeded()) {
+            return ResponseEntity.status(CREATED).body(authTokenInfo.toSignUpTokenResponse())
         }
 
-        val refreshTokenCookie = createRefreshTokenCookie(authTokenInfo)
+        val refreshTokenCookie = createRefreshTokenCookie(authTokenInfo.refreshToken)
         val headers = HttpHeaders().apply {
             set(AUTHORIZATION, authTokenInfo.accessToken)
             set(SET_COOKIE, refreshTokenCookie.toString())
@@ -113,7 +109,7 @@ class AuthController(
         @Parameter(hidden = true) @Auth authToken: AuthToken,
     ): ResponseEntity<Unit> {
         val authTokenInfo = authFacadeService.extendLogin(authToken.accessToken, authToken.refreshToken)
-        val refreshTokenCookie = createRefreshTokenCookie(authTokenInfo)
+        val refreshTokenCookie = createRefreshTokenCookie(authTokenInfo.refreshToken)
         val headers = HttpHeaders().apply {
             set(AUTHORIZATION, authTokenInfo.accessToken)
             set(SET_COOKIE, refreshTokenCookie.toString())
@@ -124,8 +120,8 @@ class AuthController(
             .build()
     }
 
-    private fun createRefreshTokenCookie(authTokenInfo: AuthTokenInfo): ResponseCookie {
-        return ResponseCookie.from("refresh-token", authTokenInfo.refreshToken)
+    private fun createRefreshTokenCookie(refreshToken: String): ResponseCookie {
+        return ResponseCookie.from("refresh-token", refreshToken)
             .sameSite("None")
             .secure(true)
             .httpOnly(true)

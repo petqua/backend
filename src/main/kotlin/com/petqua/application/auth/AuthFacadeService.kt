@@ -19,11 +19,11 @@ class AuthFacadeService(
         val oauthTokenInfo = oauthService.requestOauthTokenInfo(oauthServerType, code)
         val oauthUserInfo = oauthService.requestOauthUserInfo(oauthServerType, oauthTokenInfo.accessToken)
 
-        val authMember = authService.findOrCreateAuthMemberBy(oauthServerType, oauthUserInfo)
+        val authMember = authService.findOrCreateAuthMemberBy(oauthServerType, oauthUserInfo.oauthId)
         authService.updateOauthToken(authMember, oauthTokenInfo)
-        val member = authService.findOrCreateMemberBy(authMember)
+        val member = authService.findMemberBy(authMember)
 
-        return authService.createAuthToken(member)
+        return member?.let { authService.createAuthToken(member) } ?: authService.createSignUpAuthToken(authMember)
     }
 
     fun extendLogin(accessToken: String, refreshToken: String): AuthTokenInfo {

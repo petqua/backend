@@ -5,7 +5,6 @@ import com.petqua.domain.auth.AuthMember
 import com.petqua.domain.auth.AuthMemberRepository
 import com.petqua.domain.auth.oauth.OauthServerType
 import com.petqua.domain.auth.oauth.OauthTokenInfo
-import com.petqua.domain.auth.oauth.OauthUserInfo
 import com.petqua.domain.auth.token.AuthTokenProvider
 import com.petqua.domain.auth.token.BlackListTokenCacheStorage
 import com.petqua.domain.auth.token.RefreshToken
@@ -36,25 +35,21 @@ class AuthService(
 
     fun findOrCreateAuthMemberBy(
         oauthServerType: OauthServerType,
-        oauthUserInfo: OauthUserInfo,
+        oauthId: Long,
     ): AuthMember {
         return authMemberRepository.findByOauthIdAndOauthServerNumberAndIsDeletedFalse(
-            oauthId = oauthUserInfo.oauthId,
+            oauthId = oauthId,
             oauthServerNumber = oauthServerType.number
         ) ?: authMemberRepository.save(
             AuthMember.authMemberOf(
-                oauthId = oauthUserInfo.oauthId,
+                oauthId = oauthId,
                 oauthServerNumber = oauthServerType.number,
             )
         )
     }
 
-    fun findOrCreateMemberBy(authMember: AuthMember): Member {
-        return memberRepository.findByAuthMemberId(authMember.id) ?: memberRepository.save(
-            Member.emptyProfileMemberFrom(
-                authMemberId = authMember.id
-            )
-        )
+    fun findMemberBy(authMember: AuthMember): Member? {
+        return memberRepository.findByAuthMemberId(authMember.id)
     }
 
     fun createAuthToken(member: Member): AuthTokenInfo {
@@ -66,7 +61,12 @@ class AuthService(
                 token = authToken.refreshToken
             )
         )
-        return AuthTokenInfo.from(authToken, member.isSignUpNeeded())
+        return AuthTokenInfo.from(authToken)
+    }
+
+    fun createSignUpAuthToken(authMember: AuthMember): AuthTokenInfo {
+        val authToken = authTokenProvider.createSignUpAuthToken(authMember, Date())
+        return AuthTokenInfo.signUpTokenOf(authToken)
     }
 
     fun validateTokenExpiredStatusForExtendLogin(accessToken: String, refreshToken: String) {
