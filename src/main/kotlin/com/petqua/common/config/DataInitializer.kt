@@ -8,6 +8,8 @@ import com.petqua.domain.auth.AuthMemberRepository
 import com.petqua.domain.auth.Authority.MEMBER
 import com.petqua.domain.banner.Banner
 import com.petqua.domain.banner.BannerRepository
+import com.petqua.domain.fish.Fish
+import com.petqua.domain.fish.FishRepository
 import com.petqua.domain.keyword.ProductKeyword
 import com.petqua.domain.keyword.ProductKeywordRepository
 import com.petqua.domain.member.FishLifeYear
@@ -16,8 +18,12 @@ import com.petqua.domain.member.MemberRepository
 import com.petqua.domain.notification.Notification
 import com.petqua.domain.notification.NotificationRepository
 import com.petqua.domain.member.nickname.Nickname
+import com.petqua.domain.member.nickname.NicknameWord
+import com.petqua.domain.member.nickname.NicknameWordRepository
 import com.petqua.domain.order.ShippingAddress
 import com.petqua.domain.order.ShippingAddressRepository
+import com.petqua.domain.policy.bannedword.BannedWord
+import com.petqua.domain.policy.bannedword.BannedWordRepository
 import com.petqua.domain.product.Product
 import com.petqua.domain.product.ProductRepository
 import com.petqua.domain.product.WishCount
@@ -84,6 +90,9 @@ class DataInitializer(
     private val productKeywordRepository: ProductKeywordRepository,
     private val productDescriptionRepository: ProductDescriptionRepository,
     private val shippingAddressRepository: ShippingAddressRepository,
+    private val fishRepository: FishRepository,
+    private val bannedWordRepository: BannedWordRepository,
+    private val nicknameWordRepository: NicknameWordRepository,
     private val notificationRepository: NotificationRepository,
 ) {
 
@@ -94,24 +103,23 @@ class DataInitializer(
         val authMember = saveAuthMember()
         saveMember(authMember.id)
 
+        // fish
+        saveFishes()
+
+        // bannedWord
+        saveBannedWords()
+
+        // nicknameWord
+        saveNicknameWords()
+
         // announcement
         saveAnnouncements()
 
         // banner
         saveBanners()
 
-        val shippingAddress = shippingAddressRepository.save(
-            ShippingAddress(
-                memberId = authMember.id,
-                name = "집",
-                receiver = "홍길동",
-                phoneNumber = "010-1234-5678",
-                zipCode = 12345,
-                address = "서울시 강남구 역삼동 99번길",
-                detailAddress = "101동 101호",
-                isDefaultAddress = true,
-            )
-        )
+        // shippingAddress
+        saveShippingAddress(authMember)
 
         // others
         saveCommerceData(authMember.id)
@@ -140,6 +148,34 @@ class DataInitializer(
                 fishLifeYear = FishLifeYear.from(1),
                 hasAgreedToMarketingNotification = true,
                 isDeleted = false,
+            )
+        )
+    }
+
+    private fun saveFishes() {
+        fishRepository.saveAll(
+            listOf(
+                Fish(species = com.petqua.domain.fish.Species.from("구피")),
+                Fish(species = com.petqua.domain.fish.Species.from("베타")),
+                Fish(species = com.petqua.domain.fish.Species.from("임베리스")),
+            )
+        )
+    }
+
+    private fun saveBannedWords() {
+        bannedWordRepository.saveAll(
+            listOf(
+                BannedWord(word = "씨발"),
+                BannedWord(word = "병신"),
+            )
+        )
+    }
+
+    private fun saveNicknameWords() {
+        nicknameWordRepository.saveAll(
+            listOf(
+                NicknameWord(word = "펫쿠아"),
+                NicknameWord(word = "물고기"),
             )
         )
     }
@@ -182,6 +218,21 @@ class DataInitializer(
                     imageUrl = "https://docs.petqua.co.kr/banners/announcement3.jpg",
                     linkUrl = "https://team.petqua.co.kr/"
                 ),
+            )
+        )
+    }
+
+    private fun saveShippingAddress(authMember: AuthMember) {
+        shippingAddressRepository.save(
+            ShippingAddress(
+                memberId = authMember.id,
+                name = "집",
+                receiver = "홍길동",
+                phoneNumber = "010-1234-5678",
+                zipCode = 12345,
+                address = "서울시 강남구 역삼동 99번길",
+                detailAddress = "101동 101호",
+                isDefaultAddress = true,
             )
         )
     }
