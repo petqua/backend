@@ -1,5 +1,7 @@
 package com.petqua.application.auth
 
+import com.petqua.application.token.AuthTokenInfo
+import com.petqua.application.token.TokenService
 import com.petqua.domain.auth.AuthMember
 import com.petqua.domain.auth.oauth.OauthServerType
 import org.springframework.stereotype.Service
@@ -9,6 +11,7 @@ import java.net.URI
 class AuthFacadeService(
     private val authService: AuthService,
     private val oauthService: OauthService,
+    private val tokenService: TokenService,
 ) {
 
     fun getAuthCodeRequestUrl(oauthServerType: OauthServerType): URI {
@@ -21,17 +24,16 @@ class AuthFacadeService(
 
         val authMember = authService.findOrCreateAuthMemberBy(oauthServerType, oauthUserInfo.oauthId)
         authService.updateOauthToken(authMember, oauthTokenInfo)
-        val member = authService.findMemberBy(authMember)
 
-        return member?.let { authService.createAuthToken(member) } ?: authService.createSignUpAuthToken(authMember)
+        return tokenService.createAuthOrSignUpToken(authMember.id)
     }
 
     fun extendLogin(accessToken: String, refreshToken: String): AuthTokenInfo {
         authService.validateTokenExpiredStatusForExtendLogin(accessToken, refreshToken)
         val authMember = authService.findAuthMemberBy(accessToken = accessToken, refreshToken = refreshToken)
         updateOauthTokenIfExpired(authMember)
-        val member = authService.findMemberByAuthMemberId(authMember.id)
-        return authService.createAuthToken(member)
+
+        return tokenService.createAuthOrSignUpToken(authMember.id)
     }
 
     private fun updateOauthTokenIfExpired(authMember: AuthMember) {

@@ -99,8 +99,16 @@ class AuthFacadeServiceTest(
     Given("로그인 연장을") {
         val authMember = authMemberRepository.save(authMember())
         val member = memberRepository.save(member(authMemberId = authMember.id))
-        val expiredAccessToken = authTokenProvider.createAuthToken(member, Date(0)).accessToken
-        val refreshToken = authTokenProvider.createAuthToken(member, Date()).refreshToken
+        val expiredAccessToken = authTokenProvider.createAuthToken(
+            memberId = member.id,
+            authority = member.authority,
+            issuedDate = Date(0)
+        ).accessToken
+        val refreshToken = authTokenProvider.createAuthToken(
+            memberId = member.id,
+            authority = member.authority,
+            issuedDate = Date()
+        ).refreshToken
         refreshTokenRepository.save(
             RefreshToken(
                 memberId = member.id,
@@ -133,7 +141,11 @@ class AuthFacadeServiceTest(
         val member = memberRepository.save(member(authMemberId = authMember.id))
 
         When("AccessToken이 만료되지 않은 경우") {
-            val authToken = authTokenProvider.createAuthToken(member, Date())
+            val authToken = authTokenProvider.createAuthToken(
+                memberId = member.id,
+                authority = member.authority,
+                issuedDate = Date()
+            )
             refreshTokenRepository.save(
                 RefreshToken(
                     memberId = member.id,
@@ -149,7 +161,11 @@ class AuthFacadeServiceTest(
         }
 
         When("RefreshToken이 만료된 경우") {
-            val expiredAuthToken = authTokenProvider.createAuthToken(member, Date(0))
+            val expiredAuthToken = authTokenProvider.createAuthToken(
+                memberId = member.id,
+                authority = member.authority,
+                issuedDate = Date(0)
+            )
             refreshTokenRepository.save(
                 RefreshToken(
                     memberId = member.id,
@@ -165,8 +181,17 @@ class AuthFacadeServiceTest(
         }
 
         When("RefreshToken이 저장되어있지 않은 경우") {
-            val expiredAccessToken = authTokenProvider.createAuthToken(member, Date(0)).accessToken
-            val unsavedRefreshToken = authTokenProvider.createAuthToken(member, Date()).refreshToken
+            val expiredAccessToken = authTokenProvider.createAuthToken(
+                memberId = member.id,
+                authority = member.authority,
+                issuedDate = Date(0)
+            ).accessToken
+            val unsavedRefreshToken =
+                authTokenProvider.createAuthToken(
+                    memberId = member.id,
+                    authority = member.authority,
+                    issuedDate = Date()
+                ).refreshToken
 
             Then("예외가 발생한다") {
                 shouldThrow<AuthException> {
@@ -176,10 +201,23 @@ class AuthFacadeServiceTest(
         }
 
         When("RefreshToken이 저장된 토큰값과 다른 경우") {
-            val expiredAccessToken = authTokenProvider.createAuthToken(member, Date(0)).accessToken
+            val expiredAccessToken = authTokenProvider.createAuthToken(
+                memberId = member.id,
+                authority = member.authority,
+                issuedDate = Date(0)
+            ).accessToken
             val oneMinuteAgoMillSec = currentTimeMillis() - 60 * 1000
-            val unsavedRefreshToken = authTokenProvider.createAuthToken(member, Date(oneMinuteAgoMillSec)).refreshToken
-            val refreshToken = authTokenProvider.createAuthToken(member, Date()).refreshToken
+            val unsavedRefreshToken =
+                authTokenProvider.createAuthToken(
+                    memberId = member.id,
+                    authority = member.authority,
+                    issuedDate = Date(oneMinuteAgoMillSec)
+                ).refreshToken
+            val refreshToken = authTokenProvider.createAuthToken(
+                memberId = member.id,
+                authority = member.authority,
+                issuedDate = Date()
+            ).refreshToken
             refreshTokenRepository.save(
                 RefreshToken(
                     memberId = member.id,
@@ -209,8 +247,16 @@ class AuthFacadeServiceTest(
                     authMemberId = expiredAuthMember.id
                 )
             )
-            val expiredAccessToken = authTokenProvider.createAuthToken(expiredMember, Date(0)).accessToken
-            val refreshToken = authTokenProvider.createAuthToken(expiredMember, Date()).refreshToken
+            val expiredAccessToken = authTokenProvider.createAuthToken(
+                memberId = expiredMember.id,
+                authority = expiredMember.authority,
+                issuedDate = Date(0)
+            ).accessToken
+            val refreshToken = authTokenProvider.createAuthToken(
+                memberId = expiredMember.id,
+                authority = expiredMember.authority,
+                issuedDate = Date()
+            ).refreshToken
             refreshTokenRepository.save(
                 RefreshToken(
                     memberId = expiredAuthMember.id,

@@ -33,7 +33,7 @@ class AuthTokenProviderTest(
         val member = member(id = 1L)
 
         When("인증 토큰을 발급하면") {
-            val authToken = authTokenProvider.createAuthToken(member, issuedDate)
+            val authToken = authTokenProvider.createAuthToken(member.id, member.authority, issuedDate)
 
             Then("JWT타입인 accessToken과 refreshToken이 발급된다") {
                 val accessTokenExpirationTime = parseExpirationTime(jwtProvider.parseToken(authToken.accessToken))

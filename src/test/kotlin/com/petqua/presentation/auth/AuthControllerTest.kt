@@ -94,8 +94,16 @@ class AuthControllerTest(
                     authMemberId = authMember.id
                 )
             )
-            val expiredAccessToken = authTokenProvider.createAuthToken(member, Date(0)).accessToken
-            val refreshToken = authTokenProvider.createAuthToken(member, Date()).refreshToken
+            val expiredAccessToken = authTokenProvider.createAuthToken(
+                member.id,
+                member.authority,
+                Date(0)
+            ).accessToken
+            val refreshToken = authTokenProvider.createAuthToken(
+                member.id,
+                member.authority,
+                Date()
+            ).refreshToken
             refreshTokenRepository.save(
                 RefreshToken(
                     memberId = member.id,

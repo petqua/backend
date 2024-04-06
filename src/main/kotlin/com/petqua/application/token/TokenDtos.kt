@@ -1,4 +1,4 @@
-package com.petqua.application.auth
+package com.petqua.application.token
 
 import com.petqua.domain.auth.token.AuthToken
 import com.petqua.presentation.auth.SignUpTokenResponse

@@ -52,23 +52,6 @@ class AuthService(
         return memberRepository.findByAuthMemberId(authMember.id)
     }
 
-    fun createAuthToken(member: Member): AuthTokenInfo {
-        val authToken = authTokenProvider.createAuthToken(member, Date())
-        refreshTokenRepository.deleteByMemberId(member.id)
-        refreshTokenRepository.save(
-            RefreshToken(
-                memberId = member.id,
-                token = authToken.refreshToken
-            )
-        )
-        return AuthTokenInfo.from(authToken)
-    }
-
-    fun createSignUpAuthToken(authMember: AuthMember): AuthTokenInfo {
-        val authToken = authTokenProvider.createSignUpAuthToken(authMember, Date())
-        return AuthTokenInfo.signUpTokenOf(authToken)
-    }
-
     fun validateTokenExpiredStatusForExtendLogin(accessToken: String, refreshToken: String) {
         authTokenProvider.validateTokenExpiredStatusForExtendLogin(accessToken, refreshToken)
     }

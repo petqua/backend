@@ -1,9 +1,9 @@
 package com.petqua.application.member
 
-import com.petqua.application.auth.AuthService
-import com.petqua.application.auth.AuthTokenInfo
 import com.petqua.application.member.dto.MemberAddProfileCommand
 import com.petqua.application.member.dto.MemberSignUpCommand
+import com.petqua.application.token.AuthTokenInfo
+import com.petqua.application.token.TokenService
 import com.petqua.common.domain.findActiveByIdOrThrow
 import com.petqua.common.util.throwExceptionWhen
 import com.petqua.domain.fish.FishRepository
@@ -34,7 +34,7 @@ class MemberService(
     private val nicknameWordRepository: NicknameWordRepository,
     private val nicknameGenerator: NicknameGenerator,
     private val bannedWordRepository: BannedWordRepository,
-    private val authService: AuthService,
+    private val tokenService: TokenService,
 ) {
 
     fun signUp(command: MemberSignUpCommand): AuthTokenInfo {
@@ -49,7 +49,7 @@ class MemberService(
                 hasAgreedToMarketingNotification = command.hasAgreedToMarketingNotification
             )
         )
-        return authService.createAuthToken(member)
+        return tokenService.createAuthToken(member.id, member.authority)
     }
 
     private fun validateDuplicateSignUp(authMemberId: Long) {
