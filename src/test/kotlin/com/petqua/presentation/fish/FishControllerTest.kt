@@ -35,9 +35,9 @@ class FishControllerTest(
                         response.statusCode shouldBe OK.value()
                         speciesSearchResponses shouldBe listOf(
                             SpeciesSearchResponse(fishA.id, fishA.species.name),
-                            SpeciesSearchResponse(fishD.id, fishD.species.name),
                             SpeciesSearchResponse(fishB.id, fishB.species.name),
                             SpeciesSearchResponse(fishC.id, fishC.species.name),
+                            SpeciesSearchResponse(fishD.id, fishD.species.name),
                         )
                     }
                 }
@@ -53,7 +53,7 @@ class FishControllerTest(
                         response.statusCode shouldBe OK.value()
                         speciesSearchResponses shouldBe listOf(
                             SpeciesSearchResponse(fishA.id, fishA.species.name),
-                            SpeciesSearchResponse(fishD.id, fishD.species.name),
+                            SpeciesSearchResponse(fishB.id, fishB.species.name),
                         )
                     }
                 }

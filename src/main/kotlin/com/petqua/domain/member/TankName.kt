@@ -7,8 +7,6 @@ import jakarta.persistence.Column
 import jakarta.persistence.Embeddable
 import java.util.regex.Pattern
 
-private const val WHITESPACE = " "
-
 @Embeddable
 data class TankName(
     @Column(nullable = false, name = "name")
@@ -28,19 +26,20 @@ data class TankName(
     }
 
     private fun validateConsecutiveWhitespaces() {
-        throwExceptionWhen(whitespacePattern.toRegex().containsMatchIn(value)) {
+        throwExceptionWhen(WHITESPACE_PATTERN.toRegex().containsMatchIn(value)) {
             MemberException(INVALID_MEMBER_FISH_TANK_NAME)
         }
     }
 
     private fun validateCharactersAndLength() {
-        throwExceptionWhen(!wordPattern.matcher(value).matches()) {
+        throwExceptionWhen(!WORD_PATTERN.matcher(value).matches()) {
             MemberException(INVALID_MEMBER_FISH_TANK_NAME)
         }
     }
 
     companion object {
-        private val wordPattern = Pattern.compile("^[a-zA-Z0-9가-힣,/_ ]{2,18}\$")
-        private val whitespacePattern = Pattern.compile("$WHITESPACE{2,}")
+        private const val WHITESPACE = " "
+        private val WORD_PATTERN = Pattern.compile("^[a-zA-Z0-9가-힣,/_ ]{2,18}\$")
+        private val WHITESPACE_PATTERN = Pattern.compile("$WHITESPACE{2,}")
     }
 }

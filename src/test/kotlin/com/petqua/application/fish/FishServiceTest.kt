@@ -36,9 +36,9 @@ class FishServiceTest(
             Then("관련된 어종 목록을 조회할 수 있다") {
                 responses shouldBe listOf(
                     SpeciesSearchResponse(fishA.id, fishA.species.name),
-                    SpeciesSearchResponse(fishD.id, fishD.species.name),
                     SpeciesSearchResponse(fishB.id, fishB.species.name),
                     SpeciesSearchResponse(fishC.id, fishC.species.name),
+                    SpeciesSearchResponse(fishD.id, fishD.species.name),
                 )
             }
         }
@@ -54,7 +54,7 @@ class FishServiceTest(
             Then("입력한 개수만큼 관련된 어종 목록을 조회할 수 있다") {
                 responses shouldBe listOf(
                     SpeciesSearchResponse(fishA.id, fishA.species.name),
-                    SpeciesSearchResponse(fishD.id, fishD.species.name),
+                    SpeciesSearchResponse(fishB.id, fishB.species.name),
                 )
             }
         }

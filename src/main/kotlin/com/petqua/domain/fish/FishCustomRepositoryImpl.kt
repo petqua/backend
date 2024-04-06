@@ -23,6 +23,7 @@ class FishCustomRepositoryImpl(
             ).whereAnd(
                 path(Fish::species)(Species::name).like(pattern = "%${speciesName}%")
             ).orderBy(
+                locate(speciesName, path(Fish::species)(Species::name)).asc(),
                 length(path(Fish::species)(Species::name)).asc(),
                 path(Fish::species)(Species::name).asc()
             )

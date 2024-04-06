@@ -1,6 +1,5 @@
 package com.petqua.domain.auth.token
 
-
 private const val EMPTY_TOKEN = ""
 
 class AuthToken private constructor(

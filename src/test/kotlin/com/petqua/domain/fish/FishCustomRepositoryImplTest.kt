@@ -25,15 +25,15 @@ class FishCustomRepositoryImplTest(
             Then("관련된 어종 목록을 조회할 수 있다") {
                 fishes.map { it.species.name } shouldBe listOf(
                     fishA.species.name,
-                    fishD.species.name,
                     fishB.species.name,
-                    fishC.species.name
+                    fishC.species.name,
+                    fishD.species.name
                 )
                 fishes.map { it.id } shouldBe listOf(
                     fishA.id,
-                    fishD.id,
                     fishB.id,
-                    fishC.id
+                    fishC.id,
+                    fishD.id
                 )
             }
         }
