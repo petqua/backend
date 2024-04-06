@@ -3,6 +3,7 @@ package com.petqua.common.config
 import com.petqua.presentation.auth.LoginArgumentResolver
 import com.petqua.presentation.auth.OauthServerTypeConverter
 import com.petqua.presentation.auth.OptionalLoginArgumentResolver
+import com.petqua.presentation.auth.SignUpArgumentResolver
 import com.petqua.presentation.auth.TokenArgumentResolver
 import org.springframework.context.annotation.Configuration
 
@@ -16,6 +17,7 @@ class WebConfig(
     private val loginArgumentResolver: LoginArgumentResolver,
     private val tokenArgumentResolver: TokenArgumentResolver,
     private val optionalLoginArgumentResolver: OptionalLoginArgumentResolver,
+    private val signUpArgumentResolver: SignUpArgumentResolver,
 ) : WebMvcConfigurer {
 
     override fun addFormatters(registry: FormatterRegistry) {
@@ -29,6 +31,7 @@ class WebConfig(
                 loginArgumentResolver,
                 tokenArgumentResolver,
                 optionalLoginArgumentResolver,
+                signUpArgumentResolver,
             )
         )
     }

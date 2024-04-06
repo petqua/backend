@@ -1,0 +1,77 @@
+package com.petqua.application.member
+
+import com.petqua.application.auth.AuthService
+import com.petqua.application.auth.AuthTokenInfo
+import com.petqua.application.member.dto.MemberSignUpCommand
+import com.petqua.common.util.throwExceptionWhen
+import com.petqua.domain.fish.FishRepository
+import com.petqua.domain.member.FishTankRepository
+import com.petqua.domain.member.Member
+import com.petqua.domain.member.MemberRepository
+import com.petqua.domain.member.PetFishRepository
+import com.petqua.domain.member.nickname.Nickname
+import com.petqua.domain.member.nickname.NicknameGenerator
+import com.petqua.domain.member.nickname.NicknameWord
+import com.petqua.domain.member.nickname.NicknameWordRepository
+import com.petqua.exception.member.MemberException
+import com.petqua.exception.member.MemberExceptionType.HAS_SIGNED_UP_MEMBER
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+
+@Transactional
+@Service
+class MemberService(
+    private val memberRepository: MemberRepository,
+    private val fishTankRepository: FishTankRepository,
+    private val petFishRepository: PetFishRepository,
+    private val fishRepository: FishRepository,
+    private val nicknameWordRepository: NicknameWordRepository,
+    private val nicknameGenerator: NicknameGenerator,
+    private val authService: AuthService,
+) {
+
+    fun signUp(command: MemberSignUpCommand): AuthTokenInfo {
+        validateDuplicateSignUp(command.authMemberId)
+
+        val nicknameWords = nicknameWordRepository.findAll()
+        val nickname = generateUniqueNickname(nicknameWords)
+        val member = memberRepository.save(
+            Member.emptyProfileMemberOf(
+                authMemberId = command.authMemberId,
+                nickname = nickname,
+                hasAgreedToMarketingNotification = command.hasAgreedToMarketingNotification
+            )
+        )
+        return authService.createAuthToken(member)
+    }
+
+    private fun generateUniqueNickname(nicknameWords: List<NicknameWord>): Nickname {
+        var nickname = nicknameGenerator.generate(nicknameWords)
+        while (memberRepository.existsMemberByNickname(nickname)) {
+            nickname = nicknameGenerator.generate(nicknameWords)
+        }
+        return nickname
+    }
+
+    private fun validateDuplicateSignUp(authMemberId: Long) {
+        throwExceptionWhen(memberRepository.existsMemberByAuthMemberId(authMemberId)) {
+            MemberException(HAS_SIGNED_UP_MEMBER)
+        }
+    }
+
+    /*fun addProfile(command: MemberAddProfileCommand) {
+        val member = memberRepository.findByIdOrThrow(command.memberId) {
+            MemberException(NOT_FOUND_MEMBER)
+        }
+        member.updateFishLifeYear(FishLifeYear.from(command.fishLifeYear))
+        member.increaseFishTankCount()
+        member.updateHasProfile(true)
+
+        val fishTank = fishTankRepository.save(command.toFishTank(command.memberId))
+
+        val petFishes = command.toPetFishes(command.memberId, fishTank.id)
+        val count = fishRepository.countsByIds(petFishes.ids())
+        petFishes.validateFishes(count)
+        petFishRepository.saveAll(petFishes.values)
+    }*/
+}

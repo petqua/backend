@@ -4,15 +4,20 @@ import com.petqua.common.domain.existActiveByIdOrThrow
 import com.petqua.common.util.getCookieValueOrThrow
 import com.petqua.common.util.getHeaderOrThrow
 import com.petqua.common.util.throwExceptionWhen
+import com.petqua.domain.auth.AuthMemberRepository
 import com.petqua.domain.auth.token.AccessTokenClaims
 import com.petqua.domain.auth.token.BlackListTokenCacheStorage
 import com.petqua.domain.auth.token.JwtProvider
+import com.petqua.domain.auth.token.SignUpTokenClaims
 import com.petqua.domain.member.MemberRepository
 import com.petqua.exception.auth.AuthException
 import com.petqua.exception.auth.AuthExceptionType.EXPIRED_ACCESS_TOKEN
+import com.petqua.exception.auth.AuthExceptionType.EXPIRED_SIGN_UP_TOKEN
 import com.petqua.exception.auth.AuthExceptionType.INVALID_ACCESS_TOKEN
 import com.petqua.exception.auth.AuthExceptionType.INVALID_AUTH_COOKIE
 import com.petqua.exception.auth.AuthExceptionType.INVALID_AUTH_HEADER
+import com.petqua.exception.auth.AuthExceptionType.INVALID_SIGN_UP_AUTH_HEADER
+import com.petqua.exception.auth.AuthExceptionType.INVALID_SIGN_UP_TOKEN
 import com.petqua.exception.auth.AuthExceptionType.UNABLE_ACCESS_TOKEN
 import com.petqua.exception.member.MemberException
 import com.petqua.exception.member.MemberExceptionType.NOT_FOUND_MEMBER
@@ -24,11 +29,13 @@ import org.springframework.stereotype.Component
 
 private const val AUTHORIZATION_PREFIX = "Bearer "
 private const val REFRESH_TOKEN = "refresh-token"
+private const val SIGN_UP_AUTHORIZATION = "Sign-Up-Authorization"
 
 @Component
 class AuthExtractor(
     private val jwtProvider: JwtProvider,
     private val memberRepository: MemberRepository,
+    private val authMemberRepository: AuthMemberRepository,
     private val blackListTokenCacheStorage: BlackListTokenCacheStorage,
 ) {
 
@@ -39,6 +46,10 @@ class AuthExtractor(
     fun extractAccessToken(request: HttpServletRequest): String {
         val header = request.getHeaderOrThrow(AUTHORIZATION) { AuthException(INVALID_AUTH_HEADER) }
         return parse(header)
+    }
+
+    fun extractSignUpToken(request: HttpServletRequest): String {
+        return request.getHeaderOrThrow(SIGN_UP_AUTHORIZATION) { AuthException(INVALID_SIGN_UP_AUTH_HEADER) }
     }
 
     private fun parse(header: String): String {
@@ -75,6 +86,22 @@ class AuthExtractor(
     private fun validateBlackListed(memberId: Long, token: String) {
         throwExceptionWhen(blackListTokenCacheStorage.isBlackListed(memberId, token)) {
             AuthException(UNABLE_ACCESS_TOKEN)
+        }
+    }
+
+    fun getSignUpTokenClaimsOrThrow(token: String): SignUpTokenClaims {
+        try {
+            val signUpTokenClaims = SignUpTokenClaims.from(jwtProvider.getPayload(token))
+            authMemberRepository.existActiveByIdOrThrow(signUpTokenClaims.authMemberId) {
+                AuthException(INVALID_SIGN_UP_TOKEN)
+            }
+            return signUpTokenClaims
+        } catch (e: ExpiredJwtException) {
+            throw AuthException(EXPIRED_SIGN_UP_TOKEN)
+        } catch (e: JwtException) {
+            throw AuthException(INVALID_SIGN_UP_TOKEN)
+        } catch (e: NullPointerException) {
+            throw AuthException(INVALID_SIGN_UP_TOKEN)
         }
     }
 

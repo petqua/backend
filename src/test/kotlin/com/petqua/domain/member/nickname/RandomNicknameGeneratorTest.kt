@@ -10,7 +10,7 @@ class RandomNicknameGeneratorTest : StringSpec({
         val nicknameGenerator = RandomNicknameGenerator()
 
         val nickname = nicknameGenerator.generate(
-            listOf(NicknameWord(value = "펫쿠아"), NicknameWord(value = "물고기"))
+            listOf(NicknameWord(word = "펫쿠아"), NicknameWord(word = "물고기"))
         )
 
         assertSoftly(nickname) {
