@@ -4,6 +4,7 @@ import com.ninjasquad.springmockk.SpykBean
 import com.petqua.application.auth.OauthService
 import com.petqua.common.domain.findByIdOrThrow
 import com.petqua.common.exception.ExceptionResponse
+import com.petqua.domain.auth.AuthMemberRepository
 import com.petqua.domain.auth.oauth.OauthServerType
 import com.petqua.domain.auth.token.AuthTokenProvider
 import com.petqua.domain.auth.token.RefreshToken
@@ -11,6 +12,7 @@ import com.petqua.domain.auth.token.RefreshTokenRepository
 import com.petqua.domain.member.MemberRepository
 import com.petqua.exception.auth.AuthExceptionType.UNABLE_ACCESS_TOKEN
 import com.petqua.test.ApiTestConfig
+import com.petqua.test.fixture.authMember
 import com.petqua.test.fixture.member
 import io.kotest.assertions.assertSoftly
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -24,6 +26,7 @@ import org.springframework.http.HttpStatus.OK
 import org.springframework.http.HttpStatus.UNAUTHORIZED
 
 class AuthControllerTest(
+    private val authMemberRepository: AuthMemberRepository,
     private val memberRepository: MemberRepository,
     private val refreshTokenRepository: RefreshTokenRepository,
     private val authTokenProvider: AuthTokenProvider,
@@ -47,7 +50,12 @@ class AuthControllerTest(
         }
 
         Given("로그인 연장을") {
-            val member = memberRepository.save(member())
+            val authMember = authMemberRepository.save(authMember())
+            val member = memberRepository.save(
+                member(
+                    authMemberId = authMember.id
+                )
+            )
             val expiredAccessToken = authTokenProvider.createAuthToken(member, Date(0)).accessToken
             val refreshToken = authTokenProvider.createAuthToken(member, Date()).refreshToken
             refreshTokenRepository.save(
@@ -80,19 +88,28 @@ class AuthControllerTest(
             When("유효한 액세스 토큰으로 회원이 요청하면") {
                 val response = requestDeleteMember(accessToken)
 
-                Then("회원이 삭제된다") {
+                Then("회원의 인증 정보가 삭제된다") {
                     val deletedMember = memberRepository.findByIdOrThrow(memberId)
+                    val deletedAuthMember = authMemberRepository.findByIdOrThrow(deletedMember.authMemberId)
 
-                    assertSoftly(deletedMember) {
+                    assertSoftly(deletedAuthMember) {
                         response.statusCode shouldBe NO_CONTENT.value()
 
                         it.isDeleted shouldBe true
                         it.oauthId shouldBe -1L
-                        it.nickname shouldBe ""
-                        it.profileImageUrl shouldBe null
                         it.oauthAccessToken shouldBe ""
                         it.oauthAccessTokenExpiresAt shouldBe null
                         it.oauthRefreshToken shouldBe ""
+                    }
+                }
+
+                Then("회원의 개인 정보가 삭제된다") {
+                    val deletedMember = memberRepository.findByIdOrThrow(memberId)
+
+                    assertSoftly(deletedMember) {
+                        it.nickname shouldBe ""
+                        it.profileImageUrl shouldBe null
+                        it.isDeleted shouldBe true
                     }
                 }
 
@@ -118,7 +135,7 @@ class AuthControllerTest(
 
             When("회원의 인증 정보를 입력 하면") {
                 val response = requestSignOut(accessToken, refreshToken)
-                val signOutMember = memberRepository.findByIdOrThrow(member.id)
+                val signOutMember = authMemberRepository.findByIdOrThrow(member.id)
 
                 Then("멤버의 토큰 정보와 RefreshToken이 초기화 된다") {
                     response.statusCode shouldBe NO_CONTENT.value()

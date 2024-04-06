@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/auth")
 @RestController
 class AuthController(
-    private val authFacadeService: AuthFacadeService
+    private val authFacadeService: AuthFacadeService,
 ) {
 
     @Operation(summary = "리다이렉트 요청 API", description = "Oauth 로그인 페이지로 리다이렉트하는 URI를 조회합니다")
@@ -63,10 +63,7 @@ class AuthController(
             set(AUTHORIZATION, authTokenInfo.accessToken)
             set(SET_COOKIE, refreshTokenCookie.toString())
         }
-        return ResponseEntity
-            .ok()
-            .headers(headers)
-            .build()
+        return ResponseEntity.ok().headers(headers).build()
     }
 
     @Operation(
@@ -119,7 +116,7 @@ class AuthController(
     @SecurityRequirement(name = ACCESS_TOKEN_SECURITY_SCHEME_KEY)
     @DeleteMapping("/members")
     fun delete(
-        @Auth loginMember: LoginMember
+        @Auth loginMember: LoginMember,
     ): ResponseEntity<Unit> {
         authFacadeService.deleteBy(loginMember.memberId)
         return ResponseEntity.noContent().build()

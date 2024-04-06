@@ -2,6 +2,7 @@ package com.petqua.application.auth
 
 import com.ninjasquad.springmockk.SpykBean
 import com.petqua.common.domain.findByIdOrThrow
+import com.petqua.domain.auth.AuthMemberRepository
 import com.petqua.domain.auth.oauth.OauthServerType.KAKAO
 import com.petqua.domain.auth.token.AuthTokenProvider
 import com.petqua.domain.auth.token.BlackListTokenCacheStorage
@@ -14,6 +15,7 @@ import com.petqua.exception.auth.AuthExceptionType
 import com.petqua.exception.member.MemberException
 import com.petqua.exception.member.MemberExceptionType.NOT_FOUND_MEMBER
 import com.petqua.test.DataCleaner
+import com.petqua.test.fixture.authMember
 import com.petqua.test.fixture.member
 import io.kotest.assertions.assertSoftly
 import io.kotest.assertions.throwables.shouldNotThrow
@@ -33,6 +35,7 @@ class AuthFacadeServiceTest(
     private val refreshTokenRepository: RefreshTokenRepository,
     private val authTokenProvider: AuthTokenProvider,
     private val jwtProvider: JwtProvider,
+    private val authMemberRepository: AuthMemberRepository,
     private val memberRepository: MemberRepository,
     private val blackListTokenCacheStorage: BlackListTokenCacheStorage,
     private val dataCleaner: DataCleaner,
@@ -63,7 +66,8 @@ class AuthFacadeServiceTest(
     }
 
     Given("로그인 연장을") {
-        val member = memberRepository.save(member())
+        val authMember = authMemberRepository.save(authMember())
+        val member = memberRepository.save(member(authMemberId = authMember.id))
         val expiredAccessToken = authTokenProvider.createAuthToken(member, Date(0)).accessToken
         val refreshToken = authTokenProvider.createAuthToken(member, Date()).refreshToken
         refreshTokenRepository.save(
@@ -94,7 +98,8 @@ class AuthFacadeServiceTest(
     }
 
     Given("로그인 연장 요청시") {
-        val member = memberRepository.save(member())
+        val authMember = authMemberRepository.save(authMember())
+        val member = memberRepository.save(member(authMemberId = authMember.id))
 
         When("AccessToken이 만료되지 않은 경우") {
             val authToken = authTokenProvider.createAuthToken(member, Date())
@@ -159,8 +164,8 @@ class AuthFacadeServiceTest(
         }
 
         When("kakao oauthAccessToken 이 만료된 경우") {
-            val expiredMember = memberRepository.save(
-                member(
+            val expiredAuthMember = authMemberRepository.save(
+                authMember(
                     oauthId = 1L,
                     oauthServerNumber = KAKAO.number,
                     oauthAccessToken = "expiredOauthAccessToken",
@@ -168,11 +173,16 @@ class AuthFacadeServiceTest(
                     oauthRefreshToken = "oauthRefreshToken",
                 )
             )
+            val expiredMember = memberRepository.save(
+                member(
+                    authMemberId = expiredAuthMember.id
+                )
+            )
             val expiredAccessToken = authTokenProvider.createAuthToken(expiredMember, Date(0)).accessToken
             val refreshToken = authTokenProvider.createAuthToken(expiredMember, Date()).refreshToken
             refreshTokenRepository.save(
                 RefreshToken(
-                    memberId = expiredMember.id,
+                    memberId = expiredAuthMember.id,
                     token = refreshToken
                 )
             )
@@ -180,7 +190,7 @@ class AuthFacadeServiceTest(
             authFacadeService.extendLogin(expiredAccessToken, refreshToken)
 
             Then("토큰 정보를 갱신한다") {
-                val updatedMember = memberRepository.findByIdOrThrow(expiredMember.id)
+                val updatedMember = authMemberRepository.findByIdOrThrow(expiredAuthMember.id)
 
                 assertSoftly(updatedMember) {
                     updatedMember.oauthAccessToken shouldBe "oauthAccessToken"
@@ -194,8 +204,8 @@ class AuthFacadeServiceTest(
     }
 
     Given("회원을 서비스에서 탈퇴시킬 때") {
-        val member = memberRepository.save(
-            member(
+        val authMember = authMemberRepository.save(
+            authMember(
                 oauthId = 1L,
                 oauthServerNumber = KAKAO.number,
                 oauthAccessToken = "oauthAccessToken",
@@ -203,22 +213,35 @@ class AuthFacadeServiceTest(
                 oauthRefreshToken = "oauthAccessToken",
             )
         )
+        val member = memberRepository.save(
+            member(
+                authMemberId = authMember.id
+            )
+        )
 
         When("회원의 id를 입력하면") {
             authFacadeService.deleteBy(member.id)
 
-            Then("입력한 회원의 정보를 삭제한다") {
-                val deletedMember = memberRepository.findByIdOrThrow(member.id)
+            Then("입력한 회원의 인증 정보를 삭제한다") {
+                val deletedAuthMember = authMemberRepository.findByIdOrThrow(authMember.id)
 
-                assertSoftly(deletedMember) {
+
+                assertSoftly(deletedAuthMember) {
                     it.isDeleted shouldBe true
-
                     it.oauthId shouldBe -1L
-                    it.nickname shouldBe ""
-                    it.profileImageUrl shouldBe null
                     it.oauthAccessToken shouldBe ""
                     it.oauthAccessTokenExpiresAt shouldBe null
                     it.oauthRefreshToken shouldBe ""
+                }
+            }
+
+            Then("입력한 회원의 개인 정보를 삭제한다") {
+                val deletedMember = memberRepository.findByIdOrThrow(member.id)
+
+                assertSoftly(deletedMember) {
+                    it.nickname shouldBe ""
+                    it.profileImageUrl shouldBe null
+                    it.isDeleted shouldBe true
                 }
             }
         }
@@ -234,13 +257,18 @@ class AuthFacadeServiceTest(
         }
 
         When("회원의 oauth 토큰이 만료되었으면") {
-            val expiredMember = memberRepository.save(
-                member(
+            val expiredAuthMember = authMemberRepository.save(
+                authMember(
                     oauthId = 1L,
                     oauthServerNumber = KAKAO.number,
                     oauthAccessToken = "expiredOauthAccessToken",
                     oauthAccessTokenExpiresAt = LocalDateTime.of(2024, 1, 1, 0, 0),
                     oauthRefreshToken = "oauthRefreshToken",
+                )
+            )
+            val expiredMember = memberRepository.save(
+                member(
+                    authMemberId = expiredAuthMember.id
                 )
             )
 

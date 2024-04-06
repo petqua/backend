@@ -3,11 +3,14 @@ package com.petqua.common.config
 import com.petqua.common.domain.Money
 import com.petqua.domain.announcement.Announcement
 import com.petqua.domain.announcement.AnnouncementRepository
+import com.petqua.domain.auth.AuthMember
+import com.petqua.domain.auth.AuthMemberRepository
 import com.petqua.domain.auth.Authority.MEMBER
 import com.petqua.domain.banner.Banner
 import com.petqua.domain.banner.BannerRepository
 import com.petqua.domain.keyword.ProductKeyword
 import com.petqua.domain.keyword.ProductKeywordRepository
+import com.petqua.domain.member.FishLifeYear
 import com.petqua.domain.member.Member
 import com.petqua.domain.member.MemberRepository
 import com.petqua.domain.notification.Notification
@@ -68,6 +71,7 @@ class DataInitializer(
     private val productRepository: ProductRepository,
     private val recommendationRepository: ProductRecommendationRepository,
     private val storeRepository: StoreRepository,
+    private val authMemberRepository: AuthMemberRepository,
     private val memberRepository: MemberRepository,
     private val categoryRepository: CategoryRepository,
     private val productReviewRepository: ProductReviewRepository,
@@ -86,7 +90,8 @@ class DataInitializer(
     @Transactional
     fun setUpData() {
         // member
-        val member = saveMember()
+        val authMember = saveAuthMember()
+        saveMember(authMember.id)
 
         // announcement
         saveAnnouncements()
@@ -96,7 +101,7 @@ class DataInitializer(
 
         val shippingAddress = shippingAddressRepository.save(
             ShippingAddress(
-                memberId = member.id,
+                memberId = authMember.id,
                 name = "집",
                 receiver = "홍길동",
                 phoneNumber = "010-1234-5678",
@@ -106,21 +111,34 @@ class DataInitializer(
                 isDefaultAddress = true,
             )
         )
-
-
+        
         // others
-        saveCommerceData(member.id)
+        saveCommerceData(authMember.id)
     }
 
-    private fun saveMember(): Member {
-        return memberRepository.save(
-            Member(
+    private fun saveAuthMember(): AuthMember {
+        return authMemberRepository.save(
+            AuthMember(
                 oauthId = 1L,
                 oauthServerNumber = 1,
-                authority = MEMBER,
                 oauthAccessToken = "xxx.yyy.zzz",
                 oauthAccessTokenExpiresAt = LocalDateTime.now().plusSeconds(10000),
                 oauthRefreshToken = "xxx.yyy.zzz",
+            )
+        )
+    }
+
+    private fun saveMember(authMemberId: Long) {
+        memberRepository.save(
+            Member(
+                authMemberId = authMemberId,
+                authority = MEMBER,
+                nickname = "홍길동",
+                fishTankCount = 1,
+                fishLifeYear = FishLifeYear.from(1),
+                isAnonymous = false,
+                hasAgreedToMarketingNotification = true,
+                isDeleted = false,
             )
         )
     }

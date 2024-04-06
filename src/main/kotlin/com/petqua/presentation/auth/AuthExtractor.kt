@@ -7,7 +7,7 @@ import com.petqua.common.util.throwExceptionWhen
 import com.petqua.domain.auth.token.AccessTokenClaims
 import com.petqua.domain.auth.token.BlackListTokenCacheStorage
 import com.petqua.domain.auth.token.JwtProvider
-import com.petqua.domain.member.MemberRepository
+import com.petqua.domain.auth.AuthMemberRepository
 import com.petqua.exception.auth.AuthException
 import com.petqua.exception.auth.AuthExceptionType.EXPIRED_ACCESS_TOKEN
 import com.petqua.exception.auth.AuthExceptionType.INVALID_ACCESS_TOKEN
@@ -28,7 +28,7 @@ private const val REFRESH_TOKEN = "refresh-token"
 @Component
 class AuthExtractor(
     private val jwtProvider: JwtProvider,
-    private val memberRepository: MemberRepository,
+    private val authMemberRepository: AuthMemberRepository,
     private val blackListTokenCacheStorage: BlackListTokenCacheStorage,
 ) {
 
@@ -58,7 +58,7 @@ class AuthExtractor(
     fun getAccessTokenClaimsOrThrow(token: String): AccessTokenClaims {
         try {
             val accessTokenClaims = AccessTokenClaims.from(jwtProvider.getPayload(token))
-            memberRepository.existActiveByIdOrThrow(accessTokenClaims.memberId) {
+            authMemberRepository.existActiveByIdOrThrow(accessTokenClaims.memberId) {
                 MemberException(NOT_FOUND_MEMBER)
             }
             validateBlackListed(accessTokenClaims.memberId, token)
