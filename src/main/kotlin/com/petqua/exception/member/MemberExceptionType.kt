@@ -4,6 +4,7 @@ import com.petqua.common.exception.BaseExceptionType
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
+import org.springframework.http.HttpStatus.LOOP_DETECTED
 import org.springframework.http.HttpStatus.NOT_FOUND
 
 enum class MemberExceptionType(
@@ -26,7 +27,7 @@ enum class MemberExceptionType(
     CONTAINING_BANNED_WORD_NAME(BAD_REQUEST, "M20", "이름에 금지 단어를 포함할 수 없습니다."),
 
     INVALID_MEMBER_STATE(INTERNAL_SERVER_ERROR, "M90", "유효하지 않은 회원 상태입니다."),
-    FAILED_NICKNAME_GENERATION(INTERNAL_SERVER_ERROR, "M91", "서버에서 회원 닉네임을 생성하지 못했습니다.")
+    FAILED_NICKNAME_GENERATION(LOOP_DETECTED, "M91", "서버에서 회원 닉네임을 생성하지 못했습니다.")
     ;
 
     override fun httpStatus(): HttpStatus {
