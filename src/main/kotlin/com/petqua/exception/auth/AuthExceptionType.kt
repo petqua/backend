@@ -26,6 +26,8 @@ enum class AuthExceptionType(
     UNSUPPORTED_AUTHORITY(BAD_REQUEST, "A20", "해당하는 권한이 존재하지 않습니다."),
 
     NOT_RENEWABLE_ACCESS_TOKEN(BAD_REQUEST, "A30", "유효한 AccessToken은 갱신할 수 없습니다."),
+
+    UNSUPPORTED_OPERATION(HttpStatus.INTERNAL_SERVER_ERROR, "A40", "지원하지 않는 메서드를 호출했습니다."),
     ;
 
     override fun httpStatus(): HttpStatus {

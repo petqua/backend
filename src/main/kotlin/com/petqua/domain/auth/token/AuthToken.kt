@@ -1,29 +1,31 @@
 package com.petqua.domain.auth.token
 
-private const val EMPTY_TOKEN = ""
+abstract class AuthToken {
 
-class AuthToken private constructor(
-    val accessToken: String,
-    val refreshToken: String,
-) {
+    protected abstract fun isSignUpToken(): Boolean
+
+    abstract fun getAccessToken(): String
+
+    abstract fun getRefreshToken(): String
+
+    abstract fun getSignUpToken(): String
+
+    fun isSignUpNeeded(): Boolean {
+        return isSignUpToken()
+    }
 
     companion object {
-        fun of(accessToken: String, refreshToken: String): AuthToken {
-            return AuthToken(
+        fun loginTokenOf(accessToken: String, refreshToken: String): AuthToken {
+            return LoginToken(
                 accessToken = accessToken,
                 refreshToken = refreshToken,
             )
         }
 
         fun signUpTokenOf(signUpToken: String): AuthToken {
-            return AuthToken(
-                accessToken = signUpToken,
-                refreshToken = EMPTY_TOKEN
+            return SignUpToken(
+                signUpToken = signUpToken,
             )
-        }
-
-        fun isSignUpNeeded(token: String): Boolean {
-            return token == EMPTY_TOKEN
         }
     }
 }

@@ -27,9 +27,9 @@ class AuthTokenProvider(
     private val properties: AuthTokenProperties,
 ) {
 
-    fun createAuthToken(memberId: Long, authority: Authority, issuedDate: Date): AuthToken {
+    fun createLoginAuthToken(memberId: Long, authority: Authority, issuedDate: Date): AuthToken {
         val accessToken = AccessTokenClaims(memberId, authority)
-        return AuthToken.of(
+        return AuthToken.loginTokenOf(
             accessToken = jwtProvider.createToken(accessToken.getClaims(), properties.accessTokenLiveTime, issuedDate),
             refreshToken = jwtProvider.createToken(EMPTY_SUBJECT, properties.refreshTokenLiveTime, issuedDate)
         )

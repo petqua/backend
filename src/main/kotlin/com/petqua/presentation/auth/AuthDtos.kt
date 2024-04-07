@@ -17,3 +17,8 @@ data class SignUpTokenResponse(
     )
     val signUpToken: String,
 )
+
+data class LoginTokenRequest(
+    val accessToken: String,
+    val refreshToken: String,
+)

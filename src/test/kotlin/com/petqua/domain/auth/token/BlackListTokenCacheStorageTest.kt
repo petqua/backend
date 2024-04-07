@@ -22,12 +22,12 @@ class BlackListTokenCacheStorageTest(
     "블랙리스트 추가 테스트" {
         val authCredentials = authCredentialsRepository.save(authCredentials())
         val member = memberRepository.save(member(authCredentialsId = authCredentials.id))
-        val authTokens = authTokenProvider.createAuthToken(member.id, member.authority, Date())
+        val authToken = authTokenProvider.createLoginAuthToken(member.id, member.authority, Date())
 
-        blackListTokenCacheStorage.save(member.id, authTokens.accessToken)
+        blackListTokenCacheStorage.save(member.id, authToken.getAccessToken())
 
         assertSoftly {
-            blackListTokenCacheStorage.isBlackListed(member.id, authTokens.accessToken) shouldBe true
+            blackListTokenCacheStorage.isBlackListed(member.id, authToken.getAccessToken()) shouldBe true
         }
     }
 })

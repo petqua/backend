@@ -5,7 +5,6 @@ import com.petqua.common.config.ACCESS_TOKEN_SECURITY_SCHEME_KEY
 import com.petqua.domain.auth.Auth
 import com.petqua.domain.auth.LoginMember
 import com.petqua.domain.auth.oauth.OauthServerType
-import com.petqua.domain.auth.token.AuthToken
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.enums.ParameterIn
@@ -72,7 +71,7 @@ class AuthController(
         val authTokenInfo = authFacadeService.login(oauthServerType, code)
 
         if (authTokenInfo.isSignUpNeeded()) {
-            return ResponseEntity.status(CREATED).body(authTokenInfo.toSignUpTokenResponse())
+            return ResponseEntity.status(CREATED).body(SignUpTokenResponse(authTokenInfo.signUpToken))
         }
 
         val refreshTokenCookie = createRefreshTokenCookie(authTokenInfo.refreshToken)
@@ -106,9 +105,9 @@ class AuthController(
     @ApiResponse(responseCode = "200", description = "재발급 성공")
     @GetMapping("/token")
     fun extendLogin(
-        @Parameter(hidden = true) @Auth authToken: AuthToken,
+        @Parameter(hidden = true) @Auth loginToken: LoginTokenRequest,
     ): ResponseEntity<Unit> {
-        val authTokenInfo = authFacadeService.extendLogin(authToken.accessToken, authToken.refreshToken)
+        val authTokenInfo = authFacadeService.extendLogin(loginToken.accessToken, loginToken.refreshToken)
         val refreshTokenCookie = createRefreshTokenCookie(authTokenInfo.refreshToken)
         val headers = HttpHeaders().apply {
             set(AUTHORIZATION, authTokenInfo.accessToken)
@@ -144,9 +143,9 @@ class AuthController(
     @SecurityRequirement(name = ACCESS_TOKEN_SECURITY_SCHEME_KEY)
     @PatchMapping("/members/sign-out")
     fun logOut(
-        @Parameter(hidden = true) @Auth authToken: AuthToken,
+        @Parameter(hidden = true) @Auth loginToken: LoginTokenRequest,
     ): ResponseEntity<Unit> {
-        authFacadeService.logOut(authToken.accessToken, authToken.refreshToken)
+        authFacadeService.logOut(loginToken.accessToken, loginToken.refreshToken)
         return ResponseEntity.noContent().build()
     }
 }

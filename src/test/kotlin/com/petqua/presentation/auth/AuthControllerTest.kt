@@ -94,16 +94,16 @@ class AuthControllerTest(
                     authCredentialsId = authCredentials.id
                 )
             )
-            val expiredAccessToken = authTokenProvider.createAuthToken(
+            val expiredAccessToken = authTokenProvider.createLoginAuthToken(
                 member.id,
                 member.authority,
                 Date(0)
-            ).accessToken
-            val refreshToken = authTokenProvider.createAuthToken(
+            ).getAccessToken()
+            val refreshToken = authTokenProvider.createLoginAuthToken(
                 member.id,
                 member.authority,
                 Date()
-            ).refreshToken
+            ).getRefreshToken()
             refreshTokenRepository.save(
                 RefreshToken(
                     memberId = member.id,
@@ -171,9 +171,9 @@ class AuthControllerTest(
         Given("로그아웃 요청을 할 때") {
             val authCredentials = authCredentialsRepository.save(authCredentials())
             val member = memberRepository.save(member(authCredentialsId = authCredentials.id))
-            val createAuthToken = authTokenProvider.createAuthToken(member.id, member.authority, Date())
-            val accessToken = createAuthToken.accessToken
-            val refreshToken = createAuthToken.refreshToken
+            val createAuthToken = authTokenProvider.createLoginAuthToken(member.id, member.authority, Date())
+            val accessToken = createAuthToken.getAccessToken()
+            val refreshToken = createAuthToken.getRefreshToken()
             refreshTokenRepository.save(
                 RefreshToken(
                     memberId = member.id,
@@ -203,9 +203,9 @@ class AuthControllerTest(
             When("인증이 필요한 요청에 사용하는 경우") {
                 val authCredentials = authCredentialsRepository.save(authCredentials())
                 val member = memberRepository.save(member(authCredentialsId = authCredentials.id))
-                val createAuthToken = authTokenProvider.createAuthToken(member.id, member.authority, Date())
-                val accessToken = createAuthToken.accessToken
-                val refreshToken = createAuthToken.refreshToken
+                val createAuthToken = authTokenProvider.createLoginAuthToken(member.id, member.authority, Date())
+                val accessToken = createAuthToken.getAccessToken()
+                val refreshToken = createAuthToken.getRefreshToken()
                 refreshTokenRepository.save(
                     RefreshToken(
                         memberId = member.id,
@@ -227,9 +227,9 @@ class AuthControllerTest(
             When("로그인 연장 요청시에 사용하는 경우") {
                 val authCredentials = authCredentialsRepository.save(authCredentials())
                 val member = memberRepository.save(member(authCredentialsId = authCredentials.id))
-                val createAuthToken = authTokenProvider.createAuthToken(member.id, member.authority, Date())
-                val accessToken = createAuthToken.accessToken
-                val refreshToken = createAuthToken.refreshToken
+                val createAuthToken = authTokenProvider.createLoginAuthToken(member.id, member.authority, Date())
+                val accessToken = createAuthToken.getAccessToken()
+                val refreshToken = createAuthToken.getRefreshToken()
                 refreshTokenRepository.save(
                     RefreshToken(
                         memberId = member.id,

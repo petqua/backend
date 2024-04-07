@@ -30,19 +30,19 @@ class AuthTokenService(
     }
 
     override fun createAuthToken(memberId: Long, authority: Authority): AuthTokenInfo {
-        val authToken = authTokenProvider.createAuthToken(memberId, authority, Date())
+        val authToken = authTokenProvider.createLoginAuthToken(memberId, authority, Date())
         refreshTokenRepository.deleteByMemberId(memberId)
         refreshTokenRepository.save(
             RefreshToken(
                 memberId = memberId,
-                token = authToken.refreshToken
+                token = authToken.getRefreshToken()
             )
         )
-        return AuthTokenInfo.from(authToken)
+        return AuthTokenInfo(authToken)
     }
 
     private fun createSignUpToken(authCredentialsId: Long): AuthTokenInfo {
         val authToken = authTokenProvider.createSignUpAuthToken(authCredentialsId, Date())
-        return AuthTokenInfo.signUpTokenOf(authToken)
+        return AuthTokenInfo(authToken)
     }
 }
