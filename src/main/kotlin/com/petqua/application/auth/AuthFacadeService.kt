@@ -30,7 +30,7 @@ class AuthFacadeService(
 
     fun extendLogin(accessToken: String, refreshToken: String): AuthTokenInfo {
         authService.validateTokenExpiredStatusForExtendLogin(accessToken, refreshToken)
-        val authCredentials = authService.findAuthCredentialsBy(accessToken = accessToken, refreshToken = refreshToken)
+        val authCredentials = authService.findAuthCredentialsBy(refreshToken = refreshToken)
         updateOauthTokenIfExpired(authCredentials)
 
         return tokenService.createAuthOrSignUpToken(authCredentials.id)
@@ -58,7 +58,7 @@ class AuthFacadeService(
     }
 
     fun logOut(accessToken: String, refreshToken: String) {
-        val member = authService.findMemberBy(refreshToken = refreshToken)
-        authService.logOut(member, accessToken)
+        val authCredentials = authService.findAuthCredentialsBy(refreshToken = refreshToken)
+        authService.logOut(authCredentials, accessToken)
     }
 }

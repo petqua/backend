@@ -67,11 +67,10 @@ class AuthCredentialsTest : StringSpec({
     }
 
     "로그아웃 처리를 한다" {
-        val member = Member(
+        val member = AuthCredentials(
             id = 1L,
             oauthId = 1L,
             oauthServerNumber = OauthServerType.KAKAO.number,
-            authority = Authority.MEMBER,
             isDeleted = false,
             oauthAccessToken = "oauthAccessToken",
             oauthAccessTokenExpiresAt = LocalDateTime.now().plusSeconds(10000),

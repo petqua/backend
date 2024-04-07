@@ -7,20 +7,17 @@ import com.petqua.domain.auth.oauth.OauthServerType
 import com.petqua.domain.auth.oauth.OauthTokenInfo
 import com.petqua.domain.auth.token.AuthTokenProvider
 import com.petqua.domain.auth.token.BlackListTokenCacheStorage
-import com.petqua.domain.auth.token.RefreshToken
 import com.petqua.domain.auth.token.RefreshTokenRepository
 import com.petqua.domain.auth.token.findByTokenOrThrow
 import com.petqua.domain.cart.CartProductRepository
 import com.petqua.domain.member.Member
 import com.petqua.domain.member.MemberRepository
-import com.petqua.domain.member.findByAuthMemberIdOrThrow
 import com.petqua.exception.auth.AuthException
 import com.petqua.exception.auth.AuthExceptionType.INVALID_REFRESH_TOKEN
 import com.petqua.exception.member.MemberException
 import com.petqua.exception.member.MemberExceptionType.NOT_FOUND_MEMBER
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.util.Date
 
 @Transactional
 @Service
@@ -48,17 +45,12 @@ class AuthService(
         )
     }
 
-    fun findMemberBy(authMember: AuthMember): Member? {
-        return memberRepository.findByAuthMemberId(authMember.id)
-    }
-
     fun validateTokenExpiredStatusForExtendLogin(accessToken: String, refreshToken: String) {
         authTokenProvider.validateTokenExpiredStatusForExtendLogin(accessToken, refreshToken)
     }
 
     @Transactional(readOnly = true)
-    fun findAuthCredentialsBy(accessToken: String, refreshToken: String): AuthCredentials {
-        authTokenProvider.validateTokenExpiredStatusForExtendLogin(accessToken, refreshToken)
+    fun findAuthCredentialsBy(refreshToken: String): AuthCredentials {
         val savedRefreshToken = refreshTokenRepository.findByTokenOrThrow(refreshToken) {
             AuthException(INVALID_REFRESH_TOKEN)
         }
@@ -100,18 +92,11 @@ class AuthService(
         refreshTokenRepository.deleteByMemberId(member.id)
     }
 
-    @Transactional(readOnly = true)
-    fun findMemberByAuthMemberId(authMemberId: Long): Member {
-        return memberRepository.findByAuthMemberIdOrThrow(authMemberId) {
-            MemberException(NOT_FOUND_MEMBER)
-        }
-    }
+    fun logOut(authCredentials: AuthCredentials, accessToken: String) {
+        authCredentials.signOut()
+        authCredentialsRepository.save(authCredentials)
 
-    fun logOut(member: Member, accessToken: String) {
-        member.signOut()
-        memberRepository.save(member)
-
-        refreshTokenRepository.deleteByMemberId(member.id)
-        blackListTokenCacheStorage.save(member.id, accessToken)
+        refreshTokenRepository.deleteByMemberId(authCredentials.id)
+        blackListTokenCacheStorage.save(authCredentials.id, accessToken)
     }
 }

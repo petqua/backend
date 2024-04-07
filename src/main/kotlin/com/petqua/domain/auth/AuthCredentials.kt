@@ -73,6 +73,12 @@ class AuthCredentials(
             ?: throw MemberException(INVALID_MEMBER_STATE)
     }
 
+    fun signOut() {
+        oauthAccessToken = DELETED_AUTH_FIELD
+        oauthAccessTokenExpiresAt = null
+        oauthRefreshToken = DELETED_AUTH_FIELD
+    }
+
     companion object {
         fun of(
             oauthId: Long,

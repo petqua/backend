@@ -29,11 +29,11 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.verify
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE
 import java.lang.System.currentTimeMillis
 import java.time.LocalDateTime
 import java.util.Date
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE
 
 @SpringBootTest(webEnvironment = NONE)
 class AuthFacadeServiceTest(
@@ -301,7 +301,7 @@ class AuthFacadeServiceTest(
 
             Then("입력한 회원의 인증 정보를 삭제한다") {
                 val deletedAuthCredentials = authCredentialsRepository.findByIdOrThrow(authCredentials.id)
-                
+
                 assertSoftly(deletedAuthCredentials) {
                     it.isDeleted shouldBe true
                     it.oauthId shouldBe -1L
@@ -359,12 +359,13 @@ class AuthFacadeServiceTest(
     }
 
     Given("로그아웃을 요청 시") {
-        val member = memberRepository.save(member())
-        val accessToken = authTokenProvider.createAuthToken(member, Date()).accessToken
-        val refreshToken = authTokenProvider.createAuthToken(member, Date()).refreshToken
+        val authCredentials = authCredentialsRepository.save(authCredentials())
+        val member = memberRepository.save(member(authCredentialsId = authCredentials.id))
+        val accessToken = authTokenProvider.createAuthToken(member.id, member.authority, Date()).accessToken
+        val refreshToken = authTokenProvider.createAuthToken(member.id, member.authority, Date()).refreshToken
         refreshTokenRepository.save(
             RefreshToken(
-                memberId = member.id,
+                memberId = authCredentials.id,
                 token = refreshToken
             )
         )
@@ -373,9 +374,9 @@ class AuthFacadeServiceTest(
             authFacadeService.logOut(accessToken, refreshToken)
 
             Then("멤버의 토큰 정보와 RefreshToken이 초기화 된다") {
-                val signedOutMember = memberRepository.findByIdOrThrow(member.id)
+                val signedOutAuthCredentials = authCredentialsRepository.findByIdOrThrow(authCredentials.id)
 
-                assertSoftly(signedOutMember) {
+                assertSoftly(signedOutAuthCredentials) {
                     refreshTokenRepository.existsByToken(refreshToken) shouldBe false
                     it.oauthAccessToken shouldBe ""
                     it.oauthAccessTokenExpiresAt shouldBe null
@@ -384,7 +385,7 @@ class AuthFacadeServiceTest(
             }
 
             Then("로그아웃한 회원의 토큰 정보를 블랙리스트에 추가한다") {
-                blackListTokenCacheStorage.isBlackListed(member.id, accessToken) shouldBe true
+                blackListTokenCacheStorage.isBlackListed(authCredentials.id, accessToken) shouldBe true
             }
         }
     }

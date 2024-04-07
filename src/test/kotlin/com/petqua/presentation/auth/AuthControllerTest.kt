@@ -3,8 +3,8 @@ package com.petqua.presentation.auth
 import com.ninjasquad.springmockk.SpykBean
 import com.petqua.application.auth.OauthService
 import com.petqua.common.domain.findByIdOrThrow
-import com.petqua.domain.auth.AuthCredentialsRepository
 import com.petqua.common.exception.ExceptionResponse
+import com.petqua.domain.auth.AuthCredentialsRepository
 import com.petqua.domain.auth.oauth.OauthServerType
 import com.petqua.domain.auth.oauth.kakao.KakaoAccount
 import com.petqua.domain.auth.oauth.kakao.KakaoOauthApiClient
@@ -25,13 +25,13 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.every
 import io.mockk.verify
-import java.util.Date
 import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.http.HttpHeaders.SET_COOKIE
 import org.springframework.http.HttpStatus.CREATED
 import org.springframework.http.HttpStatus.NO_CONTENT
 import org.springframework.http.HttpStatus.OK
 import org.springframework.http.HttpStatus.UNAUTHORIZED
+import java.util.Date
 
 class AuthControllerTest(
     private val authCredentialsRepository: AuthCredentialsRepository,
@@ -169,8 +169,9 @@ class AuthControllerTest(
         }
 
         Given("로그아웃 요청을 할 때") {
-            val member = memberRepository.save(member())
-            val createAuthToken = authTokenProvider.createAuthToken(member, Date())
+            val authCredentials = authCredentialsRepository.save(authCredentials())
+            val member = memberRepository.save(member(authCredentialsId = authCredentials.id))
+            val createAuthToken = authTokenProvider.createAuthToken(member.id, member.authority, Date())
             val accessToken = createAuthToken.accessToken
             val refreshToken = createAuthToken.refreshToken
             refreshTokenRepository.save(
@@ -182,12 +183,12 @@ class AuthControllerTest(
 
             When("회원의 인증 정보를 입력 하면") {
                 val response = requestSignOut(accessToken, refreshToken)
-                val signOutMember = authMemberRepository.findByIdOrThrow(member.id)
+                val signOutAuthCredentials = authCredentialsRepository.findByIdOrThrow(member.id)
 
                 Then("멤버의 토큰 정보와 RefreshToken이 초기화 된다") {
                     response.statusCode shouldBe NO_CONTENT.value()
 
-                    assertSoftly(signOutMember) {
+                    assertSoftly(signOutAuthCredentials) {
                         refreshTokenRepository.findByToken(refreshToken) shouldBe null
 
                         it.oauthAccessToken shouldBe ""
@@ -200,8 +201,9 @@ class AuthControllerTest(
 
         Given("로그아웃 된 인증정보로") {
             When("인증이 필요한 요청에 사용하는 경우") {
-                val member = memberRepository.save(member())
-                val createAuthToken = authTokenProvider.createAuthToken(member, Date())
+                val authCredentials = authCredentialsRepository.save(authCredentials())
+                val member = memberRepository.save(member(authCredentialsId = authCredentials.id))
+                val createAuthToken = authTokenProvider.createAuthToken(member.id, member.authority, Date())
                 val accessToken = createAuthToken.accessToken
                 val refreshToken = createAuthToken.refreshToken
                 refreshTokenRepository.save(
@@ -223,8 +225,9 @@ class AuthControllerTest(
             }
 
             When("로그인 연장 요청시에 사용하는 경우") {
-                val member = memberRepository.save(member())
-                val createAuthToken = authTokenProvider.createAuthToken(member, Date())
+                val authCredentials = authCredentialsRepository.save(authCredentials())
+                val member = memberRepository.save(member(authCredentialsId = authCredentials.id))
+                val createAuthToken = authTokenProvider.createAuthToken(member.id, member.authority, Date())
                 val accessToken = createAuthToken.accessToken
                 val refreshToken = createAuthToken.refreshToken
                 refreshTokenRepository.save(
