@@ -61,8 +61,6 @@ class OrderService(
         return SaveOrderResponse(
             orderId = orders.first().orderNumber.value,
             orderName = orders.first().orderName.value,
-            successUrl = paymentGatewayClient.successUrl(),
-            failUrl = paymentGatewayClient.failUrl(),
         )
     }
 

@@ -7,6 +7,7 @@ import com.petqua.domain.order.ShippingNumber
 import com.petqua.domain.product.ProductSnapshot
 import com.petqua.domain.product.option.ProductOption
 import com.petqua.domain.product.option.Sex
+import io.swagger.v3.oas.annotations.media.Schema
 
 data class SaveOrderCommand(
     val memberId: Long,
@@ -62,8 +63,15 @@ data class OrderProductCommand(
 }
 
 data class SaveOrderResponse(
+    @Schema(
+        description = "주문 id",
+        example = "202402211607026029E90DB030"
+    )
     val orderId: String,
+
+    @Schema(
+        description = "주문 이름",
+        example = "네온 블루 구피 외 3건"
+    )
     val orderName: String,
-    val successUrl: String,
-    val failUrl: String,
 )

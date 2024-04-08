@@ -6,8 +6,4 @@ import com.petqua.application.payment.PaymentResponseFromPG
 interface PaymentGatewayClient {
 
     fun confirmPayment(paymentConfirmRequestToPG: PaymentConfirmRequestToPG): PaymentResponseFromPG
-
-    fun successUrl(): String
-
-    fun failUrl(): String
 }
