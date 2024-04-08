@@ -23,6 +23,13 @@ class OrderProductsValidator(
         productById.values.toList()
     )
 
+    fun validate(totalAmount: Money, orderProductCommands: List<OrderProductCommand>) {
+        validateProductsIsExist(orderProductCommands)
+        validateProductOptionsIsExist(orderProductCommands)
+        validateOrderProductPrices(orderProductCommands)
+        validateTotalAmount(totalAmount, orderProductCommands)
+    }
+
     fun validateProductsIsExist(orderProductCommands: List<OrderProductCommand>) {
         val productCommandIds = orderProductCommands.map { it.productId }.toSet()
         val productIds = productById.keys

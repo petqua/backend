@@ -68,11 +68,7 @@ class OrderService(
     private fun validateOrderProducts(command: SaveOrderCommand, productById: Map<Long, Product>) {
         val productOptions = productOptionRepository.findByProductIdIn(productById.keys.toList())
         val orderProductsValidator = OrderProductsValidator(productById, productOptions.toSet())
-
-        orderProductsValidator.validateProductsIsExist(command.orderProductCommands)
-        orderProductsValidator.validateProductOptionsIsExist(command.orderProductCommands)
-        orderProductsValidator.validateOrderProductPrices(command.orderProductCommands)
-        orderProductsValidator.validateTotalAmount(command.totalAmount, command.orderProductCommands)
+        orderProductsValidator.validate(command.totalAmount, command.orderProductCommands)
     }
 
     private fun findValidateShippingAddress(
