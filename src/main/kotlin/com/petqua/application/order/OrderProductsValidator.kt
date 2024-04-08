@@ -79,8 +79,11 @@ class OrderProductsValidator(
         return DeliveryGroupKey(product.storeId, deliveryMethod)
     }
 
-    private fun getDeliveryGroupFee(it: Map.Entry<DeliveryGroupKey, List<Product>>) =
-        it.value.first().getDeliveryFee(it.key.deliveryMethod).value.toInt()
+    private fun getDeliveryGroupFee(deliveryGroup: Map.Entry<DeliveryGroupKey, List<Product>>): Int {
+        val productOfDeliveryGroup = deliveryGroup.value.first()
+        val deliveryMethod = deliveryGroup.key.deliveryMethod
+        return productOfDeliveryGroup.getDeliveryFee(deliveryMethod).value.toInt()
+    }
 
     private fun Set<ProductOption>.findOptionBy(productId: Long): ProductOption {
         return find { it.productId == productId }
