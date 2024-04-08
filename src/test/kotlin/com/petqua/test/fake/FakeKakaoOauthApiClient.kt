@@ -24,7 +24,6 @@ class FakeKakaoOauthApiClient() : KakaoOauthApiClient {
         val kakaoAccount = KakaoAccount(
             Profile(
                 nickname = "nickname",
-                imageUrl = "imageUrl"
             )
         )
 

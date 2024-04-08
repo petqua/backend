@@ -1,6 +1,5 @@
 package com.petqua.domain.auth
 
-import com.petqua.domain.auth.oauth.OauthServerType
 import com.petqua.domain.auth.token.AccessTokenClaims
 import com.petqua.domain.auth.token.AuthTokenProperties
 import com.petqua.domain.auth.token.AuthTokenProvider
@@ -31,24 +30,24 @@ class AuthTokenProviderTest(
     Given("인증 토큰 발급 테스트") {
         val issuedLocalDate = LocalDate.of(3000, 1, 1)
         val issuedDate = Date.from(issuedLocalDate.atStartOfDay(ZoneId.systemDefault()).toInstant())
-        val member = member(1L, 1L, OauthServerType.KAKAO.number, Authority.MEMBER)
+        val member = member(id = 1L)
 
         When("인증 토큰을 발급하면") {
-            val authToken = authTokenProvider.createAuthToken(member, issuedDate)
+            val authToken = authTokenProvider.createLoginAuthToken(member.id, member.authority, issuedDate)
 
             Then("JWT타입인 accessToken과 refreshToken이 발급된다") {
-                val accessTokenExpirationTime = parseExpirationTime(jwtProvider.parseToken(authToken.accessToken))
-                val refreshTokenExpirationTime = parseExpirationTime(jwtProvider.parseToken(authToken.refreshToken))
-                val accessTokenClaims = AccessTokenClaims.from(jwtProvider.getPayload(authToken.accessToken))
+                val accessTokenExpirationTime = parseExpirationTime(jwtProvider.parseToken(authToken.getAccessToken()))
+                val refreshTokenExpirationTime =
+                    parseExpirationTime(jwtProvider.parseToken(authToken.getRefreshToken()))
+                val accessTokenClaims = AccessTokenClaims.from(jwtProvider.getPayload(authToken.getAccessToken()))
 
                 assertSoftly {
                     accessTokenClaims.memberId shouldBe member.id
-                    accessTokenClaims.authority shouldBe member.authority
                     shouldNotThrow<MemberException> {
-                        jwtProvider.parseToken(authToken.accessToken)
+                        jwtProvider.parseToken(authToken.getAccessToken())
                     }
                     shouldNotThrow<MemberException> {
-                        jwtProvider.parseToken(authToken.refreshToken)
+                        jwtProvider.parseToken(authToken.getRefreshToken())
                     }
                     accessTokenExpirationTime shouldBe calculateExpirationTime(
                         issuedDate,

@@ -24,7 +24,7 @@ data class ProductReviewWithMemberResponse(
     val reviewerId: Long,
     val reviewerName: String,
     val reviewerProfileImageUrl: String?,
-    val reviewerFishBowlCount: Int, // FIXME: 회원 수조 개수
+    val reviewerFishTankCount: Int, // FIXME: 회원 수조 개수
     val reviewerYears: Int, // FIXME: 회원 가입 연차
 ) {
 
@@ -37,10 +37,10 @@ data class ProductReviewWithMemberResponse(
         hasPhotos = productReview.hasPhotos,
         recommendCount = productReview.recommendCount,
         reviewerId = reviewer.id,
-        reviewerName = reviewer.nickname, // FIXME
+        reviewerName = reviewer.nickname.value,
         reviewerProfileImageUrl = reviewer.profileImageUrl,
-        reviewerFishBowlCount = reviewer.fishBowlCount,
-        reviewerYears = reviewer.years,
+        reviewerFishTankCount = reviewer.fishTankCount,
+        reviewerYears = reviewer.fishLifeYear.value,
     )
 }
 

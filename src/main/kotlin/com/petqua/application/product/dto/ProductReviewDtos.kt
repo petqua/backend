@@ -153,7 +153,7 @@ data class ProductReviewResponse(
         reviewerId = productReviewWithMemberResponse.reviewerId,
         reviewerName = productReviewWithMemberResponse.reviewerName,
         reviewerProfileImageUrl = productReviewWithMemberResponse.reviewerProfileImageUrl,
-        reviewerFishBowlCount = productReviewWithMemberResponse.reviewerFishBowlCount,
+        reviewerFishBowlCount = productReviewWithMemberResponse.reviewerFishTankCount,
         reviewerYears = productReviewWithMemberResponse.reviewerYears,
         images = images,
     )

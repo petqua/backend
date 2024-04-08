@@ -1,22 +1,22 @@
 package com.petqua.presentation.auth
 
 import com.petqua.application.auth.AuthFacadeService
-import com.petqua.application.auth.AuthTokenInfo
 import com.petqua.common.config.ACCESS_TOKEN_SECURITY_SCHEME_KEY
 import com.petqua.domain.auth.Auth
 import com.petqua.domain.auth.LoginMember
 import com.petqua.domain.auth.oauth.OauthServerType
-import com.petqua.domain.auth.token.AuthToken
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.enums.ParameterIn
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.http.HttpHeaders.SET_COOKIE
+import org.springframework.http.HttpStatus.CREATED
 import org.springframework.http.ResponseCookie
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/auth")
 @RestController
 class AuthController(
-    private val authFacadeService: AuthFacadeService
+    private val authFacadeService: AuthFacadeService,
 ) {
 
     @Operation(summary = "리다이렉트 요청 API", description = "Oauth 로그인 페이지로 리다이렉트하는 URI를 조회합니다")
@@ -48,7 +48,18 @@ class AuthController(
     }
 
     @Operation(summary = "소셜 로그인 API(테스트 불가)", description = "소셜 로그인을 합니다")
-    @ApiResponse(responseCode = "200", description = "로그인 성공")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "로그인 성공, 회원가입이 필요 없는 경우"
+            ),
+            ApiResponse(
+                responseCode = "201",
+                description = "로그인 성공, 회원가입이 필요한 경우"
+            )
+        ]
+    )
     @GetMapping("/login/{oauthServerType}")
     fun login(
         @Schema(description = "Oauth 서버", example = "KAKAO")
@@ -56,17 +67,19 @@ class AuthController(
 
         @Schema(description = "auth code")
         @RequestParam("code") code: String,
-    ): ResponseEntity<Unit> {
+    ): ResponseEntity<Any> {
         val authTokenInfo = authFacadeService.login(oauthServerType, code)
-        val refreshTokenCookie = createRefreshTokenCookie(authTokenInfo)
+
+        if (authTokenInfo.isSignUpNeeded()) {
+            return ResponseEntity.status(CREATED).body(SignUpTokenResponse(authTokenInfo.signUpToken))
+        }
+
+        val refreshTokenCookie = createRefreshTokenCookie(authTokenInfo.refreshToken)
         val headers = HttpHeaders().apply {
             set(AUTHORIZATION, authTokenInfo.accessToken)
             set(SET_COOKIE, refreshTokenCookie.toString())
         }
-        return ResponseEntity
-            .ok()
-            .headers(headers)
-            .build()
+        return ResponseEntity.ok().headers(headers).build()
     }
 
     @Operation(
@@ -92,10 +105,10 @@ class AuthController(
     @ApiResponse(responseCode = "200", description = "재발급 성공")
     @GetMapping("/token")
     fun extendLogin(
-        @Parameter(hidden = true) @Auth authToken: AuthToken,
+        @Parameter(hidden = true) @Auth loginToken: LoginTokenRequest,
     ): ResponseEntity<Unit> {
-        val authTokenInfo = authFacadeService.extendLogin(authToken.accessToken, authToken.refreshToken)
-        val refreshTokenCookie = createRefreshTokenCookie(authTokenInfo)
+        val authTokenInfo = authFacadeService.extendLogin(loginToken.accessToken, loginToken.refreshToken)
+        val refreshTokenCookie = createRefreshTokenCookie(authTokenInfo.refreshToken)
         val headers = HttpHeaders().apply {
             set(AUTHORIZATION, authTokenInfo.accessToken)
             set(SET_COOKIE, refreshTokenCookie.toString())
@@ -106,8 +119,8 @@ class AuthController(
             .build()
     }
 
-    private fun createRefreshTokenCookie(authTokenInfo: AuthTokenInfo): ResponseCookie {
-        return ResponseCookie.from("refresh-token", authTokenInfo.refreshToken)
+    private fun createRefreshTokenCookie(refreshToken: String): ResponseCookie {
+        return ResponseCookie.from("refresh-token", refreshToken)
             .sameSite("None")
             .secure(true)
             .httpOnly(true)
@@ -119,7 +132,7 @@ class AuthController(
     @SecurityRequirement(name = ACCESS_TOKEN_SECURITY_SCHEME_KEY)
     @DeleteMapping("/members")
     fun delete(
-        @Auth loginMember: LoginMember
+        @Auth loginMember: LoginMember,
     ): ResponseEntity<Unit> {
         authFacadeService.deleteBy(loginMember.memberId)
         return ResponseEntity.noContent().build()
@@ -130,9 +143,9 @@ class AuthController(
     @SecurityRequirement(name = ACCESS_TOKEN_SECURITY_SCHEME_KEY)
     @PatchMapping("/members/sign-out")
     fun logOut(
-        @Parameter(hidden = true) @Auth authToken: AuthToken,
+        @Parameter(hidden = true) @Auth loginToken: LoginTokenRequest,
     ): ResponseEntity<Unit> {
-        authFacadeService.logOut(authToken.accessToken, authToken.refreshToken)
+        authFacadeService.logOut(loginToken.accessToken, loginToken.refreshToken)
         return ResponseEntity.noContent().build()
     }
 }

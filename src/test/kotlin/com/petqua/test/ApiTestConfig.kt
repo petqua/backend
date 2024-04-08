@@ -1,6 +1,8 @@
 package com.petqua.test
 
 import com.petqua.presentation.auth.AuthExtractor
+import com.petqua.presentation.auth.SignUpTokenResponse
+import com.petqua.presentation.member.dto.MemberSignUpRequest
 import com.petqua.test.config.ApiClientTestConfig
 import io.kotest.core.spec.style.BehaviorSpec
 import io.restassured.RestAssured
@@ -8,13 +10,13 @@ import io.restassured.module.kotlin.extensions.Extract
 import io.restassured.module.kotlin.extensions.Given
 import io.restassured.module.kotlin.extensions.Then
 import io.restassured.module.kotlin.extensions.When
-import io.restassured.response.Response
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.http.HttpHeaders.AUTHORIZATION
+import org.springframework.http.MediaType
 
 data class AuthResponse(
     val accessToken: String,
@@ -49,14 +51,18 @@ abstract class ApiTestConfig() : BehaviorSpec() {
     }
 
     final fun signInAsMember(): AuthResponse {
-        val response = requestSignIn()
-        return AuthResponse(response.header(AUTHORIZATION))
+        val signUpToken = requestLogin()
+        val accessToken = requestSignUp(
+            signUpToken = signUpToken,
+            MemberSignUpRequest(hasAgreedToMarketingNotification = true)
+        )
+        return AuthResponse(accessToken)
     }
 
-    private fun requestSignIn(): Response {
-        return Given {
+    protected fun requestLogin(): String {
+        val response = Given {
             log().all()
-                .queryParam("code", "code")
+            queryParam("code", "code")
         } When {
             get("/auth/login/{oauthServerType}", "kakao")
         } Then {
@@ -64,5 +70,26 @@ abstract class ApiTestConfig() : BehaviorSpec() {
         } Extract {
             response()
         }
+
+        return response.`as`(SignUpTokenResponse::class.java).signUpToken
+    }
+
+    private fun requestSignUp(
+        signUpToken: String,
+        memberSignUpRequest: MemberSignUpRequest,
+    ): String {
+        val response = Given {
+            log().all()
+            header("Sign-Up-Authorization", signUpToken)
+            contentType(MediaType.APPLICATION_JSON_VALUE)
+            body(memberSignUpRequest)
+        } When {
+            post("/members/sign-up")
+        } Then {
+            log().all()
+        } Extract {
+            response()
+        }
+        return response.header(AUTHORIZATION)
     }
 }
