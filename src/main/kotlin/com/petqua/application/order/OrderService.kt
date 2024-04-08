@@ -5,6 +5,7 @@ import com.petqua.application.order.dto.SaveOrderCommand
 import com.petqua.application.order.dto.SaveOrderResponse
 import com.petqua.application.payment.infra.PaymentGatewayClient
 import com.petqua.common.domain.findByIdOrThrow
+import com.petqua.common.util.throwExceptionWhen
 import com.petqua.domain.delivery.DeliveryMethod.PICK_UP
 import com.petqua.domain.order.Order
 import com.petqua.domain.order.OrderName
@@ -78,13 +79,10 @@ class OrderService(
         shippingAddressId: Long?,
         orderProductCommands: List<OrderProductCommand>
     ): ShippingAddress? {
-        // TODO 배송&픽업 전략이 확정되면 변경 필요
-        shippingAddressId ?: run {
-            orderProductCommands.find { it.deliveryMethod != PICK_UP }
-                ?: throw OrderException(EMPTY_SHIPPING_ADDRESS)
-        }
-
         if (shippingAddressId == null) {
+            throwExceptionWhen(orderProductCommands.any { it.deliveryMethod != PICK_UP }) {
+                OrderException(EMPTY_SHIPPING_ADDRESS)
+            }
             return null
         }
 
