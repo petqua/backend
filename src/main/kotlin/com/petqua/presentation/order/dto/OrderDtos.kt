@@ -20,6 +20,10 @@ data class SaveOrderRequest(
     )
     val shippingRequest: String?,
 
+    @Schema(
+        description = "주문 상품 목록",
+        example = "[{\"productId\": 1, \"storeId\": 1, \"quantity\": 2, \"originalPrice\": 40000, \"discountRate\": 50, \"discountPrice\": 20000, \"orderPrice\": 22000, \"sex\": \"FEMALE\", \"additionalPrice\": 2000, \"deliveryFee\": 5000, \"deliveryMethod\": \"SAFETY\"}]"
+    )
     val orderProductRequests: List<OrderProductRequest>,
 
     @Schema(
