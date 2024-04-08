@@ -1,14 +1,17 @@
 package com.petqua.application.auth
 
+import com.petqua.application.token.AuthTokenInfo
+import com.petqua.application.token.TokenService
+import com.petqua.domain.auth.AuthCredentials
 import com.petqua.domain.auth.oauth.OauthServerType
-import com.petqua.domain.member.Member
-import java.net.URI
 import org.springframework.stereotype.Service
+import java.net.URI
 
 @Service
 class AuthFacadeService(
     private val authService: AuthService,
     private val oauthService: OauthService,
+    private val tokenService: TokenService,
 ) {
 
     fun getAuthCodeRequestUrl(oauthServerType: OauthServerType): URI {
@@ -18,39 +21,44 @@ class AuthFacadeService(
     fun login(oauthServerType: OauthServerType, code: String): AuthTokenInfo {
         val oauthTokenInfo = oauthService.requestOauthTokenInfo(oauthServerType, code)
         val oauthUserInfo = oauthService.requestOauthUserInfo(oauthServerType, oauthTokenInfo.accessToken)
-        val member = authService.findOrCreateMemberBy(oauthServerType, oauthTokenInfo, oauthUserInfo)
-        return authService.createAuthToken(member)
+
+        val authCredentials = authService.findOrCreateAuthCredentialsBy(oauthServerType, oauthUserInfo.oauthId)
+        authService.updateOauthToken(authCredentials, oauthTokenInfo)
+
+        return tokenService.createAuthOrSignUpToken(authCredentials.id)
     }
 
     fun extendLogin(accessToken: String, refreshToken: String): AuthTokenInfo {
         authService.validateTokenExpiredStatusForExtendLogin(accessToken, refreshToken)
-        val member = authService.findMemberBy(refreshToken = refreshToken)
-        updateOauthTokenIfExpired(member)
-        return authService.createAuthToken(member)
+        val authCredentials = authService.findAuthCredentialsBy(refreshToken = refreshToken)
+        updateOauthTokenIfExpired(authCredentials)
+
+        return tokenService.createAuthOrSignUpToken(authCredentials.id)
     }
 
-    private fun updateOauthTokenIfExpired(member: Member) {
-        if (member.hasExpiredOauthToken()) {
+    private fun updateOauthTokenIfExpired(authCredentials: AuthCredentials) {
+        if (authCredentials.hasExpiredOauthToken()) {
             val oauthTokenInfo = oauthService.updateOauthToken(
-                oauthServerType = member.oauthServerType,
-                oauthRefreshToken = member.oauthRefreshToken
+                oauthServerType = authCredentials.oauthServerType,
+                oauthRefreshToken = authCredentials.oauthRefreshToken
             )
-            authService.updateOauthToken(member, oauthTokenInfo)
+            authService.updateOauthToken(authCredentials, oauthTokenInfo)
         }
     }
 
     fun deleteBy(memberId: Long) {
         val member = authService.findMemberBy(memberId)
-        updateOauthTokenIfExpired(member)
+        val authCredentials = authService.findAuthCredentialsBy(member.authCredentialsId)
+        updateOauthTokenIfExpired(authCredentials)
         oauthService.disconnectBy(
-            oauthServerType = member.oauthServerType,
-            oauthAccessToken = member.oauthAccessToken
+            oauthServerType = authCredentials.oauthServerType,
+            oauthAccessToken = authCredentials.oauthAccessToken
         )
-        authService.delete(member)
+        authService.delete(member, authCredentials)
     }
 
     fun logOut(accessToken: String, refreshToken: String) {
-        val member = authService.findMemberBy(refreshToken = refreshToken)
-        authService.logOut(member, accessToken)
+        val authCredentials = authService.findAuthCredentialsBy(refreshToken = refreshToken)
+        authService.logOut(authCredentials, accessToken)
     }
 }

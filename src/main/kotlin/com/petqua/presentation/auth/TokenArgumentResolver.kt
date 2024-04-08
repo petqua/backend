@@ -2,7 +2,6 @@ package com.petqua.presentation.auth
 
 import com.petqua.common.util.getHttpServletRequestOrThrow
 import com.petqua.domain.auth.Auth
-import com.petqua.domain.auth.token.AuthToken
 import org.springframework.core.MethodParameter
 import org.springframework.stereotype.Component
 import org.springframework.web.bind.support.WebDataBinderFactory
@@ -17,19 +16,19 @@ class TokenArgumentResolver(
 
     override fun supportsParameter(parameter: MethodParameter): Boolean {
         return parameter.hasParameterAnnotation(Auth::class.java)
-                && parameter.parameterType == AuthToken::class.java
+                && parameter.parameterType == LoginTokenRequest::class.java
     }
 
     override fun resolveArgument(
         parameter: MethodParameter,
         mavContainer: ModelAndViewContainer?,
         webRequest: NativeWebRequest,
-        binderFactory: WebDataBinderFactory?
-    ): AuthToken {
+        binderFactory: WebDataBinderFactory?,
+    ): LoginTokenRequest {
         val request = webRequest.getHttpServletRequestOrThrow()
         val accessToken = authExtractor.extractAccessToken(request)
         authExtractor.validateBlacklistTokenRegardlessExpiration(accessToken)
         val refreshToken = authExtractor.extractRefreshToken(request)
-        return AuthToken(accessToken, refreshToken)
+        return LoginTokenRequest(accessToken, refreshToken)
     }
 }

@@ -3,17 +3,27 @@ package com.petqua.common.config
 import com.petqua.common.domain.Money
 import com.petqua.domain.announcement.Announcement
 import com.petqua.domain.announcement.AnnouncementRepository
+import com.petqua.domain.auth.AuthCredentials
+import com.petqua.domain.auth.AuthCredentialsRepository
 import com.petqua.domain.auth.Authority.MEMBER
 import com.petqua.domain.banner.Banner
 import com.petqua.domain.banner.BannerRepository
+import com.petqua.domain.fish.Fish
+import com.petqua.domain.fish.FishRepository
 import com.petqua.domain.keyword.ProductKeyword
 import com.petqua.domain.keyword.ProductKeywordRepository
+import com.petqua.domain.member.FishLifeYear
 import com.petqua.domain.member.Member
 import com.petqua.domain.member.MemberRepository
 import com.petqua.domain.notification.Notification
 import com.petqua.domain.notification.NotificationRepository
+import com.petqua.domain.member.nickname.Nickname
+import com.petqua.domain.member.nickname.NicknameWord
+import com.petqua.domain.member.nickname.NicknameWordRepository
 import com.petqua.domain.order.ShippingAddress
 import com.petqua.domain.order.ShippingAddressRepository
+import com.petqua.domain.policy.bannedword.BannedWord
+import com.petqua.domain.policy.bannedword.BannedWordRepository
 import com.petqua.domain.product.Product
 import com.petqua.domain.product.ProductRepository
 import com.petqua.domain.product.ProductSnapshot
@@ -70,6 +80,7 @@ class DataInitializer(
     private val productRepository: ProductRepository,
     private val recommendationRepository: ProductRecommendationRepository,
     private val storeRepository: StoreRepository,
+    private val authCredentialsRepository: AuthCredentialsRepository,
     private val memberRepository: MemberRepository,
     private val categoryRepository: CategoryRepository,
     private val productReviewRepository: ProductReviewRepository,
@@ -82,6 +93,9 @@ class DataInitializer(
     private val productKeywordRepository: ProductKeywordRepository,
     private val productDescriptionRepository: ProductDescriptionRepository,
     private val shippingAddressRepository: ShippingAddressRepository,
+    private val fishRepository: FishRepository,
+    private val bannedWordRepository: BannedWordRepository,
+    private val nicknameWordRepository: NicknameWordRepository,
     private val notificationRepository: NotificationRepository,
 ) {
 
@@ -89,7 +103,17 @@ class DataInitializer(
     @Transactional
     fun setUpData() {
         // member
-        val member = saveMember()
+        val authCredentials = saveAuthCredentials()
+        saveMember(authCredentials.id)
+
+        // fish
+        saveFishes()
+
+        // bannedWord
+        saveBannedWords()
+
+        // nicknameWord
+        saveNicknameWords()
 
         // announcement
         saveAnnouncements()
@@ -97,33 +121,64 @@ class DataInitializer(
         // banner
         saveBanners()
 
-        val shippingAddress = shippingAddressRepository.save(
-            ShippingAddress(
-                memberId = member.id,
-                name = "집",
-                receiver = "홍길동",
-                phoneNumber = "010-1234-5678",
-                zipCode = 12345,
-                address = "서울시 강남구 역삼동 99번길",
-                detailAddress = "101동 101호",
-                isDefaultAddress = true,
-            )
-        )
-
+        // shippingAddress
+        saveShippingAddress(authCredentials)
 
         // others
-        saveCommerceData(member.id)
+        saveCommerceData(authCredentials.id)
     }
 
-    private fun saveMember(): Member {
-        return memberRepository.save(
-            Member(
+    private fun saveAuthCredentials(): AuthCredentials {
+        return authCredentialsRepository.save(
+            AuthCredentials(
                 oauthId = 1L,
                 oauthServerNumber = 1,
-                authority = MEMBER,
                 oauthAccessToken = "xxx.yyy.zzz",
                 oauthAccessTokenExpiresAt = LocalDateTime.now().plusSeconds(10000),
                 oauthRefreshToken = "xxx.yyy.zzz",
+            )
+        )
+    }
+
+    private fun saveMember(authCredentialsId: Long) {
+        memberRepository.save(
+            Member(
+                authCredentialsId = authCredentialsId,
+                authority = MEMBER,
+                nickname = Nickname.from("홍길동"),
+                profileImageUrl = null,
+                fishTankCount = 1,
+                fishLifeYear = FishLifeYear.from(1),
+                hasAgreedToMarketingNotification = true,
+                isDeleted = false,
+            )
+        )
+    }
+
+    private fun saveFishes() {
+        fishRepository.saveAll(
+            listOf(
+                Fish(species = com.petqua.domain.fish.Species.from("구피")),
+                Fish(species = com.petqua.domain.fish.Species.from("베타")),
+                Fish(species = com.petqua.domain.fish.Species.from("임베리스")),
+            )
+        )
+    }
+
+    private fun saveBannedWords() {
+        bannedWordRepository.saveAll(
+            listOf(
+                BannedWord(word = "씨발"),
+                BannedWord(word = "병신"),
+            )
+        )
+    }
+
+    private fun saveNicknameWords() {
+        nicknameWordRepository.saveAll(
+            listOf(
+                NicknameWord(word = "펫쿠아"),
+                NicknameWord(word = "물고기"),
             )
         )
     }
@@ -166,6 +221,21 @@ class DataInitializer(
                     imageUrl = "https://docs.petqua.co.kr/banners/announcement3.jpg",
                     linkUrl = "https://team.petqua.co.kr/"
                 ),
+            )
+        )
+    }
+
+    private fun saveShippingAddress(authCredentials: AuthCredentials) {
+        shippingAddressRepository.save(
+            ShippingAddress(
+                memberId = authCredentials.id,
+                name = "집",
+                receiver = "홍길동",
+                phoneNumber = "010-1234-5678",
+                zipCode = 12345,
+                address = "서울시 강남구 역삼동 99번길",
+                detailAddress = "101동 101호",
+                isDefaultAddress = true,
             )
         )
     }
