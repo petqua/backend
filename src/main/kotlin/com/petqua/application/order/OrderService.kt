@@ -90,7 +90,7 @@ class OrderService(
     private fun findValidateProductSnapshots(productById: Map<Long, Product>): Map<Long, ProductSnapshot> {
         val productIds = productById.keys.toList()
         val products = productById.values.toList()
-        val productSnapshots = productSnapshotRepository.findAllByProductIdIn(productIds).associateBy { it.productId }
+        val productSnapshots = productSnapshotRepository.findLatestAllByProductIdIn(productIds).associateBy { it.productId }
         products.forEach { product ->
             productSnapshots[product.id]?.takeIf { it.isProductDetailsMatching(product) }
                 ?: throw ProductException(NOT_FOUND_PRODUCT)
