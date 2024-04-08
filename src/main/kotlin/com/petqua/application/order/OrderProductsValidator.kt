@@ -12,9 +12,9 @@ import com.petqua.exception.product.ProductException
 import com.petqua.exception.product.ProductExceptionType
 
 class OrderProductsValidator(
-    val productById: Map<Long, Product>,
-    val productOptions: Set<ProductOption>,
-    val products: List<Product>,
+    private val productById: Map<Long, Product>,
+    private val productOptions: Set<ProductOption>,
+    private val products: List<Product>,
 ) {
 
     constructor(productById: Map<Long, Product>, productOptions: Set<ProductOption>) : this(
@@ -31,11 +31,10 @@ class OrderProductsValidator(
 
     fun validateProductOptionsIsExist(orderProductCommands: List<OrderProductCommand>) {
         orderProductCommands.forEach { orderProductCommand ->
-            productOptions.find { it.productId == orderProductCommand.productId }?.let {
-                throwExceptionWhen(!it.isSame(orderProductCommand.toProductOption())) {
-                    ProductException(ProductExceptionType.INVALID_PRODUCT_OPTION)
-                }
-            } ?: throw ProductException(ProductExceptionType.INVALID_PRODUCT_OPTION)
+            val productOption = productOptions.findOptionBy(orderProductCommand.productId)
+            throwExceptionWhen(!productOption.isSame(orderProductCommand.toProductOption())) {
+                ProductException(ProductExceptionType.INVALID_PRODUCT_OPTION)
+            }
         }
     }
 
