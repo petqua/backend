@@ -26,6 +26,7 @@ class OrderProductsValidator(
     fun validate(totalAmount: Money, orderProductCommands: List<OrderProductCommand>) {
         validateProductsIsExist(orderProductCommands)
         validateProductOptionsIsExist(orderProductCommands)
+        validateProductDetailIsMatching(orderProductCommands)
         validateOrderProductPrices(orderProductCommands)
         validateTotalAmount(totalAmount, orderProductCommands)
     }
@@ -41,6 +42,16 @@ class OrderProductsValidator(
             val productOption = productOptions.findOptionBy(orderProductCommand.productId)
             throwExceptionWhen(!productOption.isSame(orderProductCommand.toProductOption())) {
                 ProductException(ProductExceptionType.INVALID_PRODUCT_OPTION)
+            }
+        }
+    }
+
+    fun validateProductDetailIsMatching(orderProductCommands: List<OrderProductCommand>) {
+        orderProductCommands.forEach { orderProductCommand ->
+            val product = productById[orderProductCommand.productId]
+                ?: throw OrderException(OrderExceptionType.PRODUCT_NOT_FOUND)
+            throwExceptionWhen(!product.isDetailMatching(orderProductCommand)) {
+                OrderException(OrderExceptionType.PRODUCT_INFO_NOT_MATCH)
             }
         }
     }
@@ -95,5 +106,18 @@ class OrderProductsValidator(
     private fun Set<ProductOption>.findOptionBy(productId: Long): ProductOption {
         return find { it.productId == productId }
             ?: throw ProductException(ProductExceptionType.INVALID_PRODUCT_OPTION)
+    }
+
+    private fun Product.isDetailMatching(orderProductCommand: OrderProductCommand): Boolean {
+        if (price != orderProductCommand.originalPrice) {
+            return false
+        }
+        if (discountRate != orderProductCommand.discountRate) {
+            return false
+        }
+        if (discountPrice != orderProductCommand.discountPrice) {
+            return false
+        }
+        return true
     }
 }
