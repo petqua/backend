@@ -12,8 +12,12 @@ import com.petqua.domain.order.OrderNumber
 import com.petqua.domain.order.OrderProduct
 import com.petqua.domain.order.OrderShippingAddress
 import com.petqua.domain.order.ShippingNumber
+import com.petqua.domain.product.Product
+import com.petqua.domain.product.option.ProductOption
 import com.petqua.domain.product.option.Sex
 import com.petqua.domain.product.option.Sex.FEMALE
+import com.petqua.presentation.order.dto.OrderProductRequest
+import com.petqua.presentation.order.dto.SaveOrderRequest
 import java.math.BigDecimal
 import java.math.BigDecimal.ONE
 import java.math.BigDecimal.ZERO
@@ -171,5 +175,70 @@ fun orderProductCommand(
         additionalPrice = Money.from(additionalPrice),
         deliveryFee = Money.from(deliveryFee),
         deliveryMethod = deliveryMethod,
+    )
+}
+
+fun saveOrderRequest(
+    shippingAddressId: Long? = null,
+    shippingRequest: String? = null,
+    orderProductRequests: List<OrderProductRequest>,
+    totalAmount: Money,
+): SaveOrderRequest {
+    return SaveOrderRequest(
+        shippingAddressId = shippingAddressId,
+        shippingRequest = shippingRequest,
+        orderProductRequests = orderProductRequests,
+        totalAmount = totalAmount
+    )
+}
+
+fun orderProductRequest(
+    productId: Long,
+    storeId: Long,
+    quantity: Int = 1,
+    originalPrice: Money = Money.from(ONE),
+    discountRate: Int = 0,
+    discountPrice: Money = originalPrice,
+    orderPrice: Money = Money.from(ONE),
+    sex: String = FEMALE.name,
+    additionalPrice: Money = Money.from(ZERO),
+    deliveryFee: Money = Money.from(3000),
+    deliveryMethod: String = COMMON.name,
+): OrderProductRequest {
+    return OrderProductRequest(
+        productId = productId,
+        storeId = storeId,
+        quantity = quantity,
+        originalPrice = originalPrice,
+        discountRate = discountRate,
+        discountPrice = discountPrice,
+        orderPrice = orderPrice,
+        sex = sex,
+        additionalPrice = additionalPrice,
+        deliveryFee = deliveryFee,
+        deliveryMethod = deliveryMethod
+    )
+}
+
+fun orderProductRequest(
+    product: Product,
+    productOption: ProductOption,
+    quantity: Int = 1,
+    sex: Sex,
+    deliveryFee: Money,
+    deliveryMethod: DeliveryMethod,
+): OrderProductRequest {
+    return OrderProductRequest(
+        productId = product.id,
+        storeId = product.storeId,
+        quantity = quantity,
+        originalPrice = product.price,
+        discountRate = product.discountRate,
+        discountPrice = product.discountPrice,
+        orderPrice = product.price + productOption.additionalPrice,
+        sex = sex.name,
+        additionalPrice = productOption.additionalPrice,
+        deliveryFee = deliveryFee,
+        deliveryMethod = deliveryMethod.name
     )
 }
