@@ -185,15 +185,12 @@ class OrderControllerTest(
                     totalAmount = productA1.discountPrice + productA2.discountPrice + Money.from(3000),
                 )
 
-                val response = requestSaveOrder(request, accessToken)
+                requestSaveOrder(request, accessToken)
 
-                Then("예외가 발생한다") {
-                    // 한 업체에서는 같은 배송 방법으로만 주문 가능. 다른 방법으로 주문할 때에는 다시 새로 구매.
-                    val errorResponse = response.`as`(ExceptionResponse::class.java)
+                Then("배송번호는 두 개 생성된다") {
+                    val orders = orderRepository.findAll()
 
-                    assertSoftly(response) {
-                        statusCode shouldBe BAD_REQUEST.value()
-                    }
+                    orders.distinctBy { it.orderProduct.shippingNumber }.size shouldBe 2
                 }
             }
 

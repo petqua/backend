@@ -24,6 +24,22 @@ inline fun <reified T> EntityManager.createSingleQueryOrThrow(
     }
 }
 
+inline fun <reified T> EntityManager.createFirstQueryOrThrow(
+    query: SelectQuery<*>,
+    context: JpqlRenderContext,
+    renderer: JpqlRenderer,
+    exceptionSupplier: () -> RuntimeException = { NoResultException("Query did not return any result") },
+): T {
+    val rendered = renderer.render(query, context)
+    val results = this.createQuery(rendered.query, T::class.java)
+        .apply { rendered.params.forEach { (name, value) -> setParameter(name, value) } }
+        .resultList
+    return when {
+        results.isEmpty() -> throw exceptionSupplier()
+        else -> results[0]
+    }
+}
+
 inline fun <reified T> EntityManager.createQuery(
     query: SelectQuery<*>,
     context: JpqlRenderContext,

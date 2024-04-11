@@ -6,14 +6,14 @@ import org.springframework.data.jpa.repository.Query
 
 fun OrderPaymentRepository.findLatestByOrderIdOrThrow(
     orderId: Long,
-    exceptionSupplier: () -> Exception = { IllegalArgumentException("${OrderPayment::class.java.name} entity 를 찾을 수 없습니다.") }
+    exceptionSupplier: () -> Exception = { IllegalArgumentException("${OrderPayment::class.java.name} entity 를 찾을 수 없습니다.") },
 ): OrderPayment {
     return findTopByOrderIdOrderByIdDesc(orderId) ?: throw exceptionSupplier()
 }
 
-fun OrderPaymentRepository.save(
+fun OrderPaymentRepository.saveOrThrowOnIntegrityViolation(
     orderPayment: OrderPayment,
-    exceptionSupplier: () -> Exception = { IllegalArgumentException("${OrderPayment::class.java.name} entity 를 저장할 수 없습니다.") }
+    exceptionSupplier: () -> Exception = { IllegalArgumentException("${OrderPayment::class.java.name} entity 를 저장할 수 없습니다.") },
 ): OrderPayment {
     try {
         return save(orderPayment)
