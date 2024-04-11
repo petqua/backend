@@ -4,7 +4,7 @@ import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 
-fun OrderPaymentRepository.findByOrderIdOrderByIdDescOrThrow(
+fun OrderPaymentRepository.findLatestByOrderIdOrThrow(
     orderId: Long,
     exceptionSupplier: () -> Exception = { IllegalArgumentException("${OrderPayment::class.java.name} entity 를 찾을 수 없습니다.") }
 ): OrderPayment {

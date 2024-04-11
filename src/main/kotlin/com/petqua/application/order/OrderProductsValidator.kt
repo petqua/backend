@@ -32,9 +32,12 @@ class OrderProductsValidator(
     }
 
     fun validateProductsIsExist(orderProductCommands: List<OrderProductCommand>) {
-        val productCommandIds = orderProductCommands.map { it.productId }.toSet()
+        val productCommandIds = orderProductCommands.map { it.productId }
         val productIds = productById.keys
-        throwExceptionWhen(productCommandIds != productIds) { OrderException(OrderExceptionType.PRODUCT_NOT_FOUND) }
+
+        val isAllProductExist = productCommandIds.toSet() == productIds
+        val isProductCountMatch = productCommandIds.size == products.size
+        throwExceptionWhen(!isAllProductExist || !isProductCountMatch) { OrderException(OrderExceptionType.PRODUCT_NOT_FOUND) }
     }
 
     fun validateProductOptionsIsExist(orderProductCommands: List<OrderProductCommand>) {
