@@ -593,7 +593,6 @@ class OrderServiceTest(
                 orders.forAll {
                     it.orderNumber.value shouldBe response.orderId
                     it.orderName.value shouldBe response.orderName
-//                    it.status shouldBe ORDER_CREATED
                 }
                 orders.distinctBy { it.orderProduct.shippingNumber }.size shouldBe 2
 

@@ -5,9 +5,7 @@ import com.petqua.domain.order.OrderStatus.ORDER_CREATED
 import com.petqua.domain.order.OrderStatus.PAYMENT_CONFIRMED
 import com.petqua.exception.order.OrderException
 import com.petqua.exception.order.OrderExceptionType
-import jakarta.persistence.AttributeOverride
 import jakarta.persistence.Column
-import jakarta.persistence.Embedded
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
@@ -32,7 +30,7 @@ class OrderPayment(
     val prevId: Long? = null,
 ) {
 
-    companion object{
+    companion object {
         fun from(order: Order): OrderPayment {
             return OrderPayment(
                 orderId = order.id,
@@ -54,7 +52,7 @@ class OrderPayment(
     }
 
     fun pay(tossPaymentId: Long): OrderPayment {
-        throwExceptionWhen(!status.isAbleToPay()) { // TODO OrderPayment는 결제가 성공될 때 생성되므로 OrderCreated 상태를 가질 수 없음
+        throwExceptionWhen(!status.isAbleToPay()) {
             throw OrderException(OrderExceptionType.ORDER_CAN_NOT_PAY)
         }
         return OrderPayment(
