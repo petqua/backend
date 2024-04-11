@@ -17,6 +17,7 @@ import com.petqua.domain.product.option.Sex.FEMALE
 import com.petqua.domain.product.option.Sex.MALE
 import com.petqua.domain.store.StoreRepository
 import com.petqua.exception.order.OrderExceptionType.ORDER_PRICE_NOT_MATCH
+import com.petqua.exception.order.OrderExceptionType.PRODUCT_INFO_NOT_MATCH
 import com.petqua.exception.order.OrderExceptionType.PRODUCT_NOT_FOUND
 import com.petqua.exception.order.ShippingAddressExceptionType.NOT_FOUND_SHIPPING_ADDRESS
 import com.petqua.exception.product.ProductExceptionType.INVALID_PRODUCT_OPTION
@@ -401,7 +402,7 @@ class OrderControllerTest(
 
                     assertSoftly(response) {
                         statusCode shouldBe BAD_REQUEST.value()
-                        errorResponse.message shouldBe ORDER_PRICE_NOT_MATCH.errorMessage()
+                        errorResponse.message shouldBe PRODUCT_INFO_NOT_MATCH.errorMessage()
                     }
                 }
             }
@@ -439,7 +440,7 @@ class OrderControllerTest(
 
                     assertSoftly(response) {
                         statusCode shouldBe BAD_REQUEST.value()
-                        errorResponse.message shouldBe ORDER_PRICE_NOT_MATCH.errorMessage()
+                        errorResponse.message shouldBe PRODUCT_INFO_NOT_MATCH.errorMessage()
                     }
                 }
             }
@@ -553,7 +554,7 @@ class OrderControllerTest(
 
                     assertSoftly(response) {
                         statusCode shouldBe BAD_REQUEST.value()
-                        errorResponse.message shouldBe ORDER_PRICE_NOT_MATCH.errorMessage()
+                        errorResponse.message shouldBe PRODUCT_INFO_NOT_MATCH.errorMessage()
                     }
                 }
             }

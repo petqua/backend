@@ -118,6 +118,9 @@ class OrderProductsValidator(
         if (discountPrice != orderProductCommand.discountPrice) {
             return false
         }
+        if (getDeliveryFee(orderProductCommand.deliveryMethod) != orderProductCommand.deliveryFee) {
+            return false
+        }
         return true
     }
 }
