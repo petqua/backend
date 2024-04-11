@@ -16,7 +16,7 @@ import com.petqua.domain.product.option.ProductOptionRepository
 import com.petqua.domain.product.option.Sex.FEMALE
 import com.petqua.domain.product.option.Sex.MALE
 import com.petqua.domain.store.StoreRepository
-import com.petqua.exception.order.OrderExceptionType.ORDER_PRICE_NOT_MATCH
+import com.petqua.exception.order.OrderExceptionType.ORDER_TOTAL_PRICE_NOT_MATCH
 import com.petqua.exception.order.OrderExceptionType.PRODUCT_INFO_NOT_MATCH
 import com.petqua.exception.order.OrderExceptionType.PRODUCT_NOT_FOUND
 import com.petqua.exception.order.ShippingAddressExceptionType.NOT_FOUND_SHIPPING_ADDRESS
@@ -516,7 +516,7 @@ class OrderControllerTest(
 
                     assertSoftly(response) {
                         statusCode shouldBe BAD_REQUEST.value()
-                        errorResponse.message shouldBe ORDER_PRICE_NOT_MATCH.errorMessage()
+                        errorResponse.message shouldBe ORDER_TOTAL_PRICE_NOT_MATCH.errorMessage()
                     }
                 }
             }

@@ -69,7 +69,7 @@ class OrderProductsValidator(
         val totalDeliveryFee = calculateTotalDeliveryFee(orderProductCommands)
         throwExceptionWhen(inputTotalAmount != Money.from(totalDeliveryFee.toBigDecimal() + orderProductCommands.sumOf { it.orderPrice.value })) {
             OrderException(
-                OrderExceptionType.ORDER_PRICE_NOT_MATCH
+                OrderExceptionType.ORDER_TOTAL_PRICE_NOT_MATCH
             )
         }
     }
@@ -78,7 +78,7 @@ class OrderProductsValidator(
         val expectedOrderPrice = (product.discountPrice + option.additionalPrice) * command.quantity.toBigDecimal()
         val expectedDeliveryFee = product.getDeliveryFee(command.deliveryMethod)
         if (command.orderPrice != expectedOrderPrice || command.deliveryFee != expectedDeliveryFee) {
-            throw OrderException(OrderExceptionType.ORDER_PRICE_NOT_MATCH)
+            throw OrderException(OrderExceptionType.ORDER_TOTAL_PRICE_NOT_MATCH)
         }
     }
 

@@ -15,7 +15,8 @@ import com.petqua.domain.product.option.Sex
 import com.petqua.domain.product.option.Sex.FEMALE
 import com.petqua.domain.store.StoreRepository
 import com.petqua.exception.order.OrderException
-import com.petqua.exception.order.OrderExceptionType.ORDER_PRICE_NOT_MATCH
+import com.petqua.exception.order.OrderExceptionType.ORDER_TOTAL_PRICE_NOT_MATCH
+import com.petqua.exception.order.OrderExceptionType.PRODUCT_INFO_NOT_MATCH
 import com.petqua.exception.order.OrderExceptionType.PRODUCT_NOT_FOUND
 import com.petqua.exception.order.ShippingAddressException
 import com.petqua.exception.order.ShippingAddressExceptionType.NOT_FOUND_SHIPPING_ADDRESS
@@ -209,6 +210,7 @@ class OrderServiceTest(
                     sex = productOptionA.sex,
                     orderPrice = BigDecimal.TEN,
                     additionalPrice = productOptionA.additionalPrice.value,
+                    deliveryFee = productA.commonDeliveryFee!!.value,
                     deliveryMethod = COMMON,
                 ),
                 orderProductCommand(
@@ -219,6 +221,7 @@ class OrderServiceTest(
                     sex = productOptionB.sex,
                     orderPrice = 9.toBigDecimal(),
                     additionalPrice = productOptionB.additionalPrice.value,
+                    deliveryFee = productB.safeDeliveryFee!!.value,
                     deliveryMethod = SAFETY,
                 ),
             )
@@ -231,7 +234,7 @@ class OrderServiceTest(
             Then("예외가 발생 한다") {
                 shouldThrow<OrderException> {
                     orderService.save(command)
-                }.exceptionType() shouldBe (ORDER_PRICE_NOT_MATCH)
+                }.exceptionType() shouldBe (ORDER_TOTAL_PRICE_NOT_MATCH)
             }
         }
 
@@ -300,7 +303,7 @@ class OrderServiceTest(
             Then("예외가 발생 한다") {
                 shouldThrow<OrderException> {
                     orderService.save(command)
-                }.exceptionType() shouldBe (ORDER_PRICE_NOT_MATCH)
+                }.exceptionType() shouldBe (PRODUCT_INFO_NOT_MATCH)
             }
         }
 
@@ -396,7 +399,7 @@ class OrderServiceTest(
             Then("예외가 발생 한다") {
                 shouldThrow<OrderException> {
                     orderService.save(command)
-                }.exceptionType() shouldBe (ORDER_PRICE_NOT_MATCH)
+                }.exceptionType() shouldBe (ORDER_TOTAL_PRICE_NOT_MATCH)
             }
         }
 
