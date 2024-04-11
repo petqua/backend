@@ -38,7 +38,7 @@ class PaymentService(
             OrderException(ORDER_NOT_FOUND)
         }
         val payment = paymentRepository.save(tossPayment)
-        val orderPayment = orderPaymentRepository.findLatestByOrderIdOrThrow(order.id) { // TODO OrderPayment 테스트 추가
+        val orderPayment = orderPaymentRepository.findLatestByOrderIdOrThrow(order.id) {
             OrderPaymentException(OrderPaymentExceptionType.ORDER_PAYMENT_NOT_FOUND)
         }
         return orderPaymentRepository.save(orderPayment.pay(payment.id)) {
@@ -51,7 +51,7 @@ class PaymentService(
             OrderException(ORDER_NOT_FOUND)
         }
         order.validateOwner(memberId)
-        val orderPayment = orderPaymentRepository.findLatestByOrderIdOrThrow(order.id) { // TODO OrderPayment 테스트 추가
+        val orderPayment = orderPaymentRepository.findLatestByOrderIdOrThrow(order.id) {
             OrderPaymentException(OrderPaymentExceptionType.ORDER_PAYMENT_NOT_FOUND)
         }
         orderPaymentRepository.save(orderPayment.cancel()) {
