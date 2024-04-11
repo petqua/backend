@@ -11,7 +11,6 @@ import com.petqua.domain.order.OrderName
 import com.petqua.domain.order.OrderNumber
 import com.petqua.domain.order.OrderProduct
 import com.petqua.domain.order.OrderShippingAddress
-import com.petqua.domain.order.OrderStatus
 import com.petqua.domain.order.ShippingNumber
 import com.petqua.domain.product.option.Sex
 import com.petqua.domain.product.option.Sex.FEMALE
@@ -46,8 +45,6 @@ fun order(
     storeName: String = "storeName",
     deliveryMethod: DeliveryMethod = SAFETY,
     sex: Sex = FEMALE,
-    isAbleToCancel: Boolean = true,
-    status: OrderStatus = OrderStatus.ORDER_CREATED,
     totalAmount: BigDecimal = orderPrice + deliveryFee,
 ): Order {
     return Order(
@@ -79,8 +76,6 @@ fun order(
             deliveryMethod = deliveryMethod,
             sex = sex,
         ),
-        isAbleToCancel = isAbleToCancel,
-        status = status,
         totalAmount = Money.from(totalAmount),
     )
 }

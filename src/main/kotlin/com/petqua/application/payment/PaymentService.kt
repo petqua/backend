@@ -4,8 +4,8 @@ import com.petqua.domain.order.OrderNumber
 import com.petqua.domain.order.OrderPayment
 import com.petqua.domain.order.OrderPaymentRepository
 import com.petqua.domain.order.OrderRepository
-import com.petqua.domain.order.findLatestByOrderIdOrThrow
 import com.petqua.domain.order.findByOrderNumberOrThrow
+import com.petqua.domain.order.findLatestByOrderIdOrThrow
 import com.petqua.domain.order.save
 import com.petqua.domain.payment.tosspayment.TossPayment
 import com.petqua.domain.payment.tosspayment.TossPaymentRepository
@@ -38,7 +38,6 @@ class PaymentService(
             OrderException(ORDER_NOT_FOUND)
         }
         val payment = paymentRepository.save(tossPayment)
-        order.pay() // TODO OrderPayment로 status 관리가 넘어가면 삭제
         val orderPayment = orderPaymentRepository.findLatestByOrderIdOrThrow(order.id) { // TODO OrderPayment 테스트 추가
             OrderPaymentException(OrderPaymentExceptionType.ORDER_PAYMENT_NOT_FOUND)
         }
@@ -52,7 +51,6 @@ class PaymentService(
             OrderException(ORDER_NOT_FOUND)
         }
         order.validateOwner(memberId)
-        order.cancel() // TODO OrderPayment로 status 관리가 넘어가면 삭제
         val orderPayment = orderPaymentRepository.findLatestByOrderIdOrThrow(order.id) { // TODO OrderPayment 테스트 추가
             OrderPaymentException(OrderPaymentExceptionType.ORDER_PAYMENT_NOT_FOUND)
         }

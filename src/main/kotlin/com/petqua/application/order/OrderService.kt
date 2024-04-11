@@ -125,8 +125,6 @@ class OrderService(
                     productSnapshot = productSnapshot,
                     storeName = storesById[productSnapshot.storeId]?.name ?: throw OrderException(STORE_NOT_FOUND),
                 ),
-                isAbleToCancel = true,
-                status = ORDER_CREATED,
                 totalAmount = command.totalAmount,
             )
         }

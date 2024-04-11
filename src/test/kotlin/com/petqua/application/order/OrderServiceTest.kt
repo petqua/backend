@@ -3,6 +3,7 @@ package com.petqua.application.order
 import com.petqua.domain.delivery.DeliveryMethod.COMMON
 import com.petqua.domain.delivery.DeliveryMethod.SAFETY
 import com.petqua.domain.member.MemberRepository
+import com.petqua.domain.order.OrderPaymentRepository
 import com.petqua.domain.order.OrderRepository
 import com.petqua.domain.order.OrderStatus.ORDER_CREATED
 import com.petqua.domain.order.ShippingAddressRepository
@@ -41,6 +42,7 @@ import java.math.BigDecimal
 class OrderServiceTest(
     private val orderService: OrderService,
     private val orderRepository: OrderRepository,
+    private val orderPaymentRepository: OrderPaymentRepository,
     private val productRepository: ProductRepository,
     private val storeRepository: StoreRepository,
     private val memberRepository: MemberRepository,
@@ -591,9 +593,15 @@ class OrderServiceTest(
                 orders.forAll {
                     it.orderNumber.value shouldBe response.orderId
                     it.orderName.value shouldBe response.orderName
-                    it.status shouldBe ORDER_CREATED
+//                    it.status shouldBe ORDER_CREATED
                 }
                 orders.distinctBy { it.orderProduct.shippingNumber }.size shouldBe 2
+
+                val orderIds = orders.map { it.id }
+                val orderPayments = orderPaymentRepository.findLatestAllByOrderIds(orderIds)
+                orderPayments.forAll {
+                    it.status shouldBe ORDER_CREATED
+                }
             }
         }
     }
