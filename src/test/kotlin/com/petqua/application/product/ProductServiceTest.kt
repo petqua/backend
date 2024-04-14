@@ -149,6 +149,7 @@ class ProductServiceTest(
             Then("회원의 찜 여부와 함께 상품 상세정보를 반환한다") {
                 productDetailResponse shouldBe productDetailResponse(
                     product = product,
+                    storeId = store.id,
                     storeName = store.name,
                     imageUrls = listOf(productImage.imageUrl),
                     productDescription = productDescription,
@@ -184,6 +185,7 @@ class ProductServiceTest(
             Then("찜 여부는 false 로 상품 상세정보를 반환한다") {
                 productDetailResponse shouldBe productDetailResponse(
                     product = product,
+                    storeId = store.id,
                     storeName = store.name,
                     imageUrls = listOf(productImage.imageUrl),
                     productDescription = productDescription,

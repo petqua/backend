@@ -2,14 +2,15 @@ package com.petqua.application.payment
 
 import com.ninjasquad.springmockk.SpykBean
 import com.petqua.application.payment.infra.TossPaymentsApiClient
-import com.petqua.common.domain.findByIdOrThrow
 import com.petqua.domain.member.MemberRepository
 import com.petqua.domain.order.OrderNumber
+import com.petqua.domain.order.OrderPayment
 import com.petqua.domain.order.OrderPaymentRepository
 import com.petqua.domain.order.OrderRepository
 import com.petqua.domain.order.OrderStatus.CANCELED
 import com.petqua.domain.order.OrderStatus.ORDER_CREATED
 import com.petqua.domain.order.OrderStatus.PAYMENT_CONFIRMED
+import com.petqua.domain.order.findLatestByOrderIdOrThrow
 import com.petqua.domain.payment.tosspayment.TossPaymentRepository
 import com.petqua.exception.order.OrderException
 import com.petqua.exception.order.OrderExceptionType.FORBIDDEN_ORDER
@@ -27,6 +28,7 @@ import com.petqua.test.DataCleaner
 import com.petqua.test.fixture.failPaymentCommand
 import com.petqua.test.fixture.member
 import com.petqua.test.fixture.order
+import com.petqua.test.fixture.orderPayment
 import com.petqua.test.fixture.succeedPaymentCommand
 import io.kotest.assertions.assertSoftly
 import io.kotest.assertions.throwables.shouldThrow
@@ -60,6 +62,7 @@ class PaymentFacadeServiceTest(
                 totalAmount = ONE
             )
         )
+        orderPaymentRepository.save(OrderPayment.from(order))
 
         When("유효한 요쳥이면") {
             paymentFacadeService.succeedPayment(
@@ -99,10 +102,10 @@ class PaymentFacadeServiceTest(
             }
 
             Then("Order의 상태를 변경한다") {
-                val updatedOrder = orderRepository.findByIdOrThrow(order.id)
+                val updatedOrderPayment = orderPaymentRepository.findLatestByOrderIdOrThrow(order.id)
 
                 assertSoftly {
-                    updatedOrder.status shouldBe PAYMENT_CONFIRMED
+                    updatedOrderPayment.status shouldBe PAYMENT_CONFIRMED
                 }
             }
 
@@ -110,8 +113,8 @@ class PaymentFacadeServiceTest(
                 val orderPayments = orderPaymentRepository.findAll()
 
                 assertSoftly {
-                    orderPayments.size shouldBe 1
-                    val orderPayment = orderPayments[0]
+                    orderPayments.size shouldBe 2
+                    val orderPayment = orderPayments[1]
 
                     orderPayment.orderId shouldBe order.id
                     orderPayment.tossPaymentId shouldBe paymentRepository.findAll()[0].id
@@ -141,6 +144,11 @@ class PaymentFacadeServiceTest(
                     memberId = member.id,
                     orderNumber = OrderNumber.from("202402211607021ORDERNUMBER"),
                     totalAmount = ONE,
+                )
+            )
+            orderPaymentRepository.save(
+                orderPayment(
+                    orderId = invalidOrder.id,
                     status = PAYMENT_CONFIRMED,
                 )
             )
@@ -224,6 +232,7 @@ class PaymentFacadeServiceTest(
                 totalAmount = ONE
             )
         )
+        orderPaymentRepository.save(OrderPayment.from(order))
 
         When("유효한 실패 내역이 입력되면") {
             val response = paymentFacadeService.failPayment(
@@ -243,9 +252,9 @@ class PaymentFacadeServiceTest(
             }
 
             Then("주문을 취소하지 않는다") {
-                val updatedOrder = orderRepository.findByIdOrThrow(order.id)
+                val updatedOrderPayment = orderPaymentRepository.findLatestByOrderIdOrThrow(order.id)
 
-                updatedOrder.status shouldBe ORDER_CREATED
+                updatedOrderPayment.status shouldBe ORDER_CREATED
             }
         }
 
@@ -276,6 +285,7 @@ class PaymentFacadeServiceTest(
                 totalAmount = ONE
             )
         )
+        orderPaymentRepository.save(OrderPayment.from(order))
 
         When("유효한 실패 내역이 입력되면") {
             val response = paymentFacadeService.failPayment(
@@ -295,9 +305,9 @@ class PaymentFacadeServiceTest(
             }
 
             Then("주문을 취소한다") {
-                val updatedOrder = orderRepository.findByIdOrThrow(order.id)
+                val updatedOrderPayment = orderPaymentRepository.findLatestByOrderIdOrThrow(order.id)
 
-                updatedOrder.status shouldBe CANCELED
+                updatedOrderPayment.status shouldBe CANCELED
             }
         }
 

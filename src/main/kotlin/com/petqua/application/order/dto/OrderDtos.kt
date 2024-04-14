@@ -4,13 +4,14 @@ import com.petqua.common.domain.Money
 import com.petqua.domain.delivery.DeliveryMethod
 import com.petqua.domain.order.OrderProduct
 import com.petqua.domain.order.ShippingNumber
-import com.petqua.domain.product.Product
+import com.petqua.domain.product.ProductSnapshot
 import com.petqua.domain.product.option.ProductOption
 import com.petqua.domain.product.option.Sex
+import io.swagger.v3.oas.annotations.media.Schema
 
 data class SaveOrderCommand(
     val memberId: Long,
-    val shippingAddressId: Long,
+    val shippingAddressId: Long?,
     val shippingRequest: String?,
     val orderProductCommands: List<OrderProductCommand>,
     val totalAmount: Money,
@@ -39,7 +40,7 @@ data class OrderProductCommand(
 
     fun toOrderProduct(
         shippingNumber: ShippingNumber,
-        product: Product,
+        productSnapshot: ProductSnapshot,
         storeName: String,
     ): OrderProduct {
         return OrderProduct(
@@ -51,9 +52,9 @@ data class OrderProductCommand(
             shippingNumber = shippingNumber,
             orderPrice = orderPrice,
             productId = productId,
-            productName = product.name,
-            thumbnailUrl = product.thumbnailUrl,
-            storeId = product.storeId,
+            productName = productSnapshot.name,
+            thumbnailUrl = productSnapshot.thumbnailUrl,
+            storeId = productSnapshot.storeId,
             storeName = storeName,
             deliveryMethod = deliveryMethod,
             sex = sex,
@@ -62,8 +63,15 @@ data class OrderProductCommand(
 }
 
 data class SaveOrderResponse(
+    @Schema(
+        description = "주문 id",
+        example = "202402211607026029E90DB030"
+    )
     val orderId: String,
+
+    @Schema(
+        description = "주문 이름",
+        example = "네온 블루 구피 외 3건"
+    )
     val orderName: String,
-    val successUrl: String,
-    val failUrl: String,
 )

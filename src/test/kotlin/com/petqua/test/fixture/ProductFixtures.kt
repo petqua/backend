@@ -134,6 +134,7 @@ fun productDescription(
 
 fun productDetailResponse(
     product: Product,
+    storeId: Long,
     storeName: String,
     imageUrls: List<String>,
     productDescription: ProductDescription,
@@ -150,6 +151,7 @@ fun productDetailResponse(
         family = category.family.name,
         species = category.species.name,
         price = product.price,
+        storeId = storeId,
         storeName = storeName,
         discountRate = product.discountRate,
         discountPrice = product.discountPrice,

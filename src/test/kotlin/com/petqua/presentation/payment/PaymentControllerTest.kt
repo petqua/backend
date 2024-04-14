@@ -4,12 +4,13 @@ import com.ninjasquad.springmockk.SpykBean
 import com.petqua.application.payment.FailPaymentResponse
 import com.petqua.application.payment.PaymentConfirmRequestToPG
 import com.petqua.application.payment.infra.TossPaymentsApiClient
-import com.petqua.common.domain.findByIdOrThrow
 import com.petqua.common.exception.ExceptionResponse
 import com.petqua.domain.order.OrderNumber
+import com.petqua.domain.order.OrderPayment
 import com.petqua.domain.order.OrderPaymentRepository
 import com.petqua.domain.order.OrderRepository
 import com.petqua.domain.order.OrderStatus
+import com.petqua.domain.order.findLatestByOrderIdOrThrow
 import com.petqua.domain.payment.tosspayment.TossPaymentRepository
 import com.petqua.exception.order.OrderExceptionType.FORBIDDEN_ORDER
 import com.petqua.exception.order.OrderExceptionType.ORDER_CAN_NOT_PAY
@@ -22,6 +23,7 @@ import com.petqua.exception.payment.FailPaymentExceptionType.ORDER_NUMBER_MISSIN
 import com.petqua.exception.payment.PaymentExceptionType.UNAUTHORIZED_KEY
 import com.petqua.test.ApiTestConfig
 import com.petqua.test.fixture.order
+import com.petqua.test.fixture.orderPayment
 import com.petqua.test.fixture.succeedPaymentRequest
 import io.kotest.assertions.assertSoftly
 import io.kotest.matchers.shouldBe
@@ -56,6 +58,7 @@ class PaymentControllerTest(
                     totalAmount = ONE
                 )
             )
+            orderPaymentRepository.save(OrderPayment.from(order))
 
             When("유효한 요청이면") {
                 val response = requestSucceedPayment(
@@ -83,10 +86,10 @@ class PaymentControllerTest(
                 }
 
                 Then("Order의 상태를 변경한다") {
-                    val updatedOrder = orderRepository.findByIdOrThrow(order.id)
+                    val updatedOrderPayment = orderPaymentRepository.findLatestByOrderIdOrThrow(order.id)
 
                     assertSoftly {
-                        updatedOrder.status shouldBe OrderStatus.PAYMENT_CONFIRMED
+                        updatedOrderPayment.status shouldBe OrderStatus.PAYMENT_CONFIRMED
                     }
                 }
 
@@ -94,8 +97,8 @@ class PaymentControllerTest(
                     val orderPayments = orderPaymentRepository.findAll()
 
                     assertSoftly {
-                        orderPayments.size shouldBe 1
-                        val payment = orderPayments[0]
+                        orderPayments.size shouldBe 2
+                        val payment = orderPayments[1]
 
                         payment.orderId shouldBe order.id
                         payment.tossPaymentId shouldBe paymentRepository.findAll()[0].id
@@ -130,7 +133,12 @@ class PaymentControllerTest(
                         memberId = memberId,
                         orderNumber = OrderNumber.from("202402211607021ORDERNUMBER"),
                         totalAmount = ONE,
-                        status = OrderStatus.PAYMENT_CONFIRMED,
+                    )
+                )
+                orderPaymentRepository.save(
+                    orderPayment(
+                        orderId = invalidOrder.id,
+                        status = OrderStatus.PAYMENT_CONFIRMED
                     )
                 )
 
@@ -289,6 +297,7 @@ class PaymentControllerTest(
                     totalAmount = ONE
                 )
             )
+            orderPaymentRepository.save(OrderPayment.from(order))
 
             When("유효한 실패 내역이 입력되면") {
                 val response = requestFailPayment(

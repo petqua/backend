@@ -26,6 +26,8 @@ import com.petqua.domain.policy.bannedword.BannedWord
 import com.petqua.domain.policy.bannedword.BannedWordRepository
 import com.petqua.domain.product.Product
 import com.petqua.domain.product.ProductRepository
+import com.petqua.domain.product.ProductSnapshot
+import com.petqua.domain.product.ProductSnapshotRepository
 import com.petqua.domain.product.WishCount
 import com.petqua.domain.product.WishProduct
 import com.petqua.domain.product.WishProductRepository
@@ -86,6 +88,7 @@ class DataInitializer(
     private val productInfoRepository: ProductInfoRepository,
     private val productImageRepository: ProductImageRepository,
     private val productOptionRepository: ProductOptionRepository,
+    private val productSnapshotRepository: ProductSnapshotRepository,
     private val wishProductRepository: WishProductRepository,
     private val productKeywordRepository: ProductKeywordRepository,
     private val productDescriptionRepository: ProductDescriptionRepository,
@@ -307,6 +310,7 @@ class DataInitializer(
             )
         }
         productRepository.saveAll(products)
+        productSnapshotRepository.saveAll(products.map { ProductSnapshot.from(it) })
 
         val productOptions = products.map {
             val sex = when {

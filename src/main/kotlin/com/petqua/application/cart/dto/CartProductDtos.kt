@@ -6,6 +6,7 @@ import com.petqua.domain.cart.CartProductQuantity
 import com.petqua.domain.delivery.DeliveryMethod
 import com.petqua.domain.product.Product
 import com.petqua.domain.product.option.Sex
+import com.petqua.domain.store.Store
 import io.swagger.v3.oas.annotations.media.Schema
 import java.math.BigDecimal
 
@@ -50,6 +51,12 @@ data class CartProductWithSupportedOptionResponse(
         example = "1"
     )
     val id: Long,
+
+    @Schema(
+        description = "상품 판매점 id",
+        example = "1"
+    )
+    val storeId: Long,
 
     @Schema(
         description = "상품 판매점",
@@ -163,6 +170,7 @@ data class CartProductWithSupportedOptionResponse(
         femaleAdditionalPrice: Money?,
     ) : this(
         id = cartProductResponse.id,
+        storeId = cartProductResponse.storeId,
         storeName = cartProductResponse.storeName,
         productId = cartProductResponse.productId,
         productName = cartProductResponse.productName,
@@ -185,6 +193,7 @@ data class CartProductWithSupportedOptionResponse(
 
 data class CartProductResponse(
     val id: Long,
+    val storeId: Long,
     val storeName: String,
     val productId: Long,
     val productName: String,
@@ -205,10 +214,11 @@ data class CartProductResponse(
     constructor(
         cartProduct: CartProduct,
         product: Product?,
-        storeName: String?,
+        store: Store?,
     ) : this(
         id = cartProduct.id,
-        storeName = storeName ?: "",
+        storeId = store?.id ?: 0L,
+        storeName = store?.name ?: "",
         productId = product?.id ?: 0L,
         productName = product?.name ?: "",
         productThumbnailUrl = product?.thumbnailUrl ?: "",

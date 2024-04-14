@@ -21,7 +21,7 @@ private class MoneyDeserializer : JsonDeserializer<Money>() {
 
 private class MoneySerializer : JsonSerializer<Money>() {
     override fun serialize(money: Money, gen: JsonGenerator, serializers: SerializerProvider) {
-        gen.writeNumber(money.value.intValueExact()) // TODO INT? BigDecimal?
+        gen.writeNumber(money.value.intValueExact())
     }
 }
 

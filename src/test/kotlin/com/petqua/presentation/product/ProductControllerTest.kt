@@ -50,13 +50,13 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.restassured.common.mapper.TypeRef
+import org.springframework.http.HttpStatus
+import org.springframework.http.HttpStatus.BAD_REQUEST
+import org.springframework.http.HttpStatus.NOT_FOUND
 import java.math.BigDecimal.ONE
 import java.math.BigDecimal.TEN
 import java.math.BigDecimal.ZERO
 import kotlin.Long.Companion.MIN_VALUE
-import org.springframework.http.HttpStatus
-import org.springframework.http.HttpStatus.BAD_REQUEST
-import org.springframework.http.HttpStatus.NOT_FOUND
 
 class ProductControllerTest(
     private val productRepository: ProductRepository,
@@ -161,6 +161,7 @@ class ProductControllerTest(
                         response.statusCode shouldBe HttpStatus.OK.value()
                         productDetailResponse shouldBe productDetailResponse(
                             product = product,
+                            storeId = store.id,
                             storeName = store.name,
                             imageUrls = listOf(productImage.imageUrl),
                             productDescription = productDescription,
@@ -203,6 +204,7 @@ class ProductControllerTest(
                         response.statusCode shouldBe HttpStatus.OK.value()
                         productDetailResponse shouldBe productDetailResponse(
                             product = product,
+                            storeId = store.id,
                             storeName = store.name,
                             imageUrls = listOf(productImage.imageUrl),
                             productDescription = productDescription,

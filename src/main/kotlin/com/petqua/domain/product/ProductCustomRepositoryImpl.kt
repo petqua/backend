@@ -41,7 +41,7 @@ class ProductCustomRepositoryImpl(
         val query = jpql(ProductDynamicJpqlGenerator) {
             selectNew<ProductWithInfoResponse>(
                 entity(Product::class),
-                path(Store::name),
+                entity(Store::class),
                 new(
                     ProductDescriptionResponse::class,
                     coalesce(path(ProductDescription::title)(ProductDescriptionTitle::value), EMPTY_VALUE),

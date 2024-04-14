@@ -36,12 +36,4 @@ class TossPaymentClient(
             throw PaymentException(PaymentExceptionType.from(errorResponse.code))
         }
     }
-
-    override fun successUrl(): String {
-        return paymentProperties.successUrl
-    }
-
-    override fun failUrl(): String {
-        return paymentProperties.failUrl
-    }
 }
