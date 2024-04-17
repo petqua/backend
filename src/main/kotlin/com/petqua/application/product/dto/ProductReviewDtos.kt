@@ -7,11 +7,32 @@ import com.petqua.common.domain.dto.PAGING_LIMIT_CEILING
 import com.petqua.domain.auth.LoginMemberOrGuest
 import com.petqua.domain.product.dto.ProductReviewReadCondition
 import com.petqua.domain.product.dto.ProductReviewWithMemberResponse
+import com.petqua.domain.product.review.ProductReview
 import com.petqua.domain.product.review.ProductReviewSorter
 import com.petqua.domain.product.review.ProductReviewSorter.REVIEW_DATE_DESC
 import com.petqua.domain.product.review.ProductReviewStatistics
 import io.swagger.v3.oas.annotations.media.Schema
+import org.springframework.web.multipart.MultipartFile
 import java.time.LocalDateTime
+
+data class ProductReviewCreateCommand(
+    val memberId: Long,
+    val productId: Long,
+    val score: Int,
+    val content: String,
+    val images: List<MultipartFile>,
+) {
+
+    fun toProductReview(): ProductReview {
+        return ProductReview.of(
+            memberId = memberId,
+            productId = productId,
+            score = score,
+            content = content,
+            images = images,
+        )
+    }
+}
 
 data class ProductReviewReadQuery(
     val productId: Long,

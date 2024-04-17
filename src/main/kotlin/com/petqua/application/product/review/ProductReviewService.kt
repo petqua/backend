@@ -7,6 +7,8 @@ import com.petqua.application.product.dto.ProductReviewsResponse
 import com.petqua.application.product.dto.UpdateReviewRecommendationCommand
 import com.petqua.common.domain.findByIdOrThrow
 import com.petqua.domain.product.dto.ProductReviewWithMemberResponse
+import com.petqua.domain.product.review.ProductReview
+import com.petqua.domain.product.review.ProductReviewImage
 import com.petqua.domain.product.review.ProductReviewImageRepository
 import com.petqua.domain.product.review.ProductReviewRecommendation
 import com.petqua.domain.product.review.ProductReviewRecommendationRepository
@@ -24,6 +26,15 @@ class ProductReviewService(
     private val productReviewImageRepository: ProductReviewImageRepository,
     private val productReviewRecommendationRepository: ProductReviewRecommendationRepository,
 ) {
+
+    fun create(productReview: ProductReview, reviewImageUrls: List<String>): Long {
+        val savedProductReview = productReviewRepository.save(productReview)
+        val images = reviewImageUrls.map {
+            ProductReviewImage(imageUrl = it, productReviewId = savedProductReview.id)
+        }
+        productReviewImageRepository.saveAll(images)
+        return savedProductReview.id
+    }
 
     @Transactional(readOnly = true)
     fun readAll(query: ProductReviewReadQuery): ProductReviewsResponse {
@@ -65,10 +76,10 @@ class ProductReviewService(
         productReviewRecommendationRepository.findByProductReviewIdAndMemberId(
             command.productReviewId,
             command.memberId,
-        )?.let { delete(it) } ?: save(command.toReviewRecommendation())
+        )?.let { delete(it) } ?: saveReviewRecommendation(command.toReviewRecommendation())
     }
 
-    private fun save(productReviewRecommendation: ProductReviewRecommendation) {
+    private fun saveReviewRecommendation(productReviewRecommendation: ProductReviewRecommendation) {
         productReviewRecommendationRepository.save(productReviewRecommendation)
         val productReview = productReviewRepository.findByIdOrThrow(productReviewRecommendation.productReviewId) {
             ProductReviewException(NOT_FOUND_PRODUCT_REVIEW)
