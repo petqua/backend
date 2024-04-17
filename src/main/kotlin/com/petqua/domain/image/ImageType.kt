@@ -17,8 +17,14 @@ enum class ImageType(
     ;
 
     companion object {
-        fun from(contentType: String): ImageType {
-            return enumValues<ImageType>().find { it.contentType.uppercase() == contentType.uppercase(Locale.ENGLISH) }
+        fun from(contentType: String?): ImageType {
+            return contentType?.let {
+                enumValues<ImageType>().find {
+                    it.contentType.uppercase() == contentType.uppercase(
+                        Locale.ENGLISH
+                    )
+                }
+            }
                 ?: throw ImageException(INVALID_CONTENT_TYPE)
         }
     }
