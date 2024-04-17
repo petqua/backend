@@ -15,11 +15,11 @@ import com.petqua.domain.keyword.ProductKeywordRepository
 import com.petqua.domain.member.FishLifeYear
 import com.petqua.domain.member.Member
 import com.petqua.domain.member.MemberRepository
-import com.petqua.domain.notification.Notification
-import com.petqua.domain.notification.NotificationRepository
 import com.petqua.domain.member.nickname.Nickname
 import com.petqua.domain.member.nickname.NicknameWord
 import com.petqua.domain.member.nickname.NicknameWordRepository
+import com.petqua.domain.notification.Notification
+import com.petqua.domain.notification.NotificationRepository
 import com.petqua.domain.order.ShippingAddress
 import com.petqua.domain.order.ShippingAddressRepository
 import com.petqua.domain.policy.bannedword.BannedWord
@@ -55,6 +55,7 @@ import com.petqua.domain.product.option.Sex.FEMALE
 import com.petqua.domain.product.option.Sex.HERMAPHRODITE
 import com.petqua.domain.product.option.Sex.MALE
 import com.petqua.domain.product.review.ProductReview
+import com.petqua.domain.product.review.ProductReviewContent
 import com.petqua.domain.product.review.ProductReviewImage
 import com.petqua.domain.product.review.ProductReviewImageRepository
 import com.petqua.domain.product.review.ProductReviewRepository
@@ -63,14 +64,13 @@ import com.petqua.domain.recommendation.ProductRecommendation
 import com.petqua.domain.recommendation.ProductRecommendationRepository
 import com.petqua.domain.store.Store
 import com.petqua.domain.store.StoreRepository
-import java.math.BigDecimal
-import java.time.LocalDateTime
-import kotlin.random.Random
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.annotation.Profile
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDateTime
+import kotlin.random.Random
 
 @Component
 @Profile("local", "prod")
@@ -387,7 +387,7 @@ class DataInitializer(
                 ProductReview(
                     productId = product.id,
                     memberId = memberId,
-                    content = "좋아요 ${product.name}",
+                    content = ProductReviewContent("진짜 좋아요 ${product.name} 꼭 다시 살 거예요"),
                     score = ProductReviewScore(it % 5 + 1),
                     hasPhotos = hasPhotos
                 )

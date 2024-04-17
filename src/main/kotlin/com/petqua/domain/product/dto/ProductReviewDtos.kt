@@ -32,7 +32,7 @@ data class ProductReviewWithMemberResponse(
         id = productReview.id,
         productId = productReview.productId,
         score = productReview.score.value,
-        content = productReview.content,
+        content = productReview.content.value,
         createdAt = productReview.createdAt,
         hasPhotos = productReview.hasPhotos,
         recommendCount = productReview.recommendCount,
