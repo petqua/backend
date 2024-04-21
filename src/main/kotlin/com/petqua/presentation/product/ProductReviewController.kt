@@ -11,6 +11,7 @@ import com.petqua.presentation.product.dto.CreateReviewRequest
 import com.petqua.presentation.product.dto.ReadAllProductReviewsRequest
 import com.petqua.presentation.product.dto.UpdateReviewRecommendationRequest
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -43,8 +44,9 @@ class ProductReviewController(
     fun create(
         @Auth loginMember: LoginMember,
         @PathVariable productId: Long,
+        @Parameter(description = "application/json 형식의 dto, key = review")
         @RequestPart(value = "review") request: CreateReviewRequest,
-
+        @Parameter(description = "multipart/form-data 형식의 이미지 리스트, key = images")
         @RequestPart(value = "images", required = false) images: List<MultipartFile>?,
     ): ResponseEntity<ProductReviewsResponse> {
         val command = request.toCommand(
