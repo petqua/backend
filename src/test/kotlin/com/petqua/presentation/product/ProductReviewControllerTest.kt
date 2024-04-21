@@ -137,7 +137,6 @@ class ProductReviewControllerTest(
                 }
 
                 Then("후기 이미지가 저장되지 않는다") {
-                    val productReview = productReviewRepository.findAll()[0]
                     val productReviewImages = productReviewImageRepository.findAll()
 
                     productReviewImages.size shouldBe 0
