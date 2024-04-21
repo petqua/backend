@@ -26,6 +26,6 @@ class ImageStorageService(
 
         val storedUrl = amazonS3.getUrl(bucket, path).toString()
         val pathIndex = storedUrl.indexOf("/$path")
-        return "$domain${storedUrl.substring(pathIndex)}"
+        return "$domain${storedUrl.substring(pathIndex)}" // cloudfront 로 우회해 이미지에 접근할 수 있는 URL
     }
 }
