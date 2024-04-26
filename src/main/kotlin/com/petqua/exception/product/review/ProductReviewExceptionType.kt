@@ -17,6 +17,7 @@ enum class ProductReviewExceptionType(
     REVIEW_CONTENT_LENGTH_OUT_OF_RANGE(BAD_REQUEST, "PR03", "리뷰는 최소 10자 최대 300자 작성할 수 있습니다."),
     EXCEEDED_REVIEW_IMAGES_COUNT_LIMIT(BAD_REQUEST, "PR04", "최대 리뷰 사진 업로드 개수를 초과했습니다"),
     FAILED_REVIEW_IMAGE_UPLOAD(INTERNAL_SERVER_ERROR, "PR05", "리뷰 사진 업로드에 실패했습니다."),
+    UNSUPPORTED_IMAGE_TYPE(BAD_REQUEST, "PR06", "지원하지 않는 리뷰 이미지 형식입니다."),
     ;
 
     override fun httpStatus(): HttpStatus {

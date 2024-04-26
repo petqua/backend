@@ -1,7 +1,7 @@
 package com.petqua.application.product.review
 
 import com.petqua.application.image.ImageStorageService
-import com.petqua.domain.image.ImageType
+import com.petqua.domain.product.review.ProductReviewImageType
 import com.petqua.exception.product.review.ProductReviewException
 import com.petqua.exception.product.review.ProductReviewExceptionType.FAILED_REVIEW_IMAGE_UPLOAD
 import org.springframework.beans.factory.annotation.Value
@@ -25,9 +25,9 @@ class ProductReviewImageUploader(
     }
 
     private fun upload(image: MultipartFile): String {
-        val type = ImageType.from(image.contentType)
+        ProductReviewImageType.validateSupported(image.contentType)
         val fileName = UUID.randomUUID()
-        val path = "$directory$fileName.${type.extension}"
+        val path = "$directory$fileName.${image.originalFilename}"
 
         return uploadOrThrow(path, image)
     }

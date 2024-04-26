@@ -25,7 +25,9 @@ class ProductReviewFacadeServiceTest(
     private val productReviewRepository: ProductReviewRepository,
     private val productReviewImageRepository: ProductReviewImageRepository,
     private val dataCleaner: DataCleaner,
-    @SpykBean private val amazonS3: AmazonS3,
+
+    @SpykBean
+    private val amazonS3: AmazonS3,
 ) : BehaviorSpec({
 
     Given("상품 후기를 작성할 때") {
