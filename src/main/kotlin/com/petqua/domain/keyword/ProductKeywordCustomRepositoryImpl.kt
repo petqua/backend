@@ -25,7 +25,9 @@ class ProductKeywordCustomRepositoryImpl(
             ).whereAnd(
                 path(ProductKeyword::word).like(pattern = "%$word%", escape = ESCAPE_LETTER)
             ).orderBy(
-                length(path(ProductKeyword::word)).asc(), path(ProductKeyword::word).asc()
+                locate(word, path(ProductKeyword::word)).asc(),
+                length(path(ProductKeyword::word)).asc(),
+                path(ProductKeyword::word).asc()
             )
         }
 
