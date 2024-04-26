@@ -72,8 +72,8 @@ class ProductReviewControllerTest(
                     request = CreateReviewRequest(
                         score = 5,
                         content = "this product is good",
+                        images = listOf(image1, image2),
                     ),
-                    images = listOf(image1, image2),
                 )
 
                 Then("201 Created 를 응답한다") {
@@ -116,8 +116,8 @@ class ProductReviewControllerTest(
                     request = CreateReviewRequest(
                         score = 5,
                         content = "this product is good",
+                        images = listOf(),
                     ),
-                    images = listOf(),
                 )
 
                 Then("201 Created 를 응답한다") {
@@ -150,11 +150,11 @@ class ProductReviewControllerTest(
                     request = CreateReviewRequest(
                         score = 5,
                         content = "this product is good",
-                    ),
-                    images = listOf(
-                        image1, image1, image1, image1, image1,
-                        image1, image1, image1, image1, image1,
-                        image2
+                        images = listOf(
+                            image1, image1, image1, image1, image1,
+                            image1, image1, image1, image1, image1,
+                            image2
+                        ),
                     ),
                 )
 
@@ -179,8 +179,8 @@ class ProductReviewControllerTest(
                     request = CreateReviewRequest(
                         score = 0,
                         content = "this product is good",
+                        images = listOf(image1),
                     ),
-                    images = listOf(image1),
                 )
 
                 Then("예외를 응답한다") {
@@ -204,8 +204,8 @@ class ProductReviewControllerTest(
                     request = CreateReviewRequest(
                         score = 5,
                         content = "this product is good".repeat(30),
+                        images = listOf(image1),
                     ),
-                    images = listOf(image1),
                 )
 
                 Then("예외를 응답한다") {

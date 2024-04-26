@@ -22,6 +22,11 @@ data class CreateReviewRequest(
         example = "아주 좋네요"
     )
     val content: String,
+
+    @Schema(
+        description = "상품 후기 이미지 목록",
+    )
+    val images: List<MultipartFile> = listOf(),
 ) {
     fun toCommand(memberId: Long, productId: Long, images: List<MultipartFile>): ProductReviewCreateCommand {
         return ProductReviewCreateCommand(

@@ -11,23 +11,22 @@ import io.restassured.module.kotlin.extensions.When
 import io.restassured.response.Response
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE
-import org.springframework.web.multipart.MultipartFile
 
 fun requestCreateProductReview(
     accessToken: String,
     productId: Long,
     request: CreateReviewRequest,
-    images: List<MultipartFile>,
 ): Response {
     val requestGivenSpec = Given {
         log().all()
         contentType(MULTIPART_FORM_DATA_VALUE)
         auth().preemptive().oauth2(accessToken)
         pathParam("productId", productId)
-        multiPart("review", request, APPLICATION_JSON_VALUE)
+        multiPart("score", request.score)
+        multiPart("content", request.content)
     }
 
-    images.forEach { image ->
+    request.images.forEach { image ->
         requestGivenSpec.multiPart("images", image.name, image.bytes, image.contentType)
     }
 

@@ -11,7 +11,6 @@ import com.petqua.presentation.product.dto.CreateReviewRequest
 import com.petqua.presentation.product.dto.ReadAllProductReviewsRequest
 import com.petqua.presentation.product.dto.UpdateReviewRecommendationRequest
 import io.swagger.v3.oas.annotations.Operation
-import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -20,12 +19,11 @@ import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestPart
 import org.springframework.web.bind.annotation.RestController
-import org.springframework.web.multipart.MultipartFile
 
 @Tag(name = "ProductReview", description = "상품 후기 관련 API 명세")
 @RestController
@@ -44,15 +42,12 @@ class ProductReviewController(
     fun create(
         @Auth loginMember: LoginMember,
         @PathVariable productId: Long,
-        @Parameter(description = "application/json 형식의 dto, key = review")
-        @RequestPart(value = "review") request: CreateReviewRequest,
-        @Parameter(description = "multipart/form-data 형식의 이미지 리스트, key = images")
-        @RequestPart(value = "images", required = false) images: List<MultipartFile>?,
+        @ModelAttribute request: CreateReviewRequest,
     ): ResponseEntity<ProductReviewsResponse> {
         val command = request.toCommand(
             memberId = loginMember.memberId,
             productId = productId,
-            images = images ?: listOf()
+            images = request.images
         )
         productReviewFacadeService.create(command)
         return ResponseEntity.status(CREATED).build()
