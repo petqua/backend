@@ -27,9 +27,15 @@ class ProductReviewImageUploader(
     private fun upload(image: MultipartFile): String {
         ProductReviewImageType.validateSupported(image.contentType)
         val fileName = UUID.randomUUID()
-        val path = "$directory$fileName.${image.originalFilename}"
+        val path = "$directory$fileName${parseFileExtension(image)}"
 
         return uploadOrThrow(path, image)
+    }
+
+    private fun parseFileExtension(image: MultipartFile): String {
+        return image.originalFilename?.let {
+            ".${it.substringAfterLast(FILE_EXTENSION_DELIMITER)}"
+        } ?: EMPTY_EXTENSION
     }
 
     private fun uploadOrThrow(path: String, image: MultipartFile): String {
@@ -38,5 +44,10 @@ class ProductReviewImageUploader(
         } catch (e: Exception) {
             throw ProductReviewException(FAILED_REVIEW_IMAGE_UPLOAD)
         }
+    }
+
+    companion object {
+        private const val FILE_EXTENSION_DELIMITER = '.'
+        private const val EMPTY_EXTENSION = ""
     }
 }
