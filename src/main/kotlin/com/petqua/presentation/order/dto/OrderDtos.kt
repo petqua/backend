@@ -4,8 +4,11 @@ import com.petqua.application.order.dto.OrderProductCommand
 import com.petqua.application.order.dto.SaveOrderCommand
 import com.petqua.common.domain.Money
 import com.petqua.domain.delivery.DeliveryMethod
+import com.petqua.domain.order.Order
+import com.petqua.domain.order.OrderStatus
 import com.petqua.domain.product.option.Sex
 import io.swagger.v3.oas.annotations.media.Schema
+import java.time.LocalDateTime
 
 data class SaveOrderRequest(
     @Schema(
@@ -128,4 +131,124 @@ data class OrderProductRequest(
             deliveryMethod = DeliveryMethod.from(deliveryMethod),
         )
     }
+}
+
+data class OrderDetailResponse(
+    @Schema(
+        description = "주문 번호",
+        example = "20210901000001"
+    )
+    val orderNumber: String,
+
+    @Schema(
+        description = "주문 시기",
+        example = "2021-09-01T00:00:00"
+    )
+    val orderedAt: LocalDateTime,
+
+    @Schema(
+        description = "주문 상품 목록",
+    )
+    val orderProducts: List<OrderProductResponse>,
+)
+
+data class OrderProductResponse(
+
+    @Schema(
+        description = "주문 id",
+        example = "1"
+    )
+    val orderId: Long,
+
+    @Schema(
+        description = "주문 상태",
+        example = "ORDERED"
+    )
+    val orderStatus: String,
+
+    @Schema(
+        description = "상품 id",
+        example = "1"
+    )
+    val productId: Long,
+
+    @Schema(
+        description = "상점 id",
+        example = "1"
+    )
+    val storeId: Long,
+
+    @Schema(
+        description = "상점 이름",
+        example = "펫쿠아"
+    )
+    val storeName: String,
+
+    @Schema(
+        description = "상품 대표 사진",
+        example = "[\"https://images.com/product/1.jpg\"]"
+    )
+    val thumbnail: String,
+
+    @Schema(
+        description = "상품 명",
+        example = "구피"
+    )
+    val productName: String,
+
+    @Schema(
+        description = "상품 수량",
+        example = "2"
+    )
+    val quantity: Int,
+
+    @Schema(
+        description = "성별",
+        example = "MALE"
+    )
+    val sex: String,
+
+    @Schema(
+        description = "상품 총 가격",
+        example = "44000"
+    )
+    val totalAmount: Money,
+
+    @Schema(
+        description = "상품 가격",
+        example = "22000"
+    )
+    val price: Money,
+
+    @Schema(
+        description = "운송비",
+        example = "5000"
+    )
+    val deliveryFee: Money,
+
+    @Schema(
+        description = "운송 방법",
+        example = "SAFETY"
+    )
+    val deliveryMethod: String,
+) {
+
+    constructor(
+        order: Order,
+        orderStatus: OrderStatus,
+    ) : this(
+        orderId = order.id,
+        orderStatus = orderStatus.name,
+        productId = order.orderProduct.productId,
+        storeId = order.orderProduct.storeId,
+        storeName = order.orderProduct.storeName,
+        thumbnail = order.orderProduct.thumbnailUrl,
+        productName = order.orderProduct.productName,
+        quantity = order.orderProduct.quantity,
+        sex = order.orderProduct.sex.name,
+        totalAmount = order.totalAmount,
+        price = order.orderProduct.orderPrice,
+        deliveryFee = order.orderProduct.deliveryFee,
+        deliveryMethod = order.orderProduct.deliveryMethod.name,
+    )
 }

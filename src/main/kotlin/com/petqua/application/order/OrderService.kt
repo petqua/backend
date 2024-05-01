@@ -5,6 +5,7 @@ import com.petqua.application.order.dto.SaveOrderCommand
 import com.petqua.application.order.dto.SaveOrderResponse
 import com.petqua.application.payment.infra.PaymentGatewayClient
 import com.petqua.common.domain.findByIdOrThrow
+import com.petqua.common.util.getOrThrow
 import com.petqua.common.util.throwExceptionWhen
 import com.petqua.domain.delivery.DeliveryMethod.PICK_UP
 import com.petqua.domain.order.Order
@@ -14,24 +15,28 @@ import com.petqua.domain.order.OrderPayment
 import com.petqua.domain.order.OrderPaymentRepository
 import com.petqua.domain.order.OrderRepository
 import com.petqua.domain.order.OrderShippingAddress
-import com.petqua.domain.order.OrderStatus.ORDER_CREATED
 import com.petqua.domain.order.ShippingAddress
 import com.petqua.domain.order.ShippingAddressRepository
 import com.petqua.domain.order.ShippingNumber
+import com.petqua.domain.order.findByOrderNumberOrThrow
 import com.petqua.domain.product.Product
 import com.petqua.domain.product.ProductRepository
 import com.petqua.domain.product.ProductSnapshot
 import com.petqua.domain.product.ProductSnapshotRepository
+import com.petqua.domain.product.detail.image.ProductImageRepository
 import com.petqua.domain.product.option.ProductOptionRepository
 import com.petqua.domain.store.StoreRepository
 import com.petqua.exception.order.OrderException
 import com.petqua.exception.order.OrderExceptionType.EMPTY_SHIPPING_ADDRESS
+import com.petqua.exception.order.OrderExceptionType.ORDER_NOT_FOUND
 import com.petqua.exception.order.OrderExceptionType.PRODUCT_NOT_FOUND
 import com.petqua.exception.order.OrderExceptionType.STORE_NOT_FOUND
 import com.petqua.exception.order.ShippingAddressException
 import com.petqua.exception.order.ShippingAddressExceptionType.NOT_FOUND_SHIPPING_ADDRESS
 import com.petqua.exception.product.ProductException
 import com.petqua.exception.product.ProductExceptionType.NOT_FOUND_PRODUCT
+import com.petqua.presentation.order.dto.OrderDetailResponse
+import com.petqua.presentation.order.dto.OrderProductResponse
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -46,6 +51,7 @@ class OrderService(
     private val shippingAddressRepository: ShippingAddressRepository,
     private val storeRepository: StoreRepository,
     private val paymentGatewayClient: PaymentGatewayClient,
+    private val productImageRepository: ProductImageRepository,
 ) {
 
     fun save(command: SaveOrderCommand): SaveOrderResponse {
@@ -90,7 +96,8 @@ class OrderService(
     private fun findValidateProductSnapshots(productById: Map<Long, Product>): Map<Long, ProductSnapshot> {
         val productIds = productById.keys.toList()
         val products = productById.values.toList()
-        val productSnapshots = productSnapshotRepository.findLatestAllByProductIdIn(productIds).associateBy { it.productId }
+        val productSnapshots =
+            productSnapshotRepository.findLatestAllByProductIdIn(productIds).associateBy { it.productId }
         products.forEach { product ->
             productSnapshots[product.id]?.takeIf { it.isProductDetailsMatching(product) }
                 ?: throw ProductException(NOT_FOUND_PRODUCT)
@@ -129,5 +136,24 @@ class OrderService(
             )
         }
         return orderRepository.saveAll(orders)
+    }
+
+    fun readDetail(orderNumber: OrderNumber): OrderDetailResponse {
+        val orders = orderRepository.findByOrderNumberOrThrow(orderNumber) {
+            OrderException(ORDER_NOT_FOUND)
+        }
+        val statusByOrderIds = orders.map { orderPaymentRepository.findOrderStatusByOrderId(it.id) }
+            .associateBy { it.orderId }
+            .mapValues { it.value.status }
+
+        val orderProductResponses = orders.map {
+            OrderProductResponse(it, statusByOrderIds.getOrThrow(it.id))
+        }
+
+        return OrderDetailResponse(
+            orderNumber = orderNumber.value,
+            orderedAt = orders[0].createdAt,
+            orderProducts = orderProductResponses,
+        )
     }
 }

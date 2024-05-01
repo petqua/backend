@@ -31,4 +31,7 @@ interface OrderPaymentRepository : JpaRepository<OrderPayment, Long> {
 
     @Query("SELECT op.id FROM OrderPayment op WHERE op.orderId = ?1 ORDER BY op.id DESC")
     fun getPrevIdByOrderId(orderId: Long): Long?
+
+    @Query("SELECT op FROM OrderPayment op WHERE op.orderId = :orderId ORDER BY op.id DESC LIMIT 1")
+    fun findOrderStatusByOrderId(orderId: Long): OrderPayment
 }

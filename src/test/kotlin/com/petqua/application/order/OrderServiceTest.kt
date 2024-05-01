@@ -3,6 +3,7 @@ package com.petqua.application.order
 import com.petqua.domain.delivery.DeliveryMethod.COMMON
 import com.petqua.domain.delivery.DeliveryMethod.SAFETY
 import com.petqua.domain.member.MemberRepository
+import com.petqua.domain.order.OrderNumber
 import com.petqua.domain.order.OrderPaymentRepository
 import com.petqua.domain.order.OrderRepository
 import com.petqua.domain.order.OrderStatus.ORDER_CREATED
@@ -31,13 +32,14 @@ import com.petqua.test.fixture.productOption
 import com.petqua.test.fixture.saveOrderCommand
 import com.petqua.test.fixture.shippingAddress
 import com.petqua.test.fixture.store
+import io.kotest.assertions.assertSoftly
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.inspectors.forAll
 import io.kotest.matchers.shouldBe
+import java.math.BigDecimal
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE
-import java.math.BigDecimal
 
 @SpringBootTest(webEnvironment = NONE)
 class OrderServiceTest(
@@ -603,6 +605,114 @@ class OrderServiceTest(
                 val orderPayments = orderPaymentRepository.findLatestAllByOrderIds(orderIds)
                 orderPayments.forAll {
                     it.status shouldBe ORDER_CREATED
+                }
+            }
+        }
+    }
+
+    Given("주문 번호로 조회 하면") {
+        val storeAId = storeRepository.save(store()).id
+        val storeBId = storeRepository.save(store()).id
+        val memberId = memberRepository.save(member()).id
+        val productA1 = productRepository.save(
+            product(
+                storeId = storeAId,
+                commonDeliveryFee = 3000.toBigDecimal(),
+            )
+        )
+        val productA2 = productRepository.save(
+            product(
+                storeId = storeAId,
+                commonDeliveryFee = 3000.toBigDecimal(),
+            )
+        )
+        val productB = productRepository.save(
+            product(
+                storeId = storeBId,
+                safeDeliveryFee = 5000.toBigDecimal(),
+            )
+        )
+        productSnapshotRepository.save(ProductSnapshot.from(productA1))
+        productSnapshotRepository.save(ProductSnapshot.from(productA2))
+        productSnapshotRepository.save(ProductSnapshot.from(productB))
+
+        val productOptionA1 = productOptionRepository.save(
+            productOption(
+                productId = productA1.id,
+                sex = FEMALE,
+            )
+        )
+        val productOptionA2 = productOptionRepository.save(
+            productOption(
+                productId = productA2.id,
+                sex = FEMALE,
+            )
+        )
+        val productOptionB = productOptionRepository.save(
+            productOption(
+                productId = productB.id,
+                sex = Sex.HERMAPHRODITE
+            )
+        )
+        val shippingAddress = shippingAddressRepository.save(
+            shippingAddress(
+                memberId = memberId,
+            )
+        )
+        val orderProductCommands = listOf(
+            orderProductCommand(
+                productId = productA1.id,
+                originalPrice = productA1.price.value,
+                discountRate = productA1.discountRate,
+                discountPrice = productA1.discountPrice.value,
+                sex = productOptionA1.sex,
+                orderPrice = BigDecimal.ONE,
+                additionalPrice = productOptionA1.additionalPrice.value,
+                deliveryFee = 3000.toBigDecimal(),
+                deliveryMethod = COMMON,
+            ),
+            orderProductCommand(
+                productId = productA2.id,
+                originalPrice = productA2.price.value,
+                discountRate = productA2.discountRate,
+                discountPrice = productA2.discountPrice.value,
+                sex = productOptionA2.sex,
+                orderPrice = BigDecimal.ONE,
+                additionalPrice = productOptionA2.additionalPrice.value,
+                deliveryFee = 3000.toBigDecimal(),
+                deliveryMethod = COMMON,
+            ),
+            orderProductCommand(
+                productId = productB.id,
+                originalPrice = productB.price.value,
+                discountRate = productB.discountRate,
+                discountPrice = productB.discountPrice.value,
+                sex = productOptionB.sex,
+                orderPrice = BigDecimal.ONE,
+                additionalPrice = productOptionB.additionalPrice.value,
+                deliveryFee = 5000.toBigDecimal(),
+                deliveryMethod = SAFETY,
+            ),
+        )
+        val command = saveOrderCommand(
+            memberId = memberId,
+            orderProductCommands = orderProductCommands,
+            shippingAddressId = shippingAddress.id,
+            totalAmount = 8003.toBigDecimal(),
+        )
+        val savedOrderId = orderService.save(command).orderId
+
+        When("주문 상세 내역이 조회된다") {
+            val orderNumber = OrderNumber.from(savedOrderId)
+            val readDetail = orderService.readDetail(orderNumber)
+
+            Then("주문 상세 내역이 조회된다") {
+                assertSoftly(readDetail) {
+                    savedOrderId shouldBe orderNumber.value
+                    orderProducts.size shouldBe 3
+                    orderProducts.forAll {
+                        it.orderStatus shouldBe ORDER_CREATED.name
+                    }
                 }
             }
         }
