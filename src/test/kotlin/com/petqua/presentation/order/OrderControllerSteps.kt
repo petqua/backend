@@ -1,5 +1,6 @@
 package com.petqua.presentation.order
 
+import com.petqua.application.order.dto.SaveOrderResponse
 import com.petqua.presentation.order.dto.SaveOrderRequest
 import io.restassured.module.kotlin.extensions.Extract
 import io.restassured.module.kotlin.extensions.Given
@@ -19,6 +20,43 @@ fun requestSaveOrder(
         contentType(APPLICATION_JSON_VALUE)
     } When {
         post("/orders")
+    } Then {
+        log().all()
+    } Extract {
+        response()
+    }
+}
+
+fun requestOrderAndReturnOrderNumber(
+    request: SaveOrderRequest,
+    accessToken: String,
+): String {
+    val response = Given {
+        log().all()
+        body(request)
+        auth().preemptive().oauth2(accessToken)
+        contentType(APPLICATION_JSON_VALUE)
+    } When {
+        post("/orders")
+    } Then {
+        log().all()
+    } Extract {
+        response()
+    }
+
+    return response.`as`(SaveOrderResponse::class.java).orderId
+}
+
+fun requestReadOrderDetail(
+    orderNumber: String,
+    accessToken: String,
+): Response {
+    return Given {
+        log().all()
+        auth().preemptive().oauth2(accessToken)
+            .queryParams("orderNumber", orderNumber)
+    } When {
+        get("/orders")
     } Then {
         log().all()
     } Extract {
