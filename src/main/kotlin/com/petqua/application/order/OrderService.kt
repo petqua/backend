@@ -1,5 +1,6 @@
 package com.petqua.application.order
 
+import com.petqua.application.order.dto.OrderDetailReadQuery
 import com.petqua.application.order.dto.OrderProductCommand
 import com.petqua.application.order.dto.SaveOrderCommand
 import com.petqua.application.order.dto.SaveOrderResponse
@@ -138,22 +139,22 @@ class OrderService(
         return orderRepository.saveAll(orders)
     }
 
-    fun readDetail(orderNumber: OrderNumber): OrderDetailResponse {
-        val orders = orderRepository.findByOrderNumberOrThrow(orderNumber) {
-            OrderException(ORDER_NOT_FOUND)
-        }
-        val statusByOrderIds = orders.map { orderPaymentRepository.findOrderStatusByOrderId(it.id) }
-            .associateBy { it.orderId }
-            .mapValues { it.value.status }
-
-        val orderProductResponses = orders.map {
-            OrderProductResponse(it, statusByOrderIds.getOrThrow(it.id))
-        }
-
+    fun readDetail(query: OrderDetailReadQuery): OrderDetailResponse {
+        val orders = orderRepository.findByOrderNumberOrThrow(query.orderNumber) { OrderException(ORDER_NOT_FOUND) }
+        orders.forEach { it.validateOwner(query.memberId) }
+        val orderProductResponses = orderProductResponsesFromOrders(orders)
+        val representativeOrder = orders[0]
         return OrderDetailResponse(
-            orderNumber = orderNumber.value,
-            orderedAt = orders[0].createdAt,
+            orderNumber = representativeOrder.orderNumber.value,
+            orderedAt = representativeOrder.createdAt,
             orderProducts = orderProductResponses,
         )
+    }
+
+    private fun orderProductResponsesFromOrders(orders: List<Order>): List<OrderProductResponse> {
+        val statusByOrderId = orders.map { orderPaymentRepository.findOrderStatusByOrderId(it.id) }
+            .associateBy { orderPayment -> orderPayment.orderId }
+            .mapValues { it.value.status }
+        return orders.map { OrderProductResponse(it, statusByOrderId.getOrThrow(it.id)) }
     }
 }
