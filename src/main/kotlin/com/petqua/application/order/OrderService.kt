@@ -24,7 +24,6 @@ import com.petqua.domain.product.Product
 import com.petqua.domain.product.ProductRepository
 import com.petqua.domain.product.ProductSnapshot
 import com.petqua.domain.product.ProductSnapshotRepository
-import com.petqua.domain.product.detail.image.ProductImageRepository
 import com.petqua.domain.product.option.ProductOptionRepository
 import com.petqua.domain.store.StoreRepository
 import com.petqua.exception.order.OrderException
@@ -52,7 +51,6 @@ class OrderService(
     private val shippingAddressRepository: ShippingAddressRepository,
     private val storeRepository: StoreRepository,
     private val paymentGatewayClient: PaymentGatewayClient,
-    private val productImageRepository: ProductImageRepository,
 ) {
 
     fun save(command: SaveOrderCommand): SaveOrderResponse {
@@ -148,6 +146,7 @@ class OrderService(
             orderNumber = representativeOrder.orderNumber.value,
             orderedAt = representativeOrder.createdAt,
             orderProducts = orderProductResponses,
+            totalAmount = representativeOrder.totalAmount,
         )
     }
 

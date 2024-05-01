@@ -150,6 +150,12 @@ data class OrderDetailResponse(
         description = "주문 상품 목록",
     )
     val orderProducts: List<OrderProductResponse>,
+
+    @Schema(
+        description = "주문 총 금액",
+        example = "44000"
+    )
+    val totalAmount: Money,
 )
 
 data class OrderProductResponse(
@@ -209,10 +215,10 @@ data class OrderProductResponse(
     val sex: String,
 
     @Schema(
-        description = "상품 총 가격",
+        description = "주문 상품 총 가격",
         example = "44000"
     )
-    val totalAmount: Money,
+    val orderPrice: Money,
 
     @Schema(
         description = "상품 가격",
@@ -246,7 +252,7 @@ data class OrderProductResponse(
         productName = order.orderProduct.productName,
         quantity = order.orderProduct.quantity,
         sex = order.orderProduct.sex.name,
-        totalAmount = order.totalAmount,
+        orderPrice = order.orderProduct.orderPrice,
         price = order.orderProduct.orderPrice,
         deliveryFee = order.orderProduct.deliveryFee,
         deliveryMethod = order.orderProduct.deliveryMethod.name,
