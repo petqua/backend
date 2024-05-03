@@ -57,6 +57,9 @@ dependencies {
     implementation("ch.qos.logback:logback-access")
     implementation("org.codehaus.janino:janino:3.1.6")
 
+    // s3
+    implementation("com.amazonaws:aws-java-sdk-s3:1.12.693")
+
     runtimeOnly("com.mysql:mysql-connector-j")
     runtimeOnly("com.h2database:h2")
 

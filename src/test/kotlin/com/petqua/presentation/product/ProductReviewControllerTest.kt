@@ -1,13 +1,20 @@
 package com.petqua.presentation.product
 
+import com.amazonaws.services.s3.AmazonS3
+import com.ninjasquad.springmockk.SpykBean
 import com.petqua.application.product.dto.ProductReviewStatisticsResponse
 import com.petqua.application.product.dto.ProductReviewsResponse
 import com.petqua.common.domain.findByIdOrThrow
+import com.petqua.common.exception.ExceptionResponse
 import com.petqua.domain.member.MemberRepository
 import com.petqua.domain.product.ProductRepository
 import com.petqua.domain.product.review.ProductReviewImageRepository
 import com.petqua.domain.product.review.ProductReviewRepository
 import com.petqua.domain.store.StoreRepository
+import com.petqua.exception.product.review.ProductReviewExceptionType.EXCEEDED_REVIEW_IMAGES_COUNT_LIMIT
+import com.petqua.exception.product.review.ProductReviewExceptionType.REVIEW_CONTENT_LENGTH_OUT_OF_RANGE
+import com.petqua.exception.product.review.ProductReviewExceptionType.REVIEW_SCORE_OUT_OF_RANGE
+import com.petqua.presentation.product.dto.CreateReviewRequest
 import com.petqua.presentation.product.dto.UpdateReviewRecommendationRequest
 import com.petqua.test.ApiTestConfig
 import com.petqua.test.fixture.member
@@ -20,7 +27,13 @@ import io.kotest.inspectors.forAll
 import io.kotest.matchers.collections.shouldBeSortedWith
 import io.kotest.matchers.ints.shouldBeGreaterThanOrEqual
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
+import io.mockk.verify
+import org.springframework.http.HttpStatus.BAD_REQUEST
+import org.springframework.http.HttpStatus.CREATED
 import org.springframework.http.HttpStatus.NO_CONTENT
+import org.springframework.http.MediaType.IMAGE_JPEG_VALUE
+import org.springframework.mock.web.MockMultipartFile
 import java.math.BigDecimal
 
 class ProductReviewControllerTest(
@@ -29,9 +42,187 @@ class ProductReviewControllerTest(
     private val storeRepository: StoreRepository,
     private val productReviewRepository: ProductReviewRepository,
     private val productReviewImageRepository: ProductReviewImageRepository,
+
+    @SpykBean
+    private val amazonS3: AmazonS3,
 ) : ApiTestConfig() {
 
     init {
+        Given("상품 후기를 작성할 때") {
+            val accessToken = signInAsMember().accessToken
+            val product = productRepository.save(product())
+
+            val image1 = MockMultipartFile(
+                "image1",
+                "image1.jpeg",
+                IMAGE_JPEG_VALUE,
+                "image1".byteInputStream()
+            )
+            val image2 = MockMultipartFile(
+                "image2",
+                "image2.jpeg",
+                IMAGE_JPEG_VALUE,
+                "image2".byteInputStream()
+            )
+
+            When("후기와 이미지를 입력하면") {
+                val response = requestCreateProductReview(
+                    accessToken = accessToken,
+                    productId = product.id,
+                    request = CreateReviewRequest(
+                        score = 5,
+                        content = "this product is good",
+                        images = listOf(image1, image2),
+                    ),
+                )
+
+                Then("201 Created 를 응답한다") {
+                    response.statusCode shouldBe CREATED.value()
+                }
+
+                Then("이미지를 외부 스토리지에 업로드한다") {
+                    verify(exactly = 2) {
+                        amazonS3.putObject(any(), any(), any(), any())
+                    }
+                }
+
+                Then("후기가 저장된다") {
+                    val productReview = productReviewRepository.findAll()[0]
+
+                    productReview.memberId shouldBe 1L
+                    productReview.productId shouldBe 1L
+                    productReview.score.value shouldBe 5
+                    productReview.content.value shouldBe "this product is good"
+                    productReview.hasPhotos shouldBe true
+                    productReview.recommendCount shouldBe 0
+                }
+
+                Then("후기 이미지가 저장된다") {
+                    val productReview = productReviewRepository.findAll()[0]
+                    val productReviewImages = productReviewImageRepository.findAll()
+
+                    productReviewImages.size shouldBe 2
+                    productReviewImages[0].productReviewId shouldBe productReview.id
+                    productReviewImages[0].imageUrl shouldContain "https://domain.com/products/reviews/"
+                    productReviewImages[1].productReviewId shouldBe productReview.id
+                    productReviewImages[1].imageUrl shouldContain "https://domain.com/products/reviews/"
+                }
+            }
+
+            When("이미지없이 후기만 입력하면") {
+                val response = requestCreateProductReview(
+                    accessToken = accessToken,
+                    productId = product.id,
+                    request = CreateReviewRequest(
+                        score = 5,
+                        content = "this product is good",
+                        images = listOf(),
+                    ),
+                )
+
+                Then("201 Created 를 응답한다") {
+                    response.statusCode shouldBe CREATED.value()
+                }
+
+                Then("이미지를 외부 스토리지에 업로드하지 않는다") {
+                    verify(exactly = 0) {
+                        amazonS3.putObject(any(), any(), any(), any())
+                    }
+                }
+
+                Then("후기에 이미지가 없다고 저장된다") {
+                    val productReview = productReviewRepository.findAll()[0]
+
+                    productReview.hasPhotos shouldBe false
+                }
+
+                Then("후기 이미지가 저장되지 않는다") {
+                    val productReviewImages = productReviewImageRepository.findAll()
+
+                    productReviewImages.size shouldBe 0
+                }
+            }
+
+            When("이미지를 10장 초과해 입력하면") {
+                val response = requestCreateProductReview(
+                    accessToken = accessToken,
+                    productId = product.id,
+                    request = CreateReviewRequest(
+                        score = 5,
+                        content = "this product is good",
+                        images = listOf(
+                            image1, image1, image1, image1, image1,
+                            image1, image1, image1, image1, image1,
+                            image2
+                        ),
+                    ),
+                )
+
+                Then("예외를 응답한다") {
+                    val errorResponse = response.`as`(ExceptionResponse::class.java)
+
+                    response.statusCode shouldBe BAD_REQUEST.value()
+                    errorResponse.message shouldBe EXCEEDED_REVIEW_IMAGES_COUNT_LIMIT.errorMessage()
+                }
+
+                Then("이미지를 외부 스토리지에 업로드하지 않는다") {
+                    verify(exactly = 0) {
+                        amazonS3.putObject(any(), any(), any(), any())
+                    }
+                }
+            }
+
+            When("별점을 1점 미만, 5점 초과로 입력하면") {
+                val response = requestCreateProductReview(
+                    accessToken = accessToken,
+                    productId = product.id,
+                    request = CreateReviewRequest(
+                        score = 0,
+                        content = "this product is good",
+                        images = listOf(image1),
+                    ),
+                )
+
+                Then("예외를 응답한다") {
+                    val errorResponse = response.`as`(ExceptionResponse::class.java)
+
+                    response.statusCode shouldBe BAD_REQUEST.value()
+                    errorResponse.message shouldBe REVIEW_SCORE_OUT_OF_RANGE.errorMessage()
+                }
+
+                Then("이미지를 외부 스토리지에 업로드하지 않는다") {
+                    verify(exactly = 0) {
+                        amazonS3.putObject(any(), any(), any(), any())
+                    }
+                }
+            }
+
+            When("후기를 10자 미만, 300자 초과로 입력하면") {
+                val response = requestCreateProductReview(
+                    accessToken = accessToken,
+                    productId = product.id,
+                    request = CreateReviewRequest(
+                        score = 5,
+                        content = "this product is good".repeat(30),
+                        images = listOf(image1),
+                    ),
+                )
+
+                Then("예외를 응답한다") {
+                    val errorResponse = response.`as`(ExceptionResponse::class.java)
+
+                    response.statusCode shouldBe BAD_REQUEST.value()
+                    errorResponse.message shouldBe REVIEW_CONTENT_LENGTH_OUT_OF_RANGE.errorMessage()
+                }
+
+                Then("이미지를 외부 스토리지에 업로드하지 않는다") {
+                    verify(exactly = 0) {
+                        amazonS3.putObject(any(), any(), any(), any())
+                    }
+                }
+            }
+        }
+
         Given("조건에 따라 상품 후기를 조회 하면") {
             val store = storeRepository.save(store(name = "펫쿠아"))
             val member = memberRepository.save(member(nickname = "쿠아"))
@@ -98,7 +289,6 @@ class ProductReviewControllerTest(
             )
 
             When("전체 별점, 최신순으로 조회 하면") {
-
                 val response = requestReadAllReviewProducts(productId = product.id, limit = 3)
 
                 Then("조회된 상품 후기 목록을 반환한다") {

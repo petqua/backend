@@ -40,3 +40,18 @@ payment:
     secret-key: test-secret-key # for test
     success-url: ${base-url}/orders/payment/success
     fail-url: ${base-url}/orders/payment/fail
+
+cloud:
+  aws:
+    s3:
+      bucket: bucket
+    stack:
+      auto: false
+    credentials:
+      instanceProfile: true
+
+image:
+  common:
+    domain: https://domain.com
+  product-review:
+    directory: products/reviews/
