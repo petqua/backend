@@ -65,7 +65,7 @@ class OrderService(
         val orders = saveOrders(command, productSnapshots, shippingAddress)
         orderPaymentRepository.saveAll(orders.map { OrderPayment.from(it) })
         return SaveOrderResponse(
-            orderId = orders.first().orderNumber.value,
+            orderNumber = orders.first().orderNumber.value,
             orderName = orders.first().orderName.value,
         )
     }

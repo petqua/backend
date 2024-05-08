@@ -599,7 +599,7 @@ class OrderServiceTest(
             Then("주문이 저장된다") {
                 val orders = orderRepository.findAll()
                 orders.forAll {
-                    it.orderNumber.value shouldBe response.orderId
+                    it.orderNumber.value shouldBe response.orderNumber
                     it.orderName.value shouldBe response.orderName
                 }
                 orders.distinctBy { it.orderProduct.shippingNumber }.size shouldBe 2
@@ -708,7 +708,7 @@ class OrderServiceTest(
         When("주문시 생성된 주문 번호로 조회하면") {
             val query = OrderDetailReadQuery(
                 memberId = memberId,
-                orderNumber = OrderNumber.from(saveOrderResponse.orderId),
+                orderNumber = OrderNumber.from(saveOrderResponse.orderNumber),
             )
 
             val readDetail = orderService.readDetail(query)
@@ -726,7 +726,7 @@ class OrderServiceTest(
         When("본인이 주문한 주문이 아니면") {
             val query = OrderDetailReadQuery(
                 memberId = Long.MIN_VALUE,
-                orderNumber = OrderNumber.from(saveOrderResponse.orderId),
+                orderNumber = OrderNumber.from(saveOrderResponse.orderNumber),
             )
 
             Then("예외가 발생 한다") {

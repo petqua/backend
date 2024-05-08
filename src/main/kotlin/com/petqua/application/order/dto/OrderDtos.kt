@@ -68,7 +68,7 @@ data class SaveOrderResponse(
         description = "주문 id",
         example = "202402211607026029E90DB030"
     )
-    val orderId: String,
+    val orderNumber: String,
 
     @Schema(
         description = "주문 이름",
@@ -83,7 +83,7 @@ data class OrderDetailReadQuery(
 ) {
 
     companion object {
-        fun from(memberId: Long, orderNumber: String): OrderDetailReadQuery {
+        fun of(memberId: Long, orderNumber: String): OrderDetailReadQuery {
             return OrderDetailReadQuery(
                 memberId = memberId,
                 orderNumber = OrderNumber(orderNumber),

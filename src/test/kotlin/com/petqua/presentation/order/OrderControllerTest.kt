@@ -276,7 +276,7 @@ class OrderControllerTest(
 
                 Then("배송비와 배송 방법이 정상적으로 입력된다") {
                     val saveOrderResponse = response.`as`(SaveOrderResponse::class.java)
-                    val order = orderRepository.findByOrderNumberOrThrow(OrderNumber(saveOrderResponse.orderId))[0]
+                    val order = orderRepository.findByOrderNumberOrThrow(OrderNumber(saveOrderResponse.orderNumber))[0]
 
                     order.orderProduct.deliveryMethod shouldBe PICK_UP
                     order.orderProduct.deliveryFee shouldBe Money.from(ZERO)

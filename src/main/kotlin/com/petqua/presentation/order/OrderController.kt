@@ -46,7 +46,7 @@ class OrderController(
         @Auth loginMember: LoginMember,
         @RequestParam orderNumber: String,
     ): ResponseEntity<OrderDetailResponse> {
-        val query = OrderDetailReadQuery.from(loginMember.memberId, orderNumber)
+        val query = OrderDetailReadQuery.of(loginMember.memberId, orderNumber)
         val response = orderService.readDetail(query)
         return ResponseEntity.ok(response)
     }

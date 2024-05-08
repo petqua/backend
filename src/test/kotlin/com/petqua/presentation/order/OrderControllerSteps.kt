@@ -44,7 +44,7 @@ fun requestOrderAndReturnOrderNumber(
         response()
     }
 
-    return response.`as`(SaveOrderResponse::class.java).orderId
+    return response.`as`(SaveOrderResponse::class.java).orderNumber
 }
 
 fun requestReadOrderDetail(
