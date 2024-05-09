@@ -3,6 +3,7 @@ package com.petqua.presentation.member.dto
 import com.petqua.application.member.dto.MemberAddProfileCommand
 import com.petqua.application.member.dto.MemberSignUpCommand
 import com.petqua.application.member.dto.PetFishAddCommand
+import com.petqua.application.member.dto.UpdateProfileCommand
 import io.swagger.v3.oas.annotations.media.Schema
 import java.time.YearMonth
 
@@ -89,3 +90,19 @@ data class PetFishAddRequest(
     )
     val count: Int,
 )
+
+data class UpdateProfileRequest(
+    @Schema(
+        description = "닉네임",
+        example = "펫쿠아"
+    )
+    val nickname: String,
+) {
+
+    fun toCommand(memberId: Long): UpdateProfileCommand {
+        return UpdateProfileCommand(
+            memberId = memberId,
+            nickname = nickname,
+        )
+    }
+}
