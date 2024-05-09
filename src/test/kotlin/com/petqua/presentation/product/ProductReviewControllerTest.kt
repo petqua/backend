@@ -2,12 +2,20 @@ package com.petqua.presentation.product
 
 import com.amazonaws.services.s3.AmazonS3
 import com.ninjasquad.springmockk.SpykBean
+import com.petqua.application.product.dto.MemberProductReviewsResponse
 import com.petqua.application.product.dto.ProductReviewStatisticsResponse
 import com.petqua.application.product.dto.ProductReviewsResponse
 import com.petqua.common.domain.findByIdOrThrow
 import com.petqua.common.exception.ExceptionResponse
+import com.petqua.domain.delivery.DeliveryMethod
 import com.petqua.domain.member.MemberRepository
+import com.petqua.domain.order.OrderNumber
+import com.petqua.domain.order.OrderPayment
+import com.petqua.domain.order.OrderPaymentRepository
+import com.petqua.domain.order.OrderRepository
+import com.petqua.domain.order.OrderStatus
 import com.petqua.domain.product.ProductRepository
+import com.petqua.domain.product.option.Sex
 import com.petqua.domain.product.review.ProductReviewImageRepository
 import com.petqua.domain.product.review.ProductReviewRepository
 import com.petqua.domain.store.StoreRepository
@@ -18,6 +26,7 @@ import com.petqua.presentation.product.dto.CreateReviewRequest
 import com.petqua.presentation.product.dto.UpdateReviewRecommendationRequest
 import com.petqua.test.ApiTestConfig
 import com.petqua.test.fixture.member
+import com.petqua.test.fixture.order
 import com.petqua.test.fixture.product
 import com.petqua.test.fixture.productReview
 import com.petqua.test.fixture.productReviewImage
@@ -32,6 +41,7 @@ import io.mockk.verify
 import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.CREATED
 import org.springframework.http.HttpStatus.NO_CONTENT
+import org.springframework.http.HttpStatus.OK
 import org.springframework.http.MediaType.IMAGE_JPEG_VALUE
 import org.springframework.mock.web.MockMultipartFile
 import java.math.BigDecimal
@@ -42,6 +52,8 @@ class ProductReviewControllerTest(
     private val storeRepository: StoreRepository,
     private val productReviewRepository: ProductReviewRepository,
     private val productReviewImageRepository: ProductReviewImageRepository,
+    private val orderRepository: OrderRepository,
+    private val orderPaymentRepository: OrderPaymentRepository,
 
     @SpykBean
     private val amazonS3: AmazonS3,
@@ -469,6 +481,154 @@ class ProductReviewControllerTest(
                         response.statusCode shouldBe NO_CONTENT.value()
                         productReviewRepository.findByIdOrThrow(productReview.id).recommendCount shouldBe 0
                     }
+                }
+            }
+        }
+
+        Given("사용자가 리뷰를 작성한 후 자신의 리뷰 내역을 조회할 때") {
+            val accessToken = signInAsMember().accessToken
+            val memberId = getMemberIdByAccessToken(accessToken)
+            val store = storeRepository.save(store(name = "펫쿠아"))
+            val productA = productRepository.save(
+                product(
+                    name = "상품A",
+                    storeId = store.id,
+                    discountPrice = BigDecimal.ZERO,
+                    reviewCount = 0,
+                    reviewTotalScore = 0
+                )
+            )
+            val productB = productRepository.save(
+                product(
+                    name = "상품B",
+                    storeId = store.id,
+                    discountPrice = BigDecimal.ZERO,
+                    reviewCount = 0,
+                    reviewTotalScore = 0
+                )
+            )
+            val orderA = orderRepository.save(
+                order(
+                    orderNumber = OrderNumber.from("202402211607020ORDERNUMBER"),
+                    memberId = memberId,
+                    storeId = store.id,
+                    storeName = store.name,
+                    quantity = 1,
+                    totalAmount = BigDecimal.ONE,
+                    productId = productA.id,
+                    productName = productA.name,
+                    thumbnailUrl = productA.thumbnailUrl,
+                    deliveryMethod = DeliveryMethod.SAFETY,
+                    sex = Sex.FEMALE,
+                )
+            )
+            val orderB = orderRepository.save(
+                order(
+                    orderNumber = OrderNumber.from("202402211607021ORDERNUMBER"),
+                    memberId = memberId,
+                    storeId = store.id,
+                    storeName = store.name,
+                    quantity = 1,
+                    totalAmount = BigDecimal.ONE,
+                    productId = productB.id,
+                    productName = productB.name,
+                    thumbnailUrl = productB.thumbnailUrl,
+                    deliveryMethod = DeliveryMethod.SAFETY,
+                    sex = Sex.FEMALE,
+                )
+            )
+            orderPaymentRepository.saveAll(
+                listOf(
+                    OrderPayment(
+                        orderId = orderA.id,
+                        status = OrderStatus.PURCHASE_CONFIRMED
+                    ),
+                    OrderPayment(
+                        orderId = orderB.id,
+                        status = OrderStatus.PURCHASE_CONFIRMED
+                    )
+                )
+            )
+
+            val productReviewA = productReviewRepository.save(
+                productReview(
+                    productId = productA.id,
+                    reviewerId = memberId,
+                    score = 5,
+                    recommendCount = 1,
+                    hasPhotos = true,
+                    content = "상품A 정말 좋아요!"
+                )
+            )
+            val productReviewB = productReviewRepository.save(
+                productReview(
+                    productId = productB.id,
+                    reviewerId = memberId,
+                    score = 5,
+                    recommendCount = 1,
+                    hasPhotos = false,
+                    content = "상품B 정말 좋아요!"
+                )
+            )
+
+            productReviewImageRepository.saveAll(
+                listOf(
+                    productReviewImage(imageUrl = "imageA1", productReviewId = productReviewA.id),
+                    productReviewImage(imageUrl = "imageA2", productReviewId = productReviewA.id)
+                )
+            )
+
+            When("회원이 자신의 리뷰 내역을 조회하면") {
+                val response = requestReadMemberProductReviews(accessToken = accessToken)
+
+                Then("200 OK 로 응답한다") {
+                    response.statusCode shouldBe OK.value()
+                }
+
+                Then("리뷰 내역을 응답한다") {
+                    val memberProductReviewsResponse = response.`as`(MemberProductReviewsResponse::class.java)
+
+                    val memberProductReviews = memberProductReviewsResponse.memberProductReviews
+
+                    memberProductReviews.size shouldBe 2
+
+                    val memberProductReviewB = memberProductReviews[0]
+                    memberProductReviewB.reviewId shouldBe productReviewB.id
+                    memberProductReviewB.memberId shouldBe productReviewB.memberId
+                    memberProductReviewB.createdAt shouldBe orderB.createdAt
+                    memberProductReviewB.orderStatus shouldBe OrderStatus.PURCHASE_CONFIRMED.name
+                    memberProductReviewB.storeId shouldBe orderB.orderProduct.storeId
+                    memberProductReviewB.storeId shouldBe orderB.orderProduct.storeId
+                    memberProductReviewB.storeName shouldBe orderB.orderProduct.storeName
+                    memberProductReviewB.productId shouldBe orderB.orderProduct.productId
+                    memberProductReviewB.productName shouldBe orderB.orderProduct.productName
+                    memberProductReviewB.productThumbnailUrl shouldBe orderB.orderProduct.thumbnailUrl
+                    memberProductReviewB.quantity shouldBe orderB.orderProduct.quantity
+                    memberProductReviewB.sex shouldBe orderB.orderProduct.sex.name
+                    memberProductReviewB.deliveryMethod shouldBe orderB.orderProduct.deliveryMethod.name
+                    memberProductReviewB.score shouldBe productReviewB.score.value
+                    memberProductReviewB.content shouldBe productReviewB.content.value
+                    memberProductReviewB.recommendCount shouldBe productReviewB.recommendCount
+                    memberProductReviewB.reviewImages.size shouldBe 0
+
+                    val memberProductReviewA = memberProductReviews[1]
+                    memberProductReviewA.reviewId shouldBe productReviewA.id
+                    memberProductReviewA.memberId shouldBe productReviewA.memberId
+                    memberProductReviewA.createdAt shouldBe orderA.createdAt
+                    memberProductReviewA.orderStatus shouldBe OrderStatus.PURCHASE_CONFIRMED.name
+                    memberProductReviewA.storeId shouldBe orderA.orderProduct.storeId
+                    memberProductReviewA.storeId shouldBe orderA.orderProduct.storeId
+                    memberProductReviewA.storeName shouldBe orderA.orderProduct.storeName
+                    memberProductReviewA.productId shouldBe orderA.orderProduct.productId
+                    memberProductReviewA.productName shouldBe orderA.orderProduct.productName
+                    memberProductReviewA.productThumbnailUrl shouldBe orderA.orderProduct.thumbnailUrl
+                    memberProductReviewA.quantity shouldBe orderA.orderProduct.quantity
+                    memberProductReviewA.sex shouldBe orderA.orderProduct.sex.name
+                    memberProductReviewA.deliveryMethod shouldBe orderA.orderProduct.deliveryMethod.name
+                    memberProductReviewA.score shouldBe productReviewA.score.value
+                    memberProductReviewA.content shouldBe productReviewA.content.value
+                    memberProductReviewA.recommendCount shouldBe productReviewA.recommendCount
+                    memberProductReviewA.reviewImages shouldBe listOf("imageA1", "imageA2")
                 }
             }
         }
