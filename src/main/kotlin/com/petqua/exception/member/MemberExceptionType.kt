@@ -25,6 +25,7 @@ enum class MemberExceptionType(
     INVALID_MEMBER_NICKNAME(BAD_REQUEST, "M16", "유효하지 않은 회원 닉네임입니다."),
 
     CONTAINING_BANNED_WORD_NAME(BAD_REQUEST, "M20", "이름에 금지 단어를 포함할 수 없습니다."),
+    ALREADY_EXIST_NICKNAME(BAD_REQUEST, "M21", "이미 사용 중인 닉네임입니다."),
 
     INVALID_MEMBER_STATE(INTERNAL_SERVER_ERROR, "M90", "유효하지 않은 회원 상태입니다."),
     FAILED_NICKNAME_GENERATION(LOOP_DETECTED, "M91", "서버에서 회원 닉네임을 생성하지 못했습니다.")

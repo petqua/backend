@@ -51,3 +51,8 @@ data class PetFishAddCommand(
         )
     }
 }
+
+data class UpdateProfileCommand(
+    val memberId: Long,
+    val nickname: String
+)
