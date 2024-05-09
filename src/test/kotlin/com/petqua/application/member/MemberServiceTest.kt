@@ -4,6 +4,7 @@ import com.ninjasquad.springmockk.SpykBean
 import com.petqua.application.member.dto.MemberAddProfileCommand
 import com.petqua.application.member.dto.MemberSignUpCommand
 import com.petqua.application.member.dto.PetFishAddCommand
+import com.petqua.application.member.dto.UpdateProfileCommand
 import com.petqua.domain.auth.AuthCredentialsRepository
 import com.petqua.domain.fish.FishRepository
 import com.petqua.domain.member.FishTankRepository
@@ -20,6 +21,7 @@ import com.petqua.domain.member.nickname.NicknameWordRepository
 import com.petqua.domain.policy.bannedword.BannedWord
 import com.petqua.domain.policy.bannedword.BannedWordRepository
 import com.petqua.exception.member.MemberException
+import com.petqua.exception.member.MemberExceptionType.ALREADY_EXIST_NICKNAME
 import com.petqua.exception.member.MemberExceptionType.CONTAINING_BANNED_WORD_NAME
 import com.petqua.exception.member.MemberExceptionType.FAILED_NICKNAME_GENERATION
 import com.petqua.exception.member.MemberExceptionType.HAS_SIGNED_UP_MEMBER
@@ -30,6 +32,7 @@ import com.petqua.exception.member.MemberExceptionType.INVALID_MEMBER_FISH_TANK_
 import com.petqua.exception.member.MemberExceptionType.INVALID_MEMBER_PET_FISH
 import com.petqua.exception.member.MemberExceptionType.INVALID_MEMBER_PET_FISH_COUNT
 import com.petqua.exception.member.MemberExceptionType.NOT_FOUND_MEMBER
+import com.petqua.test.DataCleaner
 import com.petqua.test.fixture.authCredentials
 import com.petqua.test.fixture.fish
 import com.petqua.test.fixture.member
@@ -57,6 +60,7 @@ class MemberServiceTest(
     private val fishRepository: FishRepository,
     private val petFishRepository: PetFishRepository,
     private val fishTankRepository: FishTankRepository,
+    private val dataCleaner: DataCleaner,
 
     @SpykBean private val nicknameGenerator: NicknameGenerator,
 ) : BehaviorSpec({
@@ -443,5 +447,70 @@ class MemberServiceTest(
                 }.exceptionType() shouldBe INVALID_MEMBER_PET_FISH_COUNT
             }
         }
+    }
+
+    Given("프로필 수정을 할 때") {
+        val member = memberRepository.save(member(nickname = "닉네임"))
+        bannedWordRepository.save(BannedWord(word = "금지 단어"))
+
+        When("닉네임을 입력하면") {
+            val command = UpdateProfileCommand(
+                memberId = member.id,
+                nickname = "변경된 닉네임",
+            )
+            memberService.updateProfile(command)
+
+            Then("닉네임을 수정한다") {
+                val updatedMember = memberRepository.findById(member.id).get()
+
+                assertSoftly {
+                    updatedMember.nickname.value shouldBe "변경된 닉네임"
+                }
+            }
+        }
+
+        When("닉네임에 부적절한 단어가 들어가면") {
+            val command = UpdateProfileCommand(
+                memberId = member.id,
+                nickname = "금지 단어",
+            )
+
+            Then("예외를 던진다") {
+                shouldThrow<MemberException> {
+                    memberService.updateProfile(command)
+                }.exceptionType() shouldBe CONTAINING_BANNED_WORD_NAME
+            }
+        }
+
+        When("이미 다른 회원이 사용중인 닉네임이라면") {
+            memberRepository.save(member(nickname = "변경된 닉네임"))
+            val command = UpdateProfileCommand(
+                memberId = member.id,
+                nickname = "변경된 닉네임",
+            )
+
+            Then("예외를 던진다") {
+                shouldThrow<MemberException> {
+                    memberService.updateProfile(command)
+                }.exceptionType() shouldBe ALREADY_EXIST_NICKNAME
+            }
+        }
+
+        When("회원이 존재하지 않으면") {
+            val command = UpdateProfileCommand(
+                memberId = Long.MAX_VALUE,
+                nickname = "변경된 닉네임",
+            )
+
+            Then("예외를 던진다") {
+                shouldThrow<MemberException> {
+                    memberService.updateProfile(command)
+                }.exceptionType() shouldBe NOT_FOUND_MEMBER
+            }
+        }
+    }
+
+    afterContainer {
+        dataCleaner.clean()
     }
 })
