@@ -2,6 +2,8 @@ package com.petqua.presentation.member
 
 import com.petqua.common.domain.findByIdOrThrow
 import com.petqua.common.exception.ExceptionResponse
+import com.petqua.domain.auth.Authority
+import com.petqua.domain.auth.token.AuthTokenProvider
 import com.petqua.domain.fish.FishRepository
 import com.petqua.domain.member.FishTankRepository
 import com.petqua.domain.member.MemberRepository
@@ -15,11 +17,14 @@ import com.petqua.domain.policy.bannedword.BannedWordRepository
 import com.petqua.exception.member.MemberExceptionType
 import com.petqua.exception.member.MemberExceptionType.CONTAINING_BANNED_WORD_NAME
 import com.petqua.exception.member.MemberExceptionType.HAS_SIGNED_UP_MEMBER
+import com.petqua.exception.member.MemberExceptionType.NOT_FOUND_MEMBER
 import com.petqua.presentation.member.dto.MemberAddProfileRequest
 import com.petqua.presentation.member.dto.MemberSignUpRequest
 import com.petqua.presentation.member.dto.PetFishAddRequest
+import com.petqua.presentation.member.dto.UpdateProfileRequest
 import com.petqua.test.ApiTestConfig
 import com.petqua.test.fixture.fish
+import com.petqua.test.fixture.member
 import com.petqua.test.fixture.memberAddProfileRequest
 import io.kotest.assertions.assertSoftly
 import io.kotest.matchers.shouldBe
@@ -29,9 +34,11 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.CREATED
+import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.http.HttpStatus.NO_CONTENT
 import java.time.LocalDate
 import java.time.YearMonth
+import java.util.Date
 import kotlin.Long.Companion.MIN_VALUE
 
 class MemberControllerTest(
@@ -41,6 +48,7 @@ class MemberControllerTest(
     private val fishRepository: FishRepository,
     private val petFishRepository: PetFishRepository,
     private val fishTankRepository: FishTankRepository,
+    private val authTokenProvider: AuthTokenProvider,
 ) : ApiTestConfig() {
 
     init {
@@ -303,6 +311,74 @@ class MemberControllerTest(
                     assertSoftly(response) {
                         statusCode shouldBe BAD_REQUEST.value()
                         errorResponse.message shouldBe MemberExceptionType.INVALID_MEMBER_PET_FISH_COUNT.errorMessage()
+                    }
+                }
+            }
+        }
+
+        Given("회원 프로필을 수정할 때") {
+            val accessToken = signInAsMember().accessToken
+            bannedWordRepository.saveAll(
+                listOf(
+                    BannedWord(word = "금지 단어"),
+                )
+            )
+
+            When("닉네임을 입력하면") {
+                val request = UpdateProfileRequest(nickname = "변경된 닉네임")
+                val response = requestUpdateProfile(request, accessToken)
+
+                Then("회원의 닉네임을 수정한다") {
+                    assertSoftly {
+                        response.statusCode shouldBe NO_CONTENT.value()
+
+                        val updatedMember = memberRepository.findByIdOrThrow(1L)
+                        updatedMember.nickname.value shouldBe "변경된 닉네임"
+                    }
+                }
+            }
+
+            When("닉네임에 부적절한 단어가 들어가면") {
+                val request = UpdateProfileRequest(nickname = "금지 단어")
+                val response = requestUpdateProfile(request, accessToken)
+
+                Then("예외를 응답한다") {
+                    val errorResponse = response.`as`(ExceptionResponse::class.java)
+                    assertSoftly(response) {
+                        statusCode shouldBe BAD_REQUEST.value()
+                        errorResponse.message shouldBe CONTAINING_BANNED_WORD_NAME.errorMessage()
+                    }
+                }
+            }
+
+            When("이미 다른 회원이 사용중인 닉네임이라면") {
+                memberRepository.save(member(nickname = "변경된 닉네임"))
+                val request = UpdateProfileRequest(nickname = "변경된 닉네임")
+                val response = requestUpdateProfile(request, accessToken)
+
+                Then("예외를 응답한다") {
+                    val errorResponse = response.`as`(ExceptionResponse::class.java)
+                    assertSoftly(response) {
+                        statusCode shouldBe BAD_REQUEST.value()
+                        errorResponse.message shouldBe MemberExceptionType.ALREADY_EXIST_NICKNAME.errorMessage()
+                    }
+                }
+            }
+
+            When("회원이 존재하지 않으면") {
+                val request = UpdateProfileRequest(nickname = "변경된 닉네임")
+                val accessTokenOfNoExistMember = authTokenProvider.createLoginAuthToken(
+                    memberId = Long.MAX_VALUE,
+                    authority = Authority.MEMBER,
+                    issuedDate = Date()
+                ).getAccessToken()
+                val response = requestUpdateProfile(request, accessTokenOfNoExistMember)
+
+                Then("예외를 응답한다") {
+                    val errorResponse = response.`as`(ExceptionResponse::class.java)
+                    assertSoftly(response) {
+                        statusCode shouldBe NOT_FOUND.value()
+                        errorResponse.message shouldBe NOT_FOUND_MEMBER.errorMessage()
                     }
                 }
             }
