@@ -51,7 +51,7 @@ data class ProductReviewWithMemberResponse(
     )
 }
 
-data class MemberProductReviewResponse(
+data class MemberProductReview(
     val reviewId: Long,
     val memberId: Long,
     val createdAt: LocalDateTime,

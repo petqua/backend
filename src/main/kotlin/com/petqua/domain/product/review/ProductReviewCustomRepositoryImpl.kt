@@ -9,7 +9,7 @@ import com.petqua.domain.member.Member
 import com.petqua.domain.order.Order
 import com.petqua.domain.order.OrderPayment
 import com.petqua.domain.order.OrderProduct
-import com.petqua.domain.product.dto.MemberProductReviewResponse
+import com.petqua.domain.product.dto.MemberProductReview
 import com.petqua.domain.product.dto.ProductReviewReadCondition
 import com.petqua.domain.product.dto.ProductReviewScoreWithCount
 import com.petqua.domain.product.dto.ProductReviewWithMemberResponse
@@ -77,9 +77,9 @@ class ProductReviewCustomRepositoryImpl(
     override fun findMemberProductReviewBy(
         memberId: Long,
         paging: CursorBasedPaging,
-    ): List<MemberProductReviewResponse> {
+    ): List<MemberProductReview> {
         val query = jpql(ProductReviewDynamicJpqlGenerator) {
-            selectNew<MemberProductReviewResponse>(
+            selectNew<MemberProductReview>(
                 entity(ProductReview::class),
                 entity(Order::class),
                 entity(OrderPayment::class),
