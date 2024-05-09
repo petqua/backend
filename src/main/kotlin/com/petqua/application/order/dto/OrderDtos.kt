@@ -2,6 +2,7 @@ package com.petqua.application.order.dto
 
 import com.petqua.common.domain.Money
 import com.petqua.domain.delivery.DeliveryMethod
+import com.petqua.domain.order.OrderNumber
 import com.petqua.domain.order.OrderProduct
 import com.petqua.domain.order.ShippingNumber
 import com.petqua.domain.product.ProductSnapshot
@@ -67,7 +68,7 @@ data class SaveOrderResponse(
         description = "주문 id",
         example = "202402211607026029E90DB030"
     )
-    val orderId: String,
+    val orderNumber: String,
 
     @Schema(
         description = "주문 이름",
@@ -75,3 +76,18 @@ data class SaveOrderResponse(
     )
     val orderName: String,
 )
+
+data class OrderDetailReadQuery(
+    val memberId: Long,
+    val orderNumber: OrderNumber,
+) {
+
+    companion object {
+        fun of(memberId: Long, orderNumber: String): OrderDetailReadQuery {
+            return OrderDetailReadQuery(
+                memberId = memberId,
+                orderNumber = OrderNumber(orderNumber),
+            )
+        }
+    }
+}

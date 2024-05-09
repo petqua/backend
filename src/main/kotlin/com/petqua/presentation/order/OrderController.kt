@@ -1,19 +1,23 @@
 package com.petqua.presentation.order
 
 import com.petqua.application.order.OrderService
+import com.petqua.application.order.dto.OrderDetailReadQuery
 import com.petqua.application.order.dto.SaveOrderResponse
 import com.petqua.common.config.ACCESS_TOKEN_SECURITY_SCHEME_KEY
 import com.petqua.domain.auth.Auth
 import com.petqua.domain.auth.LoginMember
+import com.petqua.presentation.order.dto.OrderDetailResponse
 import com.petqua.presentation.order.dto.SaveOrderRequest
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @SecurityRequirement(name = ACCESS_TOKEN_SECURITY_SCHEME_KEY)
@@ -32,6 +36,18 @@ class OrderController(
         @RequestBody request: SaveOrderRequest,
     ): ResponseEntity<SaveOrderResponse> {
         val response = orderService.save(request.toCommand(loginMember.memberId))
+        return ResponseEntity.ok(response)
+    }
+
+    @Operation(summary = "주문 상세 조회 API", description = "주문 상세를 조회합니다")
+    @ApiResponse(responseCode = "200", description = "주문 상세 조회 성공")
+    @GetMapping
+    fun readDetail(
+        @Auth loginMember: LoginMember,
+        @RequestParam orderNumber: String,
+    ): ResponseEntity<OrderDetailResponse> {
+        val query = OrderDetailReadQuery.of(loginMember.memberId, orderNumber)
+        val response = orderService.readDetail(query)
         return ResponseEntity.ok(response)
     }
 }

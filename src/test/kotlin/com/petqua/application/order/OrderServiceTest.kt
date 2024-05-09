@@ -1,8 +1,10 @@
 package com.petqua.application.order
 
+import com.petqua.application.order.dto.OrderDetailReadQuery
 import com.petqua.domain.delivery.DeliveryMethod.COMMON
 import com.petqua.domain.delivery.DeliveryMethod.SAFETY
 import com.petqua.domain.member.MemberRepository
+import com.petqua.domain.order.OrderNumber
 import com.petqua.domain.order.OrderPaymentRepository
 import com.petqua.domain.order.OrderRepository
 import com.petqua.domain.order.OrderStatus.ORDER_CREATED
@@ -15,6 +17,8 @@ import com.petqua.domain.product.option.Sex
 import com.petqua.domain.product.option.Sex.FEMALE
 import com.petqua.domain.store.StoreRepository
 import com.petqua.exception.order.OrderException
+import com.petqua.exception.order.OrderExceptionType.FORBIDDEN_ORDER
+import com.petqua.exception.order.OrderExceptionType.ORDER_NOT_FOUND
 import com.petqua.exception.order.OrderExceptionType.ORDER_TOTAL_PRICE_NOT_MATCH
 import com.petqua.exception.order.OrderExceptionType.PRODUCT_INFO_NOT_MATCH
 import com.petqua.exception.order.OrderExceptionType.PRODUCT_NOT_FOUND
@@ -31,13 +35,14 @@ import com.petqua.test.fixture.productOption
 import com.petqua.test.fixture.saveOrderCommand
 import com.petqua.test.fixture.shippingAddress
 import com.petqua.test.fixture.store
+import io.kotest.assertions.assertSoftly
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.inspectors.forAll
 import io.kotest.matchers.shouldBe
+import java.math.BigDecimal
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE
-import java.math.BigDecimal
 
 @SpringBootTest(webEnvironment = NONE)
 class OrderServiceTest(
@@ -594,7 +599,7 @@ class OrderServiceTest(
             Then("주문이 저장된다") {
                 val orders = orderRepository.findAll()
                 orders.forAll {
-                    it.orderNumber.value shouldBe response.orderId
+                    it.orderNumber.value shouldBe response.orderNumber
                     it.orderName.value shouldBe response.orderName
                 }
                 orders.distinctBy { it.orderProduct.shippingNumber }.size shouldBe 2
@@ -604,6 +609,143 @@ class OrderServiceTest(
                 orderPayments.forAll {
                     it.status shouldBe ORDER_CREATED
                 }
+            }
+        }
+    }
+
+    Given("주문 상세 내역로 조회 시") {
+        val storeAId = storeRepository.save(store()).id
+        val storeBId = storeRepository.save(store()).id
+        val memberId = memberRepository.save(member()).id
+        val productA1 = productRepository.save(
+            product(
+                storeId = storeAId,
+                commonDeliveryFee = 3000.toBigDecimal(),
+            )
+        )
+        val productA2 = productRepository.save(
+            product(
+                storeId = storeAId,
+                commonDeliveryFee = 3000.toBigDecimal(),
+            )
+        )
+        val productB = productRepository.save(
+            product(
+                storeId = storeBId,
+                safeDeliveryFee = 5000.toBigDecimal(),
+            )
+        )
+        productSnapshotRepository.save(ProductSnapshot.from(productA1))
+        productSnapshotRepository.save(ProductSnapshot.from(productA2))
+        productSnapshotRepository.save(ProductSnapshot.from(productB))
+
+        val productOptionA1 = productOptionRepository.save(
+            productOption(
+                productId = productA1.id,
+                sex = FEMALE,
+            )
+        )
+        val productOptionA2 = productOptionRepository.save(
+            productOption(
+                productId = productA2.id,
+                sex = FEMALE,
+            )
+        )
+        val productOptionB = productOptionRepository.save(
+            productOption(
+                productId = productB.id,
+                sex = Sex.HERMAPHRODITE
+            )
+        )
+        val shippingAddress = shippingAddressRepository.save(
+            shippingAddress(
+                memberId = memberId,
+            )
+        )
+        val orderProductCommands = listOf(
+            orderProductCommand(
+                productId = productA1.id,
+                originalPrice = productA1.price.value,
+                discountRate = productA1.discountRate,
+                discountPrice = productA1.discountPrice.value,
+                sex = productOptionA1.sex,
+                orderPrice = BigDecimal.ONE,
+                additionalPrice = productOptionA1.additionalPrice.value,
+                deliveryFee = 3000.toBigDecimal(),
+                deliveryMethod = COMMON,
+            ),
+            orderProductCommand(
+                productId = productA2.id,
+                originalPrice = productA2.price.value,
+                discountRate = productA2.discountRate,
+                discountPrice = productA2.discountPrice.value,
+                sex = productOptionA2.sex,
+                orderPrice = BigDecimal.ONE,
+                additionalPrice = productOptionA2.additionalPrice.value,
+                deliveryFee = 3000.toBigDecimal(),
+                deliveryMethod = COMMON,
+            ),
+            orderProductCommand(
+                productId = productB.id,
+                originalPrice = productB.price.value,
+                discountRate = productB.discountRate,
+                discountPrice = productB.discountPrice.value,
+                sex = productOptionB.sex,
+                orderPrice = BigDecimal.ONE,
+                additionalPrice = productOptionB.additionalPrice.value,
+                deliveryFee = 5000.toBigDecimal(),
+                deliveryMethod = SAFETY,
+            ),
+        )
+        val command = saveOrderCommand(
+            memberId = memberId,
+            orderProductCommands = orderProductCommands,
+            shippingAddressId = shippingAddress.id,
+            totalAmount = 8003.toBigDecimal(),
+        )
+        val saveOrderResponse = orderService.save(command)
+
+        When("주문시 생성된 주문 번호로 조회하면") {
+            val query = OrderDetailReadQuery(
+                memberId = memberId,
+                orderNumber = OrderNumber.from(saveOrderResponse.orderNumber),
+            )
+
+            val readDetail = orderService.readDetail(query)
+
+            Then("주문 상세 내역이 조회된다") {
+                assertSoftly(readDetail) {
+                    orderProducts.size shouldBe 3
+                    orderProducts.forAll {
+                        it.orderStatus shouldBe ORDER_CREATED.name
+                    }
+                }
+            }
+        }
+
+        When("본인이 주문한 주문이 아니면") {
+            val query = OrderDetailReadQuery(
+                memberId = Long.MIN_VALUE,
+                orderNumber = OrderNumber.from(saveOrderResponse.orderNumber),
+            )
+
+            Then("예외가 발생 한다") {
+                shouldThrow<OrderException> {
+                    orderService.readDetail(query)
+                }.exceptionType() shouldBe (FORBIDDEN_ORDER)
+            }
+        }
+
+        When("존재 하지 않는 주문번호로 조회하면") {
+            val query = OrderDetailReadQuery(
+                memberId = memberId,
+                orderNumber = OrderNumber.from("199902211607026029E90DB030"),
+            )
+
+            Then("예외가 발생 한다") {
+                shouldThrow<OrderException> {
+                    orderService.readDetail(query)
+                }.exceptionType() shouldBe (ORDER_NOT_FOUND)
             }
         }
     }
