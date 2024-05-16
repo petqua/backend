@@ -10,7 +10,7 @@ fun OrderRepository.findByOrderNumberOrThrow(
     return orders.ifEmpty { throw exceptionSupplier() }
 }
 
-interface OrderRepository : JpaRepository<Order, Long> {
+interface OrderRepository : JpaRepository<Order, Long>, OrderCustomRepository {
 
     fun findByOrderNumber(orderNumber: OrderNumber): List<Order>
 }
