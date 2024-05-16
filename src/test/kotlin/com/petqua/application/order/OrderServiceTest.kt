@@ -797,7 +797,7 @@ class OrderServiceTest(
                 limit = 2,
                 lastViewedOrderNumber = null,
             )
-            val result = orderService.findOrderNumberByMemberId(query)
+            val result = orderService.readAll(query)
 
             Then("주문 내역이 조회된다.") {
                 assertSoftly(result) {
@@ -816,7 +816,7 @@ class OrderServiceTest(
                 limit = 2,
                 lastViewedOrderNumber = orderNumberC,
             )
-            val result = orderService.findOrderNumberByMemberId(query)
+            val result = orderService.readAll(query)
 
             Then("주문 내역이 조회된다.") {
                 assertSoftly(result) {
@@ -838,7 +838,7 @@ class OrderServiceTest(
 
             Then("예외가 발생 한다") {
                 shouldThrow<OrderException> {
-                    orderService.findOrderNumberByMemberId(query)
+                    orderService.readAll(query)
                 }.exceptionType() shouldBe (NOT_INVALID_ORDER_READ_QUERY)
             }
         }

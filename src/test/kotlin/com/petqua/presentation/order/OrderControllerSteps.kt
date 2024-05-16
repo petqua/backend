@@ -1,6 +1,7 @@
 package com.petqua.presentation.order
 
 import com.petqua.application.order.dto.SaveOrderResponse
+import com.petqua.presentation.order.dto.OrderReadRequest
 import com.petqua.presentation.order.dto.SaveOrderRequest
 import io.restassured.module.kotlin.extensions.Extract
 import io.restassured.module.kotlin.extensions.Given
@@ -57,6 +58,25 @@ fun requestReadOrderDetail(
             .queryParams("orderNumber", orderNumber)
     } When {
         get("/orders/detail")
+    } Then {
+        log().all()
+    } Extract {
+        response()
+    }
+}
+
+fun requestReadAllOrder(
+    accessToken: String,
+    request: OrderReadRequest,
+): Response {
+    return Given {
+        log().all()
+        auth().preemptive().oauth2(accessToken)
+            .queryParams("lastViewedId", request.lastViewedId)
+            .queryParams("limit", request.limit)
+            .queryParams("lastViewedOrderNumber", request.lastViewedOrderNumber)
+    } When {
+        get("/orders")
     } Then {
         log().all()
     } Extract {

@@ -162,7 +162,7 @@ class OrderService(
     }
 
     @Transactional(readOnly = true)
-    fun findOrderNumberByMemberId(query: OrderReadQuery): OrdersResponse {
+    fun readAll(query: OrderReadQuery): OrdersResponse {
         validateOrderReadQuery(query)
         val orders = orderRepository.findOrdersByMemberId(query.memberId, query.toOrderPaging())
         orders.forEach { it.validateOwner(query.memberId) }
