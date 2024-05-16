@@ -96,16 +96,16 @@ class MemberService(
         val member = memberRepository.findActiveByIdOrThrow(command.memberId) {
             MemberException(NOT_FOUND_MEMBER)
         }
-        member.updateNickname(Nickname.from(command.nickname))
+        member.updateNickname(command.nickname)
     }
 
-    private fun validateNickname(nickname: String, memberId: Long) {
-        validateContainingBannedWord(nickname)
+    private fun validateNickname(nickname: Nickname, memberId: Long) {
+        validateContainingBannedWord(nickname.value)
         validateDuplicatedNickname(nickname, memberId)
     }
 
-    private fun validateDuplicatedNickname(nickname: String, memberId: Long) {
-        throwExceptionWhen(memberRepository.existsMemberByNicknameAndIdNot(Nickname.from(nickname), memberId)) {
+    private fun validateDuplicatedNickname(nickname: Nickname, memberId: Long) {
+        throwExceptionWhen(memberRepository.existsMemberByNicknameAndIdNot(nickname, memberId)) {
             MemberException(ALREADY_EXIST_NICKNAME)
         }
     }
