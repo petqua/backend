@@ -20,7 +20,6 @@ import com.petqua.domain.member.nickname.NicknameWordRepository
 import com.petqua.domain.policy.bannedword.BannedWordRepository
 import com.petqua.domain.policy.bannedword.BannedWords
 import com.petqua.exception.member.MemberException
-import com.petqua.exception.member.MemberExceptionType
 import com.petqua.exception.member.MemberExceptionType.ALREADY_EXIST_NICKNAME
 import com.petqua.exception.member.MemberExceptionType.FAILED_NICKNAME_GENERATION
 import com.petqua.exception.member.MemberExceptionType.HAS_SIGNED_UP_MEMBER
@@ -93,16 +92,20 @@ class MemberService(
     }
 
     fun updateProfile(command: UpdateProfileCommand) {
-        validateNickname(command.nickname)
+        validateNickname(command.nickname, command.memberId)
         val member = memberRepository.findActiveByIdOrThrow(command.memberId) {
             MemberException(NOT_FOUND_MEMBER)
         }
         member.updateNickname(Nickname.from(command.nickname))
     }
 
-    private fun validateNickname(nickname: String) {
+    private fun validateNickname(nickname: String, memberId: Long) {
         validateContainingBannedWord(nickname)
-        throwExceptionWhen(memberRepository.existsMemberByNickname(Nickname.from(nickname))) {
+        validateDuplicatedNickname(nickname, memberId)
+    }
+
+    private fun validateDuplicatedNickname(nickname: String, memberId: Long) {
+        throwExceptionWhen(memberRepository.existsMemberByNicknameAndIdNot(Nickname.from(nickname), memberId)) {
             MemberException(ALREADY_EXIST_NICKNAME)
         }
     }

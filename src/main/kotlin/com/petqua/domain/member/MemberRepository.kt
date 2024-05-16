@@ -17,5 +17,7 @@ interface MemberRepository : JpaRepository<Member, Long> {
 
     fun existsMemberByNickname(nickname: Nickname): Boolean
 
+    fun existsMemberByNicknameAndIdNot(nickname: Nickname, id: Long): Boolean
+
     fun existsMemberByAuthCredentialsId(authCredentialsId: Long): Boolean
 }
