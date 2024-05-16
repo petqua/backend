@@ -41,7 +41,7 @@ class OrderController(
 
     @Operation(summary = "주문 상세 조회 API", description = "주문 상세를 조회합니다")
     @ApiResponse(responseCode = "200", description = "주문 상세 조회 성공")
-    @GetMapping
+    @GetMapping("/detail")
     fun readDetail(
         @Auth loginMember: LoginMember,
         @RequestParam orderNumber: String,

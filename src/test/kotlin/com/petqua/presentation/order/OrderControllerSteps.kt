@@ -56,7 +56,7 @@ fun requestReadOrderDetail(
         auth().preemptive().oauth2(accessToken)
             .queryParams("orderNumber", orderNumber)
     } When {
-        get("/orders")
+        get("/orders/detail")
     } Then {
         log().all()
     } Extract {
