@@ -1,6 +1,8 @@
 package com.petqua.application.order
 
 import com.petqua.application.order.dto.OrderDetailReadQuery
+import com.petqua.application.order.dto.OrderReadQuery
+import com.petqua.common.domain.dto.DEFAULT_LAST_VIEWED_ID
 import com.petqua.domain.delivery.DeliveryMethod.COMMON
 import com.petqua.domain.delivery.DeliveryMethod.SAFETY
 import com.petqua.domain.member.MemberRepository
@@ -18,6 +20,7 @@ import com.petqua.domain.product.option.Sex.FEMALE
 import com.petqua.domain.store.StoreRepository
 import com.petqua.exception.order.OrderException
 import com.petqua.exception.order.OrderExceptionType.FORBIDDEN_ORDER
+import com.petqua.exception.order.OrderExceptionType.NOT_INVALID_ORDER_READ_QUERY
 import com.petqua.exception.order.OrderExceptionType.ORDER_NOT_FOUND
 import com.petqua.exception.order.OrderExceptionType.ORDER_TOTAL_PRICE_NOT_MATCH
 import com.petqua.exception.order.OrderExceptionType.PRODUCT_INFO_NOT_MATCH
@@ -29,6 +32,8 @@ import com.petqua.exception.product.ProductExceptionType.INVALID_PRODUCT_OPTION
 import com.petqua.exception.product.ProductExceptionType.NOT_FOUND_PRODUCT
 import com.petqua.test.DataCleaner
 import com.petqua.test.fixture.member
+import com.petqua.test.fixture.order
+import com.petqua.test.fixture.orderPayment
 import com.petqua.test.fixture.orderProductCommand
 import com.petqua.test.fixture.product
 import com.petqua.test.fixture.productOption
@@ -613,7 +618,7 @@ class OrderServiceTest(
         }
     }
 
-    Given("주문 상세 내역로 조회 시") {
+    Given("주문 상세 내역 조회 시") {
         val storeAId = storeRepository.save(store()).id
         val storeBId = storeRepository.save(store()).id
         val memberId = memberRepository.save(member()).id
@@ -746,6 +751,95 @@ class OrderServiceTest(
                 shouldThrow<OrderException> {
                     orderService.readDetail(query)
                 }.exceptionType() shouldBe (ORDER_NOT_FOUND)
+            }
+        }
+    }
+
+    Given("주문 내역 조회 시") {
+        val member = memberRepository.save(member())
+
+        val orderNumberA = OrderNumber.from("202202211607020ORDERNUMBER")
+        val orderA1 = order(memberId = member.id, orderNumber = orderNumberA, productName = "A1")
+        val orderA2 = order(memberId = member.id, orderNumber = orderNumberA, productName = "A2")
+        val orderA3 = order(memberId = member.id, orderNumber = orderNumberA, productName = "A3")
+
+        val orderNumberB = OrderNumber.from("202302211607020ORDERNUMBER")
+        val orderB1 = order(memberId = member.id, orderNumber = orderNumberB, productName = "B1")
+        val orderB2 = order(memberId = member.id, orderNumber = orderNumberB, productName = "B2")
+
+
+        val orderNumberC = OrderNumber.from("202402211607020ORDERNUMBER")
+        val orderC1 = order(memberId = member.id, orderNumber = orderNumberC, productName = "C1")
+
+        orderRepository.saveAll(
+            listOf(
+                orderA1, orderA2, orderA3,
+                orderB1, orderB2,
+                orderC1
+            )
+        )
+
+        orderPaymentRepository.saveAll(
+            listOf(
+                orderPayment(orderId = orderA1.id, prevId = orderA1.id),
+                orderPayment(orderId = orderA2.id, prevId = orderA2.id),
+                orderPayment(orderId = orderA3.id, prevId = orderA3.id),
+                orderPayment(orderId = orderB1.id, prevId = orderB1.id),
+                orderPayment(orderId = orderB2.id, prevId = orderB2.id),
+                orderPayment(orderId = orderC1.id, prevId = orderC1.id),
+            )
+        )
+
+        When("최초 주문 조회시 주문ID와 주문번호는 입력 하지 않아도") {
+            val query = OrderReadQuery(
+                memberId = member.id,
+                lastViewedId = DEFAULT_LAST_VIEWED_ID,
+                limit = 2,
+                lastViewedOrderNumber = null,
+            )
+            val result = orderService.findOrderNumberByMemberId(query)
+
+            Then("주문 내역이 조회된다.") {
+                assertSoftly(result) {
+                    orders.size shouldBe 2
+                    orders[0].orderProducts.map { it.productName } shouldBe listOf("C1")
+                    orders[1].orderProducts.map { it.productName } shouldBe listOf("B2", "B1")
+                    hasNextPage shouldBe true
+                }
+            }
+        }
+
+        When("마지막으로 조회된 주문의 ID와 주문 번호를 기준으로") {
+            val query = OrderReadQuery(
+                memberId = member.id,
+                lastViewedId = orderC1.id,
+                limit = 2,
+                lastViewedOrderNumber = orderNumberC,
+            )
+            val result = orderService.findOrderNumberByMemberId(query)
+
+            Then("주문 내역이 조회된다.") {
+                assertSoftly(result) {
+                    orders.size shouldBe 2
+                    orders[0].orderProducts.map { it.productName } shouldBe listOf("B2", "B1")
+                    orders[1].orderProducts.map { it.productName } shouldBe listOf("A3", "A2", "A1")
+                    hasNextPage shouldBe false
+                }
+            }
+        }
+
+        When("조회 조건에 주문번호와 ID가 다르면") {
+            val query = OrderReadQuery(
+                memberId = member.id,
+                lastViewedId = orderC1.id,
+                limit = 2,
+                lastViewedOrderNumber = orderNumberA,
+            )
+
+            Then("예외가 발생 한다") {
+                shouldThrow<OrderException> {
+                    orderService.findOrderNumberByMemberId(query)
+                }.exceptionType() shouldBe (NOT_INVALID_ORDER_READ_QUERY)
             }
         }
     }

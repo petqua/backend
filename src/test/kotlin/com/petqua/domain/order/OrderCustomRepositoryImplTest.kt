@@ -7,7 +7,6 @@ import com.petqua.test.fixture.member
 import com.petqua.test.fixture.order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import java.time.LocalDateTime
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE
 
@@ -26,7 +25,6 @@ class OrderCustomRepositoryImplTest(
      */
     Given("주문을 조회 할 때") {
         val member = memberRepository.save(member())
-        val now = LocalDateTime.now()
 
         val orderNumberA = OrderNumber.from("202202211607020ORDERNUMBER")
         val orderA1 = order(memberId = member.id, orderNumber = orderNumberA, productName = "A1")
@@ -82,6 +80,7 @@ class OrderCustomRepositoryImplTest(
             Then("주문 내역이 조회된다.") {
                 result.size shouldBe 5
                 result.map { it.orderProduct.productName } shouldBe listOf("B2", "B1", "A3", "A2", "A1")
+
             }
         }
     }

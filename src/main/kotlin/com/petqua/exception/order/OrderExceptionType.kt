@@ -26,6 +26,8 @@ enum class OrderExceptionType(
     FORBIDDEN_ORDER(FORBIDDEN, "O30", "해당 주문에 대한 권한이 없습니다."),
     ORDER_CAN_NOT_CANCEL(BAD_REQUEST, "O31", "취소할 수 없는 주문입니다."),
     ORDER_CAN_NOT_PAY(BAD_REQUEST, "O32", "결제할 수 없는 주문입니다."),
+
+    NOT_INVALID_ORDER_READ_QUERY(BAD_REQUEST, "O40", "유효하지 않은 주문 조회 조건입니다."),
     ;
 
     override fun httpStatus(): HttpStatus {

@@ -258,3 +258,24 @@ data class OrderProductResponse(
         deliveryMethod = order.orderProduct.deliveryMethod.name,
     )
 }
+
+data class OrdersResponse(
+    val orders: List<OrderDetailResponse>,
+
+    @Schema(
+        description = "다음 페이지 존재 여부",
+        example = "true"
+    )
+    val hasNextPage: Boolean,
+) {
+
+    companion object {
+        fun of(orders: List<OrderDetailResponse>, limit: Int): OrdersResponse {
+            return if (orders.size > limit) {
+                OrdersResponse(orders.dropLast(1), hasNextPage = true)
+            } else {
+                OrdersResponse(orders, hasNextPage = false)
+            }
+        }
+    }
+}
