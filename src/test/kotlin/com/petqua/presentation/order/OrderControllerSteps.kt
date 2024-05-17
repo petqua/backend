@@ -72,9 +72,11 @@ fun requestReadOrders(
     return Given {
         log().all()
         auth().preemptive().oauth2(accessToken)
-            .queryParams("lastViewedId", request.lastViewedId)
-            .queryParams("limit", request.limit)
-            .queryParams("lastViewedOrderNumber", request.lastViewedOrderNumber)
+            .params(
+                "lastViewedId", request.lastViewedId,
+                "limit", request.limit,
+                "lastViewedOrderNumber", request.lastViewedOrderNumber,
+            )
     } When {
         get("/orders")
     } Then {

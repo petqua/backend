@@ -300,7 +300,7 @@ data class OrderReadRequest(
     val limit: Int = PAGING_LIMIT_CEILING,
 
     @Schema(
-        description = "마지막으로 조회한 주문 번호. 없을 경우 null",
+        description = "마지막으로 조회한 주문 번호. 없을 경우 EMPTY",
         example = "20210901000001"
     )
     val lastViewedOrderNumber: String,
