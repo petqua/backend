@@ -18,6 +18,7 @@ import com.petqua.domain.order.OrderPayment
 import com.petqua.domain.order.OrderPaymentRepository
 import com.petqua.domain.order.OrderRepository
 import com.petqua.domain.order.OrderShippingAddress
+import com.petqua.domain.order.OrderStatus
 import com.petqua.domain.order.ShippingAddress
 import com.petqua.domain.order.ShippingAddressRepository
 import com.petqua.domain.order.ShippingNumber
@@ -155,19 +156,18 @@ class OrderService(
     }
 
     private fun orderProductResponsesFromOrders(orders: List<Order>): List<OrderProductResponse> {
-        val statusByOrderId = orders.map { orderPaymentRepository.findOrderStatusByOrderId(it.id) }
-            .associateBy { orderPayment -> orderPayment.orderId }
-            .mapValues { it.value.status }
-        return orders.map { OrderProductResponse(it, statusByOrderId.getOrThrow(it.id)) }
+        val orderStatusByOrderId = orderStatusByOrders(orders)
+        return orders.map { OrderProductResponse(it, orderStatusByOrderId.getOrThrow(it.id)) }
     }
 
     @Transactional(readOnly = true)
     fun readAll(query: OrderReadQuery): OrdersResponse {
         validateOrderReadQuery(query)
         val orders = orderRepository.findOrdersByMemberId(query.memberId, query.toOrderPaging())
-        orders.forEach { it.validateOwner(query.memberId) }
-        val ordersByOrderNumber = orders.groupBy { it.orderNumber }.toMutableMap()
-        val orderDetails = ordersByOrderNumber.mapValues { orderDetailResponseFromOrders(it.value) }
+        val ordersByOrderNumber = orders.groupBy { it.orderNumber }
+        val orderDetails = ordersByOrderNumber.mapValues {
+            orderDetailResponseFromOrders(it.value)
+        }
         return OrdersResponse.of(orderDetails.values.toList(), query.limit)
     }
 
@@ -183,16 +183,24 @@ class OrderService(
     }
 
     private fun orderDetailResponseFromOrders(orders: List<Order>): OrderDetailResponse {
+        val orderStatusByOrderId = orderStatusByOrders(orders)
         val representativeOrder = orders[0]
         val orderProductResponses = orders.map {
-            val orderStatus = orderPaymentRepository.findOrderStatusByOrderId(it.id)
-            OrderProductResponse(it, orderStatus.status)
+            val orderStatus = orderStatusByOrderId.getOrThrow(it.id)
+            OrderProductResponse(it, orderStatus)
         }
+
         return OrderDetailResponse(
             orderNumber = representativeOrder.orderNumber.value,
             orderedAt = representativeOrder.createdAt,
             orderProducts = orderProductResponses,
             totalAmount = representativeOrder.totalAmount,
         )
+    }
+
+    private fun orderStatusByOrders(orders: List<Order>): Map<Long, OrderStatus> {
+        val orderIds = orders.map { it.id }
+        return orderPaymentRepository.findOrderStatusByOrderIds(orderIds)
+            .associateBy({ it.orderId }, { it.status })
     }
 }
