@@ -23,7 +23,7 @@ class OrderCustomRepositoryImpl(
         if (latestOrderNumbers.isEmpty()) {
             return emptyList()
         }
-        
+
         val query = jpql {
             select(
                 entity(Order::class),
@@ -32,7 +32,7 @@ class OrderCustomRepositoryImpl(
             ).where(
                 path(Order::orderNumber)(OrderNumber::value).`in`(latestOrderNumbers),
             ).orderBy(
-                path(Order::createdAt).desc()
+                path(Order::id).desc()
             )
         }
 
@@ -57,7 +57,7 @@ class OrderCustomRepositoryImpl(
                 orderIdLt(paging.lastViewedId),
                 orderNumberNotEq(paging.lastViewedOrderNumber),
             ).orderBy(
-                path(Order::createdAt).desc()
+                path(Order::id).desc()
             )
         }
 
