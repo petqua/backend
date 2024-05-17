@@ -65,7 +65,7 @@ fun requestReadOrderDetail(
     }
 }
 
-fun requestReadAllOrder(
+fun requestReadOrders(
     accessToken: String,
     request: OrderReadRequest,
 ): Response {

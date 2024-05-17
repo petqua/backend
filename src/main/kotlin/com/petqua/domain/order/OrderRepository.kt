@@ -13,4 +13,21 @@ fun OrderRepository.findByOrderNumberOrThrow(
 interface OrderRepository : JpaRepository<Order, Long>, OrderCustomRepository {
 
     fun findByOrderNumber(orderNumber: OrderNumber): List<Order>
+
+//    @Query(
+//        """
+//        SELECT o
+//        FROM Order o
+//        WHERE o.memberId = :memberId AND o.orderNumber
+//        IN (
+//            SELECT DISTINCT o2.orderNumber
+//            FROM Order o2
+//            WHERE o2.memberId = :memberId
+//            AND o2.id < :#{#paging.lastViewedId}
+//            ORDER BY o2.createdAt DESC
+//            LIMIT :#{#paging.limit}
+//        )
+//        """
+//    )
+//    fun findRecentDateOrdersByMemberId(memberId: Long, paging: OrderPaging): List<Order>
 }
