@@ -83,6 +83,24 @@ class OrderCustomRepositoryImplTest(
 
             }
         }
+
+        When("회원의 주문이 존재하지 않는 경우") {
+            val neverOrderedMember = memberRepository.save(member())
+            val orderPagingRequest = OrderPaging.of(
+                lastViewedId = 1000,
+                limit = 1,
+                lastViewedOrderNumber = OrderNumber.from("202402211607020ORDERNUMBER")
+            )
+
+            val result = orderRepository.findOrdersByMemberId(
+                memberId = neverOrderedMember.id,
+                orderPaging = orderPagingRequest,
+            )
+
+            Then("빈 리스트가 반환된다.") {
+                result.size shouldBe 0
+            }
+        }
     }
 
     afterContainer {

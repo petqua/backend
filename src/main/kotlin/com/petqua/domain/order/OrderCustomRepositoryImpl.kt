@@ -20,12 +20,16 @@ class OrderCustomRepositoryImpl(
         orderPaging: OrderPaging,
     ): List<Order> {
         val latestOrderNumbers = findLatestOrderNumbers(memberId, orderPaging)
+        if (latestOrderNumbers.isEmpty()) {
+            return emptyList()
+        }
+        
         val query = jpql {
             select(
                 entity(Order::class),
             ).from(
                 entity(Order::class),
-            ).whereAnd(
+            ).where(
                 path(Order::orderNumber)(OrderNumber::value).`in`(latestOrderNumbers),
             ).orderBy(
                 path(Order::createdAt).desc()
