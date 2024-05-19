@@ -5,6 +5,7 @@ import com.petqua.domain.member.PetFish
 import com.petqua.domain.member.PetFishCount
 import com.petqua.domain.member.PetFishSex
 import com.petqua.domain.member.PetFishes
+import com.petqua.domain.member.nickname.Nickname
 import java.time.YearMonth
 
 data class MemberSignUpCommand(
@@ -50,4 +51,12 @@ data class PetFishAddCommand(
             count = PetFishCount(count),
         )
     }
+}
+
+data class UpdateProfileCommand(
+    val memberId: Long,
+    val nickname: Nickname,
+) {
+
+    constructor(memberId: Long, nickname: String) : this(memberId, Nickname.from(nickname))
 }

@@ -6,8 +6,8 @@ import com.petqua.common.config.SIGN_UP_TOKEN_SECURITY_SCHEME_KEY
 import com.petqua.domain.auth.Auth
 import com.petqua.domain.auth.LoginMember
 import com.petqua.domain.auth.SignUpGuest
-import com.petqua.presentation.member.dto.MemberAddProfileRequest
 import com.petqua.presentation.member.dto.MemberSignUpRequest
+import com.petqua.presentation.member.dto.UpdateProfileRequest
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
@@ -19,6 +19,7 @@ import org.springframework.http.HttpStatus.CREATED
 import org.springframework.http.ResponseCookie
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -69,16 +70,29 @@ class MemberController(
         return ResponseEntity.noContent().build()
     }
 
-    @Operation(summary = "회원 물생활 프로필 입력 API", description = "회원의 추가적인 물생활 정보를 입력합니다")
-    @ApiResponse(responseCode = "204", description = "회원 물생활 프로필 입력 성공")
+//    @Operation(summary = "회원 물생활 프로필 입력 API", description = "회원의 추가적인 물생활 정보를 입력합니다")
+//    @ApiResponse(responseCode = "204", description = "회원 물생활 프로필 입력 성공")
+//    @SecurityRequirement(name = ACCESS_TOKEN_SECURITY_SCHEME_KEY)
+//    @PostMapping("/profiles")
+//    fun addProfile(
+//        @Auth loginMember: LoginMember,
+//        @RequestBody request: MemberAddProfileRequest,
+//    ): ResponseEntity<Unit> {
+//        val command = request.toCommand(loginMember.memberId)
+//        memberService.addProfile(command)
+//        return ResponseEntity.noContent().build()
+//    }
+
+    @Operation(summary = "회원 프로필 수정 API", description = "회원의 프로필 정보를 수정합니다")
+    @ApiResponse(responseCode = "204", description = "회원 프로필 수정 성공")
     @SecurityRequirement(name = ACCESS_TOKEN_SECURITY_SCHEME_KEY)
-    @PostMapping("/profiles")
-    fun addProfile(
+    @PatchMapping("/profiles")
+    fun updateProfile(
         @Auth loginMember: LoginMember,
-        @RequestBody request: MemberAddProfileRequest,
+        @RequestBody request: UpdateProfileRequest,
     ): ResponseEntity<Unit> {
         val command = request.toCommand(loginMember.memberId)
-        memberService.addProfile(command)
+        memberService.updateProfile(command)
         return ResponseEntity.noContent().build()
     }
 }

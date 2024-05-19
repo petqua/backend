@@ -2,6 +2,7 @@ package com.petqua.application.member
 
 import com.petqua.application.member.dto.MemberAddProfileCommand
 import com.petqua.application.member.dto.MemberSignUpCommand
+import com.petqua.application.member.dto.UpdateProfileCommand
 import com.petqua.application.token.AuthTokenInfo
 import com.petqua.application.token.TokenService
 import com.petqua.common.domain.findActiveByIdOrThrow
@@ -19,6 +20,7 @@ import com.petqua.domain.member.nickname.NicknameWordRepository
 import com.petqua.domain.policy.bannedword.BannedWordRepository
 import com.petqua.domain.policy.bannedword.BannedWords
 import com.petqua.exception.member.MemberException
+import com.petqua.exception.member.MemberExceptionType.ALREADY_EXIST_NICKNAME
 import com.petqua.exception.member.MemberExceptionType.FAILED_NICKNAME_GENERATION
 import com.petqua.exception.member.MemberExceptionType.HAS_SIGNED_UP_MEMBER
 import com.petqua.exception.member.MemberExceptionType.NOT_FOUND_MEMBER
@@ -87,5 +89,24 @@ class MemberService(
     fun validateContainingBannedWord(name: String) {
         val bannedWords = BannedWords(bannedWordRepository.findAll())
         bannedWords.validateContainingBannedWord(name)
+    }
+
+    fun updateProfile(command: UpdateProfileCommand) {
+        validateNickname(command.nickname, command.memberId)
+        val member = memberRepository.findActiveByIdOrThrow(command.memberId) {
+            MemberException(NOT_FOUND_MEMBER)
+        }
+        member.updateNickname(command.nickname)
+    }
+
+    private fun validateNickname(nickname: Nickname, memberId: Long) {
+        validateContainingBannedWord(nickname.value)
+        validateDuplicatedNickname(nickname, memberId)
+    }
+
+    private fun validateDuplicatedNickname(nickname: Nickname, memberId: Long) {
+        throwExceptionWhen(memberRepository.existsMemberByNicknameAndIdNot(nickname, memberId)) {
+            MemberException(ALREADY_EXIST_NICKNAME)
+        }
     }
 }
