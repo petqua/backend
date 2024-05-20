@@ -5,6 +5,7 @@ import com.petqua.common.domain.dto.DEFAULT_LAST_VIEWED_ID
 import com.petqua.common.domain.dto.PADDING_FOR_HAS_NEXT_PAGE
 import com.petqua.common.domain.dto.PAGING_LIMIT_CEILING
 import com.petqua.domain.auth.LoginMemberOrGuest
+import com.petqua.domain.product.dto.MemberProductReview
 import com.petqua.domain.product.dto.ProductReviewReadCondition
 import com.petqua.domain.product.dto.ProductReviewWithMemberResponse
 import com.petqua.domain.product.review.ProductReview
@@ -52,6 +53,17 @@ data class ProductReviewReadQuery(
             photoOnly = photoOnly,
         )
     }
+
+    fun toPaging(): CursorBasedPaging {
+        return CursorBasedPaging.of(lastViewedId, limit)
+    }
+}
+
+data class MemberProductReviewReadQuery(
+    val memberId: Long,
+    val lastViewedId: Long = DEFAULT_LAST_VIEWED_ID,
+    val limit: Int = PAGING_LIMIT_CEILING,
+) {
 
     fun toPaging(): CursorBasedPaging {
         return CursorBasedPaging.of(lastViewedId, limit)
@@ -244,4 +256,149 @@ data class ProductReviewStatisticsResponse(
             )
         }
     }
+}
+
+data class MemberProductReviewsResponse(
+    val memberProductReviews: List<MemberProductReviewResponse>,
+
+    @Schema(
+        description = "다음 페이지 존재 여부",
+        example = "true"
+    )
+    val hasNextPage: Boolean,
+) {
+    companion object {
+        fun of(memberProductReviews: List<MemberProductReviewResponse>, limit: Int): MemberProductReviewsResponse {
+            return if (memberProductReviews.size > limit) {
+                MemberProductReviewsResponse(
+                    memberProductReviews.dropLast(PADDING_FOR_HAS_NEXT_PAGE),
+                    hasNextPage = true
+                )
+            } else {
+                MemberProductReviewsResponse(memberProductReviews, hasNextPage = false)
+            }
+        }
+    }
+}
+
+data class MemberProductReviewResponse(
+    @Schema(
+        description = "상품 후기의 id",
+        example = "1"
+    )
+    val reviewId: Long,
+
+    @Schema(
+        description = "회원의 id",
+        example = "1"
+    )
+    val memberId: Long,
+
+    @Schema(
+        description = "주문 생성 날짜",
+        example = "2021-08-01T00:00:00"
+    )
+    val createdAt: LocalDateTime,
+
+    @Schema(
+        description = "주문 상태",
+        example = "PURCHASE_CONFIRMED"
+    )
+    val orderStatus: String,
+
+    @Schema(
+        description = "상품 판매점 id",
+        example = "1"
+    )
+    val storeId: Long,
+
+    @Schema(
+        description = "상품 판매점",
+        example = "S아쿠아"
+    )
+    val storeName: String,
+
+    @Schema(
+        description = "상품 id",
+        example = "1"
+    )
+    val productId: Long,
+
+    @Schema(
+        description = "상품 이름",
+        example = "알비노 풀레드 아시안 고정구피"
+    )
+    val productName: String,
+
+    @Schema(
+        description = "상품 썸네일 이미지",
+        example = "https://docs.petqua.co.kr/products/thumbnails/thumbnail1.jpeg"
+    )
+    val productThumbnailUrl: String,
+
+    @Schema(
+        description = "주문 수량",
+        example = "1"
+    )
+    val quantity: Int,
+
+    @Schema(
+        description = "성별",
+        example = "MALE",
+        allowableValues = ["MALE", "FEMALE", "HERMAPHRODITE"]
+    )
+    val sex: String,
+
+    @Schema(
+        description = "배송 방법(\"COMMON : 일반\", \"SAFETY : 안전\", \"PICK_UP : 직접\")",
+        example = "SAFETY",
+        allowableValues = ["COMMON", "SAFETY", "PICK_UP"]
+    )
+    val deliveryMethod: String,
+
+    @Schema(
+        description = "상품 후기 평점",
+        example = "5"
+    )
+    val score: Int,
+
+    @Schema(
+        description = "상품 후기 내용",
+        example = "아주 좋네요"
+    )
+    val content: String,
+
+    @Schema(
+        description = "상품 후기 추천 수",
+        example = "3"
+    )
+    val recommendCount: Int,
+
+    @Schema(
+        description = "상품 후기에 등록된 이미지 url 리스트",
+        example = "[\"http:/docs.petqua.co.kr/review1.jpg\", \"http:/docs.petqua.co.kr/review2.jpg\"]"
+    )
+    val reviewImages: List<String>,
+) {
+    constructor(
+        memberProductReview: MemberProductReview,
+        reviewImages: List<String>,
+    ) : this(
+        reviewId = memberProductReview.reviewId,
+        memberId = memberProductReview.memberId,
+        createdAt = memberProductReview.createdAt,
+        orderStatus = memberProductReview.orderStatus.name,
+        storeId = memberProductReview.storeId,
+        storeName = memberProductReview.storeName,
+        productId = memberProductReview.productId,
+        productName = memberProductReview.productName,
+        productThumbnailUrl = memberProductReview.productThumbnailUrl,
+        quantity = memberProductReview.quantity,
+        sex = memberProductReview.sex.name,
+        deliveryMethod = memberProductReview.deliveryMethod.name,
+        score = memberProductReview.score.value,
+        content = memberProductReview.content.value,
+        recommendCount = memberProductReview.recommendCount,
+        reviewImages = reviewImages,
+    )
 }

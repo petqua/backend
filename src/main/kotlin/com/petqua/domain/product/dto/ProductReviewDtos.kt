@@ -1,7 +1,14 @@
 package com.petqua.domain.product.dto
 
+import com.petqua.domain.delivery.DeliveryMethod
 import com.petqua.domain.member.Member
+import com.petqua.domain.order.Order
+import com.petqua.domain.order.OrderPayment
+import com.petqua.domain.order.OrderStatus
+import com.petqua.domain.product.option.Sex
 import com.petqua.domain.product.review.ProductReview
+import com.petqua.domain.product.review.ProductReviewContent
+import com.petqua.domain.product.review.ProductReviewScore
 import com.petqua.domain.product.review.ProductReviewSorter
 import com.petqua.domain.product.review.ProductReviewSorter.REVIEW_DATE_DESC
 import java.time.LocalDateTime
@@ -41,6 +48,46 @@ data class ProductReviewWithMemberResponse(
         reviewerProfileImageUrl = reviewer.profileImageUrl,
         reviewerFishTankCount = reviewer.fishTankCount,
         reviewerYears = reviewer.fishLifeYear.value,
+    )
+}
+
+data class MemberProductReview(
+    val reviewId: Long,
+    val memberId: Long,
+    val createdAt: LocalDateTime,
+    val orderStatus: OrderStatus,
+    val storeId: Long,
+    val storeName: String,
+    val productId: Long,
+    val productName: String,
+    val productThumbnailUrl: String,
+    val quantity: Int,
+    val sex: Sex,
+    val deliveryMethod: DeliveryMethod,
+    val score: ProductReviewScore,
+    val content: ProductReviewContent,
+    val recommendCount: Int,
+) {
+    constructor(
+        productReview: ProductReview,
+        order: Order,
+        orderPayment: OrderPayment,
+    ) : this(
+        reviewId = productReview.id,
+        memberId = productReview.memberId,
+        createdAt = order.createdAt,
+        orderStatus = orderPayment.status,
+        storeId = order.orderProduct.storeId,
+        storeName = order.orderProduct.storeName,
+        productId = order.orderProduct.productId,
+        productName = order.orderProduct.productName,
+        productThumbnailUrl = order.orderProduct.thumbnailUrl,
+        quantity = order.orderProduct.quantity,
+        sex = order.orderProduct.sex,
+        deliveryMethod = order.orderProduct.deliveryMethod,
+        score = productReview.score,
+        content = productReview.content,
+        recommendCount = productReview.recommendCount,
     )
 }
 

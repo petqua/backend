@@ -9,6 +9,7 @@ enum class OrderStatus(
     ORDER_CONFIRMED("주문 확인"),
     CANCELED("주문 취소"),
     PAYMENT_CONFIRMED("결제 완료"),
+    PURCHASE_CONFIRMED("구매 확정"),
     DELIVERY_PREPARATION("배송 준비 중"),
     DELIVERING("배송 중"),
     DELIVERY_COMPLETED("배송 완료"),

@@ -1,5 +1,6 @@
 package com.petqua.presentation.product
 
+import com.petqua.application.product.dto.MemberProductReviewsResponse
 import com.petqua.application.product.dto.ProductReviewStatisticsResponse
 import com.petqua.application.product.dto.ProductReviewsResponse
 import com.petqua.application.product.review.ProductReviewFacadeService
@@ -9,6 +10,7 @@ import com.petqua.domain.auth.LoginMember
 import com.petqua.domain.auth.LoginMemberOrGuest
 import com.petqua.presentation.product.dto.CreateReviewRequest
 import com.petqua.presentation.product.dto.ReadAllProductReviewsRequest
+import com.petqua.presentation.product.dto.ReadMemberProductReviewsRequest
 import com.petqua.presentation.product.dto.UpdateReviewRecommendationRequest
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -63,12 +65,25 @@ class ProductReviewController(
         @PathVariable productId: Long,
     ): ResponseEntity<ProductReviewsResponse> {
         val responses = productReviewFacadeService.readAll(
-            request.toCommand(
+            request.toQuery(
                 productId = productId,
                 loginMemberOrGuest = loginMemberOrGuest,
             )
         )
         return ResponseEntity.ok(responses)
+    }
+
+    @Operation(summary = "내 후기 조회 API", description = "내가 작성한 상품의 후기를 조회합니다")
+    @ApiResponse(responseCode = "200", description = "상품 후기 조건 조회 성공")
+    @SecurityRequirement(name = ACCESS_TOKEN_SECURITY_SCHEME_KEY)
+    @GetMapping("/product-reviews/me")
+    fun readMemberProductReviews(
+        @Auth loginMember: LoginMember,
+        request: ReadMemberProductReviewsRequest,
+    ): ResponseEntity<MemberProductReviewsResponse> {
+        val query = request.toQuery(loginMember)
+        val response = productReviewFacadeService.readMemberProductReviews(query)
+        return ResponseEntity.ok(response)
     }
 
     @Operation(summary = "상품 후기 통계 조회 API", description = "상품의 후기 통계를 조회합니다")
