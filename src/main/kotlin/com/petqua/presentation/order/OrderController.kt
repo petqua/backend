@@ -16,7 +16,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -59,7 +58,7 @@ class OrderController(
     @GetMapping
     fun readAll(
         @Auth loginMember: LoginMember,
-        @ModelAttribute request: OrderReadRequest,
+        request: OrderReadRequest,
     ): ResponseEntity<OrdersResponse> {
         val query = request.toQuery(loginMember)
         val response = orderService.readAll(query)
