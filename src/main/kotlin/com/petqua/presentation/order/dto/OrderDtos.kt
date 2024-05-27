@@ -1,8 +1,12 @@
 package com.petqua.presentation.order.dto
 
 import com.petqua.application.order.dto.OrderProductCommand
+import com.petqua.application.order.dto.OrderReadQuery
 import com.petqua.application.order.dto.SaveOrderCommand
 import com.petqua.common.domain.Money
+import com.petqua.common.domain.dto.DEFAULT_LAST_VIEWED_ID
+import com.petqua.common.domain.dto.PAGING_LIMIT_CEILING
+import com.petqua.domain.auth.LoginMember
 import com.petqua.domain.delivery.DeliveryMethod
 import com.petqua.domain.order.Order
 import com.petqua.domain.order.OrderStatus
@@ -257,4 +261,64 @@ data class OrderProductResponse(
         deliveryFee = order.orderProduct.deliveryFee,
         deliveryMethod = order.orderProduct.deliveryMethod.name,
     )
+}
+
+data class OrdersResponse(
+    val orders: List<OrderDetailResponse>,
+
+    @Schema(
+        description = "다음 페이지 존재 여부",
+        example = "true"
+    )
+    val hasNextPage: Boolean,
+) {
+
+    companion object {
+        fun of(orders: List<OrderDetailResponse>, limit: Int): OrdersResponse {
+            return if (orders.size > limit) {
+                OrdersResponse(orders.dropLast(1), hasNextPage = true)
+            } else {
+                OrdersResponse(orders, hasNextPage = false)
+            }
+        }
+    }
+}
+
+const val INITIAL_READ_ORDER_NUMBER = "EMPTY"
+
+data class OrderReadRequest(
+    @Schema(
+        description = "마지막으로 조회한 주문의 Id. 없을 경우 -1",
+        example = "1"
+    )
+    val lastViewedId: Long = DEFAULT_LAST_VIEWED_ID,
+
+    @Schema(
+        description = "조회할 주문의 개수",
+        defaultValue = "20"
+    )
+    val limit: Int = PAGING_LIMIT_CEILING,
+
+    @Schema(
+        description = "마지막으로 조회한 주문 번호. 없을 경우 EMPTY",
+        example = "20210901000001"
+    )
+    val lastViewedOrderNumber: String,
+) {
+
+    fun toQuery(loginMember: LoginMember): OrderReadQuery {
+        return OrderReadQuery.of(
+            memberId = loginMember.memberId,
+            lastViewedId = lastViewedId,
+            limit = limit,
+            lastViewedOrderNumber = adjustInitialReadOrderNumber(lastViewedOrderNumber),
+        )
+    }
+
+    private fun adjustInitialReadOrderNumber(lastViewedOrderNumber: String) =
+        if (lastViewedOrderNumber == INITIAL_READ_ORDER_NUMBER) {
+            null
+        } else {
+            lastViewedOrderNumber
+        }
 }
