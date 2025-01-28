@@ -19,6 +19,7 @@ class CorsConfig : WebMvcConfigurer {
             .allowedOrigins(
                 "http://localhost:3000",
                 "https://petqua.co.kr",
+                "https://petqua.netlify.app",
                 "http://localhost:5173",
                 "http://localhost:4173",
             )
