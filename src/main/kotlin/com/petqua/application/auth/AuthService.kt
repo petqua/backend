@@ -97,6 +97,6 @@ class AuthService(
         authCredentialsRepository.save(authCredentials)
 
         refreshTokenRepository.deleteByMemberId(authCredentials.id)
-        blackListTokenCacheStorage.save(authCredentials.id, accessToken)
+//        blackListTokenCacheStorage.save(authCredentials.id, accessToken)
     }
 }

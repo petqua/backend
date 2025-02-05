@@ -73,7 +73,7 @@ class AuthExtractor(
             memberRepository.existActiveByIdOrThrow(accessTokenClaims.memberId) {
                 MemberException(NOT_FOUND_MEMBER)
             }
-            validateBlackListed(accessTokenClaims.memberId, token)
+//            validateBlackListed(accessTokenClaims.memberId, token)
             return accessTokenClaims
         } catch (e: ExpiredJwtException) {
             throw AuthException(EXPIRED_ACCESS_TOKEN)
@@ -108,7 +108,7 @@ class AuthExtractor(
 
     fun validateBlacklistTokenRegardlessExpiration(token: String) {
         val accessTokenClaims = getAccessTokenClaimsRegardlessExpiration(token)
-        validateBlackListed(accessTokenClaims.memberId, token)
+//        validateBlackListed(accessTokenClaims.memberId, token)
     }
 
     private fun getAccessTokenClaimsRegardlessExpiration(token: String): AccessTokenClaims {
