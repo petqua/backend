@@ -27,7 +27,7 @@ class TokenArgumentResolver(
     ): LoginTokenRequest {
         val request = webRequest.getHttpServletRequestOrThrow()
         val accessToken = authExtractor.extractAccessToken(request)
-//        authExtractor.validateBlacklistTokenRegardlessExpiration(accessToken)
+        authExtractor.validateBlacklistTokenRegardlessExpiration(accessToken)
         val refreshToken = authExtractor.extractRefreshToken(request)
         return LoginTokenRequest(accessToken, refreshToken)
     }
