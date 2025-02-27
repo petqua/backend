@@ -34,4 +34,19 @@ interface OrderPaymentRepository : JpaRepository<OrderPayment, Long> {
 
     @Query("SELECT op FROM OrderPayment op WHERE op.orderId = :orderId ORDER BY op.id DESC LIMIT 1")
     fun findOrderStatusByOrderId(orderId: Long): OrderPayment
+
+    @Query(
+        """
+        SELECT op 
+        FROM OrderPayment op
+        WHERE op.id IN (
+            SELECT MAX(op2.id) 
+            FROM OrderPayment op2
+            WHERE op2.orderId IN :orderIds 
+            GROUP BY op2.orderId
+        )
+        ORDER BY op.id DESC
+    """
+    )
+    fun findOrderStatusByOrderIds(orderIds: List<Long>): List<OrderPayment>
 }

@@ -7,6 +7,8 @@ import com.petqua.common.config.ACCESS_TOKEN_SECURITY_SCHEME_KEY
 import com.petqua.domain.auth.Auth
 import com.petqua.domain.auth.LoginMember
 import com.petqua.presentation.order.dto.OrderDetailResponse
+import com.petqua.presentation.order.dto.OrderReadRequest
+import com.petqua.presentation.order.dto.OrdersResponse
 import com.petqua.presentation.order.dto.SaveOrderRequest
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -41,13 +43,25 @@ class OrderController(
 
     @Operation(summary = "주문 상세 조회 API", description = "주문 상세를 조회합니다")
     @ApiResponse(responseCode = "200", description = "주문 상세 조회 성공")
-    @GetMapping
+    @GetMapping("/detail")
     fun readDetail(
         @Auth loginMember: LoginMember,
         @RequestParam orderNumber: String,
     ): ResponseEntity<OrderDetailResponse> {
         val query = OrderDetailReadQuery.of(loginMember.memberId, orderNumber)
         val response = orderService.readDetail(query)
+        return ResponseEntity.ok(response)
+    }
+
+    @Operation(summary = "주문 내역 조회 API", description = "주문 내역을 조회합니다")
+    @ApiResponse(responseCode = "200", description = "주문 내역 조회 성공")
+    @GetMapping
+    fun readAll(
+        @Auth loginMember: LoginMember,
+        request: OrderReadRequest,
+    ): ResponseEntity<OrdersResponse> {
+        val query = request.toQuery(loginMember)
+        val response = orderService.readAll(query)
         return ResponseEntity.ok(response)
     }
 }

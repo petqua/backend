@@ -1,14 +1,18 @@
 package com.petqua.domain.order
 
+import com.petqua.domain.order.OrderStatus.ORDER_CONFIRMED
+import com.petqua.domain.order.OrderStatus.ORDER_CREATED
+import com.petqua.domain.order.OrderStatus.PAYMENT_CONFIRMED
 import com.petqua.exception.order.OrderPaymentException
 import com.petqua.exception.order.OrderPaymentExceptionType.ORDER_PAYMENT_NOT_FOUND
 import com.petqua.test.DataCleaner
+import com.petqua.test.fixture.orderPayment
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import kotlin.Long.Companion.MIN_VALUE
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE
-import kotlin.Long.Companion.MIN_VALUE
 
 @SpringBootTest(webEnvironment = NONE)
 class OrderPaymentRepositoryTest(
@@ -58,6 +62,35 @@ class OrderPaymentRepositoryTest(
                         OrderPaymentException(ORDER_PAYMENT_NOT_FOUND)
                     }
                 }.exceptionType() shouldBe ORDER_PAYMENT_NOT_FOUND
+            }
+        }
+    }
+
+    Given("여러 주문번호로 가장 최신의 OrderPayment 조회 시") {
+        val orderIds = listOf(1L, 2L, 3L)
+        orderPaymentRepository.saveAll(
+            listOf(
+                orderPayment(orderId = 1L, prevId = 1L, status = ORDER_CREATED),
+                orderPayment(orderId = 1L, prevId = 2L, status = ORDER_CONFIRMED),
+                orderPayment(orderId = 2L, prevId = 3L, status = ORDER_CREATED),
+                orderPayment(orderId = 2L, prevId = 4L, status = PAYMENT_CONFIRMED),
+                orderPayment(orderId = 3L, prevId = 5L, status = ORDER_CREATED),
+            )
+        )
+
+        When("주문번호를 입력하면") {
+            val latestOrderPayments = orderPaymentRepository.findOrderStatusByOrderIds(orderIds)
+
+            Then("최신 OrderPayment 를 반환한다") {
+                latestOrderPayments.size shouldBe 3
+                latestOrderPayments[0].orderId shouldBe 3L
+                latestOrderPayments[0].status shouldBe ORDER_CREATED
+
+                latestOrderPayments[1].orderId shouldBe 2L
+                latestOrderPayments[1].status shouldBe PAYMENT_CONFIRMED
+                
+                latestOrderPayments[2].orderId shouldBe 1L
+                latestOrderPayments[2].status shouldBe ORDER_CONFIRMED
             }
         }
     }

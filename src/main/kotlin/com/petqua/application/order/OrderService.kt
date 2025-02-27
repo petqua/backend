@@ -2,9 +2,11 @@ package com.petqua.application.order
 
 import com.petqua.application.order.dto.OrderDetailReadQuery
 import com.petqua.application.order.dto.OrderProductCommand
+import com.petqua.application.order.dto.OrderReadQuery
 import com.petqua.application.order.dto.SaveOrderCommand
 import com.petqua.application.order.dto.SaveOrderResponse
 import com.petqua.application.payment.infra.PaymentGatewayClient
+import com.petqua.common.domain.dto.DEFAULT_LAST_VIEWED_ID
 import com.petqua.common.domain.findByIdOrThrow
 import com.petqua.common.util.getOrThrow
 import com.petqua.common.util.throwExceptionWhen
@@ -16,6 +18,7 @@ import com.petqua.domain.order.OrderPayment
 import com.petqua.domain.order.OrderPaymentRepository
 import com.petqua.domain.order.OrderRepository
 import com.petqua.domain.order.OrderShippingAddress
+import com.petqua.domain.order.OrderStatus
 import com.petqua.domain.order.ShippingAddress
 import com.petqua.domain.order.ShippingAddressRepository
 import com.petqua.domain.order.ShippingNumber
@@ -28,6 +31,7 @@ import com.petqua.domain.product.option.ProductOptionRepository
 import com.petqua.domain.store.StoreRepository
 import com.petqua.exception.order.OrderException
 import com.petqua.exception.order.OrderExceptionType.EMPTY_SHIPPING_ADDRESS
+import com.petqua.exception.order.OrderExceptionType.NOT_INVALID_ORDER_READ_QUERY
 import com.petqua.exception.order.OrderExceptionType.ORDER_NOT_FOUND
 import com.petqua.exception.order.OrderExceptionType.PRODUCT_NOT_FOUND
 import com.petqua.exception.order.OrderExceptionType.STORE_NOT_FOUND
@@ -37,6 +41,7 @@ import com.petqua.exception.product.ProductException
 import com.petqua.exception.product.ProductExceptionType.NOT_FOUND_PRODUCT
 import com.petqua.presentation.order.dto.OrderDetailResponse
 import com.petqua.presentation.order.dto.OrderProductResponse
+import com.petqua.presentation.order.dto.OrdersResponse
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -151,9 +156,51 @@ class OrderService(
     }
 
     private fun orderProductResponsesFromOrders(orders: List<Order>): List<OrderProductResponse> {
-        val statusByOrderId = orders.map { orderPaymentRepository.findOrderStatusByOrderId(it.id) }
-            .associateBy { orderPayment -> orderPayment.orderId }
-            .mapValues { it.value.status }
-        return orders.map { OrderProductResponse(it, statusByOrderId.getOrThrow(it.id)) }
+        val orderStatusByOrderId = orderStatusByOrders(orders)
+        return orders.map { OrderProductResponse(it, orderStatusByOrderId.getOrThrow(it.id)) }
+    }
+
+    @Transactional(readOnly = true)
+    fun readAll(query: OrderReadQuery): OrdersResponse {
+        validateOrderReadQuery(query)
+        val orders = orderRepository.findOrdersByMemberId(query.memberId, query.toOrderPaging())
+        val ordersByOrderNumber = orders.groupBy { it.orderNumber }
+        val orderDetails = ordersByOrderNumber.mapValues {
+            orderDetailResponseFromOrders(it.value)
+        }
+        return OrdersResponse.of(orderDetails.values.toList(), query.limit)
+    }
+
+    private fun validateOrderReadQuery(query: OrderReadQuery) {
+        if (query.lastViewedId == DEFAULT_LAST_VIEWED_ID) {
+            return
+        }
+
+        val order = orderRepository.findByIdOrThrow(query.lastViewedId)
+        throwExceptionWhen(order.orderNumber != query.lastViewedOrderNumber) {
+            throw OrderException(NOT_INVALID_ORDER_READ_QUERY)
+        }
+    }
+
+    private fun orderDetailResponseFromOrders(orders: List<Order>): OrderDetailResponse {
+        val orderStatusByOrderId = orderStatusByOrders(orders)
+        val representativeOrder = orders[0]
+        val orderProductResponses = orders.map {
+            val orderStatus = orderStatusByOrderId.getOrThrow(it.id)
+            OrderProductResponse(it, orderStatus)
+        }
+
+        return OrderDetailResponse(
+            orderNumber = representativeOrder.orderNumber.value,
+            orderedAt = representativeOrder.createdAt,
+            orderProducts = orderProductResponses,
+            totalAmount = representativeOrder.totalAmount,
+        )
+    }
+
+    private fun orderStatusByOrders(orders: List<Order>): Map<Long, OrderStatus> {
+        val orderIds = orders.map { it.id }
+        return orderPaymentRepository.findOrderStatusByOrderIds(orderIds)
+            .associateBy({ it.orderId }, { it.status })
     }
 }

@@ -1,13 +1,18 @@
 package com.petqua.application.order.dto
 
 import com.petqua.common.domain.Money
+import com.petqua.common.domain.dto.DEFAULT_LAST_VIEWED_ID
+import com.petqua.common.util.throwExceptionWhen
 import com.petqua.domain.delivery.DeliveryMethod
 import com.petqua.domain.order.OrderNumber
+import com.petqua.domain.order.OrderPaging
 import com.petqua.domain.order.OrderProduct
 import com.petqua.domain.order.ShippingNumber
 import com.petqua.domain.product.ProductSnapshot
 import com.petqua.domain.product.option.ProductOption
 import com.petqua.domain.product.option.Sex
+import com.petqua.exception.order.OrderException
+import com.petqua.exception.order.OrderExceptionType.NOT_INVALID_ORDER_READ_QUERY
 import io.swagger.v3.oas.annotations.media.Schema
 
 data class SaveOrderCommand(
@@ -89,5 +94,45 @@ data class OrderDetailReadQuery(
                 orderNumber = OrderNumber(orderNumber),
             )
         }
+    }
+}
+
+
+data class OrderReadQuery internal constructor(
+    val memberId: Long,
+    val lastViewedId: Long,
+    val limit: Int,
+    val lastViewedOrderNumber: OrderNumber?,
+) {
+
+    companion object {
+        fun of(
+            memberId: Long,
+            lastViewedId: Long,
+            limit: Int,
+            lastViewedOrderNumber: String?
+        ): OrderReadQuery {
+            validateLastViewedIdAndOrderNumber(lastViewedId, lastViewedOrderNumber)
+            return OrderReadQuery(
+                memberId = memberId,
+                lastViewedId = lastViewedId,
+                limit = limit,
+                lastViewedOrderNumber = lastViewedOrderNumber?.let { OrderNumber(it) },
+            )
+        }
+
+        private fun validateLastViewedIdAndOrderNumber(lastViewedId: Long, lastViewedOrderNumber: String?) {
+            throwExceptionWhen(lastViewedId == DEFAULT_LAST_VIEWED_ID && lastViewedOrderNumber != null) {
+                throw OrderException(NOT_INVALID_ORDER_READ_QUERY)
+            }
+
+            throwExceptionWhen(lastViewedId != DEFAULT_LAST_VIEWED_ID && lastViewedOrderNumber == null) {
+                throw OrderException(NOT_INVALID_ORDER_READ_QUERY)
+            }
+        }
+    }
+
+    fun toOrderPaging(): OrderPaging {
+        return OrderPaging.of(lastViewedId, limit, lastViewedOrderNumber)
     }
 }

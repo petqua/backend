@@ -6,6 +6,7 @@ import com.petqua.common.exception.ExceptionResponse
 import com.petqua.domain.delivery.DeliveryMethod.COMMON
 import com.petqua.domain.delivery.DeliveryMethod.PICK_UP
 import com.petqua.domain.order.OrderNumber
+import com.petqua.domain.order.OrderPaymentRepository
 import com.petqua.domain.order.OrderRepository
 import com.petqua.domain.order.OrderStatus.ORDER_CREATED
 import com.petqua.domain.order.ShippingAddressRepository
@@ -18,14 +19,19 @@ import com.petqua.domain.product.option.Sex.FEMALE
 import com.petqua.domain.product.option.Sex.MALE
 import com.petqua.domain.store.StoreRepository
 import com.petqua.exception.order.OrderExceptionType.FORBIDDEN_ORDER
+import com.petqua.exception.order.OrderExceptionType.NOT_INVALID_ORDER_READ_QUERY
 import com.petqua.exception.order.OrderExceptionType.ORDER_NOT_FOUND
 import com.petqua.exception.order.OrderExceptionType.ORDER_TOTAL_PRICE_NOT_MATCH
 import com.petqua.exception.order.OrderExceptionType.PRODUCT_INFO_NOT_MATCH
 import com.petqua.exception.order.OrderExceptionType.PRODUCT_NOT_FOUND
 import com.petqua.exception.order.ShippingAddressExceptionType.NOT_FOUND_SHIPPING_ADDRESS
 import com.petqua.exception.product.ProductExceptionType.INVALID_PRODUCT_OPTION
+import com.petqua.presentation.order.dto.INITIAL_READ_ORDER_NUMBER
 import com.petqua.presentation.order.dto.OrderDetailResponse
+import com.petqua.presentation.order.dto.OrderReadRequest
 import com.petqua.test.ApiTestConfig
+import com.petqua.test.fixture.order
+import com.petqua.test.fixture.orderPayment
 import com.petqua.test.fixture.orderProductRequest
 import com.petqua.test.fixture.product
 import com.petqua.test.fixture.productOption
@@ -39,10 +45,10 @@ import io.kotest.matchers.shouldBe
 import java.math.BigDecimal.ONE
 import java.math.BigDecimal.ZERO
 import kotlin.Long.Companion.MIN_VALUE
-import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.FORBIDDEN
 import org.springframework.http.HttpStatus.NOT_FOUND
+import org.springframework.http.HttpStatus.OK
 
 class OrderControllerTest(
     private val orderRepository: OrderRepository,
@@ -51,6 +57,7 @@ class OrderControllerTest(
     private val productOptionRepository: ProductOptionRepository,
     private val productSnapshotRepository: ProductSnapshotRepository,
     private val shippingAddressRepository: ShippingAddressRepository,
+    private val orderPaymentRepository: OrderPaymentRepository,
 ) : ApiTestConfig() {
 
     init {
@@ -568,7 +575,7 @@ class OrderControllerTest(
             }
         }
 
-        Given("주문 내역을 조회 할 때") {
+        Given("주문 상세 내역을 조회 할 때") {
             val accessToken = signInAsMember().accessToken
             val memberId = getMemberIdByAccessToken(accessToken)
 
@@ -675,7 +682,7 @@ class OrderControllerTest(
                 Then("주문 내역이 조회된다") {
                     val responseBody = response.`as`(OrderDetailResponse::class.java)
                     assertSoftly(response) {
-                        statusCode shouldBe HttpStatus.OK.value()
+                        statusCode shouldBe OK.value()
                         responseBody.orderProducts should { products ->
                             products.size shouldBe 2
                             products.forAll { it.orderStatus shouldBe ORDER_CREATED.name }
@@ -706,6 +713,146 @@ class OrderControllerTest(
                     assertSoftly(response) {
                         statusCode shouldBe FORBIDDEN.value()
                         errorResponse.message shouldBe FORBIDDEN_ORDER.errorMessage()
+                    }
+                }
+            }
+        }
+
+        Given("주문 내역을 조회 할 때") {
+            val accessToken = signInAsMember().accessToken
+            val memberId = getMemberIdByAccessToken(accessToken)
+
+            val orderNumberA = OrderNumber.from("202202211607020ORDERNUMBER")
+            val orderA1 = order(memberId = memberId, orderNumber = orderNumberA, productName = "A1")
+            val orderA2 = order(memberId = memberId, orderNumber = orderNumberA, productName = "A2")
+            val orderA3 = order(memberId = memberId, orderNumber = orderNumberA, productName = "A3")
+
+            val orderNumberB = OrderNumber.from("202302211607020ORDERNUMBER")
+            val orderB1 = order(memberId = memberId, orderNumber = orderNumberB, productName = "B1")
+            val orderB2 = order(memberId = memberId, orderNumber = orderNumberB, productName = "B2")
+
+
+            val orderNumberC = OrderNumber.from("202402211607020ORDERNUMBER")
+            val orderC1 = order(memberId = memberId, orderNumber = orderNumberC, productName = "C1")
+
+            orderRepository.saveAll(
+                listOf(
+                    orderA1, orderA2, orderA3,
+                    orderB1, orderB2,
+                    orderC1
+                )
+            )
+
+            orderPaymentRepository.saveAll(
+                listOf(
+                    orderPayment(orderId = orderA1.id, prevId = orderA1.id),
+                    orderPayment(orderId = orderA2.id, prevId = orderA2.id),
+                    orderPayment(orderId = orderA3.id, prevId = orderA3.id),
+                    orderPayment(orderId = orderB1.id, prevId = orderB1.id),
+                    orderPayment(orderId = orderB2.id, prevId = orderB2.id),
+                    orderPayment(orderId = orderC1.id, prevId = orderC1.id),
+                )
+            )
+
+            When("최초 주문 조회시 주문ID와 주문번호는 입력 하지 않아도") {
+                val request = OrderReadRequest(
+                    lastViewedId = -1,
+                    limit = 2,
+                    lastViewedOrderNumber = INITIAL_READ_ORDER_NUMBER,
+                )
+                val response = requestReadOrders(accessToken, request)
+
+                Then("주문 내역이 조회된다") {
+                    assertSoftly(response) {
+                        statusCode shouldBe OK.value()
+                    }
+                }
+            }
+
+            When("마지막으로 조회된 주문의 ID와 주문 번호를 기준으로") {
+                val request = OrderReadRequest(
+                    lastViewedId = orderC1.id,
+                    limit = 2,
+                    lastViewedOrderNumber = orderNumberC.value,
+                )
+
+                val response = requestReadOrders(accessToken, request)
+
+                Then("주문 내역이 조회된다") {
+                    assertSoftly(response) {
+                        statusCode shouldBe OK.value()
+                    }
+                }
+            }
+
+            When("주문 내역이 존재하지 않는 경우") {
+                val neverOrderedMemberAccessToken = signInAsMember().accessToken
+                val request = OrderReadRequest(
+                    lastViewedId = -1,
+                    limit = 2,
+                    lastViewedOrderNumber = INITIAL_READ_ORDER_NUMBER,
+                )
+
+                val response = requestReadOrders(neverOrderedMemberAccessToken, request)
+
+                Then("빈 값을 반환한다") {
+                    assertSoftly(response) {
+                        statusCode shouldBe OK.value()
+                        jsonPath().getList<Any>("orders").size shouldBe 0
+                    }
+                }
+            }
+
+            When("주문 ID와 주문 번호가 다른 값으로 조회 경우") {
+                val request = OrderReadRequest(
+                    lastViewedId = orderC1.id,
+                    limit = 2,
+                    lastViewedOrderNumber = orderNumberB.value,
+                )
+
+                val response = requestReadOrders(accessToken, request)
+
+                Then("예외를 응답한다") {
+                    val errorResponse = response.`as`(ExceptionResponse::class.java)
+                    assertSoftly(response) {
+                        statusCode shouldBe BAD_REQUEST.value()
+                        errorResponse.message shouldBe NOT_INVALID_ORDER_READ_QUERY.errorMessage()
+                    }
+                }
+            }
+
+            When("최초 주문시 주문번호가 초기 플래그가 아닌 경우") {
+                val request = OrderReadRequest(
+                    lastViewedId = -1,
+                    limit = 2,
+                    lastViewedOrderNumber = orderNumberB.value,
+                )
+
+                val response = requestReadOrders(accessToken, request)
+
+                Then("예외를 응답한다") {
+                    val errorResponse = response.`as`(ExceptionResponse::class.java)
+                    assertSoftly(response) {
+                        statusCode shouldBe BAD_REQUEST.value()
+                        errorResponse.message shouldBe NOT_INVALID_ORDER_READ_QUERY.errorMessage()
+                    }
+                }
+            }
+
+            When("최초 주문시 주문ID가 초기 플래그가 아닌 경우") {
+                val request = OrderReadRequest(
+                    lastViewedId = orderC1.id,
+                    limit = 2,
+                    lastViewedOrderNumber = INITIAL_READ_ORDER_NUMBER,
+                )
+
+                val response = requestReadOrders(accessToken, request)
+
+                Then("예외를 응답한다") {
+                    val errorResponse = response.`as`(ExceptionResponse::class.java)
+                    assertSoftly(response) {
+                        statusCode shouldBe BAD_REQUEST.value()
+                        errorResponse.message shouldBe NOT_INVALID_ORDER_READ_QUERY.errorMessage()
                     }
                 }
             }
