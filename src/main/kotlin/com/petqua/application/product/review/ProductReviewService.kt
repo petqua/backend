@@ -1,12 +1,14 @@
 package com.petqua.application.product.review
 
+import com.petqua.application.product.dto.MemberProductReviewReadQuery
+import com.petqua.application.product.dto.MemberProductReviewResponse
+import com.petqua.application.product.dto.MemberProductReviewsResponse
 import com.petqua.application.product.dto.ProductReviewReadQuery
 import com.petqua.application.product.dto.ProductReviewResponse
 import com.petqua.application.product.dto.ProductReviewStatisticsResponse
 import com.petqua.application.product.dto.ProductReviewsResponse
 import com.petqua.application.product.dto.UpdateReviewRecommendationCommand
 import com.petqua.common.domain.findByIdOrThrow
-import com.petqua.domain.product.dto.ProductReviewWithMemberResponse
 import com.petqua.domain.product.review.ProductReview
 import com.petqua.domain.product.review.ProductReviewImage
 import com.petqua.domain.product.review.ProductReviewImageRepository
@@ -42,7 +44,8 @@ class ProductReviewService(
             query.toCondition(),
             query.toPaging(),
         )
-        val imagesByReview = getImagesByReview(reviewsByCondition)
+        val reviewIds = reviewsByCondition.map { it.id }
+        val imagesByReview = getImagesByReviewIds(reviewIds)
         val responses = reviewsByCondition.map {
             ProductReviewResponse(it, imagesByReview[it.id] ?: emptyList())
         }
@@ -59,10 +62,20 @@ class ProductReviewService(
         return ProductReviewsResponse.of(responses, query.limit)
     }
 
-    private fun getImagesByReview(reviewsByCondition: List<ProductReviewWithMemberResponse>): Map<Long, List<String>> {
-        val productReviewIds = reviewsByCondition.map { it.id }
+    private fun getImagesByReviewIds(productReviewIds: List<Long>): Map<Long, List<String>> {
         return productReviewImageRepository.findAllByProductReviewIdIn(productReviewIds).groupBy { it.productReviewId }
             .mapValues { it.value.map { image -> image.imageUrl } }
+    }
+
+    fun readMemberProductReviews(query: MemberProductReviewReadQuery): MemberProductReviewsResponse {
+        val memberProductReviews = productReviewRepository.findMemberProductReviewBy(query.memberId, query.toPaging())
+        val reviewIds = memberProductReviews.map { it.reviewId }
+        val imagesByReview = getImagesByReviewIds(reviewIds)
+
+        val responses = memberProductReviews.map {
+            MemberProductReviewResponse(it, imagesByReview[it.reviewId] ?: emptyList())
+        }
+        return MemberProductReviewsResponse.of(responses, query.limit)
     }
 
     @Transactional(readOnly = true)

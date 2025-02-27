@@ -6,6 +6,10 @@ import com.linecorp.kotlinjdsl.render.jpql.JpqlRenderer
 import com.petqua.common.domain.dto.CursorBasedPaging
 import com.petqua.common.util.createQuery
 import com.petqua.domain.member.Member
+import com.petqua.domain.order.Order
+import com.petqua.domain.order.OrderPayment
+import com.petqua.domain.order.OrderProduct
+import com.petqua.domain.product.dto.MemberProductReview
 import com.petqua.domain.product.dto.ProductReviewReadCondition
 import com.petqua.domain.product.dto.ProductReviewScoreWithCount
 import com.petqua.domain.product.dto.ProductReviewWithMemberResponse
@@ -21,7 +25,7 @@ class ProductReviewCustomRepositoryImpl(
 
     override fun findAllByCondition(
         condition: ProductReviewReadCondition,
-        paging: CursorBasedPaging
+        paging: CursorBasedPaging,
     ): List<ProductReviewWithMemberResponse> {
 
         val query = jpql(ProductReviewDynamicJpqlGenerator) {
@@ -67,6 +71,37 @@ class ProductReviewCustomRepositoryImpl(
             query,
             jpqlRenderContext,
             jpqlRenderer
+        )
+    }
+
+    override fun findMemberProductReviewBy(
+        memberId: Long,
+        paging: CursorBasedPaging,
+    ): List<MemberProductReview> {
+        val query = jpql(ProductReviewDynamicJpqlGenerator) {
+            selectNew<MemberProductReview>(
+                entity(ProductReview::class),
+                entity(Order::class),
+                entity(OrderPayment::class),
+            ).from(
+                entity(ProductReview::class),
+                join(Order::class).on(
+                    path(ProductReview::memberId).eq(path(Order::memberId))
+                        .and(path(ProductReview::productId).eq(path(Order::orderProduct)(OrderProduct::productId)))
+                ),
+                join(OrderPayment::class).on(path(Order::id).eq(path(OrderPayment::orderId)))
+            ).whereAnd(
+                productReviewIdLt(paging.lastViewedId),
+            ).orderBy(
+                path(ProductReview::createdAt).desc(),
+            )
+        }
+
+        return entityManager.createQuery(
+            query,
+            jpqlRenderContext,
+            jpqlRenderer,
+            paging.limit
         )
     }
 }

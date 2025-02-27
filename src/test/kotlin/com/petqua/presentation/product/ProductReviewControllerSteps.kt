@@ -95,3 +95,25 @@ fun requestUpdateReviewRecommendation(
         response()
     }
 }
+
+fun requestReadMemberProductReviews(
+    lastViewedId: Long = -1,
+    limit: Int = 20,
+    accessToken: String,
+): Response {
+    return Given {
+        log().all()
+        contentType(APPLICATION_JSON_VALUE)
+        auth().preemptive().oauth2(accessToken)
+        params(
+            "lastViewedId", lastViewedId,
+            "limit", limit,
+        )
+    } When {
+        get("/product-reviews/me")
+    } Then {
+        log().all()
+    } Extract {
+        response()
+    }
+}

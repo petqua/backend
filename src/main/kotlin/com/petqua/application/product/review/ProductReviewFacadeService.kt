@@ -1,5 +1,7 @@
 package com.petqua.application.product.review
 
+import com.petqua.application.product.dto.MemberProductReviewReadQuery
+import com.petqua.application.product.dto.MemberProductReviewsResponse
 import com.petqua.application.product.dto.ProductReviewCreateCommand
 import com.petqua.application.product.dto.ProductReviewReadQuery
 import com.petqua.application.product.dto.ProductReviewStatisticsResponse
@@ -21,6 +23,10 @@ class ProductReviewFacadeService(
 
     fun readAll(query: ProductReviewReadQuery): ProductReviewsResponse {
         return productReviewService.readAll(query)
+    }
+
+    fun readMemberProductReviews(query: MemberProductReviewReadQuery): MemberProductReviewsResponse {
+        return productReviewService.readMemberProductReviews(query)
     }
 
     fun readReviewCountStatistics(productId: Long): ProductReviewStatisticsResponse {
